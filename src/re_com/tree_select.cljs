@@ -133,7 +133,7 @@
                                             (mapcat ancestor-paths))
                                       choices))))
   (fn tree-select-render
-    [& {:keys [choices group-label-fn disabled? min-width max-width on-change on-groups-change label-fn]
+    [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change label-fn]
         :or   {on-groups-change #(reset! groups %)}}]
     (let [choices        (deref-or-value choices)
           disabled?      (deref-or-value disabled?)
@@ -176,6 +176,9 @@
       [v-box
        :min-width min-width
        :max-width max-width
+       :min-height min-height
+       :max-height max-height
+       :style {:overflow-y "scroll"}
        :children (mapv item items)])))
 
 (defn field-label [{:keys [items group-label-fn label-fn]}]
@@ -232,7 +235,7 @@
                     (set! (.-textContent anchor-span) @!anchor-label)))))))
       :reagent-render
       (fn tree-select-dropdown-render
-        [& {:keys [choices group-label-fn disabled? min-width max-width on-change on-groups-change
+        [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change
                    label-fn height parts style model groups placeholder id-fn alt-text-fn field-label-fn]
             :or   {on-groups-change #(reset! groups %)
                    on-change        #(reset! model %)
@@ -252,18 +255,28 @@
                                                :abbrev-threshold 4
                                                :label-fn label-fn
                                                :group-label-fn group-label-fn})
-              body   [tree-select
-                      :choices choices
-                      :group-label-fn group-label-fn
-                      :disabled? disabled?
-                      :min-width min-width
-                      :max-width max-width
-                      :on-change on-change
-                      :groups groups
-                      :on-groups-change on-groups-change
-                      :on-change on-change
-                      :label-fn label-fn
-                      :model model]
+              body   [v-box
+                      :height "fit-content"
+                      :style (merge {:position         "absolute"
+                                     :background-color "white"
+                                     :border-radius    "4px"
+                                     :border           "1px solid #ccc"
+                                     :padding          "5px 10px 5px 5px"
+                                     :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"})
+                      :children [[tree-select
+                                  :choices choices
+                                  :group-label-fn group-label-fn
+                                  :disabled? disabled?
+                                  :min-width min-width
+                                  :max-width max-width
+                                  :min-height min-height
+                                  :max-height max-height
+                                  :on-change on-change
+                                  :groups groups
+                                  :on-groups-change on-groups-change
+                                  :on-change on-change
+                                  :label-fn label-fn
+                                  :model model]]]
               anchor (fn []
                        (let [model     (deref-or-value model)
                              disabled? (deref-or-value disabled?)]
@@ -313,4 +326,5 @@
            (when @showing?
              [:div {:class "fade in"
                     :style {:position "relative"}}
+              [backdrop :on-click #(reset! showing? false)]
               body])]))})))

@@ -40,10 +40,16 @@
         min-width         (reagent/atom 200)
         max-width?        (reagent/atom true)
         max-width         (reagent/atom 300)
+        min-height?       (reagent/atom true)
+        min-height        (reagent/atom 100)
+        max-height?       (reagent/atom true)
+        max-height        (reagent/atom 350)
         open-to-chosen (fn []
                          [tree-select :src (at)
                           :min-width         (when @min-width? (str @min-width "px"))
                           :max-width         (when @max-width? (str @max-width "px"))
+                          :min-height        (when @min-height? (str @min-height "px"))
+                          :max-height        (when @max-height? (str @max-height "px"))
                           :disabled?         disabled?
                           :label-fn          @label-fn
                           :group-label-fn    @group-label-fn
@@ -58,6 +64,8 @@
                       [tree-select :src (at)
                        :min-width         (when @min-width? (str @min-width "px"))
                        :max-width         (when @max-width? (str @max-width "px"))
+                       :min-height        (when @min-height? (str @min-height "px"))
+                       :max-height        (when @max-height? (str @max-height "px"))
                        :disabled?         disabled?
                        :label-fn          @label-fn
                        :group-label-fn    @group-label-fn
@@ -71,6 +79,8 @@
                       [tree-select :src (at)
                        :min-width         (when @min-width? (str @min-width "px"))
                        :max-width         (when @max-width? (str @max-width "px"))
+                       :min-height        (when @min-height? (str @min-height "px"))
+                       :max-height        (when @max-height? (str @max-height "px"))
                        :disabled?         disabled?
                        :label-fn          @label-fn
                        :group-label-fn    @group-label-fn
@@ -85,6 +95,8 @@
                        [tree-select :src (at)
                         :min-width         (when @min-width? (str @min-width "px"))
                         :max-width         (when @max-width? (str @max-width "px"))
+                        :min-height        (when @min-height? (str @min-height "px"))
+                        :max-height        (when @max-height? (str @max-height "px"))
                         :disabled?         disabled?
                         :label-fn          @label-fn
                         :group-label-fn    @group-label-fn
@@ -114,6 +126,8 @@
                   [tree-select-dropdown
                    :min-width         (when @min-width? (str @min-width "px"))
                    :max-width         (when @max-width? (str @max-width "px"))
+                   :min-height        (when @min-height? (str @min-height "px"))
+                   :max-height        (when @max-height? (str @max-height "px"))
                    :disabled?         disabled?
                    :label-fn          @label-fn
                    :group-label-fn    @group-label-fn
@@ -245,7 +259,47 @@
                                                           :step      1
                                                           :width     "300px"]
                                                          [gap :src (at) :size "5px"]
-                                                         [label :src (at) :label (str @max-width "px")]])]]]]]]
+                                                         [label :src (at) :label (str @max-width "px")]])]]
+                                          [h-box :src (at)
+                                           :align    :center
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
+                                                                   :align :start
+                                                                   :child [:code ":min-height"]]
+                                                       :model     min-height?
+                                                       :on-change #(reset! min-height? %)]
+                                                      [gap :src (at) :size "5px"]
+                                                      (when @min-height?
+                                                        [:<>
+                                                         [slider
+                                                          :model     min-height
+                                                          :on-change #(reset! min-height %)
+                                                          :min       50
+                                                          :max       400
+                                                          :step      1
+                                                          :width     "300px"]
+                                                         [gap :src (at) :size "5px"]
+                                                         [label :src (at) :label (str @min-height "px")]])]]
+                                          [h-box :src (at)
+                                           :align    :center
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
+                                                                   :align :start
+                                                                   :child [:code ":max-height"]]
+                                                       :model     max-height?
+                                                       :on-change #(reset! max-height? %)]
+                                                      [gap :src (at) :size "5px"]
+                                                      (when @max-height?
+                                                        [:<>
+                                                         [slider
+                                                          :model     max-height
+                                                          :on-change #(reset! max-height %)
+                                                          :min       50
+                                                          :max       400
+                                                          :step      1
+                                                          :width     "300px"]
+                                                         [gap :src (at) :size "5px"]
+                                                         [label :src (at) :label (str @max-height "px")]])]]]]]]
                   [gap :src (at) :size "10px"]]])))
 
 (defn panel []
