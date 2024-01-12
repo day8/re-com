@@ -18,7 +18,7 @@
     [{:name :choices            :required true                          :type "vector of maps | r/atom" :validate-fn validate/vector-of-maps?    :description [:span "Each map represents a choice. Values corresponding to id, & label are extracted by the functions " [:code ":id-fn"] " & " [:code ":label-fn"] ". See below."]}
      {:name :model              :required true                          :type "a set of ids | r/atom"                                            :description [:span "The set of the ids for currently selected choices. If nil or empty, see " [:code ":placeholder"] "."]}
      {:name :groups             :required false :default "(reagent/atom nil)" :type "a set of paths | r/atom"                            :description [:span "The set of currently expanded group paths."]}
-     {:name :open-to            :required false                         :type "keyword"                                                          :description [:span "How to expand groups when the component first mounts."]}
+     {:name :initial-expanded-groups :required false                         :type "keyword | set of paths"                                               :description [:span "How to expand groups when the component first mounts."]}
      {:name :on-change          :required true                          :type "set of ids -> nil"       :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
      {:name :on-groups-change   :required false :default "#(reset! groups %)" :type "set of ids -> nil"       :validate-fn fn?           :description [:span "This function is called whenever a group expands or collapses. Called with one argument, the set of expanded groups. See " [:code ":groups"] "."]}
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
@@ -117,21 +117,22 @@
 (def group-label (comp str/capitalize name last :group))
 
 (defn tree-select
-  [& {:keys [model choices choice-renderer group-renderer groups on-groups-change open-to id-fn]
+  [& {:keys [model choices choice-renderer group-renderer groups on-groups-change initial-expanded-groups id-fn]
       :or   {groups           (r/atom nil)
              id-fn            :id
              on-groups-change #(reset! groups %)
              choice-renderer  choice
              group-renderer   group}}]
-  (when-let [open-to (deref-or-value open-to)]
-    (on-groups-change (case open-to
+  (when-let [initial-expanded-groups (deref-or-value initial-expanded-groups)]
+    (on-groups-change (case initial-expanded-groups
                         :all    (set (map :group (infer-groups choices)))
                         :none   #{}
                         :chosen (into #{}
                                       (comp (filter #(contains? (deref-or-value model) (id-fn %)))
                                             (keep :group)
                                             (mapcat ancestor-paths))
-                                      choices))))
+                                      choices)
+                        initial-expanded-groups)))
   (fn tree-select-render
     [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change label-fn]
         :or   {on-groups-change #(reset! groups %)}}]

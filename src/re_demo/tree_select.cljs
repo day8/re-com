@@ -29,7 +29,7 @@
   (let [model             (reagent/atom #{:sydney :auckland})
         groups            (reagent/atom nil)
         disabled?         (reagent/atom false)
-        open-to           (reagent/atom nil)
+        initial-expanded-groups           (reagent/atom nil)
         label-fn          (reagent/atom nil)
         group-label-fn    (reagent/atom nil)
         placeholder?      (reagent/atom false)
@@ -53,7 +53,7 @@
                           :disabled?         disabled?
                           :label-fn          @label-fn
                           :group-label-fn    @group-label-fn
-                          :open-to           :chosen
+                          :initial-expanded-groups :chosen
                           :choices           cities
                           :model             model
                           :groups            groups
@@ -84,7 +84,7 @@
                        :disabled?         disabled?
                        :label-fn          @label-fn
                        :group-label-fn    @group-label-fn
-                       :open-to           :all
+                       :initial-expanded-groups           :all
                        :choices           cities
                        :model             model
                        :groups            groups
@@ -100,13 +100,29 @@
                         :disabled?         disabled?
                         :label-fn          @label-fn
                         :group-label-fn    @group-label-fn
-                        :open-to           :none
+                        :initial-expanded-groups           :none
                         :choices           cities
                         :model             model
                         :groups            groups
                         :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                         :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                        :on-change         #(reset! model %)])]
+                        :on-change         #(reset! model %)])
+        open-to-specified (fn []
+                            [tree-select :src (at)
+                             :min-width         (when @min-width? (str @min-width "px"))
+                             :max-width         (when @max-width? (str @max-width "px"))
+                             :min-height        (when @min-height? (str @min-height "px"))
+                             :max-height        (when @max-height? (str @max-height "px"))
+                             :disabled?         disabled?
+                             :label-fn          @label-fn
+                             :group-label-fn    @group-label-fn
+                             :initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}
+                             :choices           cities
+                             :model             model
+                             :groups            groups
+                             :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
+                             :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
+                             :on-change         #(reset! model %)])]
     (fn []
       [v-box :src (at)
        :gap      "11px"
@@ -115,11 +131,12 @@
        :children [[title2 "Demo"]
                   [label :src (at) :label "[tree-select ... ]"]
                   [gap :src (at) :size "5px"]
-                  [(case @open-to
+                  [(case @initial-expanded-groups
                      nil open-to-nil
                      :chosen open-to-chosen
                      :all open-to-all
-                     :none open-to-none)]
+                     :none open-to-none
+                     :specified open-to-specified)]
                   [gap :src (at) :size "15px"]
                   [label :src (at) :label "[tree-select-dropdown ... ]"]
                   [gap :src (at) :size "5px"]
@@ -181,26 +198,32 @@
                                                       [radio-button :src (at)
                                                        :label     [:span [:code "nil"] ", ommitted - use the intial value of " [:code "groups"] "."]
                                                        :value     nil
-                                                       :model     @open-to
-                                                       :on-change #(reset! open-to %)
+                                                       :model     @initial-expanded-groups
+                                                       :on-change #(reset! initial-expanded-groups %)
                                                        :style {:margin-left "20px"}]
                                                       [radio-button :src (at)
                                                        :label     [:span [:code ":chosen"] " - reveal every chosen item."]
                                                        :value     :chosen
-                                                       :model     @open-to
-                                                       :on-change #(reset! open-to %)
+                                                       :model     @initial-expanded-groups
+                                                       :on-change #(reset! initial-expanded-groups %)
                                                        :style {:margin-left "20px"}]
                                                       [radio-button :src (at)
                                                        :label     [:span [:code ":all"] " - expand all groups"]
                                                        :value     :all
-                                                       :model     @open-to
-                                                       :on-change #(reset! open-to %)
+                                                       :model     @initial-expanded-groups
+                                                       :on-change #(reset! initial-expanded-groups %)
                                                        :style     {:margin-left "20px"}]
                                                       [radio-button :src (at)
                                                        :label     [:span [:code ":none"] " - collapse all groups"]
                                                        :value     :none
-                                                       :model     @open-to
-                                                       :on-change #(reset! open-to %)
+                                                       :model     @initial-expanded-groups
+                                                       :on-change #(reset! initial-expanded-groups %)
+                                                       :style     {:margin-left "20px"}]
+                                                      [radio-button :src (at)
+                                                       :label     [:span [:code "#{[:oceania] [:oceania :new-zealand]}"] " - expand specified groups"]
+                                                       :value     :specified
+                                                       :model     @initial-expanded-groups
+                                                       :on-change #(reset! initial-expanded-groups %)
                                                        :style     {:margin-left "20px"}]]]
                                           [v-box :src (at)
                                            :gap      "11px"
