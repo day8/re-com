@@ -32,6 +32,7 @@
         initial-expanded-groups           (reagent/atom nil)
         label-fn          (reagent/atom nil)
         group-label-fn    (reagent/atom nil)
+        choice-disabled-fn (reagent/atom nil)
         placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
         abbrev-threshold? (reagent/atom false)
@@ -53,6 +54,7 @@
                           :disabled?         disabled?
                           :label-fn          @label-fn
                           :group-label-fn    @group-label-fn
+                          :choice-disabled-fn @choice-disabled-fn
                           :initial-expanded-groups :chosen
                           :choices           cities
                           :model             model
@@ -69,6 +71,7 @@
                        :disabled?         disabled?
                        :label-fn          @label-fn
                        :group-label-fn    @group-label-fn
+                       :choice-disabled-fn @choice-disabled-fn
                        :choices           cities
                        :model             model
                        :groups            groups
@@ -84,6 +87,7 @@
                        :disabled?         disabled?
                        :label-fn          @label-fn
                        :group-label-fn    @group-label-fn
+                       :choice-disabled-fn @choice-disabled-fn
                        :initial-expanded-groups           :all
                        :choices           cities
                        :model             model
@@ -100,6 +104,7 @@
                         :disabled?         disabled?
                         :label-fn          @label-fn
                         :group-label-fn    @group-label-fn
+                        :choice-disabled-fn @choice-disabled-fn
                         :initial-expanded-groups           :none
                         :choices           cities
                         :model             model
@@ -116,6 +121,7 @@
                              :disabled?         disabled?
                              :label-fn          @label-fn
                              :group-label-fn    @group-label-fn
+                             :choice-disabled-fn @choice-disabled-fn
                              :initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}
                              :choices           cities
                              :model             model
@@ -148,6 +154,7 @@
                    :disabled?         disabled?
                    :label-fn          @label-fn
                    :group-label-fn    @group-label-fn
+                   :choice-disabled-fn @choice-disabled-fn
                    :open-to           :chosen
                    :placeholder       "Select a city..."
                    :parts {:body {:wrapper {:style {:color "red"}}}
@@ -244,7 +251,17 @@
                                                                            " of "
                                                                            [:code "#(clojure.string/upper-case (name (last %))))"]]]
                                                        :model     group-label-fn
-                                                       :on-change (fn [] (swap! group-label-fn (fn [x] (if x nil #(clojure.string/upper-case (name (last (:group %))))))))]]]
+                                                       :on-change (fn [] (swap! group-label-fn (fn [x] (if x nil #(clojure.string/upper-case (name (last (:group %))))))))]
+                                                      [checkbox :src (at)
+                                                       :label     [box :src (at)
+                                                                   :align :start
+                                                                   :child [:span "Supply a " [:code ":choice-disabled-fn"]
+                                                                           " of "
+                                                                           [:code "#(contains? (set (:group %)) :australia)"]]]
+                                                       :model     choice-disabled-fn
+                                                       :on-change (fn [] (swap! choice-disabled-fn
+                                                                                (fn [x]
+                                                                                  (if x nil #(contains? (set (:group %)) :australia)))))]]]
                                           [h-box :src (at)
                                            :align    :center
                                            :children [[checkbox :src (at)

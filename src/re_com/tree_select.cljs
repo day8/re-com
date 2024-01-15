@@ -36,9 +36,9 @@
      {:name :model              :required true                          :type "a set of ids | r/atom"                                            :description [:span "The set of the ids for currently selected choices. If nil or empty, see " [:code ":placeholder"] "."]}
      {:name :groups             :required false :default "(reagent/atom nil)" :type "a set of paths | r/atom"                            :description [:span "The set of currently expanded group paths."]}
      {:name :initial-expanded-groups :required false                         :type "keyword | set of paths"                                               :description [:span "How to expand groups when the component first mounts."]}
-     {:name :on-change          :required true                          :type "[set of choice ids, set of group vectors]  -> nil"       :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
-     {:name :on-groups-change   :required false :default "#(reset! groups %)" :type "set of ids -> nil"       :validate-fn fn?           :description [:span "This function is called whenever a group expands or collapses. Called with one argument, the set of expanded groups. See " [:code ":groups"] "."]}
+     {:name :on-change          :required true                          :type "[set of choice ids, set of group vectors]  -> nil"       :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. It is also responsible for updating the value of " [:code ":model"] " as needed."]}
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
+     {:name :choice-disabled?   :required false :default false          :type "choice map -> boolean"    :validate-fn ifn?   :description "Disables a choice when passing the corresponding choice map returns true."}
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
      {:name :group-label-fn     :required false :default "(comp name last)"       :type "vector -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in " [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}]))
 
@@ -174,7 +174,7 @@
                                               choices)
                                 initial-expanded-groups)))
     (fn tree-select-render
-      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change label-fn parts class style attr]}]
+      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr]}]
       (let [choices        (deref-or-value choices)
             disabled?      (deref-or-value disabled?)
             model          (deref-or-value model)
@@ -185,12 +185,15 @@
                              (let [{:keys [id group] :as item-props} (update item-props :group as-v)]
                                (if (group? item-props)
                                  [group-item
-                                  (let [descendant-ids (map :id (filter-descendants* group choices))
+                                  (let [descendants (filter-descendants* group choices)
+                                        descendant-ids (map :id descendants)
                                         checked?       (cond
                                                          (every? model descendant-ids) :all
                                                          (some   model descendant-ids) :some)
-                                        new-model (set ((if (= :all checked?) set/difference set/union)
-                                                        model descendant-ids))
+                                        new-model (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
+                                                       (map :id)
+                                                       ((if (= :all checked?) set/difference set/union) model)
+                                                       set)
                                         new-groups (into #{} (map :group) (full-groups new-model choices))]
                                     {:group      item-props
                                      :label      (group-label-fn item-props)
@@ -202,7 +205,7 @@
                                      :open?      (contains? @expanded-groups group)
                                      :checked?   checked?
                                      :model      model
-                                     :disabled?  disabled?
+                                     :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
                                      :showing?   (every? (set @expanded-groups) (rest (ancestor-paths group)))
                                      :level      (count group)})]
                                  [choice-item
@@ -215,7 +218,7 @@
                                    :showing?  (if-not group
                                                 true
                                                 (every? (set @expanded-groups) (ancestor-paths group)))
-                                   :disabled? disabled?
+                                   :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
                                    :toggle!   (handler-fn (let [new-model (toggle model id)
                                                                 new-groups (into #{} (map :group) (full-groups new-model choices))]
                                                             (on-change new-model new-groups)))
