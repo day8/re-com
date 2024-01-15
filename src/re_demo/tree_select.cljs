@@ -150,6 +150,8 @@
                    :group-label-fn    @group-label-fn
                    :open-to           :chosen
                    :placeholder       "Select a city..."
+                   :parts {:body {:wrapper {:style {:color "red"}}}
+                           :wrapper {:style {:margin-top "100px"}}}
                    :choices           cities
                    :model             model
                    :groups            groups
@@ -351,4 +353,5 @@
                                        [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  " [:code ":abbrev-threshold"]]]
                                       [args-table tree-select-args-desc]]]
                           [demo]]]
-              [parts-table "tag-dropdown" tree-select-parts-desc]]])
+              [parts-table "tree-select" tree-select-parts-desc]
+              [parts-table "tree-select-dropdown" tree-select-parts-desc]]])

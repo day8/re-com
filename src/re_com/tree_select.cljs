@@ -11,7 +11,24 @@
    [re-com.checkbox       :refer [checkbox]]
    [re-com.validate       :as validate :refer [parts?]]))
 
-(def tree-select-parts-desc nil)
+(def tree-select-dropdown-parts-desc
+  (when include-args-desc?
+    [{:type :legacy             :level 0 :class "rc-dropdown"                              :impl "[tree-select-dropdown]"}
+     {:name :wrapper            :level 1 :class "rc-tree-select-dropdown-wrapper"          :impl "[:div]"}
+     {:name :anchor             :level 2 :class "rc-tree-select-dropdown-anchor"           :impl "[h-box]"}
+     {:name :backdrop           :level 2 :class "rc-tree-select-dropdown-backdrop"         :impl "[div]"}
+     {:name :dropdown-wrapper   :level 2 :class "rc-tree-select-dropdown-dropdown-wrapper" :impl "[v-box]"}
+     {:name :body               :level 3 :class "rc-tree-select-dropdown-body"             :impl "[tree-select]"}]))
+
+(def tree-select-parts-desc
+  (when include-args-desc?
+    [{:type :legacy             :level 0 :class "rc-tree-select"                 :impl "[tree-select]"}
+     {:name :wrapper            :level 1 :class "rc-tree-select-wrapper"         :impl "[v-box]"}
+     {:name :choice             :level 2 :class "rc-tree-select-choice"          :impl "[h-box]"}
+     {:name :group              :level 2 :class "rc-tree-select-group"           :impl "[h-box]"}
+     {:name :offset             :level 3 :class "rc-tree-select-offset"          :impl "[box]"}
+     {:name :expander           :level 3 :class "rc-tree-select-expander"        :impl "[box]"}
+     {:name :checkbox           :level 3 :class "rc-tree-select-checkbox"        :impl "[checkbox]"}]))
 
 (def tree-select-args-desc
   (when include-args-desc?
@@ -25,58 +42,73 @@
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
      {:name :group-label-fn     :required false :default "(comp name last)"       :type "vector -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in " [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}]))
 
-(def tree-select-dropdown-parts-desc nil)
-
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
     [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}]))
 
 (defn backdrop
-  [& {:keys [opacity on-click class]}]
+  [{:keys [opacity on-click parts]}]
   [:div
    (merge
-    {:class    (str "noselect rc-backdrop " class)
-     :style    {:position         "fixed"
-                :left             "0px"
-                :top              "0px"
-                :width            "100%"
-                :height           "100%"
-                :background-color "black"
-                :opacity          (or opacity 0.0)}
-     :on-click (when on-click (handler-fn (on-click)))})])
+    (into {:class    (str "noselect rc-backdrop " (get-in parts [:backdrop :class]))
+           :style    (into {:position         "fixed"
+                            :left             "0px"
+                            :top              "0px"
+                            :width            "100%"
+                            :height           "100%"
+                            :background-color "black"
+                            :opacity          (or opacity 0.0)}
+                           (get-in parts [:backdrop :style]))
+           :on-click (when on-click (handler-fn (on-click)))}
+          (get-in parts [:backdrop :attr])))])
 
-(defn choice-item [{:keys [label checked? toggle! level showing? disabled?]}]
+(defn offset [{:keys [parts level]}]
+  [box
+   :style (into {:visibility "hidden"} (get-in parts [:offset :style]))
+   :class (str "rc-tree-select-offset " (get-in parts [:offset :class]))
+   :attr (get-in parts [:offset :attr])
+   :child (apply str (repeat level "⯈"))])
+
+(defn choice-checkbox [{:keys [parts checked? toggle! label disabled? attr]}]
+  [checkbox
+   :style (get-in parts [:checkbox :style])
+   :class (str "rc-tree-select-checkbox " (get-in parts [:checkbox :class]))
+   :attr (merge {}
+                (when attr attr)
+                (get-in parts [:checkbox :attr]))
+   :model checked?
+   :on-change toggle!
+   :label label
+   :disabled? disabled?])
+
+(defn choice-item [{:keys [level showing? parts] :as props}]
   (when showing?
     [h-box
+     :style (get-in parts [:choice :style])
+     :class (str "rc-tree-select-choice " (get-in parts [:choice :class]))
+     :attr  (get-in parts [:choice :attr])
      :children
-     [[box
-       :style {:visibility "hidden"}
-       :child (apply str (repeat level "⯈"))]
-      [checkbox
-       :model checked?
-       :on-change toggle!
-       :label label
-       :disabled? disabled?]]]))
+     [[offset {:parts parts :level level}]
+      [choice-checkbox (into props {:attr {}})]]]))
 
-(defn group-item [{:keys [label checked? toggle! hide-show! level showing? open? disabled?]}]
+(defn group-item [{:keys [label checked? toggle! hide-show! level showing? open? disabled? parts] :as props}]
   (when showing?
     [h-box :class "chosen-container chosen-container-single chosen-container-active"
+     :style (get-in parts [:group :style])
+     :class (str "rc-tree-select-group " (get-in parts [:group :class]))
+     :attr  (get-in parts [:group :attr])
      :children
-     [[box
-       :style {:visibility "hidden"}
-       :child (apply str (repeat (dec level) "⯈"))]
+     [[offset {:parts parts :level (dec level)}]
       [box
-       :attr {:on-click hide-show!}
-       :style {:cursor "pointer"}
+       :attr (into {:on-click hide-show!} (get-in parts [:expander :attr]))
+       :style (into {:cursor "pointer"} (get-in parts [:expander :style]))
+       :class (str "rc-tree-select-expander " (get-in parts [:expander :class]))
        :child
        (if open? "⯆" "⯈")]
       " "
-      [checkbox
-       :attr {:ref #(when % (set! (.-indeterminate %) (= :some checked?)))}
-       :model checked?
-       :on-change toggle!
-       :label label
-       :disabled? disabled?]]]))
+      [choice-checkbox (into props {:attr {:ref #(when %
+                                                   (set! (.-indeterminate %)
+                                                         (= :some checked?)))}})]]]))
 
 (def group? (comp #{:group} :type))
 
@@ -142,7 +174,7 @@
                                               choices)
                                 initial-expanded-groups)))
     (fn tree-select-render
-      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change label-fn]}]
+      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change label-fn parts class style attr]}]
       (let [choices        (deref-or-value choices)
             disabled?      (deref-or-value disabled?)
             model          (deref-or-value model)
@@ -162,6 +194,9 @@
                                         new-groups (into #{} (map :group) (full-groups new-model choices))]
                                     {:group      item-props
                                      :label      (group-label-fn item-props)
+                                     :style     (get-in parts [:group :style])
+                                     :class     (str "rc-tree-select-group " (get-in parts [:group :class]))
+                                     :attr      (str get-in parts [:group :attr])
                                      :hide-show! #(swap! expanded-groups toggle group)
                                      :toggle!    (handler-fn (on-change new-model new-groups))
                                      :open?      (contains? @expanded-groups group)
@@ -174,6 +209,9 @@
                                   {:choice    item-props
                                    :model     model
                                    :label     (label-fn item-props)
+                                   :style     (get-in parts [:choice :style])
+                                   :class     (str "rc-tree-select-choice " (get-in parts [:choice :class]))
+                                   :attr      (str get-in parts [:choice :attr])
                                    :showing?  (if-not group
                                                 true
                                                 (every? (set @expanded-groups) (ancestor-paths group)))
@@ -188,7 +226,9 @@
          :max-width max-width
          :min-height min-height
          :max-height max-height
-         :style {:overflow-y "scroll"}
+         :class (str "rc-tree-select-wrapper " class (get-in parts [:wrapper :class]))
+         :style (merge {:overflow-y "scroll"} style (get-in parts [:wrapper :style]))
+         :attr (merge attr (get-in parts [:wrapper :attr]))
          :children (mapv item items)]))))
 
 (defn field-label [{:keys [items group-label-fn label-fn]}]
@@ -241,13 +281,19 @@
                                              :group-label-fn group-label-fn})
             body   [v-box
                     :height "fit-content"
+                    :class (str "rc-tree-select-dropdown-dropdown-wrapper " (get-in parts [:dropdown-wrapper :class]))
+                    :attr (get-in parts [:dropdown-wrapper :attr])
                     :style (merge {:position         "absolute"
                                    :background-color "white"
                                    :border-radius    "4px"
                                    :border           "1px solid #ccc"
                                    :padding          "5px 10px 5px 5px"
-                                   :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"})
+                                   :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}
+                                  (get-in parts [:dropdown-wrapper :style]))
                     :children [[tree-select
+                                :class (str "rc-tree-select-dropdown-body " (get-in parts [:body :class]))
+                                :style (get-in parts [:body :style])
+                                :attr  (get-in parts [:body :attr])
                                 :choices choices
                                 :group-label-fn group-label-fn
                                 :disabled? disabled?
@@ -265,7 +311,7 @@
                         :src       (at)
                         :height    height
                         :padding   "0px 6px"
-                        :class     (str "rc-multi-select-dropdown " (get-in parts [:main :class]))
+                        :class     (str "rc-multi-select-dropdown " (get-in parts [:anchor :class]))
                         :style     (merge {:min-width        min-width
                                            :max-width        max-width
                                            :background-color (if disabled? "#EEE" "white")
@@ -274,10 +320,10 @@
                                            :overflow         "hidden"
                                            :cursor           (if disabled? "default" "pointer")}
                                           style
-                                          (get-in parts [:main :style]))
+                                          (get-in parts [:anchor :style]))
                         :attr      (merge {}
                                           (when (not disabled?) {:on-click #(swap! showing? not)})
-                                          (get-in parts [:main :attr]))
+                                          (get-in parts [:anchor :attr]))
                         :children  [(if (empty? model)
                                       placeholder
                                       (let [selections (filter (comp (set model) id-fn) choices)
@@ -297,12 +343,15 @@
                                       [box
                                        :child
                                        (if @showing? "▲" "▼")])]]))]
-        [:div {:style {:display  "inline-block"
-                       :maxWidth max-width
-                       :minWidth min-width}}
+        [:div (into {:class (str "rc-tree-select-dropdown-wrapper " (get-in parts [:wrapper :class]))
+                     :style (into {:display  "inline-block"
+                                   :maxWidth max-width
+                                   :minWidth min-width}
+                                  (get-in parts [:wrapper :style]))}
+                    (get-in parts [:wrapper :attr]))
          [anchor]
          (when @showing?
            [:div {:class "fade in"
                   :style {:position "relative"}}
-            [backdrop :on-click #(reset! showing? false)]
+            [backdrop {:on-click #(reset! showing? false)}]
             body])]))))
