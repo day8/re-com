@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.15.0 (2024-01-16)
+
+#### Added
+
+- Tree-select component (alpha)
+
 ## 2.14.0 (2023-12-21)
 
 #### Changed
