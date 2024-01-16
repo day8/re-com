@@ -44,7 +44,10 @@
 
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
-    [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}]))
+    [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}
+     {:name :field-label-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
+     {:name :alt-text-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
+     ]))
 
 (defn backdrop
   [{:keys [opacity on-click parts]}]
@@ -266,12 +269,12 @@
         !anchor-label  (r/atom "")]
     (fn tree-select-dropdown-render
       [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change
-                 label-fn height parts style model expanded-groups placeholder id-fn alt-text-fn field-label-fn]
+                 label-fn alt-text-fn height parts style model expanded-groups placeholder id-fn alt-text-fn field-label-fn]
           :or   {placeholder      "Select an item..."
                  id-fn            :id
-                 label-fn         :label
-                 alt-text-fn      #(->> % (map (or label-fn :label)) (str/join ", "))}}]
+                 label-fn         :label}}]
       (let [label-fn        (or label-fn :label)
+            alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn  (or group-label-fn (comp name last :group))
             field-label-fn  (or field-label-fn field-label)
             labelable-items (labelable-items (deref-or-value model) choices)
@@ -332,7 +335,11 @@
                                       (let [selections (filter (comp (set model) id-fn) choices)
                                             _          (reset! !anchor-label anchor-label)]
                                         [:span {:ref   #(reset! !anchor-span %)
-                                                :title (alt-text-fn selections)
+                                                :title (alt-text-fn {:items labelable-items
+                                                                     :abbrev-fn abbrev-fn
+                                                                     :abbrev-threshold 4
+                                                                     :label-fn label-fn
+                                                                     :group-label-fn group-label-fn})
                                                 :style {:max-width     max-width
                                                         :white-space   "nowrap"
                                                         :overflow      "hidden"
