@@ -44,10 +44,10 @@
 
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
-    [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}
-     {:name :field-label-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
-     {:name :alt-text-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
-     ]))
+    (into tree-select-args-desc
+          [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}
+           {:name :field-label-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
+           {:name :alt-text-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}])))
 
 (defn backdrop
   [{:keys [opacity on-click parts]}]

@@ -2,13 +2,11 @@
   (:require [cljs.pprint          :as pprint]
             [clojure.string       :as string]
             [reagent.core         :as reagent]
-            [re-com.core          :refer [at h-box box checkbox gap v-box tree-select tree-select-dropdown hyperlink-href p label line]]
+            [re-com.core          :refer [at h-box box checkbox gap v-box tree-select tree-select-dropdown p label]]
             [re-com.radio-button  :refer [radio-button]]
             [re-com.slider        :refer [slider]]
-            [re-com.tree-select   :refer [tree-select-parts-desc tree-select-args-desc]]
-            [re-com.tag-dropdown  :refer [tag-dropdown-parts-desc tag-dropdown-args-desc]]
-            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
-            [re-com.util          :refer [px]]))
+            [re-com.tree-select   :refer [tree-select-parts-desc tree-select-dropdown-args-desc]]
+            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table status-text new-in-version]]))
 
 (def cities [{:id :sydney    :label "Sydney" :group [:oceania :australia :nsw]}
              {:id :newcastle    :label "Newcastle" :group [:oceania :australia :nsw]}
@@ -33,7 +31,6 @@
         label-fn          (reagent/atom nil)
         group-label-fn    (reagent/atom nil)
         choice-disabled-fn (reagent/atom nil)
-        placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
         abbrev-threshold? (reagent/atom false)
         abbrev-threshold  (reagent/atom 13)
@@ -176,16 +173,6 @@
                                {:class "display-flex"
                                 :style {:flex "1"}}
                                (with-out-str (pprint/pprint @model))]]]
-                  [h-box :src (at)
-                   :height   "45px"
-                   :gap      "5px"
-                   :width    "100%"
-                   :children [[label :src (at) :label [:code ":groups"]]
-                              [label :src (at) :label " is currently"]
-                              [:code
-                               {:class "display-flex"
-                                :style {:flex "1"}}
-                               (with-out-str (pprint/pprint @groups))]]]
                   [v-box :src (at)
                    :gap "10px"
                    :style {:min-width        "550px"
@@ -359,16 +346,12 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
-                                      [new-in-version "v2.13.0"]
+                                      [new-in-version "v2.15.0"]
                                       [p "A tree-select component. Choices take the same form as those for a selection list or multi-select, except " [:code ":group"]
                                        "can be a vector. If so, the choice appears within a hierarchy of expandable groups."]
                                       [p [:code "tree-select-dropdown"]
-                                       "includes an anchor label. By default, it lists all the selected choices, except if an entire group is selected, then that group appears in place of its descendants. "
-                                       ". In this case, the programmer has two strategies:"]
-                                      [:ol
-                                       [:li  "allow the Component to grow horizontally to some limit by providing " [:code ":max-width"]]
-                                       [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  " [:code ":abbrev-threshold"]]]
-                                      [args-table tree-select-args-desc]]]
+                                       "includes an anchor label. By default, it lists all the selected choices, except if an entire group is selected, then that group appears in place of its descendants."]
+                                      [args-table tree-select-dropdown-args-desc]]]
                           [demo]]]
               [parts-table "tree-select" tree-select-parts-desc]
               [parts-table "tree-select-dropdown" tree-select-parts-desc]]])
