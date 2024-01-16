@@ -42,6 +42,7 @@ jobs:
           CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
           GITHUB_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_EC2_METADATA_DISABLED: true
         run: |
            lein deploy-aws
       - name: Run lein -o deploy-aws
@@ -53,6 +54,7 @@ jobs:
           CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
           GITHUB_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_EC2_METADATA_DISABLED: true
         run: |
           lein -o deploy-aws
       - name: Invalidate CloudFront Distribution
@@ -69,6 +71,7 @@ jobs:
         with:
           type: ${{ job.status }}
           job_name: re-com.day8.com.au Deployment
+          username: "Github Actions"
           channel: '#oss-robots'
           url: ${{ secrets.SLACK_WEBHOOK }}
           commit: true
