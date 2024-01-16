@@ -5,7 +5,7 @@
             [re-com.core          :refer [at h-box box checkbox gap v-box tree-select tree-select-dropdown p label]]
             [re-com.radio-button  :refer [radio-button]]
             [re-com.slider        :refer [slider]]
-            [re-com.tree-select   :refer [tree-select-parts-desc tree-select-dropdown-args-desc]]
+            [re-com.tree-select   :refer [tree-select-parts-desc tree-select-dropdown-parts-desc tree-select-dropdown-args-desc]]
             [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table status-text new-in-version]]))
 
 (def cities [{:id :sydney    :label "Sydney" :group [:oceania :australia :nsw]}
@@ -354,4 +354,4 @@
                                       [args-table tree-select-dropdown-args-desc]]]
                           [demo]]]
               [parts-table "tree-select" tree-select-parts-desc]
-              [parts-table "tree-select-dropdown" tree-select-parts-desc]]])
+              [parts-table "tree-select-dropdown" tree-select-dropdown-parts-desc]]])
