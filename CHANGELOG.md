@@ -2,6 +2,18 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.16.2 (2024-01-16)
+
+#### Fixed
+
+- Replace deprecated `r/dom-node` with ref callbacks. (#329, #334) Thanks [RolT](https://github.com/RolT) for PR.
+
+## 2.16.1 (2024-01-16)
+
+#### Fixed
+
+- Cleanup & fixes for the new tree-select component.
+
 ## 2.16.0 (2024-01-16)
 
 #### Added

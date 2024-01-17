@@ -123,38 +123,27 @@
   "Render a choice item and set up appropriate mouse events"
   [id label on-click internal-model]
   (let [mouse-over? (reagent/atom false)
-        ref         (react/createRef)]
+        !ref        (atom nil)
+        ref!        (partial reset! !ref)
+        show!       #(when (= @internal-model id) (show-selected-item @!ref))]
     (reagent/create-class
-     {:component-did-mount
-      (fn [this]
-        (let [node (.-current ref)
-              selected (= @internal-model id)]
-          (when selected (show-selected-item node))))
-
-      :component-did-update
-      (fn [this]
-        (let [node (.-current ref)
-              selected (= @internal-model id)]
-          (when selected (show-selected-item node))))
-
-      :display-name "choice-item"
-
-      :reagent-render
-      (fn
-        [id label on-click internal-model]
-        (let [selected (= @internal-model id)
-              class (if selected
-                      "highlighted"
-                      (when @mouse-over? "mouseover"))]
-          [:li
-           {:class         (str "active-result group-option " class)
-            :ref           ref
-            :on-mouse-over (handler-fn (reset! mouse-over? true))
-            :on-mouse-out  (handler-fn (reset! mouse-over? false))
-            :on-mouse-down (handler-fn
-                            (on-click id)
-                            (.preventDefault event))}         ;; Prevent free-text input as well as the normal dropdown from loosing focus
-           label]))})))
+     {:component-did-mount  show!
+      :component-did-update show!
+      :display-name         "choice-item"
+      :reagent-render       (fn [id label on-click internal-model]
+                              (let [selected (= @internal-model id)
+                                    class    (if selected
+                                               "highlighted"
+                                               (when @mouse-over? "mouseover"))]
+                                [:li
+                                 {:class         (str "active-result group-option " class)
+                                  :ref           ref!
+                                  :on-mouse-over (handler-fn (reset! mouse-over? true))
+                                  :on-mouse-out  (handler-fn (reset! mouse-over? false))
+                                  :on-mouse-down (handler-fn
+                                                  (on-click id)
+                                                  (.preventDefault event))}         ;; Prevent free-text input as well as the normal dropdown from losing focus
+                                 label]))})))
 
 (defn make-choice-item
   [id-fn render-fn callback internal-model opt]
@@ -162,39 +151,31 @@
         markup (render-fn opt)]
     ^{:key (str id)} [choice-item id markup callback internal-model]))
 
-(defn- filter-text-box-base
-  "Base function (before lifecycle metadata) to render a filter text box"
-  [ref]
-  (fn [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
-    [:div.chosen-search {:ref ref}
-     [:input
-      {:type          "text"
-       :auto-complete "off"
-       :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                             :width    "0px"      ;; The rest of these styles make the textbox invisible
-                                             :padding  "0px"
-                                             :border   "none"})
-       :value         @filter-text
-       :placeholder   filter-placeholder
-       :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
-       :on-key-down   (handler-fn (when-not (key-handler event)
-                                    (.stopPropagation event)
-                                    (.preventDefault event))) ;; When key-handler returns false, preventDefault
-       :on-blur       (handler-fn (reset! drop-showing? false))}]]))
-
 (defn- filter-text-box
   "Render a filter text box"
   [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
-  (let [ref (react/createRef)
-        render-fn (filter-text-box-base ref)]
+  (let [!ref   (atom nil)
+        ref!   (partial reset! !ref)
+        focus! #(.focus (.-firstChild @!ref))]
     (reagent/create-class
-     {:component-did-mount (fn [this]
-                             (let [node (.. ref -current -firstChild)]
-                               (.focus node)))
-      :component-did-update (fn [this]
-                              (let [node (.. ref -current -firstChild)]
-                                (.focus node)))
-      :reagent-render render-fn})))
+     {:component-did-mount  focus!
+      :component-did-update focus!
+      :reagent-render       (fn [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
+                              [:div.chosen-search {:ref ref!}
+                               [:input
+                                {:type          "text"
+                                 :auto-complete "off"
+                                 :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
+                                                                       :width    "0px"      ;; The rest of these styles make the textbox invisible
+                                                                       :padding  "0px"
+                                                                       :border   "none"})
+                                 :value         @filter-text
+                                 :placeholder   filter-placeholder
+                                 :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
+                                 :on-key-down   (handler-fn (when-not (key-handler event)
+                                                              (.stopPropagation event)
+                                                              (.preventDefault event))) ;; When key-handler returns false, preventDefault
+                                 :on-blur       (handler-fn (reset! drop-showing? false))}]])})))
 
 (defn- dropdown-top
   "Render the top part of the dropdown, with the clickable area and the up/down arrow"
