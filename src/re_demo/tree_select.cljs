@@ -152,17 +152,14 @@
                    :label-fn          @label-fn
                    :group-label-fn    @group-label-fn
                    :choice-disabled-fn @choice-disabled-fn
-                   :open-to           :chosen
                    :placeholder       "Select a city..."
-                   :parts {:body {:wrapper {:style {:color "red"}}}
-                           :wrapper {:style {:margin-top "100px"}}}
                    :choices           cities
                    :model             model
                    :groups            groups
                    :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                    :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                    :on-change         #(do (reset! model %1) (println %2))]
-                  [gap :src (at) :size "5px"]
+                  [gap :src (at) :size "96px"]
                   [h-box :src (at)
                    :height   "45px"
                    :gap      "5px"
@@ -189,7 +186,7 @@
                                            :model     disabled?
                                            :on-change #(reset! disabled? %)]
                                           [v-box :src (at)
-                                           :children [[box :src (at) :align :start :child [:code ":open-to"]]
+                                           :children [[box :src (at) :align :start :child [:code ":initial-expanded-groups"]]
 
                                                       [radio-button :src (at)
                                                        :label     [:span [:code "nil"] ", ommitted - use the intial value of " [:code "groups"] "."]
