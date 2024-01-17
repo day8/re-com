@@ -16,6 +16,8 @@
     [{:type :legacy             :level 0 :class "rc-dropdown"                              :impl "[tree-select-dropdown]"}
      {:name :wrapper            :level 1 :class "rc-tree-select-dropdown-wrapper"          :impl "[:div]"}
      {:name :anchor             :level 2 :class "rc-tree-select-dropdown-anchor"           :impl "[h-box]"}
+     {:name :counter            :level 3 :class "rc-tree-select-dropdown-counter"          :impl "[box]"}
+     {:name :anchor-expander    :level 3 :class "rc-tree-select-dropdown-anchor-expander"  :impl "[box]"}
      {:name :backdrop           :level 2 :class "rc-tree-select-dropdown-backdrop"         :impl "[div]"}
      {:name :dropdown-wrapper   :level 2 :class "rc-tree-select-dropdown-dropdown-wrapper" :impl "[v-box]"}
      {:name :body               :level 3 :class "rc-tree-select-dropdown-body"             :impl "[tree-select]"}]))
@@ -38,16 +40,16 @@
      {:name :initial-expanded-groups :required false                         :type "keyword | set of paths"                                               :description [:span "How to expand groups when the component first mounts."]}
      {:name :on-change          :required true                          :type "[set of choice ids, set of group vectors]  -> nil"       :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. It is also responsible for updating the value of " [:code ":model"] " as needed."]}
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
-     {:name :choice-disabled?   :required false :default false          :type "choice map -> boolean"    :validate-fn ifn?   :description "Disables a choice when passing the corresponding choice map returns true."}
+     {:name :choice-disabled?   :required false :default false          :type "choice map -> boolean"    :validate-fn ifn?   :description "Predicate on the set of maps given by " [:code "choices"] ". Disables the subset of choices for which " [:code "choice-disabled?"] " returns " [:code "true"] "."}
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
      {:name :group-label-fn     :required false :default "(comp name last)"       :type "vector -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in " [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}]))
 
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
     (into tree-select-args-desc
-          [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}
-           {:name :field-label-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
-           {:name :alt-text-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}])))
+          [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "(Dropdown version only). Background text shown when there's no selection."}
+           {:name :field-label-fn     :required false                         :type "map -> string or hiccup" :validate-fn ifn?                     :description "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. Can return a string or hiccup, which will be rendered inside the dropdown anchor box."}
+           {:name :alt-text-fn     :required false                         :type "map -> string" :validate-fn ifn?                     :description "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. Returns a string that will display in the native browser tooltip that appears on mouse hover."}])))
 
 (defn backdrop
   [{:keys [opacity on-click parts]}]
@@ -348,9 +350,19 @@
                                     [gap :src (at)
                                      :size "1"]
                                     (when-let [model (seq model)]
-                                      [box :child (str (count model))])
+                                      [box
+                                       :class (str "rc-tree-select-dropdown-counter " (get-in parts [:counter :class]))
+                                       :style (merge {:margin-left "10px"
+                                                      :margin-right "10px"
+                                                      :opacity "50%"}
+                                                     (get-in parts [:counter :style]))
+                                       :attr  (get-in parts [:counter :attr])
+                                       :child (str (count model))])
                                     (when-not disabled?
                                       [box
+                                       :class (str "rc-tree-select-dropdown-anchor-expander " (get-in parts [:anchor-expander :class]))
+                                       :style (get-in parts [:anchor-expander :style])
+                                       :attr  (get-in parts [:anchor-expander :attr])
                                        :child
                                        (if @showing? "▲" "▼")])]]))]
         [:div (into {:class (str "rc-tree-select-dropdown-wrapper " (get-in parts [:wrapper :class]))
