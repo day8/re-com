@@ -146,7 +146,7 @@
 
 (def filter-descendants* (memoize filter-descendants))
 
-(defn sort-items [items] (->> items (sort-by (juxt (comp #(apply str %) :group)
+(defn sort-items [items] (->> items (sort-by (juxt (comp #(apply str (as-v %)) :group)
                                                    (complement group?)))))
 
 (def group-label (comp str/capitalize name last :group))
