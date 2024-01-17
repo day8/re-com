@@ -343,7 +343,7 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
-                                      [new-in-version "v2.15.0"]
+                                      [new-in-version "v2.16.0"]
                                       [p "A tree-select component. Choices take the same form as those for a selection list or multi-select, except " [:code ":group"]
                                        "can be a vector. If so, the choice appears within a hierarchy of expandable groups."]
                                       [p [:code "tree-select-dropdown"]
