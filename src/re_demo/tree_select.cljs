@@ -31,9 +31,6 @@
         label-fn          (reagent/atom nil)
         group-label-fn    (reagent/atom nil)
         choice-disabled-fn (reagent/atom nil)
-        abbrev-fn?        (reagent/atom false)
-        abbrev-threshold? (reagent/atom false)
-        abbrev-threshold  (reagent/atom 13)
         min-width?        (reagent/atom true)
         min-width         (reagent/atom 200)
         max-width?        (reagent/atom true)
@@ -56,8 +53,6 @@
                           :choices           cities
                           :model             model
                           :groups            groups
-                          :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                          :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                           :on-change         #(reset! model %1)])
         open-to-nil (fn []
                       [tree-select :src (at)
@@ -72,8 +67,6 @@
                        :choices           cities
                        :model             model
                        :groups            groups
-                       :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                       :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                        :on-change         #(reset! model %1)])
         open-to-all (fn []
                       [tree-select :src (at)
@@ -89,8 +82,6 @@
                        :choices           cities
                        :model             model
                        :groups            groups
-                       :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                       :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                        :on-change         #(reset! model %1)])
         open-to-none (fn []
                        [tree-select :src (at)
@@ -106,8 +97,6 @@
                         :choices           cities
                         :model             model
                         :groups            groups
-                        :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                        :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                         :on-change         #(reset! model %1)])
         open-to-specified (fn []
                             [tree-select :src (at)
@@ -123,8 +112,6 @@
                              :choices           cities
                              :model             model
                              :groups            groups
-                             :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                             :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                              :on-change         #(reset! model %1)])]
     (fn []
       [v-box :src (at)
@@ -156,8 +143,6 @@
                    :choices           cities
                    :model             model
                    :groups            groups
-                   :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                   :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                    :on-change         #(do (reset! model %1) (println %2))]
                   [gap :src (at) :size "96px"]
                   [h-box :src (at)

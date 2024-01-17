@@ -338,11 +338,7 @@
             group-label-fn  (or group-label-fn (comp name last :group))
             field-label-fn  (or field-label-fn field-label)
             labelable-items (labelable-items (deref-or-value model) choices)
-            abbreviate?     #(> (count %) 3)
-            abbrev-fn       #(apply str (take 3 %))
             anchor-label    (field-label-fn {:items labelable-items
-                                             :abbrev-fn abbrev-fn
-                                             :abbrev-threshold 4
                                              :label-fn label-fn
                                              :group-label-fn group-label-fn})
             body   [v-box
@@ -396,8 +392,6 @@
                                             _          (reset! !anchor-label anchor-label)]
                                         [:span {:ref   #(reset! !anchor-span %)
                                                 :title (alt-text-fn {:items labelable-items
-                                                                     :abbrev-fn abbrev-fn
-                                                                     :abbrev-threshold 4
                                                                      :label-fn label-fn
                                                                      :group-label-fn group-label-fn})
                                                 :style {:max-width     max-width
