@@ -2,7 +2,7 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
-## 2.15.0 (2024-01-16)
+## 2.16.0 (2024-01-16)
 
 #### Added
 
