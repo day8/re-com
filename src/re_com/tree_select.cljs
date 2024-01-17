@@ -9,7 +9,7 @@
    [re-com.util           :refer [deref-or-value]]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
-   [re-com.validate       :as validate :refer [parts?]]))
+   [re-com.validate       :as validate :refer-macros [validate-args-macro css-style? html-attr?]]))
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
@@ -60,14 +60,34 @@
       :validate-fn fn?
       :description [:span "This function is called whenever the selection changes. It is also responsible for updating the value of "
                     [:code ":model"] " as needed."]}
+     {:name        :min-width
+      :required    false
+      :type        "string"
+      :validate-fn string?
+      :description "Minimum width of the outer wrapper."}
+     {:name        :max-width
+      :required    false
+      :type        "string"
+      :validate-fn string?
+      :description "Maximum width of the outer wrapper."}
+     {:name        :min-height
+      :required    false
+      :type        "string"
+      :validate-fn string?
+      :description "Minimum height of the outer wrapper."}
+     {:name        :max-height
+      :required    false
+      :type        "string"
+      :validate-fn string?
+      :description "Maximum height of the outer wrapper."}
      {:name        :disabled?
       :required    false
       :default     false
       :type        "boolean"
       :description "if true, no user selection is allowed"}
-     {:name        :choice-disabled?
+     {:name        :choice-disabled-fn
       :required    false
-      :default     false
+      :default     nil
       :type        "choice map -> boolean"
       :validate-fn ifn?
       :description [:span "Predicate on the set of maps given by "
@@ -86,7 +106,11 @@
       :type        "vector -> hiccup"
       :validate-fn ifn?
       :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in "
-                    [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}]))
+                    [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}
+     {:name :class              :required false                        :type "string"                        :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?                     :description "CSS styles to add or override (applies to the outer container)"}
+     {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :src                :required false                        :type "map"                           :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
@@ -237,65 +261,67 @@
                                               choices)
                                 initial-expanded-groups)))
     (fn tree-select-render
-      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr]}]
-      (let [choices        (deref-or-value choices)
-            disabled?      (deref-or-value disabled?)
-            model          (deref-or-value model)
-            label-fn       (or label-fn :label)
-            group-label-fn (or group-label-fn group-label)
-            items          (->> choices infer-groups* (into choices) sort-items)
-            item           (fn [item-props]
-                             (let [{:keys [id group] :as item-props} (update item-props :group as-v)]
-                               (if (group? item-props)
-                                 [group-item
-                                  (let [descendants (filter-descendants* group choices)
-                                        descendant-ids (map :id descendants)
-                                        checked?       (cond
-                                                         (every? model descendant-ids) :all
-                                                         (some   model descendant-ids) :some)
-                                        new-model (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
-                                                       (map :id)
-                                                       ((if (= :all checked?) set/difference set/union) model)
-                                                       set)
-                                        new-groups (into #{} (map :group) (full-groups new-model choices))]
-                                    {:group      item-props
-                                     :label      (group-label-fn item-props)
-                                     :style     (get-in parts [:group :style])
-                                     :class     (str "rc-tree-select-group " (get-in parts [:group :class]))
-                                     :attr      (str get-in parts [:group :attr])
-                                     :hide-show! #(swap! expanded-groups toggle group)
-                                     :toggle!    (handler-fn (on-change new-model new-groups))
-                                     :open?      (contains? @expanded-groups group)
-                                     :checked?   checked?
-                                     :model      model
-                                     :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
-                                     :showing?   (every? (set @expanded-groups) (rest (ancestor-paths group)))
-                                     :level      (count group)})]
-                                 [choice-item
-                                  {:choice    item-props
-                                   :model     model
-                                   :label     (label-fn item-props)
-                                   :style     (get-in parts [:choice :style])
-                                   :class     (str "rc-tree-select-choice " (get-in parts [:choice :class]))
-                                   :attr      (str get-in parts [:choice :attr])
-                                   :showing?  (if-not group
-                                                true
-                                                (every? (set @expanded-groups) (ancestor-paths group)))
-                                   :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
-                                   :toggle!   (handler-fn (let [new-model (toggle model id)
-                                                                new-groups (into #{} (map :group) (full-groups new-model choices))]
-                                                            (on-change new-model new-groups)))
-                                   :checked?  (get model id)
-                                   :level     (inc (count group))}])))]
-        [v-box
-         :min-width min-width
-         :max-width max-width
-         :min-height min-height
-         :max-height max-height
-         :class (str "rc-tree-select-wrapper " class (get-in parts [:wrapper :class]))
-         :style (merge {:overflow-y "scroll"} style (get-in parts [:wrapper :style]))
-         :attr (merge attr (get-in parts [:wrapper :attr]))
-         :children (mapv item items)]))))
+      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr] :as args}]
+      (or
+       (validate-args-macro tree-select-args-desc args)
+       (let [choices        (deref-or-value choices)
+             disabled?      (deref-or-value disabled?)
+             model          (deref-or-value model)
+             label-fn       (or label-fn :label)
+             group-label-fn (or group-label-fn group-label)
+             items          (->> choices infer-groups* (into choices) sort-items)
+             item           (fn [item-props]
+                              (let [{:keys [id group] :as item-props} (update item-props :group as-v)]
+                                (if (group? item-props)
+                                  [group-item
+                                   (let [descendants (filter-descendants* group choices)
+                                         descendant-ids (map :id descendants)
+                                         checked?       (cond
+                                                          (every? model descendant-ids) :all
+                                                          (some   model descendant-ids) :some)
+                                         new-model (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
+                                                        (map :id)
+                                                        ((if (= :all checked?) set/difference set/union) model)
+                                                        set)
+                                         new-groups (into #{} (map :group) (full-groups new-model choices))]
+                                     {:group      item-props
+                                      :label      (group-label-fn item-props)
+                                      :style     (get-in parts [:group :style])
+                                      :class     (str "rc-tree-select-group " (get-in parts [:group :class]))
+                                      :attr      (str get-in parts [:group :attr])
+                                      :hide-show! #(swap! expanded-groups toggle group)
+                                      :toggle!    (handler-fn (on-change new-model new-groups))
+                                      :open?      (contains? @expanded-groups group)
+                                      :checked?   checked?
+                                      :model      model
+                                      :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
+                                      :showing?   (every? (set @expanded-groups) (rest (ancestor-paths group)))
+                                      :level      (count group)})]
+                                  [choice-item
+                                   {:choice    item-props
+                                    :model     model
+                                    :label     (label-fn item-props)
+                                    :style     (get-in parts [:choice :style])
+                                    :class     (str "rc-tree-select-choice " (get-in parts [:choice :class]))
+                                    :attr      (str get-in parts [:choice :attr])
+                                    :showing?  (if-not group
+                                                 true
+                                                 (every? (set @expanded-groups) (ancestor-paths group)))
+                                    :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
+                                    :toggle!   (handler-fn (let [new-model (toggle model id)
+                                                                 new-groups (into #{} (map :group) (full-groups new-model choices))]
+                                                             (on-change new-model new-groups)))
+                                    :checked?  (get model id)
+                                    :level     (inc (count group))}])))]
+         [v-box
+          :min-width min-width
+          :max-width max-width
+          :min-height min-height
+          :max-height max-height
+          :class (str "rc-tree-select-wrapper " class (get-in parts [:wrapper :class]))
+          :style (merge {:overflow-y "scroll"} style (get-in parts [:wrapper :style]))
+          :attr (merge attr (get-in parts [:wrapper :attr]))
+          :children (mapv item items)])))))
 
 (defn field-label [{:keys [items group-label-fn label-fn]}]
   (let [item-label-fn             #((if (group? %) group-label-fn label-fn) %)]
@@ -332,7 +358,8 @@
                  label-fn alt-text-fn height parts style model expanded-groups placeholder id-fn alt-text-fn field-label-fn]
           :or   {placeholder      "Select an item..."
                  id-fn            :id
-                 label-fn         :label}}]
+                 label-fn         :label}
+          :as args}]
       (let [label-fn        (or label-fn :label)
             alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn  (or group-label-fn (comp name last :group))
