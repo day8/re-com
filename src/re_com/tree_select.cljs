@@ -9,7 +9,7 @@
    [re-com.util           :refer [deref-or-value]]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
-   [re-com.validate       :as validate :refer-macros [validate-args-macro css-style? html-attr?]]))
+   [re-com.validate       :as validate :refer [css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
@@ -151,6 +151,7 @@
 
 (defn offset [{:keys [parts level]}]
   [box
+   :src (at)
    :style (into {:visibility "hidden"} (get-in parts [:offset :style]))
    :class (str "rc-tree-select-offset " (get-in parts [:offset :class]))
    :attr (get-in parts [:offset :attr])
@@ -158,6 +159,7 @@
 
 (defn choice-checkbox [{:keys [parts checked? toggle! label disabled? attr]}]
   [checkbox
+   :src (at)
    :style (get-in parts [:checkbox :style])
    :class (str "rc-tree-select-checkbox " (get-in parts [:checkbox :class]))
    :attr (merge {}
@@ -171,6 +173,7 @@
 (defn choice-item [{:keys [level showing? parts] :as props}]
   (when showing?
     [h-box
+     :src (at)
      :style (get-in parts [:choice :style])
      :class (str "rc-tree-select-choice " (get-in parts [:choice :class]))
      :attr  (get-in parts [:choice :attr])
@@ -180,13 +183,16 @@
 
 (defn group-item [{:keys [label checked? toggle! hide-show! level showing? open? disabled? parts] :as props}]
   (when showing?
-    [h-box :class "chosen-container chosen-container-single chosen-container-active"
+    [h-box
+     :src (at)
+     :class "chosen-container chosen-container-single chosen-container-active"
      :style (get-in parts [:group :style])
      :class (str "rc-tree-select-group " (get-in parts [:group :class]))
      :attr  (get-in parts [:group :attr])
      :children
      [[offset {:parts parts :level (dec level)}]
       [box
+       :src (at)
        :attr (into {:on-click hide-show!} (get-in parts [:expander :attr]))
        :style (into {:cursor "pointer"} (get-in parts [:expander :style]))
        :class (str "rc-tree-select-expander " (get-in parts [:expander :class]))
@@ -314,6 +320,7 @@
                                     :checked?  (get model id)
                                     :level     (inc (count group))}])))]
          [v-box
+          :src (at)
           :min-width min-width
           :max-width max-width
           :min-height min-height
@@ -369,6 +376,7 @@
                                              :label-fn label-fn
                                              :group-label-fn group-label-fn})
             body   [v-box
+                    :src (at)
                     :height "fit-content"
                     :class (str "rc-tree-select-dropdown-dropdown-wrapper " (get-in parts [:dropdown-wrapper :class]))
                     :attr (get-in parts [:dropdown-wrapper :attr])
@@ -426,10 +434,12 @@
                                                         :overflow      "hidden"
                                                         :text-overflow "ellipsis"}}
                                          anchor-label]))
-                                    [gap :src (at)
+                                    [gap
+                                     :src (at)
                                      :size "1"]
                                     (when-let [model (seq model)]
                                       [box
+                                       :src (at)
                                        :class (str "rc-tree-select-dropdown-counter " (get-in parts [:counter :class]))
                                        :style (merge {:margin-left "10px"
                                                       :margin-right "10px"
@@ -439,6 +449,7 @@
                                        :child (str (count model))])
                                     (when-not disabled?
                                       [box
+                                       :src (at)
                                        :class (str "rc-tree-select-dropdown-anchor-expander " (get-in parts [:anchor-expander :class]))
                                        :style (get-in parts [:anchor-expander :style])
                                        :attr  (get-in parts [:anchor-expander :attr])
