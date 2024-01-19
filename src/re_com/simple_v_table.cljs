@@ -52,51 +52,46 @@
    [:path {:fill fill
            :d    "M7 14l5-5 5 5H7z"}]])
 
-(def vertical-align->align
-  {:top      :start
-   :middle   :center
-   :bottom   :end
-   :sub      :end
-   :text-top :center})
+(def align->justify
+  {:left :start
+   :right :end
+   :center :center})
 
 (defn column-header-item
-  [{:keys [id row-label-fn width height align vertical-align header-label sort-by] :as column} parts sort-by-column]
+  [{:keys [id row-label-fn width height align header-label sort-by]} parts sort-by-column]
   (let [{:keys [key-fn comp] :or {key-fn row-label-fn comp compare}} sort-by
         {current-key-fn :key-fn order :order} @sort-by-column]
     (let [on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)
-          align    (get vertical-align->align (keyword vertical-align) vertical-align)]
-      (cond->
-       [h-box
-        :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
-        :width    (px width)
-        :style    (merge
-                   {:padding       "0px 12px"
-                    :min-height    "24px"
-                    :height        (px height)
-                    :font-weight   "bold"
-                    :text-align    align
-                    :white-space   "nowrap"
-                    :overflow      "hidden"
-                    :text-overflow "ellipsis"}
-                   (when sort-by
-                     {:cursor "pointer"})
-                   (get-in parts [:simple-column-header-item :style]))
-        :attr     (merge
-                   {}
-                   (when sort-by
-                     {:on-click on-click})
-                   (get-in parts [:simple-column-header-item :attr]))
-        :children [header-label
-                   (when sort-by
-                     [:<>
-                      [gap :size "16px"]
-                      (if (not= current-key-fn key-fn)
-                        [sort-icon]
-                        (if (= order :desc)
-                          [arrow-down-icon]
-                          [arrow-up-icon]))])]]
-        (when align)
-        (into [:align align])))))
+          justify (get align->justify (keyword align) :start)]
+      [h-box
+       :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
+       :width    (px width)
+       :justify  justify
+       :style    (merge
+                  {:padding       "0px 12px"
+                   :min-height    "24px"
+                   :height        (px height)
+                   :font-weight   "bold"
+                   :white-space   "nowrap"
+                   :overflow      "hidden"
+                   :text-overflow "ellipsis"}
+                  (when sort-by
+                    {:cursor "pointer"})
+                  (get-in parts [:simple-column-header-item :style]))
+       :attr     (merge
+                  {}
+                  (when sort-by
+                    {:on-click on-click})
+                  (get-in parts [:simple-column-header-item :attr]))
+       :children [header-label
+                  (when sort-by
+                    [:<>
+                     [gap :size "16px"]
+                     (if (not= current-key-fn key-fn)
+                       [sort-icon]
+                       (if (= order :desc)
+                         [arrow-down-icon]
+                         [arrow-up-icon]))])]])))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
