@@ -67,6 +67,7 @@
        :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
        :width    (px width)
        :justify  justify
+       :align    :center
        :style    (merge
                   {:padding       "0px 12px"
                    :min-height    "24px"
