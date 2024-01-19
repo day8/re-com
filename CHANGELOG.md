@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.16.4 (2024-01-19)
+
+#### Fixed
+
+- `simple-v-table` column headers now are now :vertical-align "center"
+
 ## 2.16.3 (2024-01-19)
 
 #### Fixed
