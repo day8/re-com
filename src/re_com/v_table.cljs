@@ -792,13 +792,13 @@
                                   - :column-footers                   Column footer viewport section (6)
                                      - :column-footer-content         The box containing the column footer (column-footer-render renders in here)
                                   - :h-scroll                         The horizontal scrollbar
-                                                                      
+
                                - :right-section                       The right container section v-box of the table, containing:
                                   - :top-right                        Top right section (7)
                                   - :row-footers                      Row footer viewport section (8)
                                      - :row-footer-content            The v-box containing one row footer (row-footer-render renders in here)
                                   - :bottom-right                     Bottom right section (9)
-                                                                      
+
                                - :v-scroll-section                    The v-box containing the vertical scrollbar:
                                   - :v-scroll                         The vertical scrollbar
    "
