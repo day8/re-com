@@ -42,7 +42,6 @@
   :resource-paths  ["run/resources"]
 
   :clean-targets ^{:protect false} [:target-path
-                                    "shadow-cljs.edn"
                                     "node_modules"
                                     "run/resources/public/compiled_dev"
                                     "run/resources/public/compiled_prod"
@@ -67,22 +66,23 @@
   :aliases          {;; *** DEV ***
                      "watch"   ["with-profile" "+dev,+demo" "do"
                                 ["clean"]
-                                ["shadow" "watch" "demo" "browser-test" "karma-test"]]
+                                ["shell" "npx" "shadow-cljs" "watch" "demo" "browser-test" "karma-test"]]
 
                      ;; *** PROD ***
                      "prod-once"  ["with-profile" "+demo,-dev" "do"
                                    ["clean"]
-                                   ["shadow" "release" "demo"]]
+                                   ["shell" "npx" "shadow-cljs" "release" "demo"]]
 
                      "deploy-aws" ["with-profile" "+demo,-dev" "do"
                                    ["clean"]
-                                   ["shadow" "release" "demo"]
+                                   ["shell" "npx" "shadow-cljs" "release" "demo"]
                                    ~["shell" "aws" "s3" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
 
                      ;; *** TEST ***
                      "build-report-ci" ["with-profile" "+demo,-dev" "do"
                                         ["clean"]
-                                        ["shadow" "run" "shadow.cljs.build-report" "demo" "target/build-report.html"]]
+                                        ["shell" "npm" "install"]
+                                        ["shell" "npx" "shadow-cljs" "clj-run" "shadow.cljs.build-report" "demo" "target/build-report.html"]]
 
                      "ci" ["do"
                            ["with-profile" "+dev" "do"
