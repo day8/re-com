@@ -13,7 +13,7 @@
 (def non-breaking-space (gstring/unescapeEntities "&nbsp;"))
 
 (def headers-background-color  "#60A0D8")   ;; used for row and column headers
-(def headers-color             "white")     ;; text colour 
+(def headers-color             "white")     ;; text colour
 
 (def table-outside-border-style "1px solid #E8ECF0)")
 
@@ -291,7 +291,7 @@
 ;; ========== Column Header Renderer functions ==========
 
 (defn timeline-activities
-  "Given a `resolution` of `:days` `:weeks` or `:months`, 
+  "Given a `resolution` of `:days` `:weeks` or `:months`,
    returns a sequence of maps for activities covering the range from `date-start` to `date-end`.
    Each map contains `:start-date` & `:num-days`"
   [date-start date-end resolution]
@@ -300,7 +300,7 @@
     (map #(hash-map :start-date % :num-days 1)
          (time.periodic/periodic-seq date-start date-end (time.core/period resolution 1)))
     :weeks
-    (let [extended-end (if-not (= :weeks resolution)     ;; TODO: Given the `case` context, test will always be true 
+    (let [extended-end (if-not (= :weeks resolution)     ;; TODO: Given the `case` context, test will always be true
                          date-end ; no need to extend
                          (let [mod-week (-> (time.core/interval date-start date-end)
                                             (time.core/in-days)
@@ -637,27 +637,25 @@
                        [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]]])
 
 ;; MT Notes
-;; 
-;; - for a given MediaType there's a set of attributes for each activity 
+;;
+;; - for a given MediaType there's a set of attributes for each activity
 ;; - a row is a "container" for multiple activities
-;; - and a row captures a set of attrinutes which all the activities within it have in common.  
-;; - Rows are organised hierarchily 
-;; - parent rows capture attrinutes shared by child-rows. 
+;; - and a row captures a set of attrinutes which all the activities within it have in common.
+;; - Rows are organised hierarchily
+;; - parent rows capture attrinutes shared by child-rows.
 ;; - the row header (for a given media type) has a number of attributes
 ;; - the user may want to default some of those attributes - eg. 15 sec
 ;; - or they may want to enter them
 ;; - Groups: so user can create a " group header"  (eg "Metro - 15 se")"
-;; - for all the rows under that, the user has to enter one or two 
-;; - some row-groups capture derived attributes, like "Metro". This are not strictly speaking attrinutes. They are derivative of real attributes, but they constrain the set of possible values. 
-;;  
+;; - for all the rows under that, the user has to enter one or two
+;; - some row-groups capture derived attributes, like "Metro". This are not strictly speaking attrinutes. They are derivative of real attributes, but they constrain the set of possible values.
+;;
 ;;  BUT there are different MediaType rows, I guess TV rows is different to tv POST cost rows.
-;;  
-;;  multiple row-group 
-;;    multiple Row 
+;;
+;;  multiple row-group
+;;    multiple Row
 ;;      multiple attrinutes
-;;      
-;;  Later, when importing a 
-;; 
-;; 
-
-
+;;
+;;  Later, when importing a
+;;
+;;
