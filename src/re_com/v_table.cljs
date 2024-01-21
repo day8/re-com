@@ -495,6 +495,8 @@
   (when include-args-desc?
     [{:name :model                      :required true                 :type "r/atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":key-fn"] " extracting values."]}
      {:name :key-fn                     :required false :default "nil" :type "map -> anything"             :validate-fn ifn-or-nil?            :description [:span "A function/keyword or nil. Given an element of " [:code ":model"] ", it should return its unique identifier which is used by Reagent as a unique id. If not specified or nil passed, the element's 0-based row-index will be used"]}
+     {:name :sort-comp                  :required false :default "nil" :type "map, map -> number"          :validate-fn ifn-or-nil?            :description [:span "Sorts " [:code ":model"] " using " [:code ":sort-comp"] "as a comparatison function. Can be combined with " [:code ":sort-keyfn"] "."]}
+     {:name :sort-keyfn                 :required false :default "nil" :type "map -> anything"             :validate-fn ifn-or-nil?            :description [:span "Sorts " [:code ":model"] " using " [:code ":sort-keyfn"] "as a sort-key function. Can be combined with " [:code ":sort-comp"] "."]}
      {:name :virtual?                   :required false :default true  :type "boolean"                                                         :description [:span "when true, only those rows that are visible are rendered to the DOM. Otherwise DOM will be generated for all rows, which might be prohibitive if there are a large number of rows."]}
 
      {:name :row-height                 :required true                 :type "integer"                     :validate-fn number?                :description "px height of each row, in sections 2, 5 and 8."}
@@ -828,11 +830,15 @@
          top-row-index                     (reaction (int (/ @scroll-y row-height)))                               ;; The row number (zero-based) of the row currently rendered at the top of the table
          bot-row-index                     (reaction (min (+ @top-row-index (dec @rows-per-viewport)) @m-size))    ;; The row number of the row currently rendered at the bottom of the table
          virtual-scroll-y                  (reaction (mod @scroll-y row-height))                                   ;; Virtual version of scroll-y but this is a very small number (between 0 and the row-height)
+         row-sort-fn                       (reagent/atom nil)
+         sorted-model                      (reaction (if-let [row-sort-fn @row-sort-fn]
+                                                       (vec (row-sort-fn @model))
+                                                       @model))
          virtual-rows                      (reaction (when (pos? @m-size)
-                                                       (subvec @model
+                                                       (subvec @sorted-model
                                                                (min @top-row-index @m-size)
                                                                (min (+ @top-row-index @rows-per-viewport 2) @m-size))))
-
+         rows                              (reaction (if virtual? @virtual-rows @sorted-model))
          on-h-scroll-change                #(reset! scroll-x %)    ;; The on-change handler for the horizontal scrollbar
          on-v-scroll-change                #(reset! scroll-y %)    ;; The on-change handler for the vertical scrollbar
 
@@ -1036,7 +1042,7 @@
 
          :reagent-render
          (fn v-table-render
-           [& {:keys [virtual? remove-empty-row-space? key-fn max-width
+           [& {:keys [virtual? remove-empty-row-space? key-fn sort-fn sort-comp sort-keyfn max-width
                         ;; Section 1
                       top-left-renderer
                         ;; Section 2
@@ -1060,15 +1066,19 @@
                       class parts src debug-as]
                :or   {virtual?                true
                       remove-empty-row-space? true
-                      key-fn                  nil}
+                      key-fn                  nil
+                      sort-fn                 nil}
                :as   args}]
            (or
             (validate-args-macro v-table-args-desc args)
             (do
               (reset! content-rows-width row-content-width)
               (reset! content-rows-height (* @m-size row-height))
-
-                 ;; Scroll rows into view handling
+              (cond
+                (and sort-keyfn sort-comp) (reset! row-sort-fn (partial sort-by sort-keyfn sort-comp))
+                sort-keyfn                 (reset! row-sort-fn (partial sort-by sort-keyfn))
+                sort-comp                  (reset! row-sort-fn (partial sort sort-comp)))
+                ;; Scroll rows into view handling
               (when (not= (deref-or-value scroll-rows-into-view) @internal-scroll-rows-into-view)
                    ;; TODO: Ideally allow non-atom nil but exception if it's not an atom when there's a value
                 (let [{:keys [start-row end-row]} (deref-or-value scroll-rows-into-view)
@@ -1159,7 +1169,7 @@
                                        row-header-renderer
                                        key-fn
                                        @top-row-index
-                                       (if virtual? @virtual-rows @model)           ;; rows
+                                       @rows           ;; rows
                                        (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                           ;-----------------
                                        row-header-selection-fn
@@ -1233,7 +1243,7 @@
                                        row-renderer
                                        key-fn
                                        @top-row-index
-                                       (if virtual? @virtual-rows @model)           ;; rows
+                                       @rows
                                        @scroll-x
                                        (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                           ;-----------------
@@ -1312,7 +1322,7 @@
                                        row-footer-renderer
                                        key-fn
                                        @top-row-index
-                                       (if virtual? @virtual-rows @model)            ;; rows
+                                       @rows
                                        (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                           ;-----------------
                                        row-viewport-height

@@ -27,7 +27,8 @@
                [:li "Primary use case involves showing a rectangular visual structure, with entities in rows and attributes of those entities in columns. Typically, read-only."]
                [:li "Unlimited columns with a fixed column header at the top"]
                [:li "Unlimited (virtualised) rows with an (optional) fixed row header at the left by simply specifying the number of columns to fix"]
-               [:li "Click on a column header to sort the rows when enabled via a " [:code ":sort-by"] " key in the column map."]
+               [:li "Click on a column header to sort the rows in a column"]
+               [:li "Shift-click on a column header to sort multiple columns hierarchically."]
                [:li "Most aspects of the table are stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
                [:li "Individual rows can be dynamically styled based on row data"]
                [:li "Individual cells can be dynamically styled based on row data"]
@@ -57,6 +58,11 @@
                  [:li "If the height provided by the table's parent container is less than this extent, then vertical scrollbars will appear"]
                  [:li "Where you wish to be explicit about the table's viewable height, use the " [:code ":max-rows"] " arg"]]]
                [:li "Even if you are explicit via " [:code ":max-width"]  " or " [:code ":max-rows"] ", the parent's dimensions will always dominate, if they are set"]]
+              [title3 "Sorting"]
+              [:ul
+               [:li "Items in " [:code ":columns"] " have an optional " [:code ":sort-by"] " key."]
+               [:li "If the value is " [:code "true"] ", clicking the column header will sort all the rows, using the result of the column's " [:code ":row-label-fn"] " as a sort key."]
+               [:li [:code ":sort-by"] " can also be map, with optional keys " [:code ":comp"] " and " [:code ":keyfn"] ", corresponding to the parameters of " [:code "clojure.core/sort-by"] "."]]
               [p "The \"Sales Table Demo\" (to the right) allows you to experiment with these concepts."]]])
 
 (defn dependencies

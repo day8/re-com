@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.17.0 (2024-01-23)
+
+#### Changed
+
+- `simple-v-table` - Shift-click multiple columns to sort hierarchically.
+
 ## 2.16.4 (2024-01-19)
 
 #### Fixed

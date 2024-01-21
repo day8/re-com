@@ -6,26 +6,32 @@
    [reagent.core    :as    reagent]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.box      :refer [box h-box gap]]
-   [re-com.util     :refer [px deref-or-value assoc-in-if-empty]]
+   [re-com.util     :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item]]
+   [re-com.text     :refer [label]]
    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
    [re-com.v-table  :as    v-table]))
 
-(defn swap!-sort-by-column
-  [{:keys [key-fn order]} new-key-fn new-comp]
-  (if (= key-fn new-key-fn)
-    (if (= :asc order)
-      {:key-fn key-fn
-       :comp   new-comp
-       :order  :desc}
-      nil)
-    {:key-fn new-key-fn
-     :comp   new-comp
-     :order :asc}))
+(def default-sort-criterion {:keyfn :label :order :asc})
+
+(defn update-sort-criteria
+  [criteria new-criterion]
+  (let [{:keys [id order] :as new-criterion} (merge default-sort-criterion new-criterion)
+        this?          (comp #{id} :id)
+        this-criterion (item-for-id id criteria)
+        operation      (cond
+                         (nil? this-criterion)             :add
+                         (= order (:order this-criterion)) :flip
+                         :else                             :drop)
+        flip           #(update % :order {:asc :desc :desc :asc})]
+    (case operation
+      :flip (mapv #(cond-> % (this? %) flip) criteria)
+      :drop (remove-id-item id criteria)
+      :add  (vec (conj criteria (merge default-sort-criterion new-criterion))))))
 
 (defn sort-icon
   [{:keys [size fill]
     :or   {size "16px"
-           fill "transparent"}}]
+           fill "black"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
@@ -35,7 +41,7 @@
 (defn arrow-down-icon
   [{:keys [size fill]
     :or   {size "24px"
-           fill "transparent"}}]
+           fill "black"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
@@ -45,7 +51,7 @@
 (defn arrow-up-icon
   [{:keys [size fill]
     :or   {size "24px"
-           fill "transparent"}}]
+           fill "black"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
@@ -58,41 +64,57 @@
    :center :center})
 
 (defn column-header-item
-  [{:keys [id row-label-fn width height align header-label sort-by]} parts sort-by-column]
-  (let [{:keys [key-fn comp] :or {key-fn row-label-fn comp compare}} sort-by
-        {current-key-fn :key-fn order :order} @sort-by-column]
-    (let [on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)
-          justify (get align->justify (keyword align) :start)]
-      [h-box
-       :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
-       :width    (px width)
-       :justify  justify
-       :align    :center
-       :style    (merge
-                  {:padding       "0px 12px"
-                   :min-height    "24px"
-                   :height        (px height)
-                   :font-weight   "bold"
-                   :white-space   "nowrap"
-                   :overflow      "hidden"
-                   :text-overflow "ellipsis"}
-                  (when sort-by
-                    {:cursor "pointer"})
-                  (get-in parts [:simple-column-header-item :style]))
-       :attr     (merge
-                  {}
-                  (when sort-by
-                    {:on-click on-click})
-                  (get-in parts [:simple-column-header-item :attr]))
-       :children [header-label
-                  (when sort-by
-                    [:<>
-                     [gap :size "16px"]
-                     (if (not= current-key-fn key-fn)
-                       [sort-icon]
-                       (if (= order :desc)
-                         [arrow-down-icon]
-                         [arrow-up-icon]))])]])))
+  [& _]
+  (let [hover?      (reagent/atom false)]
+    (fn [{:keys [id row-label-fn width height align header-label sort-by]} parts sort-by-column]
+      (let [sort-by                  (cond (true? sort-by) {} :else sort-by)
+            default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
+            ps                       (position-for-id id @sort-by-column)
+            {current-order :order}   (item-for-id id @sort-by-column)
+            add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
+            replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
+            on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
+                                        (add-criteria!)
+                                        (replace-criteria!))
+            justify                  (get align->justify (keyword align) :start)
+            multiple-columns-sorted? (> (count @sort-by-column) 1)]
+        [h-box
+         :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
+         :width    (px width)
+         :justify  justify
+         :align    :center
+         :style    (merge
+                    {:padding       "0px 12px"
+                     :min-height    "24px"
+                     :height        (px height)
+                     :font-weight   "bold"
+                     :white-space   "nowrap"
+                     :overflow      "hidden"
+                     :text-overflow "ellipsis"}
+                    (when sort-by
+                      {:cursor "pointer"})
+                    (get-in parts [:simple-column-header-item :style]))
+         :attr     (merge
+                    {:on-mouse-enter #(reset! hover? true)
+                     :on-mouse-leave #(reset! hover? false)}
+                    (when sort-by
+                      {:on-click on-click})
+                    (get-in parts [:simple-column-header-item :attr]))
+         :children [header-label
+                    (when sort-by
+                      [h-box
+                       :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
+                       :min-width "35px"
+                       :style (when current-order {:opacity 0.3})
+                       :justify :center
+                       :align :center
+                       :children
+                       [(case current-order
+                          :asc  [arrow-up-icon]
+                          :desc [arrow-down-icon]
+                          [sort-icon])
+                        (when ps
+                          [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])]])]]))))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
@@ -182,7 +204,7 @@
 
 (def simple-v-table-args-desc
   (when include-args-desc?
-    [{:name :model                     :required true                     :type "r/atom containing vec of maps"    :validate-fn vector-atom?                   :description "one element for each row in the table."}
+    [{:name :model                     :required true                     :type "r/atom containing vec of maps"    #_#_:validate-fn vector-atom?                   :description "one element for each row in the table."}
      {:name :columns                   :required true                     :type "vector of maps"                   :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"] " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be " [:code "true"] " or a map optionally containing " [:code ":key-fn"] " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}
      {:name :fixed-column-count        :required false :default 0         :type "integer"                          :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
      {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                           :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
@@ -203,6 +225,18 @@
      {:name :parts                     :required false                    :type "map"                              :validate-fn (parts? simple-v-table-parts)  :description "See Parts section below."}
      {:name :src                       :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as                  :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+
+(defn criteria-compare [a b {:keys [key-fn comp-fn order]
+                             :or {key-fn :label order :asc comp-fn compare}}]
+  (cond-> (comp-fn (key-fn a) (key-fn b))
+    (= :desc order) -))
+
+(defn multi-comparator [criteria]
+  (fn [a b]
+    (or (->> criteria
+             (map (partial criteria-compare a b))
+             (remove zero?)
+             (first)) 0)))
 
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
@@ -244,16 +278,7 @@
                                         content-width
                                         v-table/scrollbar-tot-thick
                                         (* 2 table-padding)
-                                        2) ;; 2 border widths
-              internal-model         (reagent/track
-                                      (fn []
-                                        (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
-                                          (do
-                                            (let [sorted (sort-by key-fn comp (deref-or-value model))]
-                                              (if (= order :desc)
-                                                (vec (reverse sorted))
-                                                (vec sorted))))
-                                          (deref-or-value model))))]
+                                        2)]  ;; 2 border widths
           [box
            :src      src
            :debug-as (or debug-as (reflect-current-component))
@@ -273,8 +298,8 @@
            :attr     (get-in parts [:simple-wrapper :attr])
            :child    [v-table/v-table
                       :src                     (at)
-                      :model                   internal-model
-
+                      :model                   model
+                      :sort-comp               (multi-comparator (->v @sort-by-column))
                         ;; ===== Column header (section 4)
                       :column-header-renderer  (partial column-header-renderer content-cols parts sort-by-column)
                       :column-header-height    column-header-height

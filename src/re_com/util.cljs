@@ -113,6 +113,11 @@
   [vect index item]
   (apply merge (subvec vect 0 index) item (subvec vect index)))
 
+(defn ->v [x] (cond (vector? x)     x
+                    (sequential? x) (vec x)
+                    (nil? x)        nil
+                    :else           [x]))
+
 ;; ----------------------------------------------------------------------------
 ;; Utilities for vectors of maps containing :id
 ;; ----------------------------------------------------------------------------
