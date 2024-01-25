@@ -6,10 +6,10 @@
    [clojure.string :as str]
    [reagent.core          :as r]
    [re-com.config         :refer [include-args-desc?]]
-   [re-com.util           :refer [deref-or-value]]
+   [re-com.util           :refer [deref-or-value remove-id-item]]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
-   [re-com.validate       :as validate :refer [css-style? html-attr?] :refer-macros [validate-args-macro]]))
+   [re-com.validate       :as validate :refer [css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
@@ -22,6 +22,10 @@
      {:name :dropdown-wrapper :level 2 :class "rc-tree-select-dropdown-dropdown-wrapper" :impl "[v-box]"}
      {:name :body             :level 3 :class "rc-tree-select-dropdown-body"             :impl "[tree-select]"}]))
 
+(def tree-select-dropdown-parts
+  (when include-args-desc?
+    (-> (map :name tree-select-dropdown-parts-desc) set)))
+
 (def tree-select-parts-desc
   (when include-args-desc?
     [{:type :legacy   :level 0 :class "rc-tree-select"          :impl "[tree-select]"}
@@ -31,6 +35,10 @@
      {:name :offset   :level 3 :class "rc-tree-select-offset"   :impl "[box]"}
      {:name :expander :level 3 :class "rc-tree-select-expander" :impl "[box]"}
      {:name :checkbox :level 3 :class "rc-tree-select-checkbox" :impl "[checkbox]"}]))
+
+(def tree-select-parts
+  (when include-args-desc?
+    (-> (map :name tree-select-parts-desc) set)))
 
 (def tree-select-args-desc
   (when include-args-desc?
@@ -107,31 +115,60 @@
       :validate-fn ifn?
       :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in "
                     [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}
-     {:name :class              :required false                        :type "string"                        :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)"}
-     {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?                     :description "CSS styles to add or override (applies to the outer container)"}
-     {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-     {:name :src                :required false                        :type "map"                           :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :class
+      :required false
+      :type "string"
+      :validate-fn string?
+      :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style
+      :required false
+      :type "CSS style map"
+      :validate-fn css-style?
+      :description "CSS styles to add or override (applies to the outer container)"}
+     {:name :attr
+      :required false
+      :type "HTML attr map"
+      :validate-fn html-attr?
+      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br]
+                    "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts
+      :required false
+      :type "map"
+      :validate-fn (parts? tree-select-parts)
+      :description "See Parts section below."}
+     {:name :src
+      :required false
+      :type "map"
+      :validate-fn map?
+      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
+                    [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
-    (into tree-select-args-desc
-          [{:name :placeholder
-            :required false
-            :type "string"
-            :validate-fn string?
-            :description "(Dropdown version only). Background text shown when there's no selection."}
-           {:name :field-label-fn
-            :required false
-            :type "map -> string or hiccup"
-            :validate-fn ifn?
-            :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
-                              "Can return a string or hiccup, which will be rendered inside the dropdown anchor box.")}
-           {:name :alt-text-fn
-            :required false
-            :type "map -> string"
-            :validate-fn ifn?
-            :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
-                              "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}])))
+    (into
+     (remove-id-item :parts tree-select-args-desc {:id-fn :name})
+     [{:name :placeholder
+       :required false
+       :type "string"
+       :validate-fn string?
+       :description "(Dropdown version only). Background text shown when there's no selection."}
+      {:name :field-label-fn
+       :required false
+       :type "map -> string or hiccup"
+       :validate-fn ifn?
+       :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
+                         "Can return a string or hiccup, which will be rendered inside the dropdown anchor box.")}
+      {:name :alt-text-fn
+       :required false
+       :type "map -> string"
+       :validate-fn ifn?
+       :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
+                         "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}
+      {:name :parts
+       :required false
+       :type "map"
+       :validate-fn (parts? tree-select-dropdown-parts)
+       :description "See Parts section below."}])))
 
 (defn backdrop
   [{:keys [opacity on-click parts]}]
@@ -149,7 +186,7 @@
            :on-click (when on-click (handler-fn (on-click)))}
           (get-in parts [:backdrop :attr])))])
 
-(defn offset [{:keys [parts level]}]
+(defn offset [& {:keys [parts level]}]
   [box
    :src (at)
    :style (into {:visibility "hidden"} (get-in parts [:offset :style]))
@@ -162,15 +199,13 @@
    :src (at)
    :style (get-in parts [:checkbox :style])
    :class (str "rc-tree-select-checkbox " (get-in parts [:checkbox :class]))
-   :attr (merge {}
-                (when attr attr)
-                (get-in parts [:checkbox :attr]))
+   :attr  (into attr (get-in parts [:checkbox :attr]))
    :model checked?
    :on-change toggle!
    :label label
    :disabled? disabled?])
 
-(defn choice-item [{:keys [level showing? parts] :as props}]
+(defn choice-item [& {:keys [level showing? parts] :as props}]
   (when showing?
     [h-box
      :src (at)
@@ -178,19 +213,18 @@
      :class (str "rc-tree-select-choice " (get-in parts [:choice :class]))
      :attr  (get-in parts [:choice :attr])
      :children
-     [[offset {:parts parts :level level}]
-      [choice-checkbox (into props {:attr {}})]]]))
+     [[offset :parts parts :level level]
+      [choice-checkbox props]]]))
 
-(defn group-item [{:keys [label checked? toggle! hide-show! level showing? open? disabled? parts] :as props}]
+(defn group-item [& {:keys [label checked? toggle! hide-show! level showing? open? disabled? parts] :as props}]
   (when showing?
     [h-box
      :src (at)
-     :class "chosen-container chosen-container-single chosen-container-active"
      :style (get-in parts [:group :style])
      :class (str "rc-tree-select-group " (get-in parts [:group :class]))
      :attr  (get-in parts [:group :attr])
      :children
-     [[offset {:parts parts :level (dec level)}]
+     [[offset :parts parts :level (dec level)]
       [box
        :src (at)
        :attr (into {:on-click hide-show!} (get-in parts [:expander :attr]))
@@ -279,46 +313,42 @@
              item           (fn [item-props]
                               (let [{:keys [id group] :as item-props} (update item-props :group as-v)]
                                 (if (group? item-props)
-                                  [group-item
-                                   (let [descendants (filter-descendants* group choices)
-                                         descendant-ids (map :id descendants)
-                                         checked?       (cond
-                                                          (every? model descendant-ids) :all
-                                                          (some   model descendant-ids) :some)
-                                         new-model (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
-                                                        (map :id)
-                                                        ((if (= :all checked?) set/difference set/union) model)
-                                                        set)
-                                         new-groups (into #{} (map :group) (full-groups new-model choices))]
-                                     {:group      item-props
-                                      :label      (group-label-fn item-props)
-                                      :style     (get-in parts [:group :style])
-                                      :class     (str "rc-tree-select-group " (get-in parts [:group :class]))
-                                      :attr      (str get-in parts [:group :attr])
-                                      :hide-show! #(swap! expanded-groups toggle group)
-                                      :toggle!    (handler-fn (on-change new-model new-groups))
-                                      :open?      (contains? @expanded-groups group)
-                                      :checked?   checked?
-                                      :model      model
-                                      :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
-                                      :showing?   (every? (set @expanded-groups) (rest (ancestor-paths group)))
-                                      :level      (count group)})]
+                                  (let [descendants (filter-descendants* group choices)
+                                        descendant-ids (map :id descendants)
+                                        checked?       (cond
+                                                         (every? model descendant-ids) :all
+                                                         (some   model descendant-ids) :some)
+                                        new-model (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
+                                                       (map :id)
+                                                       ((if (= :all checked?) set/difference set/union) model)
+                                                       set)
+                                        new-groups (into #{} (map :group) (full-groups new-model choices))]
+                                    [group-item
+                                     :group      item-props
+                                     :label      (group-label-fn item-props)
+                                     :parts     parts
+                                     :hide-show! #(swap! expanded-groups toggle group)
+                                     :toggle!    (handler-fn (on-change new-model new-groups))
+                                     :open?      (contains? @expanded-groups group)
+                                     :checked?   checked?
+                                     :model      model
+                                     :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
+                                     :showing?   (every? (set @expanded-groups) (rest (ancestor-paths group)))
+                                     :level      (count group)])
                                   [choice-item
-                                   {:choice    item-props
-                                    :model     model
-                                    :label     (label-fn item-props)
-                                    :style     (get-in parts [:choice :style])
-                                    :class     (str "rc-tree-select-choice " (get-in parts [:choice :class]))
-                                    :attr      (str get-in parts [:choice :attr])
-                                    :showing?  (if-not group
-                                                 true
-                                                 (every? (set @expanded-groups) (ancestor-paths group)))
-                                    :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
-                                    :toggle!   (handler-fn (let [new-model (toggle model id)
-                                                                 new-groups (into #{} (map :group) (full-groups new-model choices))]
-                                                             (on-change new-model new-groups)))
-                                    :checked?  (get model id)
-                                    :level     (inc (count group))}])))]
+                                   :choice    item-props
+                                   :model     model
+                                   :label     (label-fn item-props)
+                                   :parts     parts
+                                   :showing?  (if-not group
+                                                true
+                                                (every? (set @expanded-groups) (ancestor-paths group)))
+                                   :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
+                                   :toggle!   (handler-fn (let [new-model (toggle model id)
+                                                                new-groups (into #{} (map :group) (full-groups new-model choices))]
+                                                            (on-change new-model new-groups)))
+                                   :checked?  (get model id)
+                                   :level     (inc (count group))])))]
          [v-box
           :src (at)
           :min-width min-width
@@ -465,5 +495,6 @@
          (when @showing?
            [:div {:class "fade in"
                   :style {:position "relative"}}
-            [backdrop {:on-click #(reset! showing? false)}]
+            [backdrop {:parts parts
+                       :on-click #(reset! showing? false)}]
             body])]))))

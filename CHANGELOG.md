@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.17.1 (2024-01-24)
+
+#### Fixed
+
+- `tree-select` - `:parts` prop should work now. (#335)
+
 ## 2.17.0 (2024-01-23)
 
 #### Changed
