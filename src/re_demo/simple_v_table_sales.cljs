@@ -11,7 +11,7 @@
    [re-demo.utils         :refer [title3]]
    [re-com.util           :refer [px]]))
 
-;; 50 randomly sampled names from most popular baby names in 2019. 
+;; 50 randomly sampled names from most popular baby names in 2019.
 (def names
   ["Harris" "Jake" "Reece" "Aston" "Barry" "Oran" "Ritchie" "Crawford" "Raphael" "Clayton" "Johan" "Rhylen" "Caelin"
    "Calen" "Cassius" "Dakota" "Fabien" "Fraser-Lee" "Jonathin" "Khabat" "Lyotard" "Manpreet" "Mousa" "Rajvir" "Shadan"
@@ -318,14 +318,18 @@
                                                        :src                       (at)
                                                        :model                     sales-rows
 
+                                                       ;; ==== Exporting
+                                                       :show-export-button?       true
+
                                                        ;; ===== Columns
-                                                       :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 70  :align "center" :vertical-align "middle"}
-                                                                                   {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"   :vertical-align "middle"}
-                                                                                   {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"   :vertical-align "middle" :sort-by {}}
-                                                                                   {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn    :width 200 :align "left"   :vertical-align "middle"}
-                                                                                   {:id :method :header-label "Method" :row-label-fn method-row-label-fn   :width 100 :align "center" :vertical-align "middle"}
-                                                                                   {:id :sales  :header-label "Sales"  :row-label-fn #(str "$" (:sales %)) :width 100 :align "right"  :vertical-align "middle" :sort-by {:key-fn :sales}}
-                                                                                   {:id :units  :header-label "Units"  :row-label-fn :units                :width 100 :align "right"  :vertical-align "middle" :sort-by true}]
+                                                       :columns
+                                                       [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 70  :align "center" :vertical-align "middle" :export? false}
+                                                        {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"   :vertical-align "middle"}
+                                                        {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"   :vertical-align "middle" :sort-by {}}
+                                                        {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn    :width 200 :align "left"   :vertical-align "middle" :row-export-fn :email}
+                                                        {:id :method :header-label "Method" :row-label-fn method-row-label-fn   :width 100 :align "center" :vertical-align "middle" :row-export-fn (comp name :method)}
+                                                        {:id :sales  :header-label "Sales"  :row-label-fn #(str "$" (:sales %)) :width 100 :align "right"  :vertical-align "middle" :sort-by {:key-fn :sales}}
+                                                        {:id :units  :header-label "Units"  :row-label-fn :units                :width 100 :align "right"  :vertical-align "middle" :sort-by true}]
                                                        :fixed-column-count        @fixed-column-count
                                                        :fixed-column-border-color "#333"
 

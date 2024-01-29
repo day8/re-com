@@ -2,7 +2,8 @@
   (:require
    [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
    [goog.date.DateTime]
-   [goog.date.UtcDateTime]))
+   [goog.date.UtcDateTime]
+   [clojure.string :as str]))
 
 (defn fmap
   "Takes a function 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
@@ -208,3 +209,17 @@
      (.getMonth local-date-time)
      (.getDate local-date-time)
      0 0 0 0)))
+
+(defn clipboard-write! [s]
+  ^js (-> js/navigator .-clipboard (.writeText s)))
+
+(defn table->tsv [columns rows]
+  (let [header-value-fn  (some-fn :export-header-label :header-label (comp name :id))
+        row-value-fn     (some-fn :row-export-fn :row-label-fn :id)
+        row->cells       (apply juxt (map row-value-fn columns))
+        tsv-line         #(str (str/join "\t" %) "\n")]
+    (->> rows
+         (map row->cells)
+         (cons (map header-value-fn columns))
+         (map tsv-line)
+         (apply str))))

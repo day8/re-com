@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.18.0 (2024-02-02)
+
+#### Added
+
+- `simple-v-table` - `:on-export`, `:export-button-renderer` and `:show-export-button?`
+
 ## 2.17.1 (2024-01-24)
 
 #### Fixed

@@ -47,12 +47,12 @@
               [:ul
                [:li "A table's dimensions will grow and shrink, to fit the space provided by its parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear."]
                [:li "Other times, we want a table to impose certain dimensions. Eg, it should always show 10 rows, and have no horizontal scrollbar, and we want the parent dimensions to change to accommodate."]
-               [:li "Width"
+               [:li [:strong "Width"]
                 [:ul
                  [:li "The full horizontal extent of the table is determined by the accumulated width of the columns"]
                  [:li "If the width provided by the table's parent container is less than this extent, then horizontal scrollbars will appear for the unfixed columns"]
                  [:li "Where you wish to be explicit about the table's viewable width, use the " [:code ":max-width"] " arg"]]]
-               [:li "Height"
+               [:li [:strong "Height"]
                 [:ul
                  [:li "The full vertical extent of the table is determined by the accumulated height of all the rows"]
                  [:li "If the height provided by the table's parent container is less than this extent, then vertical scrollbars will appear"]
@@ -60,9 +60,22 @@
                [:li "Even if you are explicit via " [:code ":max-width"]  " or " [:code ":max-rows"] ", the parent's dimensions will always dominate, if they are set"]]
               [title3 "Sorting"]
               [:ul
-               [:li "Items in " [:code ":columns"] " have an optional " [:code ":sort-by"] " key."]
-               [:li "If the value is " [:code "true"] ", clicking the column header will sort all the rows, using the result of the column's " [:code ":row-label-fn"] " as a sort key."]
-               [:li [:code ":sort-by"] " can also be map, with optional keys " [:code ":comp"] " and " [:code ":keyfn"] ", corresponding to the parameters of " [:code "clojure.core/sort-by"] "."]]
+               [:li [:strong "sort-by"]
+                [:ul
+                 [:li "Items in " [:code ":columns"] " have an optional " [:code ":sort-by"] " key."]
+                 [:li "If the value is " [:code "true"] ", clicking the column header will sort all the rows, using the result of the column's " [:code ":row-label-fn"] " as a sort key."]
+                 [:li [:code ":sort-by"] " can also be map, with optional keys " [:code ":comp"] " and " [:code ":keyfn"] ", corresponding to the parameters of " [:code "clojure.core/sort-by"] "."]]]
+               [:li [:strong "hierarchical sort"]
+                [:ul
+                 [:li "Shift-clicking a column header will conjoin that column into a hierarchical sort. A number will appear next to the sort icon, indicating its sorting precedence."]
+                 [:li "For instance, click " [:strong "name"] ", then shift-click " [:strong "units"] ". The columns will appear as " [:strong "name ↓1 ... units ↓2."]]
+                 [:li "Rows will sort by the column marked " [:strong "1"] ", except when any two rows compare equally, they will sort by " [:strong "2"] "."]]]]
+              [title3 "Export"]
+              [:ul
+               [:li "Pass " [:code ":show-export-button? true"] " to mount the export-button component into section 3 of the table (see " [:code ":top-right-renderer"] " in " [:code "v-table"] "."]
+               [:li "Clicking this button invokes " [:code ":on-export"] " with keyword arguments " [:code ":rows"] " and " [:code ":columns"] ". " [:code ":rows"] " is sorted."]
+               [:li "The default " [:code ":on-export"] " handler removes any columns declared with " [:code ":export? false"] ", serializes a TSV string and writes it to the clipboard."]
+               [:li "You can also pass your own component function as " [:code ":export-button-renderer"] ". It can accept keyword arguments " [:code ":rows, :columns, :on-export"] "."]]
               [p "The \"Sales Table Demo\" (to the right) allows you to experiment with these concepts."]]])
 
 (defn dependencies

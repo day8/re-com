@@ -4,9 +4,10 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    [reagent.core    :as    reagent]
+   [re-com.buttons  :refer [hyperlink row-button]]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.box      :refer [box h-box gap]]
-   [re-com.util     :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item]]
+   [re-com.util     :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
    [re-com.text     :refer [label]]
    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
    [re-com.v-table  :as    v-table]))
@@ -204,12 +205,15 @@
 
 (def simple-v-table-args-desc
   (when include-args-desc?
-    [{:name :model                     :required true                     :type "r/atom containing vec of maps"    #_#_:validate-fn vector-atom?                   :description "one element for each row in the table."}
+    [{:name :model                     :required true                     :type "r/atom containing vec of maps"    :validate-fn vector-atom?                   :description "one element for each row in the table."}
      {:name :columns                   :required true                     :type "vector of maps"                   :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"] " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be " [:code "true"] " or a map optionally containing " [:code ":key-fn"] " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}
      {:name :fixed-column-count        :required false :default 0         :type "integer"                          :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
      {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                           :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
      {:name :column-header-height      :required false :default 31        :type "integer"                          :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
-     {:name :column-header-renderer    :required false                    :type "cols parts sort-by-col -> hiccup" :validate-fn ifn?                           :description "You can provide a renderer function to override the inbuilt renderer for the columns headings"}
+     {:name :column-header-renderer    :required false                    :type "cols parts sort-by-col -> hiccup" :validate-fn ifn?                           :description [:span "You can provide a renderer function to override the inbuilt renderer for the columns headings"]}
+     {:name :show-export-button?       :required false :default false     :type "boolean" :description [:span "When non-nil, adds a hiccup of " [:code ":export-button-render"] " to the component tree."]}
+     {:name :on-export                 :required false                    :type "columns, sorted-rows -> nil"             :validate-fn ifn?                           :description "Called whenever the export button is clicked."}
+     {:name :export-button-renderer    :required false                    :type "{:keys [columns rows on-export]} -> hiccup" :validate-fn ifn?                 :description [:span "Pass a component function to override the built-in export button. Declares a hiccup of your component in the " [:code ":top-right-renderer"] "position of the underlying " [:code "v-table"] "."]}
      {:name :max-width                 :required false                    :type "string"                           :validate-fn string?                        :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
      {:name :max-rows                  :required false                    :type "integer"                          :validate-fn number?                        :description "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
      {:name :row-height                :required false :default 31        :type "integer"                          :validate-fn number?                        :description "px height of each row."}
@@ -238,6 +242,13 @@
              (remove zero?)
              (first)) 0)))
 
+(defn clipboard-export-button [{:keys [columns rows on-export]}]
+  [row-button :src (at)
+   :md-icon-name    "zmdi zmdi-copy"
+   :mouse-over-row? true
+   :tooltip         (str "Copy " (count rows) " rows, " (count columns) " columns to clipboard.")
+   :on-click        on-export])
+
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
   Of the nine possible sections of v-table, this table only supports four:
@@ -254,6 +265,7 @@
      (fn simple-v-table-render
        [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
                   max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
+                  show-export-button? on-export export-button-renderer
                   striped? row-style cell-style class parts src debug-as]
 
            :or   {column-header-height      31
@@ -262,7 +274,12 @@
                   table-padding             19
                   table-row-line-color      "#EAEEF1"
                   fixed-column-border-color "#BBBEC0"
-                  column-header-renderer    column-header-renderer}
+                  column-header-renderer    column-header-renderer
+                  show-export-button?       false
+                  on-export                 (fn [{:keys [columns rows]}] (-> (remove (comp false? :export?) columns)
+                                                                             (table->tsv rows)
+                                                                             clipboard-write!))
+                  export-button-renderer    clipboard-export-button}
            :as   args}]
        (or
         (validate-args-macro simple-v-table-args-desc args)
@@ -312,12 +329,20 @@
                       :row-content-width       content-width
                       :row-height              row-height
                       :max-row-viewport-height (when max-rows (* max-rows row-height))
-                        ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
+                      ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
 
-                        ;; ===== Corners (section 1)
+                        ;; ===== Corners (section 1, 3)
                       :top-left-renderer       (partial column-header-renderer fixed-cols parts sort-by-column) ;; Used when there are fixed columns
-
-                        ;; ===== Styling
+                      :top-right-renderer      (when show-export-button?
+                                                 #(let [rows    (deref-or-value model)
+                                                        columns (deref-or-value columns)
+                                                        sort-by-column (deref-or-value sort-by-column)]
+                                                    [export-button-renderer {:rows rows
+                                                                             :columns columns
+                                                                             :on-export (fn [_] (on-export {:columns columns
+                                                                                                            :rows (cond->> rows
+                                                                                                                    sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
+                      ;; ===== Styling
                       :class                   class
                       :parts                   (cond-> (->
                                                            ;; Remove the parts that are exclusive to simple-v-table, or v-table part
