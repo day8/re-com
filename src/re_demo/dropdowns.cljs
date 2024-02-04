@@ -3,7 +3,7 @@
    [re-com.core     :refer []])
   (:require
    [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
-   [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
+   [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc dropdown]]
    [re-com.util     :refer [item-for-id]]
    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
    [re-com.util     :refer [px]]
@@ -106,11 +106,20 @@
                           {:code "18" :country "Bahamas"       :region "'B' COUNTRIES"}
                           {:code "19" :country "Bahrain"       :region "'B' COUNTRIES"}])
 
+(def test-dropdown-open (reagent/atom nil))
+
+(defn simple-anchor [{:keys [open?]}]
+  [box :style {:background "white"}
+   :child
+   [label :attr {:on-click #(swap! open? not)} :label "anchor!"]])
+
 (defn simple-demo
   []
-  [v-box :src (at)
+  [h-box :src (at)
    :gap "10px"
-   :children [[p "The dropdown above is the simple case."]
+   :children [[dropdown
+               :body [label :label "body!"]]
+              [p "The dropdown above is the simple case."]
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
 
 (defn grouping-demo
@@ -191,7 +200,8 @@
                    :src      (at)
                    :gap      "10px"
                    :align    :center
-                   :children [[single-dropdown
+                   :children [[:div "HERE"]
+                              [single-dropdown
                                :src         (at)
                                :choices     grouped-countries-2
                                :model       selected-country-id

@@ -69,6 +69,7 @@
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
 
 (def single-dropdown            dropdown/single-dropdown)
+(def dropdown                   dropdown/dropdown)
 
 (def typeahead                  typeahead/typeahead)
 
