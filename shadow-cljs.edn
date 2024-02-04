@@ -27,7 +27,8 @@
                                                                                  re-com.config/root-url-for-compiler-output ""}}}
                          :devtools         {:http-port        3449
                                             :http-root        "run/resources/public"
-                                            :push-state/index "index_dev.html"}}
+                                            :push-state/index "index_dev.html"
+                                            :preloads [hashp.core]}}
 
           :browser-test {:target           :browser-test
                          :ns-regexp        "-test$"
