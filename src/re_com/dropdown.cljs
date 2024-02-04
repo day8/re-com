@@ -5,7 +5,7 @@
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
-   [re-com.box      :refer [align-style flex-child-style]]
+   [re-com.box      :refer [align-style flex-child-style v-box h-box box]]
    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
    [re-com.popover  :refer [popover-tooltip]]
@@ -17,6 +17,90 @@
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
+
+(defn anchor-default [{:keys [dropdown-open? parts]}]
+  [:a
+   {:style {:background-color "white"}
+    :class "chosen-single chosen-default"
+    :tab-index 1
+    :on-click #(swap! dropdown-open? not)
+    :on-blur #(reset! dropdown-open? false)}
+   "Select an item"])
+
+(defn clear-backdrop
+  [{:keys [dropdown-open? parts]}]
+  [:div
+   (into {:class    (str "noselect rc-backdrop " (get-in parts [:backdrop :class]))
+          :style    (into {:position         "fixed"
+                           :left             "0px"
+                           :top              "0px"
+                           :width            "100%"
+                           :height           "100%"
+                           :background-color "black"
+                           :opacity          0.5
+                           :pointer-events   "none"}
+                          (get-in parts [:backdrop :style]))
+          :on-click #(reset! dropdown-open? nil)}
+         (get-in parts [:backdrop :attr]))])
+
+(defn dropdown [& {:keys [model]
+                   :or {model (reagent/atom nil)}}]
+  (fn dropdown-render
+    [& {:keys [disabled? min-width max-width width min-height max-height on-change
+               anchor-height
+               anchor backdrop body
+               height parts style]
+        :as   args
+        :or   {anchor anchor-default}}]
+    (let [change! (when on-change (handler-fn (on-change (not @model))))
+          anchor  (if-not (fn? anchor)
+                    anchor
+                    [anchor {:dropdown-open? model :parts (select-keys parts [:anchor])}])
+          body    (if-not (fn? body)
+                    body
+                    [body {:open? model :parts parts}])
+          backdrop (cond
+                     (nil? backdrop) [clear-backdrop {:dropdown-open? model :parts parts}]
+                     (fn? backdrop) [backdrop {:open? model :parts parts}]
+                     :else backdrop)]
+      [v-box
+       :attr  (get-in parts [:wrapper :attr])
+       :class (str "rc-dropdown-wrapper " (get-in parts [:wrapper :class]))
+       :style (into {:display "inline-block"
+                     :height  anchor-height}
+                    (get-in parts [:wrapper :style]))
+       :children
+       [(when @model backdrop)
+        [v-box
+         :attr (get-in parts [:anchor-wrapper :attr])
+         :class (str "noselect rc-dropdown-anchor-wrapper " (get-in parts [:anchor-wrapper :class]))
+         :style (into {:position "relative"} (get-in parts [:anchor-wrapper :style]))
+         :children [anchor]]
+        (when @model
+          [box
+           :style {:position "relative"}
+           :min-width min-width
+           :max-width max-width
+           :width     width
+           :child
+           [:<>
+            [v-box
+             :src (at)
+             :height     height
+             :max-height max-height
+             :min-height min-height
+             :class      (str "rc-tree-select-dropdown-dropdown-wrapper "
+                              (get-in parts [:dropdown-wrapper :class]))
+             :attr       (get-in parts [:dropdown-wrapper :attr])
+             :style      (merge {:position         "absolute"
+                                 :overflow-y       "auto"
+                                 :background-color "white"
+                                 :border-radius    "4px"
+                                 :border           "1px solid #ccc"
+                                 :padding          "5px 10px 5px 5px"
+                                 :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}
+                                (get-in parts [:dropdown-wrapper :style]))
+             :children [body]]]])]])))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
@@ -197,7 +281,7 @@
                             (dropdown-click)))
           :on-mouse-down (handler-fn
                           (when @drop-showing?
-                            (reset! ignore-click true)))   ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
+                            (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
           :on-key-down   (handler-fn
                           (key-handler event)
                           (when (= (.-key event) "Enter")     ;; Pressing enter on an anchor also triggers click event, which we don't want
@@ -572,6 +656,13 @@
                                     "Home"      (press-home)
                                     "End"       (press-end)
                                     (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
+              anchor           (cond
+                                 just-drop? nil
+                                 free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range
+                                             internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel
+                                             width free-text-change auto-complete? choices capitalize? disabled?]
+                                 :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler
+                                        filter-box? drop-showing? title? disabled?])
               dropdown         [:div
                                 (merge
                                  {:class (str "rc-dropdown chosen-container "
@@ -590,13 +681,7 @@
                                     :on-mouse-out (handler-fn (reset! over? false))})
                                  (->attr args)
                                  attr)
-                                (cond
-                                  just-drop? nil
-                                  free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range
-                                              internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel
-                                              width free-text-change auto-complete? choices capitalize? disabled?]
-                                  :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler
-                                         filter-box? drop-showing? title? disabled?])
+                                anchor
                                 (when (and @drop-showing? (not disabled?))
                                   [:div
                                    (merge
