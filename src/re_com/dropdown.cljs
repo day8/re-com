@@ -4,6 +4,7 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
+   [re-com.theme    :as    theme]
    [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
    [re-com.box      :refer [align-style flex-child-style v-box h-box box]]
    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
@@ -18,30 +19,34 @@
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
-(defn anchor-default [{:keys [dropdown-open? parts]}]
+(def base-parts {:backdrop {:class    "noselect rc-backdrop "
+                            :style    {:position         "fixed"
+                                       :left             "0px"
+                                       :top              "0px"
+                                       :width            "100%"
+                                       :height           "100%"
+                                       :background-color "black"
+                                       :opacity          0.5
+                                       :pointer-events   "none"}}
+                 :anchor   {:style {:background-color "white"}
+                            :class "chosen-single chosen-default"
+                            :tab-index 1}})
+
+(def theme (partial theme/parts base-parts))
+
+(defn anchor-part [{:keys [dropdown-open? parts theme]}]
   [:a
-   {:style {:background-color "white"}
-    :class "chosen-single chosen-default"
-    :tab-index 1
-    :on-click #(swap! dropdown-open? not)
-    :on-blur #(reset! dropdown-open? false)}
+   (-> {:on-click #(swap! dropdown-open? not)
+        :on-blur #(reset! dropdown-open? false)}
+       (theme/apply nil :anchor theme))
    "Select an item"])
 
-(defn clear-backdrop
-  [{:keys [dropdown-open? parts]}]
+(defn backdrop-part
+  [{:keys [dropdown-open? theme parts]}]
   [:div
-   (into {:class    (str "noselect rc-backdrop " (get-in parts [:backdrop :class]))
-          :style    (into {:position         "fixed"
-                           :left             "0px"
-                           :top              "0px"
-                           :width            "100%"
-                           :height           "100%"
-                           :background-color "black"
-                           :opacity          0.5
-                           :pointer-events   "none"}
-                          (get-in parts [:backdrop :style]))
-          :on-click #(reset! dropdown-open? nil)}
-         (get-in parts [:backdrop :attr]))])
+   (into (-> {:on-click #(reset! dropdown-open? nil)}
+             (theme/apply nil :backdrop theme)
+             (theme/merge-attr (:backdrop parts))))])
 
 (defn dropdown [& {:keys [model]
                    :or {model (reagent/atom nil)}}]
@@ -49,19 +54,21 @@
     [& {:keys [disabled? min-width max-width width min-height max-height on-change
                anchor-height
                anchor backdrop body
+               theme
                height parts style]
         :as   args
-        :or   {anchor anchor-default}}]
+        :or   {anchor anchor-part
+               theme re-com.dropdown/theme}}]
     (let [change! (when on-change (handler-fn (on-change (not @model))))
           anchor  (if-not (fn? anchor)
                     anchor
-                    [anchor {:dropdown-open? model :parts (select-keys parts [:anchor])}])
+                    [anchor {:dropdown-open? model :theme theme :parts (select-keys parts [:anchor])}])
           body    (if-not (fn? body)
                     body
-                    [body {:open? model :parts parts}])
+                    [body {:open? model :theme theme :parts parts}])
           backdrop (cond
-                     (nil? backdrop) [clear-backdrop {:dropdown-open? model :parts parts}]
-                     (fn? backdrop) [backdrop {:open? model :parts parts}]
+                     (nil? backdrop) [backdrop-part {:dropdown-open? model :theme theme :parts parts}]
+                     (fn? backdrop) [backdrop {:open? model :theme theme :parts parts}]
                      :else backdrop)]
       [v-box
        :attr  (get-in parts [:wrapper :attr])
@@ -83,7 +90,6 @@
            :max-width max-width
            :width     width
            :child
-           [:<>
             [v-box
              :src (at)
              :height     height
@@ -95,12 +101,12 @@
              :style      (merge {:position         "absolute"
                                  :overflow-y       "auto"
                                  :background-color "white"
-                                 :border-radius    "4px"
+                                :border-radius    "0 0 4px 4px"
                                  :border           "1px solid #ccc"
                                  :padding          "5px 10px 5px 5px"
                                  :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}
                                 (get-in parts [:dropdown-wrapper :style]))
-             :children [body]]]])]])))
+            :children [body]]])]])))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
