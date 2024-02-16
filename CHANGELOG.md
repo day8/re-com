@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.18.1 (2024-02-16)
+
+#### Added
+
+- `v-table`, `simple-v-table` fixed performance drop when scrolling through sorted rows.
+
+
 ## 2.18.0 (2024-02-02)
 
 #### Added

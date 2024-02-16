@@ -1034,6 +1034,17 @@
            (reset! row-viewport-element (.getElementById js/document row-viewport-id)) ;; TODO: [MT] Use refs?
            (.addResizeListener js/window @row-viewport-element on-viewport-resize))
 
+         :component-did-update
+         (fn v-table-component-did-update
+           [this [_ & {old-sort-keyfn :sort-keyfn old-sort-comp :sort-comp :as old-args}]]
+           (println "Component!")
+           (let [[_ & {new-sort-keyfn :sort-keyfn new-sort-comp :sort-comp :as new-args}] (reagent/argv this)]
+             (when (or (not= old-sort-keyfn new-sort-keyfn) (not= new-sort-comp old-sort-comp))
+               (cond
+                 (and new-sort-keyfn new-sort-comp) (reset! row-sort-fn (partial new-sort-keyfn new-sort-comp))
+                 new-sort-keyfn                 (reset! row-sort-fn (partial sort-by new-sort-keyfn))
+                 new-sort-comp                  (reset! row-sort-fn (partial sort new-sort-comp))))))
+
          :component-will-unmount
          (fn v-table-component-will-unmount
            []
@@ -1074,10 +1085,6 @@
             (do
               (reset! content-rows-width row-content-width)
               (reset! content-rows-height (* @m-size row-height))
-              (cond
-                (and sort-keyfn sort-comp) (reset! row-sort-fn (partial sort-by sort-keyfn sort-comp))
-                sort-keyfn                 (reset! row-sort-fn (partial sort-by sort-keyfn))
-                sort-comp                  (reset! row-sort-fn (partial sort sort-comp)))
                 ;; Scroll rows into view handling
               (when (not= (deref-or-value scroll-rows-into-view) @internal-scroll-rows-into-view)
                    ;; TODO: Ideally allow non-atom nil but exception if it's not an atom when there's a value
