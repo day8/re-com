@@ -223,3 +223,11 @@
          (cons (map header-value-fn columns))
          (map tsv-line)
          (apply str))))
+
+(def hiccup? vector?)
+
+(defn part-renderer [x & args]
+  (cond
+    (hiccup? x) x
+    (fn? x)     (into [x] args)
+    :else       nil))
