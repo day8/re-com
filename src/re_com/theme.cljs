@@ -7,7 +7,7 @@
 
 (defn merge-attr [& ms]
   (let [class-vec #(if (vector? %) % [%])
-        ms (remove (some-fn nil? empty?) ms)
+        ms (remove nil? ms)
         ms (map #(cond-> % (and (map? %)
                                 (:class %))
                          (update :class class-vec)) ms)]
@@ -19,6 +19,9 @@
 (defn parts [parts attr _state part]
   (let [current-part (get parts part)]
     (cond-> attr current-part (merge-attr current-part))))
+
+(defn apply-parts [attr parts-spec part]
+  (parts parts-spec attr nil part))
 
 (defn ensure-spread [args]
   (cond-> args (sequential? (last args)) spread))
