@@ -378,6 +378,16 @@
                  {:status  :warning
                   :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))))
 
+(defn css-class?
+  "Returns true if the passed argument is a valid CSS style.
+   Otherwise returns a warning map"
+  [arg]
+  (if-not debug?
+    true
+    (or (string? arg)
+        (and (sequential? arg)
+             (every? string? arg)))))
+
 (defn extension-attribute?
   "Returns truthy if the attribute name is an extension attribute, that is data-* or aria-*, otherwise falsey."
   ([attr]
