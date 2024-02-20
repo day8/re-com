@@ -97,6 +97,61 @@
                (theme/apply state :backdrop theme)
                (theme/apply-parts parts :backdrop))])
 
+(defn calculate-position! [position]
+  (let [anchor (.querySelector js/document "#anchor")
+        popover (.querySelector js/document "#popover")]
+    (when (and anchor popover)
+      (let [anchor-rect (.getBoundingClientRect anchor)
+            [anchor-h anchor-w] [(.-height anchor-rect) (.-width anchor-rect)]
+            popover-height (.-offsetHeight popover)
+            viewport-width (.-innerWidth js/window)
+            viewport-height (.-innerHeight js/window)
+            initial-top (+ (.-bottom anchor-rect) (.-scrollY js/window))
+            initial-left (+ (.-left anchor-rect) (.-scrollX js/window))
+            crossing-bottom? (> (+ initial-top popover-height)
+                                (+ viewport-height (.-scrollY js/window)))
+            top (cond
+                  crossing-bottom?
+                  (- 0  popover-height (.-scrollY js/window))
+                  :else
+                  anchor-h)
+            left (cond
+                   ;; If right edge is exceeded
+                   (> (+ initial-left (.-offsetWidth popover)) viewport-width)
+                   (- initial-left (+ initial-left (.-offsetWidth popover)) viewport-width)
+
+                   ;; If left edge is exceeded
+                   (< initial-left 0)
+                   0
+
+                   :else
+
+                   0)]
+        (println left top)
+        (reset! position [left top])))))
+
+(defn popover-component [& children]
+  (let [position-popover (reagent/atom [0 0])
+        calculate-position! (partial calculate-position! position-popover)]
+    (reagent/create-class
+     {:component-did-mount
+      (fn [] (calculate-position!)
+        (.addEventListener js/window "resize" calculate-position!)
+        (.addEventListener js/window "scroll" calculate-position!))
+      :component-will-unmount
+      (fn []
+        (.removeEventListener js/window "resize" calculate-position!)
+        (.removeEventListener js/window "scroll" calculate-position!))
+      :reagent-render
+      (fn []
+        (let [[left top] @position-popover]
+          [:div#popover
+           {:style {:position "absolute"
+                    :top (str top "px")
+                    :left (str left "px")
+                    #_#_:display "none"}}
+           (doall children)]))})))
+
 (defn dropdown
   "A clickable anchor above an openable, floating body.
   "
@@ -147,18 +202,14 @@
        [(when @model backdrop)
           [box
            (-> {:src  (at)
-                :attr {:on-click #(swap! model not)}}
+                  :attr {:id "anchor"
+                         :on-click #(swap! model not)}}
                (theme/apply state :anchor-wrapper theme)
                (theme/apply-parts parts :anchor-wrapper)
                (assoc :child anchor))]
-          (when @model
-            [:div
-              (->
-               {:src   (at)
-                :style {:z-index 99999}}
-               (theme/apply state :body-wrapper theme)
-               (theme/apply-parts parts :body-wrapper))
-               body])]))]))))
+
+            (when (or @model true)
+              [popover-component body])]))]))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
