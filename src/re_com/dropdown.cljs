@@ -58,7 +58,7 @@
                                   :padding          "5px 10px 5px 5px"
                                   :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}}
          :backdrop       {:style {:color   "black"
-                                  :opacity 0.1}}
+                                  #_#_:opacity 0.1}}
          :anchor-wrapper (let [open?   (= :open (:openable state))
                                closed? (= :closed (:openable state))]
                            {:style {:background-color           "white"
@@ -91,73 +91,88 @@
           (theme/apply-parts parts :anchor))
    (or label placeholder "Select an item")])
 
-(defn backdrop-part
-  [{:keys [dropdown-open? state theme parts]}]
-  [:div (-> {:on-click #(reset! dropdown-open? nil)}
+(defn backdrop-part [_]
+  (let [in? (reagent/atom nil)] ;; TODO use the state machine for this
+    (fn [{:keys [dropdown-open? state theme parts]}]
+      (let [opacity (if @in? 0.1 0)]
+        (js/setTimeout #(reset! in? true) 16)
+        [:div (-> {:on-click #(reset! dropdown-open? nil)
+                   :style {:opacity opacity
+                           :transition "opacity 0.2s"}}
                (theme/apply state :backdrop theme)
-               (theme/apply-parts parts :backdrop))])
+                  (theme/apply-parts parts :backdrop))]))))
 
 (defn nearest [x a b]
-  (cond
-    (< (Math/abs (- a x)) (Math/abs (- b x))) a
-    (< (Math/abs (- b x)) (Math/abs (- a x))) b
-    :else                                     (min a b)))
+  (if (< (Math/abs (- a x)) (Math/abs (- b x))) a b))
 
-#_(let [[a p]                   [(.querySelector js/document "#anchor")
-                                 (.querySelector js/document "#popover")]
-        a-rect                  (.getBoundingClientRect a)
-        [a-x a-y a-h a-w]       [(.-x a-rect) (.-y a-rect) (.-height a-rect) (.-width a-rect)]
-        [p-h p-w]               [(.-offsetHeight p) (.-offsetWidth p)]
-        [v-mid-x v-mid-y]       [(/ js/window.innerWidth 2) (/ js/window.innerHeight 2)]
-        [low-mid-x low-mid-y
-         high-mid-x high-mid-y] [(+ a-x (/ p-w 2))              (+ a-y a-h (/ p-w 2))
-                                 (-> a-x (+ a-w) (- (/ p-w 2))) (-> a-y (- (/ p-h 2)))]
-        high-v?                 (= high-mid-y (nearest v-mid-y low-mid-y high-mid-y))])
-;;
+(case (nearest 2 -1 4)
+  3 :hi
+  4 :lo)
 
-(defn calculate-position! [position]
-  (let [anchor (.querySelector js/document "#anchor")
-        popover (.querySelector js/document "#popover")]
-    (when (and anchor popover)
-      (let [[a p]                   [(.querySelector js/document "#anchor")
-                                     (.querySelector js/document "#popover")]
-            a-rect                  (.getBoundingClientRect a)
-            [a-x a-y a-h a-w]       [(.-x a-rect) (.-y a-rect) (.-height a-rect) (.-width a-rect)]
-            [p-h p-w]               [(.-offsetHeight p) (.-offsetWidth p)]
-            [v-mid-x v-mid-y]       [(/ js/window.innerWidth 2) (/ js/window.innerHeight 2)]
-            [low-mid-x low-mid-y
-             high-mid-x high-mid-y] [(+ a-x (/ p-w 2))              (+ a-y a-h (/ p-w 2))
-                                     (-> a-x (+ a-w) (- (/ p-w 2))) (-> a-y (- (/ p-h 2)))]
-            high-v?                 (= high-mid-y (nearest v-mid-y low-mid-y high-mid-y))]
-        (reset! position [0 (if high-v? (- p-h) a-h)])))))
+(defn optimize-position!
+  "Returns an [x y] position for popover, relative to anchor.
+  Considers two possible vertical positions - above or below the anchor.
+  Picks the vertical position whose midpoint is nearest to the viewport's midpoint.
+  Calculates a left-justified horizontal position, constrained by the viewport width
+  and the right edge of the anchor.
 
-(defn popover-component [& children]
-  (let [position-popover (reagent/atom [0 0])
-        calculate-position! (partial calculate-position! position-popover)]
+  In other words, the popover slides left & right within the anchor width,
+  and blinks up & down, to find the least cut-off position."
+  [anchor-el popover-el]
+  (let [a-rect      (.getBoundingClientRect anchor-el)
+        a-x         (.-x a-rect)
+        a-y         (.-y a-rect)
+        a-h         (.-height a-rect)
+        a-w         (.-width a-rect)
+        a-b         (.-bottom a-rect)
+        p-h         (.-offsetHeight popover-el)
+        p-w         (.-offsetWidth popover-el)
+        v-mid-y     (/ js/window.innerHeight 2)
+        lo-mid-y    (+ a-b (/ p-w 2))
+        hi-mid-y    (- a-y (/ p-h 2))
+        v-pos       (if (= lo-mid-y (nearest v-mid-y lo-mid-y hi-mid-y)) :low :high)
+        left-bound  (max (- a-x) 0)
+        right-bound (max (- a-w p-w) 0)
+        best-x      (min left-bound right-bound)
+        best-y      (case v-pos :low a-h :high (- p-h))]
+    [best-x best-y]))
+
+(defn body-wrapper [{:keys [state parts theme !anchor !popover !position]} & children]
+  (let [set-popover-ref!   #(reset! !popover %)
+        optimize-position! #(reset! !position (optimize-position! @!anchor @!popover))
+        mounted!           #(do
+                              (optimize-position!)
+                              (.addEventListener js/window "resize" optimize-position!)
+                              (.addEventListener js/window "scroll" optimize-position!))
+        unmounted!         #(do
+                              (.removeEventListener js/window "resize" optimize-position!)
+                              (.removeEventListener js/window "scroll" optimize-position!))]
     (reagent/create-class
-     {:component-did-mount
-      (fn [] (calculate-position!)
-        (.addEventListener js/window "resize" calculate-position!)
-        (.addEventListener js/window "scroll" calculate-position!))
-      :component-will-unmount
-      (fn []
-        (.removeEventListener js/window "resize" calculate-position!)
-        (.removeEventListener js/window "scroll" calculate-position!))
+     {:component-did-mount    mounted!
+      :component-will-unmount unmounted!
       :reagent-render
       (fn []
-        (let [[left top] @position-popover]
+        (let [[left top] (or @!position [0 0])]
+          (into
           [:div#popover
-           {:style {:position "absolute"
+            (->
+             {:ref   set-popover-ref!
+              :style {:z-index    99999
+                      :position   "absolute"
                     :top (str top "px")
                     :left (str left "px")
-                    #_#_:display "none"}}
-           (doall children)]))})))
+                      :opacity    (if @!position 1 0)
+                      :transition "opacity 0.2s"}}
+             (theme/apply state :body-wrapper theme)
+             (theme/apply-parts parts :body-wrapper))]
+           children)))})))
 
 (defn dropdown
   "A clickable anchor above an openable, floating body.
   "
   [& {:keys [model] :or {model (reagent/atom nil)}}]
-  (let [focused? (reagent/atom nil)]
+  (let [[focused? !anchor !popover !position] (repeatedly #(reagent/atom nil))
+        anchor-ref! #(reset! !anchor %)]
   (fn dropdown-render
     [& {:keys [disabled? on-change tab-index
                width height min-width max-width min-height max-height anchor-height
@@ -200,17 +215,23 @@
         (theme/apply-parts parts :wrapper)
         (assoc
        :children
-       [(when @model backdrop)
+           [(when (= :open (:openable state)) backdrop)
           [box
            (-> {:src  (at)
-                  :attr {:id "anchor"
+                  :attr {:ref      anchor-ref!
+                         :id       "anchor"
                          :on-click #(swap! model not)}}
                (theme/apply state :anchor-wrapper theme)
                (theme/apply-parts parts :anchor-wrapper)
                (assoc :child anchor))]
 
-            (when (or @model true)
-              [popover-component body])]))]))))
+            (when (= :open (:openable state))
+              [body-wrapper {:!anchor   !anchor
+                             :!popover  !popover
+                             :!position !position
+                             :parts     parts
+                             :state     state
+                             :theme     theme} body])]))]))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
