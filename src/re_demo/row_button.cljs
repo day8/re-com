@@ -7,7 +7,6 @@
             [re-com.util                   :refer [px]]
             [reagent.core                  :as    reagent]))
 
-
 (defn data-row
   [row first? last? col-widths mouse-over click-msg]
   (let [mouse-over-row? (identical? @mouse-over row)]
@@ -54,7 +53,6 @@
                              :tooltip         "Delete this line"
                              :on-click        #(reset! click-msg (str "delete row " (:id row)))]]]]]))
 
-
 (defn data-table
   [rows col-widths]
   (let [large-font (reagent/atom false)
@@ -86,7 +84,6 @@
                    :children [[:span "clicked: "]
                               [:span.bold (str @click-msg)]]]]])))
 
-
 (defn row-button-demo
   []
   (let [selected-icon (reagent/atom (:id (first icons)))
@@ -100,8 +97,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title  "[row-button ... ]"
-                                "src/re_com/buttons.cljs"
-                                "src/re_demo/row_button.cljs"]
+                   "src/re_com/buttons.cljs"
+                   "src/re_demo/row_button.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"
@@ -127,29 +124,28 @@
                                                       #_[:p "Row buttons have three distinct states."]
                                                       #_[example-icons selected-icon]
                                                       #_[v-box :src (at)
-                                                       :gap      "8px"
-                                                       :children [[h-box :src (at)
-                                                                   :gap      "2px"
-                                                                   :align    :center
-                                                                   :children [[label :src (at) :label "States: ["]
-                                                                              [row-button :src (at)
-                                                                               :md-icon-name    @selected-icon
-                                                                               :mouse-over-row? false
-                                                                               :tooltip         ":mouse-over-row? set to false (invisible)"
-                                                                               :on-click        #()]
-                                                                              [row-button :src (at)
-                                                                               :md-icon-name    @selected-icon
-                                                                               :mouse-over-row? true
-                                                                               :tooltip         ":mouse-over-row? set to true (semi-visible)"
-                                                                               :on-click        #()]
-                                                                              [row-button :src (at)
-                                                                               :md-icon-name    @selected-icon
-                                                                               :tooltip         ":disabled? set to true"
-                                                                               :disabled?       true
-                                                                               :on-click        #()]
-                                                                              [label :src (at) :label "]"]]]]]]]]]]]
+                                                         :gap      "8px"
+                                                         :children [[h-box :src (at)
+                                                                     :gap      "2px"
+                                                                     :align    :center
+                                                                     :children [[label :src (at) :label "States: ["]
+                                                                                [row-button :src (at)
+                                                                                 :md-icon-name    @selected-icon
+                                                                                 :mouse-over-row? false
+                                                                                 :tooltip         ":mouse-over-row? set to false (invisible)"
+                                                                                 :on-click        #()]
+                                                                                [row-button :src (at)
+                                                                                 :md-icon-name    @selected-icon
+                                                                                 :mouse-over-row? true
+                                                                                 :tooltip         ":mouse-over-row? set to true (semi-visible)"
+                                                                                 :on-click        #()]
+                                                                                [row-button :src (at)
+                                                                                 :md-icon-name    @selected-icon
+                                                                                 :tooltip         ":disabled? set to true"
+                                                                                 :disabled?       true
+                                                                                 :on-click        #()]
+                                                                                [label :src (at) :label "]"]]]]]]]]]]]
                   [parts-table "row-button" row-button-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

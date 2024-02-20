@@ -1,33 +1,34 @@
 (ns re-com.core
   (:require-macros
-    [re-com.core])
+   [re-com.core])
   (:require
-    [re-com.alert          :as alert]
-    [re-com.box            :as box]
-    [re-com.buttons        :as buttons]
-    [re-com.checkbox       :as checkbox]
-    [re-com.close-button   :as close-button]
-    [re-com.datepicker     :as datepicker]
-    [re-com.debug          :as debug]
-    [re-com.dropdown       :as dropdown]
-    [re-com.input-text     :as input-text]
-    [re-com.typeahead      :as typeahead]
-    [re-com.input-time     :as input-time]
-    [re-com.splits         :as splits]
-    [re-com.modal-panel    :as modal-panel]
-    [re-com.multi-select   :as multi-select]
-    [re-com.popover        :as popover]
-    [re-com.progress-bar   :as progress-bar]
-    [re-com.radio-button   :as radio-button]
-    [re-com.selection-list :as selection-list]
-    [re-com.slider         :as slider]
-    [re-com.tabs           :as tabs]
-    [re-com.tag-dropdown   :as tag-dropdown]
-    [re-com.text           :as text]
-    [re-com.throbber       :as throbber]
-    [re-com.tour           :as tour]
-    [re-com.v-table        :as v-table]
-    [re-com.simple-v-table :as simple-v-table]))
+   [re-com.alert          :as alert]
+   [re-com.box            :as box]
+   [re-com.buttons        :as buttons]
+   [re-com.checkbox       :as checkbox]
+   [re-com.close-button   :as close-button]
+   [re-com.datepicker     :as datepicker]
+   [re-com.debug          :as debug]
+   [re-com.dropdown       :as dropdown]
+   [re-com.input-text     :as input-text]
+   [re-com.typeahead      :as typeahead]
+   [re-com.input-time     :as input-time]
+   [re-com.splits         :as splits]
+   [re-com.modal-panel    :as modal-panel]
+   [re-com.multi-select   :as multi-select]
+   [re-com.popover        :as popover]
+   [re-com.progress-bar   :as progress-bar]
+   [re-com.radio-button   :as radio-button]
+   [re-com.selection-list :as selection-list]
+   [re-com.slider         :as slider]
+   [re-com.tabs           :as tabs]
+   [re-com.tag-dropdown   :as tag-dropdown]
+   [re-com.text           :as text]
+   [re-com.throbber       :as throbber]
+   [re-com.tour           :as tour]
+   [re-com.tree-select    :as tree-select]
+   [re-com.v-table        :as v-table]
+   [re-com.simple-v-table :as simple-v-table]))
 
 ;; -----------------------------------------------------------------------------
 ;; re-com public API (see also re-com.util)
@@ -94,6 +95,8 @@
 
 (def selection-list             selection-list/selection-list)
 (def multi-select               multi-select/multi-select)
+(def tree-select                tree-select/tree-select)
+(def tree-select-dropdown       tree-select/tree-select-dropdown)
 (def tag-dropdown               tag-dropdown/tag-dropdown)
 (def text-tag                   tag-dropdown/text-tag)
 

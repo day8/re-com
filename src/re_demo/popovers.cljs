@@ -6,7 +6,6 @@
             [re-demo.utils               :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text scroll-to-top]]
             [reagent.core                :as    reagent]))
 
-
 (def curr-position (reagent/atom :below-center))
 (def positions     [{:id :above-left   :label ":above-left  "}
                     {:id :above-center :label ":above-center"}
@@ -20,7 +19,6 @@
                     {:id :right-above  :label ":right-above "}
                     {:id :right-center :label ":right-center"}
                     {:id :right-below  :label ":right-below "}])
-
 
 (defn see-demo-page
   []
@@ -56,7 +54,6 @@
                             :title    "Title"
                             :body     "Popover body text"]]]]))
 
-
 (defn popover-component-hierarchy
   []
   (let [indent          20
@@ -77,10 +74,10 @@
                 [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
                     Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
                 [:pre "[popover-anchor\n"
-                      "   ...\n"
-                      "   :parts {:wrapper {:class \"blah\"\n"
-                      "                     :style { ... }\n"
-                      "                     :attr  { ... }}}]"]
+                 "   ...\n"
+                 "   :parts {:wrapper {:class \"blah\"\n"
+                 "                     :style { ... }\n"
+                 "                     :attr  { ... }}}]"]
                 [title3 "Part Hierarchy"]
                 [:table table-style
                  [:thead valign-style-hd
@@ -146,15 +143,14 @@
                    [:td border-style "n/a"]
                    [:td border-style "The " (code-text ":body") " argument of " (code-text "[popover-content-wrapper]") " is placed here."]]]]]]))
 
-
 (defn arg-lists
   []
   [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Popover Reference"
-                           "src/re_com/popover.cljs"
-                           "src/re_demo/popovers.cljs"]
+               "src/re_com/popover.cljs"
+               "src/re_demo/popovers.cljs"]
 
               [title2 "The Basics"]
               [p "Here is the actual code for a very simple popover along with the popover it produces:"]
@@ -386,7 +382,6 @@
                                                                     [label :src (at) :label "* Changing starred items above closes the popover."]]]]]]]]]
                     [line :src (at) :style {:margin-top "20px"}]]]))))
 
-
 (defn hyperlink-popover-demo
   []
   (let [showing?  (reagent/atom false)]
@@ -399,8 +394,7 @@
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
-                               :children [
-                                           [p "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]
+                               :children [[p "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]
                               [v-box :src (at)
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -416,7 +410,6 @@
                                                       :body     "popover body"]]]]]]
                   [line :src (at) :style {:margin-top "20px"}]]])))
 
-
 (defn proximity-popover-demo
   []
   (let [showing? (reagent/atom false)]
@@ -429,8 +422,8 @@
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
-                               :children [ [p "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
-                                           [p "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]
+                               :children [[p "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
+                                          [p "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]
                               [v-box :src (at)
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -449,7 +442,6 @@
                                                      :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]
                   [line :src (at) :style {:margin-top "20px"}]]])))
 
-
 (defn popover-tooltip-demo
   []
   (let [showing?      (reagent/atom false)
@@ -467,9 +459,8 @@
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
-                               :children [
-                                           [p "This is a seaprate component which makes it really easy to create tooltips."]
-                                           [p "It also can be colored for warning or error status."]]]
+                               :children [[p "This is a seaprate component which makes it really easy to create tooltips."]
+                                          [p "It also can be colored for warning or error status."]]]
                               [v-box :src (at)
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -550,7 +541,6 @@
                                                       "Mostly used when :status is set to :info"]]]]]]
                   [line :src (at) :style {:margin-top "20px"}]]])))
 
-
 (defn complex-popover-demo
   []
   [v-box :src (at)
@@ -568,22 +558,20 @@
                            :margin   "20px 0px 0px 0px"
                            :children [[popover-dialog-demo/popover-dialog-demo curr-position]]]]]]])
 
-
 (defn panel2
   []
   [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Popover Components"
-                           "src/re_com/popover.cljs"
-                           "src/re_demo/popovers.cljs"]
+               "src/re_com/popover.cljs"
+               "src/re_demo/popovers.cljs"]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
               [popover-tooltip-demo]
               [complex-popover-demo]
               [gap :src (at) :size "280px"]]])
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

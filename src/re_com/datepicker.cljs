@@ -1,6 +1,6 @@
 (ns re-com.datepicker
   (:require-macros
-    [re-com.core          :refer [handler-fn at reflect-current-component]])
+   [re-com.core          :refer [handler-fn at reflect-current-component]])
   (:require
     [reagent.core         :as reagent]
     [cljs-time.core       :as cljs-time]
@@ -13,7 +13,7 @@
     [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
     [clojure.string       :as string])
   (:import
-    [goog.i18n DateTimeFormat]))
+   [goog.i18n DateTimeFormat]))
 
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
@@ -67,9 +67,9 @@
 
 (defn- =date [date1 date2]
   (and
-    (= (cljs-time/year date1)  (cljs-time/year date2))
-    (= (cljs-time/month date1) (cljs-time/month date2))
-    (= (cljs-time/day date1)   (cljs-time/day date2))))
+   (= (cljs-time/year date1)  (cljs-time/year date2))
+   (= (cljs-time/month date1) (cljs-time/month date2))
+   (= (cljs-time/day date1)   (cljs-time/day date2))))
 
 (defn- <=date [date1 date2]
   (or (=date date1 date2) (cljs-time/before? date1 date2)))
@@ -83,14 +83,14 @@
   [year]
   ;; A year is a leap year if it is...
   (not
-    (or
+   (or
       ;; Divisible by 4 (bitwise and 3), OR
-      (pos? (bit-and year 3))
+    (pos? (bit-and year 3))
       ;; Divisible by 16 (bitwise and 15) AND
       ;; not divisible by 25.
-      (and
-        (pos? (bit-and year 15))
-        (not (mod 25 year))))))
+    (and
+     (pos? (bit-and year 15))
+     (not (mod 25 year))))))
 
 (defn first-weekday-of-year
   [week-day-at-start-of-week year]
@@ -110,7 +110,7 @@
         days-to-add (if (pos? week-day-delta)
                       (- 7 week-day-delta)
                       (js/Math.abs week-day-delta))]
-      (cljs-time/plus jan-1-date-time (cljs-time/days days-to-add))))
+    (cljs-time/plus jan-1-date-time (cljs-time/days days-to-add))))
 
 (defn week-of-year
   [week-day-at-start-of-week start-of-week-date-time]
@@ -339,14 +339,14 @@
   [& {:keys [start-of-week i18n parts]}]
   (let [{:keys [days]} i18n]
     (into
-      [:<>]
-      (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
-        [:th
-         (merge
-           {:class (str "rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
-            :style (get-in parts [:day :style] {})}
-           (get-in parts [:day :attr]))
-         (str (:name day))]))))
+     [:<>]
+     (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
+       [:th
+        (merge
+         {:class (str "rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
+          :style (get-in parts [:day :style] {})}
+         (get-in parts [:day :attr]))
+        (str (:name day))]))))
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days"
@@ -372,7 +372,6 @@
 (defn- selection-changed
   [selection change-callback]
   (change-callback selection))
-
 
 (defn- table-td
   [date focus-month selected today {minimum :minimum maximum :maximum selectable-fn :selectable-fn :as attributes} disabled? on-change cmerger]
@@ -403,7 +402,6 @@
    (flatten-attr (cmerger :week))
    (week-of-year start-of-week date)])
 
-
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
   [date start-of-week focus-month selected attributes disabled? on-change cmerger]
@@ -412,7 +410,6 @@
         row-dates (map #(inc-date date %) (range 7))
         today     (when (:show-today? attributes) (now->utc))]
     (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change cmerger) row-dates))))
-
 
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
@@ -425,7 +422,6 @@
     (into [:tbody
            (flatten-attr (cmerger :dates))]
           (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change cmerger) row-start-dates))))
-
 
 (defn- configure
   "Augment passed attributes with extra info/defaults"
@@ -591,8 +587,8 @@
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn
-                     (when (not (deref-or-value disabled?))
-                       (swap! shown? not)))}
+                    (when (not (deref-or-value disabled?))
+                      (swap! shown? not)))}
    [h-box
     :align     :center
     :class     "noselect"
@@ -623,39 +619,39 @@
 (defn datepicker-dropdown
   [& {:keys [src] :as args}]
   (or
-    (validate-args-macro datepicker-dropdown-args-desc args)
-    (let [shown?         (reagent/atom false)
-          cancel-popover #(reset! shown? false)]
-      (fn datepicker-dropdown-render
-        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
-            :or {no-clip? true, position-offset 0, position :below-left}
-            :as passthrough-args}]
-        (or
-          (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
-          (let [collapse-on-select (fn [new-model]
-                                     (reset! shown? false)
-                                     (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
-                passthrough-args   (-> passthrough-args
-                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset :position)  ;; these keys only valid at this API level
-                                       (assoc :on-change collapse-on-select)
-                                       (assoc :src (at))
-                                       (merge {:hide-border? true})                                                        ;; apply defaults
-                                       vec
-                                       flatten)]
-            [popover-anchor-wrapper
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    "rc-datepicker-dropdown-wrapper"
-             :showing? shown?
-             :position position
-             :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
-             :popover  [popover-content-wrapper
-                        :src             (at)
-                        :position-offset (+ (if show-weeks? 43 44) position-offset)
-                        :no-clip?        no-clip?
-                        :arrow-length    0
-                        :arrow-width     0
-                        :arrow-gap       3
-                        :padding         "0px"
-                        :on-cancel       cancel-popover
-                        :body            (into [datepicker] passthrough-args)]]))))))
+   (validate-args-macro datepicker-dropdown-args-desc args)
+   (let [shown?         (reagent/atom false)
+         cancel-popover #(reset! shown? false)]
+     (fn datepicker-dropdown-render
+       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
+           :or {no-clip? true, position-offset 0, position :below-left}
+           :as passthrough-args}]
+       (or
+        (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
+        (let [collapse-on-select (fn [new-model]
+                                   (reset! shown? false)
+                                   (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
+              passthrough-args   (-> passthrough-args
+                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset :position)  ;; these keys only valid at this API level
+                                     (assoc :on-change collapse-on-select)
+                                     (assoc :src (at))
+                                     (merge {:hide-border? true})                                                        ;; apply defaults
+                                     vec
+                                     flatten)]
+          [popover-anchor-wrapper
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    "rc-datepicker-dropdown-wrapper"
+           :showing? shown?
+           :position position
+           :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
+           :popover  [popover-content-wrapper
+                      :src             (at)
+                      :position-offset (+ (if show-weeks? 43 44) position-offset)
+                      :no-clip?        no-clip?
+                      :arrow-length    0
+                      :arrow-width     0
+                      :arrow-gap       3
+                      :padding         "0px"
+                      :on-cancel       cancel-popover
+                      :body            (into [datepicker] passthrough-args)]]))))))

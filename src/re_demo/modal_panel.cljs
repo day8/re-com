@@ -5,7 +5,6 @@
             [re-com.util        :refer [px]]
             [reagent.core       :as    reagent]))
 
-
 (defn please-wait-message
   "Create a button to show a 'Please wait...' message for 3 seconds"
   []
@@ -22,7 +21,6 @@
                     [modal-panel :src (at)
                      :backdrop-on-click #(reset! show? false)
                      :child             [:span "Please wait for 3 seconds" [:br] "(or click on backdrop)"]])]])))
-
 
 (defn progress-bar-with-cancel-button
   "Create a button to show a modal with progress bar and cancel button. Not actually operational."
@@ -51,7 +49,6 @@
                                                      :style    {:margin-right "15px"}
                                                      :on-click #(reset! show? false)]
                                                     [:span "pretend only, click Cancel" [:br] "(or click on backdrop)"]]]]]])]])))
-
 
 (defn dialog-markup
   [form-data process-ok process-cancel]
@@ -94,7 +91,6 @@
                                     :label    "Cancel"
                                     :on-click process-cancel]]]]]])
 
-
 (defn modal-dialog
   "Create a button to test the modal component for modal dialogs"
   []
@@ -119,16 +115,16 @@
                    :label    "Modal Dialog"
                    :class    "btn-info"
                    :on-click #(do
-                               (reset! save-form-data @form-data)
-                               (reset! show? true))]
+                                (reset! save-form-data @form-data)
+                                (reset! show? true))]
                   (when @show? [modal-panel :src (at)
-                                   :backdrop-color   "grey"
-                                   :backdrop-opacity 0.4
-                                   :style            {:font-family "Consolas"}
-                                   :child            [dialog-markup
-                                                      form-data
-                                                      process-ok
-                                                      process-cancel]])]])))
+                                :backdrop-color   "grey"
+                                :backdrop-opacity 0.4
+                                :style            {:font-family "Consolas"}
+                                :child            [dialog-markup
+                                                   form-data
+                                                   process-ok
+                                                   process-cancel]])]])))
 
 (defn panel2
   []
@@ -136,8 +132,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[modal-panel ... ]"
-                            "src/re_com/modal_panel.cljs"
-                            "src/re_demo/modal_panel.cljs"]
+               "src/re_com/modal_panel.cljs"
+               "src/re_demo/modal_panel.cljs"]
 
               [h-box :src (at)
                :gap      "100px"
@@ -164,8 +160,6 @@
                                                   [progress-bar-with-cancel-button]
                                                   [modal-dialog]]]]]]]
               [parts-table "modal-panel" modal-panel-parts-desc]]])
-
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

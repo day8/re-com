@@ -1,7 +1,7 @@
 (ns re-com.radio-button
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -61,6 +61,7 @@
     (validate-args-macro radio-button-args-desc args)
     (let [model       (deref-or-value model)
           disabled?   (deref-or-value disabled?)
+          checked?    (= model value)
           callback-fn #(when (and on-change (not disabled?))
                          (on-change value))  ;; call on-change with the :value arg
           cmerger (merge-css radio-button-css-spec args)]
@@ -75,7 +76,7 @@
                      (flatten-attr (cmerger :main))
                      {:type      "radio"
                       :disabled  disabled?
-                      :checked   (= model value)
+                      :checked   checked?
                       :on-change (handler-fn (callback-fn))})]
                    (when label
                      [:span

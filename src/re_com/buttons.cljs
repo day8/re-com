@@ -1,6 +1,6 @@
 (ns re-com.buttons
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
     [re-com.util     :refer [deref-or-value px merge-css add-map-to-hiccup-call flatten-attr]]
     [re-com.config   :refer [include-args-desc?]]

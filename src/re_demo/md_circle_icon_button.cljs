@@ -5,7 +5,6 @@
             [re-com.util    :refer [px]]
             [reagent.core   :as    reagent]))
 
-
 (def icons
   [{:id "zmdi-plus"    :label [:i {:class "zmdi zmdi-plus"}]}
    {:id "zmdi-delete"  :label [:i {:class "zmdi zmdi-delete"}]}
@@ -13,7 +12,6 @@
    {:id "zmdi-home"    :label [:i {:class "zmdi zmdi-home"}]}
    {:id "zmdi-account" :label [:i {:class "zmdi zmdi-account"}]}
    {:id "zmdi-info"    :label [:i {:class "zmdi zmdi-info"}]}])
-
 
 (defn example-icons
   [selected-icon]
@@ -35,8 +33,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[md-circle-icon-button ... ]"
-                                "src/re_com/buttons.cljs"
-                                "src/re_demo/md_circle_icon_button.cljs"]
+                   "src/re_com/buttons.cljs"
+                   "src/re_demo/md_circle_icon_button.cljs"]
                   [h-box :src (at)
                    :gap "100px"
                    :children [[v-box :src (at)
@@ -92,7 +90,6 @@
                                                                    :disabled?    true
                                                                    :on-click     #()]]]]]]]]]
                   [parts-table "md-circle-icon-button" md-circle-icon-button-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

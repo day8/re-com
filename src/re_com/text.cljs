@@ -1,14 +1,13 @@
 (ns re-com.text
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
     [re-com.box      :refer [v-box box line flex-child-style]]
     [re-com.util     :refer [deep-merge add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
-
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: label

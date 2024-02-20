@@ -15,8 +15,8 @@
          :size "auto"
          :gap "10px"
          :children [[panel-title "[title ... ]"
-                                  "src/re_com/text.cljs"
-                                  "src/re_demo/title.cljs"]
+                     "src/re_com/text.cljs"
+                     "src/re_demo/title.cljs"]
                     [h-box :src (at)
                      :gap "100px"
                      :children [[v-box :src (at)
@@ -69,7 +69,6 @@
                                                         [title :src (at) :level :level4 :underline? @underline? :label ":level4 - Semibold 15px"]
                                                         para-text]]]]]]
                     [parts-table "title" title-parts-desc]]]))))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

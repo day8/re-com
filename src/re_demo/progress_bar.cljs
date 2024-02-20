@@ -15,8 +15,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[progress-bar ... ]"
-                                "src/re_com/progress_bar.cljs"
-                                "src/re_demo/progress_bar.cljs"]
+                   "src/re_com/progress_bar.cljs"
+                   "src/re_demo/progress_bar.cljs"]
                   [h-box :src (at)
                    :gap      "100px"
                    :children [[v-box :src (at)
@@ -41,8 +41,7 @@
                                                                   :padding          "15px"
                                                                   :border-top       "1px solid #DDD"
                                                                   :background-color "#f7f7f7"}
-                                                       :children [
-                                                                  [title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                                       :children [[title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                                                                   [h-box :src (at)
                                                                    :gap "10px"
                                                                    :children [[box :src (at) :align :start :child [:code ":model"]]
@@ -58,7 +57,6 @@
                                                                    :model     striped?
                                                                    :on-change #(reset! striped? %)]]]]]]]]]
                   [parts-table "progress-bar" progress-bar-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

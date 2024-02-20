@@ -1,17 +1,14 @@
 (ns re-demo.debug
   (:require-macros
-    [re-com.core       :refer []])
+   [re-com.core       :refer []])
   (:require
-    [re-com.core       :refer [at h-box v-box box gap line title checkbox p]]
-    [re-com.datepicker :refer [datepicker]]
-    [reagent.core      :as    reagent]
-    [re-demo.utils     :refer [panel-title title2 title3 github-hyperlink]]))
-
-
-
+   [re-com.core       :refer [at h-box v-box box gap line title checkbox p]]
+   [re-com.datepicker :refer [datepicker]]
+   [reagent.core      :as    reagent]
+   [re-demo.utils     :refer [panel-title title2 title3 github-hyperlink]]))
 
 (defn params-validation-column
-  []  
+  []
   (let [bogus-param-name?      (reagent/atom false)
         missing-on-change?     (reagent/atom false)
         boolean-selectable-fn? (reagent/atom false)
@@ -26,7 +23,6 @@
                   [p "Now, our sausage fingers sometimes type " [:code "onmouseover"] " instead of " [:code "on-mouse-over"] ", "
                    " or " [:code "centre"] " rather than " [:code "center"] ", and sometimes we pass in a string where a keyword is required."]
                   [p "re-com catches these errors early by validating both parameter names and values."]
-
 
                   [p "If a components detects a mistake in its parameters, it will render itself as a red, "
                    "placeholder box and report details of the error to the DevTools console."]
@@ -73,16 +69,14 @@
                   (cond->
                    [datepicker
                     :src (at)]
-                   (not @missing-on-change?)
-                   (into [:on-change #()])
-                   @bogus-param-name?
-                   (into [:bogus-arg-name :bogus])
-                   @boolean-selectable-fn?
-                   (into [:selectable-fn true])
-                   @unknown-part?
-                   (into [:parts {:bogus-part-name {:style {:border "1px solid #ccc"}}}]))]])))
-
-
+                    (not @missing-on-change?)
+                    (into [:on-change #()])
+                    @bogus-param-name?
+                    (into [:bogus-arg-name :bogus])
+                    @boolean-selectable-fn?
+                    (into [:selectable-fn true])
+                    @unknown-part?
+                    (into [:parts {:bogus-part-name {:style {:border "1px solid #ccc"}}}]))]])))
 
 (defn the-src-parameter-column
   []
@@ -110,9 +104,8 @@
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
               [title3 "A Script"]
               [p "If you have an existing/legacy codebase, "
-               "there is " [github-hyperlink "a script in the repo" "scripts/add-at-macro"] 
+               "there is " [github-hyperlink "a script in the repo" "scripts/add-at-macro"]
                " which will massage your code to add a "  [:code ":src"]  " argument everywhere a re-com component is used."]]])
-
 
 (defn stack-spy-column
   []
@@ -136,8 +129,7 @@
                "\n\n"
                "[stack-spy\n  :component [simple-v-table ...]]"]]])
 
-
-(defn colourising 
+(defn colourising
   []
   [v-box
    :src      (at)
@@ -147,13 +139,12 @@
               [p "re-com contains a switch which colorises the layout primatives of " [:code "h-box"] ", " [:code "v-box"] ", " [:code "gap"] " and " [:code "box"] "."]
               [:pre " (set! re-com.box/visualise-flow? true)"]]])
 
-
 (defn debug-demo
   []
   [v-box
    :src      (at)
    :gap      "10px"
-   :children [[panel-title  
+   :children [[panel-title
                "Debugging"
                "src/re_com/debug.cljs"
                "src/re_demo/debug.cljs"]
@@ -163,13 +154,10 @@
                :gap      "100px"
                :children [[the-src-parameter-column]
                           [params-validation-column]
-                          [v-box :src (at) 
+                          [v-box :src (at)
                            :gap "20px"
-                           :children [[stack-spy-column] 
+                           :children [[stack-spy-column]
                                       [colourising]]]]]]])
-
-
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

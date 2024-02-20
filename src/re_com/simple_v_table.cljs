@@ -1,33 +1,38 @@
 (ns re-com.simple-v-table
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
     [re-com.box      :refer [box h-box gap]]
-    [re-com.util     :refer [px deref-or-value assoc-in-if-empty merge-css add-map-to-hiccup-call flatten-attr]]
+    [re-com.util     :refer [px deref-or-value assoc-in-if-empty merge-css add-map-to-hiccup-call flatten-attr ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
+    [re-com.text     :refer [label]]
     [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
     [re-com.v-table  :as    v-table]))
 
 
-(defn swap!-sort-by-column
-  [{:keys [key-fn order]} new-key-fn new-comp]
-  (if (= key-fn new-key-fn)
-    (if (= :asc order)
-      {:key-fn key-fn
-       :comp   new-comp
-       :order  :desc}
-      nil)
-    {:key-fn new-key-fn
-     :comp   new-comp
-     :order :asc}))
+(def default-sort-criterion {:keyfn :label :order :asc})
 
+(defn update-sort-criteria
+  [criteria new-criterion]
+  (let [{:keys [id order] :as new-criterion} (merge default-sort-criterion new-criterion)
+        this?          (comp #{id} :id)
+        this-criterion (item-for-id id criteria)
+        operation      (cond
+                         (nil? this-criterion)             :add
+                         (= order (:order this-criterion)) :flip
+                         :else                             :drop)
+        flip           #(update % :order {:asc :desc :desc :asc})]
+    (case operation
+      :flip (mapv #(cond-> % (this? %) flip) criteria)
+      :drop (remove-id-item id criteria)
+      :add  (vec (conj criteria (merge default-sort-criterion new-criterion))))))
 
 (defn sort-icon
   [{:keys [size fill]
     :or   {size "16px"
-           fill "transparent"}}]
+           fill "black"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
@@ -37,58 +42,78 @@
 (defn arrow-down-icon
   [{:keys [size fill]
     :or   {size "24px"
-           fill "transparent"}}]
+           fill "black"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
    [:path {:fill fill
            :d    "M7 10l5 5 5-5H7z"}]])
 
-
 (defn arrow-up-icon
   [{:keys [size fill]
     :or   {size "24px"
-           fill "transparent"}}]
+           fill "black"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
    [:path {:fill fill
            :d    "M7 14l5-5 5 5H7z"}]])
 
-
-(def vertical-align->align
-  {:top      :start
-   :middle   :center
-   :bottom   :end
-   :sub      :end
-   :text-top :center})
+(def align->justify
+  {:left :start
+   :right :end
+   :center :center})
 
 (declare simple-v-table-css-spec)
 
 (defn column-header-item
-  [{:keys [id row-label-fn width height align vertical-align header-label sort-by] :as column} parts sort-by-column]
-  (let [{:keys [key-fn comp] :or {key-fn row-label-fn comp compare}} sort-by
-        {current-key-fn :key-fn order :order} @sort-by-column
-        on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)
-        align    (get vertical-align->align (keyword vertical-align) vertical-align)
-        cmerger (merge-css simple-v-table-css-spec {:parts parts})]
-    (cond->
-        (add-map-to-hiccup-call
-         (cmerger :simple-column-header-item {:height height :align align :sort-by sort-by
-                                              :attr (when sort-by {:on-click on-click})})
+  [& _]
+  (let [hover?      (reagent/atom false)]
+    (fn [{:keys [id row-label-fn width height align header-label sort-by]} parts sort-by-column]
+      (let
+          [sort-by                  (cond (true? sort-by) {} :else sort-by)
+           default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
+           ps                       (position-for-id id @sort-by-column)
+           {current-order :order}   (item-for-id id @sort-by-column)
+           add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
+           replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
+           on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
+                                       (add-criteria!)
+                                       (replace-criteria!))
+           justify                  (get align->justify (keyword align) :start)
+           multiple-columns-sorted? (> (count @sort-by-column) 1)
+           cmerger (merge-css simple-v-table-css-spec {:parts parts})]
+    (add-map-to-hiccup-call
+         (cmerger :simple-column-header-item
+                  {:height height
+                   ;:align align
+                   :sort-by sort-by
+                   :attr (merge
+                          {:on-mouse-enter #(reset! hover? true)
+                           :on-mouse-leave #(reset! hover? false)}
+                          (when sort-by {:on-click on-click}))})
          [h-box
           :width    (px width)
+          :justify  justify
+          :align    :center
           :children [header-label
                      (when sort-by
-                       [:<>
-                        [gap :size "16px"]
-                        (if (not= current-key-fn key-fn)
-                          [sort-icon]
-                          (if (= order :desc)
-                            [arrow-down-icon]
-                            [arrow-up-icon]))])]])
-      (when align)
-      (into [:align align]))))
+                        (add-map-to-hiccup-call
+                         (cmerger :simple-column-header-sort
+                                {:current-order current-order})
+                         [h-box
+                          :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
+                          :min-width "35px"
+                          :style (when current-order {:opacity 0.3})
+                          :justify :center
+                          :align :center
+                          :children
+                          [(case current-order
+                             :asc  [arrow-up-icon]
+                             :desc [arrow-down-icon]
+                             [sort-icon])
+                           (when ps
+                             [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])]]))]])))))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
@@ -115,7 +140,6 @@
                                 :row row
                                 :column column})
     (row-label-fn row)]))
-
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
@@ -146,11 +170,9 @@
      {:name :simple-row                 :level 5 :class "rc-simple-v-table-row"                 :impl "[:div]"           :notes "Simple-v-table's container for rows (placed under v-table's :row-content/:row-header-content)"}
      {:name :simple-row-item            :level 6 :class "rc-simple-v-table-row-item"            :impl "[:div]"           :notes "Individual row item/cell components"}]))
 
-
 (def simple-v-table-exclusive-parts
   (when include-args-desc?
     (-> (map :name simple-v-table-exclusive-parts-desc) set)))
-
 
 (def simple-v-table-parts-desc
   (when include-args-desc?
@@ -187,6 +209,11 @@
                                          :overflow      "hidden"
                                          :text-overflow "ellipsis"
                                          :cursor (when sort-by "pointer")})}
+   :simple-column-header-sort {:class (fn [{:keys [current-order]}]
+                                        ["rc-simple-v-table-column-header-sort-label"
+                                         (when current-order "rc-simple-v-table-column-header-sort-active")])
+                               :style (fn [{:keys [current-order]}]
+                                        (when current-order {:opacity 0.3}))}
    :simple-row {:class ["rc-simple-v-table-row"]
                 :style (fn [{:keys [row-height
                                     table-row-line-color
@@ -222,7 +249,6 @@
   (when include-args-desc?
     (-> (map :name simple-v-table-parts-desc) set)))
 
-
 (def simple-v-table-args-desc
   (when include-args-desc?
     [{:name :model                     :required true                     :type "r/atom containing vec of maps"    :validate-fn vector-atom?                   :description "one element for each row in the table."}
@@ -230,7 +256,10 @@
      {:name :fixed-column-count        :required false :default 0         :type "integer"                          :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
      {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                           :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
      {:name :column-header-height      :required false :default 31        :type "integer"                          :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
-     {:name :column-header-renderer    :required false                    :type "cols parts sort-by-col -> hiccup" :validate-fn ifn?                           :description "You can provide a renderer function to override the inbuilt renderer for the columns headings"}
+     {:name :column-header-renderer    :required false                    :type "cols parts sort-by-col -> hiccup" :validate-fn ifn?                           :description [:span "You can provide a renderer function to override the inbuilt renderer for the columns headings"]}
+     {:name :show-export-button?       :required false :default false     :type "boolean" :description [:span "When non-nil, adds a hiccup of " [:code ":export-button-render"] " to the component tree."]}
+     {:name :on-export                 :required false                    :type "columns, sorted-rows -> nil"             :validate-fn ifn?                           :description "Called whenever the export button is clicked."}
+     {:name :export-button-renderer    :required false                    :type "{:keys [columns rows on-export]} -> hiccup" :validate-fn ifn?                 :description [:span "Pass a component function to override the built-in export button. Declares a hiccup of your component in the " [:code ":top-right-renderer"] "position of the underlying " [:code "v-table"] "."]}
      {:name :max-width                 :required false                    :type "string"                           :validate-fn string?                        :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
      {:name :max-rows                  :required false                    :type "integer"                          :validate-fn number?                        :description "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
      {:name :row-height                :required false :default 31        :type "integer"                          :validate-fn number?                        :description "px height of each row."}
@@ -247,6 +276,24 @@
      {:name :src                       :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as                  :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(defn criteria-compare [a b {:keys [key-fn comp-fn order]
+                             :or {key-fn :label order :asc comp-fn compare}}]
+  (cond-> (comp-fn (key-fn a) (key-fn b))
+    (= :desc order) -))
+
+(defn multi-comparator [criteria]
+  (fn [a b]
+    (or (->> criteria
+             (map (partial criteria-compare a b))
+             (remove zero?)
+             (first)) 0)))
+
+(defn clipboard-export-button [{:keys [columns rows on-export]}]
+  [row-button :src (at)
+   :md-icon-name    "zmdi zmdi-copy"
+   :mouse-over-row? true
+   :tooltip         (str "Copy " (count rows) " rows, " (count columns) " columns to clipboard.")
+   :on-click        on-export])
 
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
@@ -287,15 +334,6 @@
                                           v-table/scrollbar-tot-thick
                                           (* 2 table-padding)
                                           2) ;; 2 border widths
-                internal-model         (reagent/track
-                                         (fn []
-                                           (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
-                                             (do
-                                               (let [sorted (sort-by key-fn comp (deref-or-value model))]
-                                                 (if (= order :desc)
-                                                   (vec (reverse sorted))
-                                                   (vec sorted))))
-                                             (deref-or-value model))))
                 cmerger (merge-css simple-v-table-css-spec args)]
             (add-map-to-hiccup-call
              (cmerger :simple-wrapper {:max-rows max-rows
@@ -307,7 +345,8 @@
               :debug-as (or debug-as (reflect-current-component))
               :child    [v-table/v-table
                          :src                     (at)
-                         :model                   internal-model
+                         :model                   model
+                         :sort-comp               (multi-comparator (->v @sort-by-column))
 
                          ;; ===== Column header (section 4)
                          :column-header-renderer  (partial column-header-renderer content-cols parts sort-by-column)
@@ -325,6 +364,15 @@
 
                          ;; ===== Corners (section 1)
                          :top-left-renderer       (partial column-header-renderer fixed-cols parts sort-by-column) ;; Used when there are fixed columns
+                         :top-right-renderer      (when show-export-button?
+                                                    #(let [rows    (deref-or-value model)
+                                                           columns (deref-or-value columns)
+                                                           sort-by-column (deref-or-value sort-by-column)]
+                                                       [export-button-renderer {:rows rows
+                                                                                :columns columns
+                                                                                :on-export (fn [_] (on-export {:columns columns
+                                                                                                               :rows (cond->> rows
+                                                                                                                       sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
 
                          ;; ===== Styling
                          :class                   class

@@ -4,7 +4,6 @@
             [re-demo.utils :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
             [re-com.util   :refer [px]]))
 
-
 (def rounded-panel (merge (flex-child-style "1")
                           {:background-color "#fff4f4"
                            :border           "1px solid lightgray"
@@ -25,7 +24,6 @@
    :child [:div {:style rounded-panel}
            [splitter-panel-title [:code ":panel-1"]]]])
 
-
 (defn right-panel
   []
   [box :src (at)
@@ -33,14 +31,12 @@
    :child [:div {:style rounded-panel}
            [splitter-panel-title [:code ":panel-2"]]]])
 
-
 (defn top-panel
   []
   [box :src (at)
    :size "auto"
    :child [:div {:style rounded-panel}
            [splitter-panel-title [:code ":panel-1"]]]])
-
 
 (defn bottom-panel
   []
@@ -55,8 +51,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Splitter Components"
-                            "src/re_com/splits.cljs"
-                            "src/re_demo/splits.cljs"]
+               "src/re_com/splits.cljs"
+               "src/re_demo/splits.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

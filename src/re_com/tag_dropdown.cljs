@@ -1,8 +1,8 @@
 (ns re-com.tag-dropdown
   (:require-macros
-    [reagent.ratom   :refer [reaction]]
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [reagent.ratom   :refer [reaction]]
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [goog.string           :as gstring]
     [reagent.core          :as reagent]
@@ -130,11 +130,11 @@
 (def tag-dropdown-parts-desc
   (when include-args-desc?
     (into
-      tag-dropdown-exclusive-parts-desc
-      (->>
-        selection-list/selection-list-parts-desc
-        (remove #(= :legacy (:type %)))
-        (map #(update % :level (comp inc inc)))))))
+     tag-dropdown-exclusive-parts-desc
+     (->>
+      selection-list/selection-list-parts-desc
+      (remove #(= :legacy (:type %)))
+      (map #(update % :level (comp inc inc)))))))
 
 (def tag-dropdown-css-spec
   {:main {:class ["rc-tag-dropdown"]
@@ -197,23 +197,23 @@
 (defn tag-dropdown
   [& {:as args}]
   (or
-    (validate-args-macro tag-dropdown-args-desc args)
-    (let [showing?      (reagent/atom false)]
-      (fn tag-dropdown-render
-        [& {:keys [choices model placeholder on-change unselect-buttons? required? abbrev-fn abbrev-threshold label-fn
-                   description-fn min-width max-width height style disabled? parts src debug-as]
-            :or   {label-fn          :label
-                   description-fn    :description
-                   height            "25px"}
-            :as   args}]
-        (or
-          (validate-args-macro tag-dropdown-args-desc args)
-          (let [choices            (deref-or-value choices)
-                model              (deref-or-value model)
-                abbrev-threshold   (deref-or-value abbrev-threshold)
-                required?          (deref-or-value required?)
-                disabled?          (deref-or-value disabled?)
-                unselect-buttons?  (deref-or-value unselect-buttons?)
+   (validate-args-macro tag-dropdown-args-desc args)
+   (let [showing?      (reagent/atom false)]
+     (fn tag-dropdown-render
+       [& {:keys [choices model placeholder on-change unselect-buttons? required? abbrev-fn abbrev-threshold label-fn
+                  description-fn min-width max-width height style disabled? parts src debug-as]
+           :or   {label-fn          :label
+                  description-fn    :description
+                  height            "25px"}
+           :as   args}]
+       (or
+        (validate-args-macro tag-dropdown-args-desc args)
+        (let [choices            (deref-or-value choices)
+              model              (deref-or-value model)
+              abbrev-threshold   (deref-or-value abbrev-threshold)
+              required?          (deref-or-value required?)
+              disabled?          (deref-or-value disabled?)
+              unselect-buttons?  (deref-or-value unselect-buttons?)
 
                 choices-num-chars  (reduce
                                      (fn [n choice]

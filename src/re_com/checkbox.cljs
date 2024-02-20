@@ -1,7 +1,7 @@
 (ns re-com.checkbox
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.debug     :refer [->attr]]
     [re-com.config    :refer [include-args-desc?]]

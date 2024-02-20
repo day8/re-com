@@ -1,11 +1,11 @@
 (ns re-com.debug
   (:require
-    [goog.object            :as    gobj]
-    [cljs.reader            :refer [read-string]]
-    [clojure.string         :as    string]
-    [reagent.core           :as    r]
-    [reagent.impl.component :as    component]
-    [re-com.config          :refer [debug? root-url-for-compiler-output]]))
+   [goog.object            :as    gobj]
+   [cljs.reader            :refer [read-string]]
+   [clojure.string         :as    string]
+   [reagent.core           :as    r]
+   [reagent.impl.component :as    component]
+   [re-com.config          :refer [debug? root-url-for-compiler-output]]))
 
 (defn short-component-name
   "Returns the interesting part of component-name"
@@ -27,10 +27,10 @@
   [args]
   (if (map? args)
     (->> ;; Remove args already represented in component hierarchy
-      (dissoc args :src :child :children :panel-1 :panel-2 :debug-as)
+     (dissoc args :src :child :children :panel-1 :panel-2 :debug-as)
       ;; Remove args with nil value
-      (remove (comp nil? second))
-      (into {}))
+     (remove (comp nil? second))
+     (into {}))
     args))
 
 (defn ->attr
@@ -40,8 +40,8 @@
     (let [rc-component        (or (:component debug-as)
                                   (short-component-name (component/component-name (r/current-component))))
           rc-args             (loggable-args
-                                (or (:args debug-as)
-                                    args))
+                               (or (:args debug-as)
+                                   args))
           ref-fn              (fn [^js/Element el]
                                 ;; If the ref callback is defined as an inline function, it will get called twice during updates,
                                 ;; first with null and then again with the DOM element.
@@ -57,8 +57,8 @@
                                     (user-ref-fn el))))
           {:keys [file line]} src]
       (cond->
-        {:ref     ref-fn
-         :data-rc rc-component}
+       {:ref     ref-fn
+        :data-rc rc-component}
         src
         (assoc :data-rc-src (str file ":" line))))))
 
@@ -71,14 +71,14 @@
      (let [component          (.. el -dataset -rc)
            ^js/Element parent (.-parentElement el)]
        (->
-         (if (= "stack-spy" component)
-           stack
-           (conj stack
-                 {:el        el
-                  :src       (.. el -dataset -rcSrc)
-                  :component component
-                  :args      (gobj/get el "__rc-args")}))
-         (component-stack parent))))))
+        (if (= "stack-spy" component)
+          stack
+          (conj stack
+                {:el        el
+                 :src       (.. el -dataset -rcSrc)
+                 :component component
+                 :args      (gobj/get el "__rc-args")}))
+        (component-stack parent))))))
 
 (defn validate-args-problems-style
   []
@@ -112,14 +112,14 @@
         (let [[file line] (string/split src #":")]
           (if args
             (js/console.log
-              (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O\n      DOM: %o")
-              index-style "" code-style "" code-style "" code-style "" args el)
+             (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O\n      DOM: %o")
+             index-style "" code-style "" code-style "" code-style "" args el)
             (js/console.log
-              (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o")
-              index-style "" code-style "" code-style "" code-style "" el)))
+             (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o")
+             index-style "" code-style "" code-style "" code-style "" el)))
         (js/console.log
-          (str "%c" i "%c " gear-icon " %c[" component " ...]%c\n      Parameters: %O\n      DOM: %o")
-          index-style "" code-style "" args el))
+         (str "%c" i "%c " gear-icon " %c[" component " ...]%c\n      Parameters: %O\n      DOM: %o")
+         index-style "" code-style "" args el))
       (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
   (js/console.groupEnd))
 
@@ -129,17 +129,20 @@
     (case problem
       ;; [IJ] TODO: :validate-fn-return
       :unknown         (js/console.log
-                         (str "• %cUnknown parameter: %c" arg-name)
-                         error-style code-style)
+                        (str "• %cUnknown parameter: %c" arg-name)
+                        error-style code-style)
       :required        (js/console.log
-                         (str "• %cMissing required parameter: %c" arg-name)
-                         error-style code-style)
+                        (str "• %cMissing required parameter: %c" arg-name)
+                        error-style code-style)
+      :ref             (js/console.log
+                        (str "• %cParameter %c" arg-name "%c expected a reactive atom but got a %c" actual)
+                        error-style code-style error-style code-style)
       :validate-fn     (js/console.log
-                         (str "• %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
-                         error-style code-style error-style code-style error-style code-style)
+                        (str "• %cParameter %c" arg-name "%c expected %c" (:type expected) "%c but got %c" actual)
+                        error-style code-style error-style code-style error-style code-style)
       :validate-fn-map (js/console.log
-                         (str "• %c" (:message validate-fn-result))
-                         error-style)
+                        (str "• %c" (:message validate-fn-result))
+                        error-style)
       (js/console.log "• " confused-icon " Unknown problem reported"))))
 
 (defn log-validate-args-error
@@ -149,19 +152,19 @@
     (if src
       (if source-url
         (js/console.log
-          (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line "%c see " source-url)
-          code-style "" code-style "" code-style "")
+         (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line "%c see " source-url)
+         code-style "" code-style "" code-style "")
         (do
           (js/console.log
-            (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
-            code-style "" code-style "" code-style)
+           (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
+           code-style "" code-style "" code-style)
           (js/console.log
-            (str "• To enable clickable source urls, add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c. See https://re-com.day8.com.au/#/config")
-            code-style "" code-style "")))
+           (str "• To enable clickable source urls, add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c. See https://re-com.day8.com.au/#/config")
+           code-style "" code-style "")))
       (do
         (js/console.log
-          (str "• " gear-icon "%c[" (short-component-name component-name) " ...]")
-          code-style)
+         (str "• " gear-icon "%c[" (short-component-name component-name) " ...]")
+         code-style)
         (js/console.log (str "• Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
     (log-validate-args-error-problems problems)
     (log-component-stack (component-stack @element))
@@ -177,31 +180,31 @@
         internal-component (atom component)
         internal-args      (atom args)]
     (r/create-class
-      {:display-name "validate-args-error"
+     {:display-name "validate-args-error"
 
-       :component-did-mount
-       (fn [this]
-         (log-validate-args-error element @internal-problems @internal-component (:src @internal-args)))
+      :component-did-mount
+      (fn [this]
+        (log-validate-args-error element @internal-problems @internal-component (:src @internal-args)))
 
-       :component-did-update
-       (fn [this argv old-state snapshot]
-         (log-validate-args-error element @internal-problems @internal-component (:src @internal-args)))
+      :component-did-update
+      (fn [this argv old-state snapshot]
+        (log-validate-args-error element @internal-problems @internal-component (:src @internal-args)))
 
-       :reagent-render
-       (fn [& {:keys [problems component args]}]
-         (reset! internal-problems problems)
-         (reset! internal-component component)
-         (reset! internal-args args)
-         [:div
-          (merge
-            (->attr {:src      (:src args)
-                     :debug-as {:component component
-                                :args      args}
-                     :attr     {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
-            {:title    "re-com validation error. Look in the DevTools console."
-             :style    (validate-args-problems-style)})
+      :reagent-render
+      (fn [& {:keys [problems component args]}]
+        (reset! internal-problems problems)
+        (reset! internal-component component)
+        (reset! internal-args args)
+        [:div
+         (merge
+          (->attr {:src      (:src args)
+                   :debug-as {:component component
+                              :args      args}
+                   :attr     {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
+          {:title    "re-com validation error. Look in the DevTools console."
+           :style    (validate-args-problems-style)})
 
-          collision-icon])})))
+         collision-icon])})))
 
 (defn stack-spy
   [& {:keys [component src]}]
@@ -222,11 +225,11 @@
                         (log-component-stack (component-stack first-child))
                         (js/console.groupEnd)))))]
     (r/create-class
-      {:display-name         "stack-spy"
-       :component-did-mount  log-fn
-       :component-did-update log-fn
-       :reagent-render
-       (fn [& {:keys [component src]}]
-         [:div
-          (->attr {:src src :attr {:ref ref-fn}}) ;; important that this ref-fn doesn't get overridden by (->attr ...)
-          component])})))
+     {:display-name         "stack-spy"
+      :component-did-mount  log-fn
+      :component-did-update log-fn
+      :reagent-render
+      (fn [& {:keys [component src]}]
+        [:div
+         (->attr {:src src :attr {:ref ref-fn}}) ;; important that this ref-fn doesn't get overridden by (->attr ...)
+         component])})))

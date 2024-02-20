@@ -2,6 +2,56 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.18.0 (2024-02-02)
+
+#### Added
+
+- `simple-v-table` - `:on-export`, `:export-button-renderer` and `:show-export-button?`
+
+## 2.17.1 (2024-01-24)
+
+#### Fixed
+
+- `tree-select` - `:parts` prop should work now. (#335)
+
+## 2.17.0 (2024-01-23)
+
+#### Changed
+
+- `simple-v-table` - Shift-click multiple columns to sort hierarchically.
+
+## 2.16.4 (2024-01-19)
+
+#### Fixed
+
+- `simple-v-table` column headers now are now :vertical-align "center"
+
+## 2.16.3 (2024-01-19)
+
+#### Fixed
+
+- `simple-v-table` column headers now :align correctly. Also, :vertical-align now only affects cells, not headers.
+
+## 2.16.2 (2024-01-16)
+
+#### Fixed
+
+- Replace deprecated `r/dom-node` with ref callbacks. (#329, #334) Thanks [RolT](https://github.com/RolT) for PR.
+
+## 2.16.1 (2024-01-16)
+
+#### Fixed
+
+- Cleanup & fixes for the new tree-select component.
+
+## 2.16.0 (2024-01-16)
+
+#### Added
+
+- Tree-select component (alpha)
+
+## 2.14.0 (2023-12-21)
+
 #### Changed
 
 - Change colour of `:focus` outline on non-native components such as `button` and `single-dropdown`
@@ -12,6 +62,15 @@
 - Add parts to tag-dropdown for internal selection-list
 - Add simple-v-table striped? argument
 - Expose tag-dropdown/text-tag via re-com.core/text-tag
+- :disabled? prop for tabs & tab pickers (#331)
+- :filter-fn prop for multi-select (#304)
+
+#### Fixed
+
+- Selected tabs & radio buttons no longer trigger their on-change handler (#333)
+- Use alert-circle for input-text error state, not spinner (#325)
+- Stop using deprecated keycodes. This fixes some edge cases with keyboard layouts. (#197)
+- Props which are non-reactive atoms are now caught in validation. (#291)
 
 ## 2.13.2 (2021-02-24)
 

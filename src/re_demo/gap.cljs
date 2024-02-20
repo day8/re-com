@@ -1,18 +1,17 @@
 (ns re-demo.gap
   (:require-macros
-    [re-com.core   :refer []])
+   [re-com.core   :refer []])
   (:require
-    [re-com.core   :refer [at h-box v-box gap p line box]]
-    [re-com.box    :refer [gap-args-desc]]
-    [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
-
+   [re-com.core   :refer [at h-box v-box gap p line box]]
+   [re-com.box    :refer [gap-args-desc]]
+   [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 (def rounded-panel
-                          {:background-color "#fff4f4"
-                           :border           "1px solid lightgray"
-                           :border-radius    "4px"
-                           :margin           "4px"
-                           :padding          "8px"})
+  {:background-color "#fff4f4"
+   :border           "1px solid lightgray"
+   :border-radius    "4px"
+   :margin           "4px"
+   :padding          "8px"})
 (defn panel
   []
   [v-box
@@ -20,13 +19,13 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[gap ... ]"
-                            "src/re_com/box.cljs"
-                            "src/re_demo/gap.cljs"]
+               "src/re_com/box.cljs"
+               "src/re_demo/gap.cljs"]
 
               [h-box :src (at)
                :gap      "100px"
-              :children [[v-box
-                          :src       (at)
+               :children [[v-box
+                           :src       (at)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -43,7 +42,7 @@
                                       [p "Example code..."]
                                       [:pre
                                        {:style {:width "40em"}}
-"[h-box
+                                       "[h-box
  :gap      \"10px\"                ; <-- in between each children
  :children [[grey-box]
             [grey-box]

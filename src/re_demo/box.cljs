@@ -1,11 +1,10 @@
 (ns re-demo.box
   (:require-macros
-    [re-com.core   :refer []])
+   [re-com.core   :refer []])
   (:require
-    [re-com.core   :refer [at h-box v-box box gap hyperlink-href p]]
-    [re-com.box    :refer [box-args-desc]]
-    [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
-
+   [re-com.core   :refer [at h-box v-box box gap hyperlink-href p]]
+   [re-com.box    :refer [box-args-desc]]
+   [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 (defn panel
   []
@@ -14,8 +13,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[box ... ]"
-                            "src/re_com/box.cljs"
-                            "src/re_demo/box.cljs"]
+               "src/re_com/box.cljs"
+               "src/re_demo/box.cljs"]
 
               [h-box
                :src      (at)

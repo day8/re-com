@@ -1,7 +1,7 @@
 (ns re-com.multi-select
   (:require-macros
-    [re-com.core     :refer [handler-fn at]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [clojure.set                 :as set]
     [clojure.string              :as string]
@@ -37,32 +37,29 @@
     ;;                   ({:short "Corn"       :id "0004" :display-type "vegetable" :sort 430 ...}))
     [group-headers groups]))
 
-
 (defn filter-items
   "Filter a list of items based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters"
-  [group-fn label-fn filter-text]
+  [group-fn filter-fn filter-text]
   (let [lower-filter-text (string/lower-case filter-text)]
     (fn [item]
       (let [group (or (group-fn item) "")
-            label (str (label-fn item))] ;; Need str for non-string labels like hiccup
+            label (str (filter-fn item))] ;; Need str for non-string labels like hiccup
         (or
-          (string/includes? (string/lower-case group) lower-filter-text)
-          (string/includes? (string/lower-case label) lower-filter-text))))))
-
+         (string/includes? (string/lower-case group) lower-filter-text)
+         (string/includes? (string/lower-case label) lower-filter-text))))))
 
 (defn filter-items-regex
   "Filter a list of items based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
-  [group-fn label-fn filter-text]
+  [group-fn filter-fn filter-text]
   (let [re (try
              (js/RegExp. filter-text "i")
              (catch js/Object e nil))]
     (partial (fn [re item]
                (when-not (nil? re)
-                 (or (.test re (group-fn item)) (.test re (label-fn item)))))
+                 (or (.test re (group-fn item)) (.test re (filter-fn item)))))
              re)))
-
 
 (defn filter-text-box
   "Base function (before lifecycle metadata) to render a filter text box"
@@ -92,7 +89,6 @@
                    :font-size   20
                    :left-offset -13])]])))
 
-
 (defn group-heading-item
   "Render a group heading and set up appropriate mouse events"
   []
@@ -114,7 +110,6 @@
                    :on-click        (when-not disabled? (handler-fn (click-callback id true))) ;; true = group-heading item selected
                    :on-double-click (when-not disabled? (handler-fn (double-click-callback id)))}}))
          (:group heading)]))))
-
 
 (defn list-item
   "Render a list item and set up appropriate mouse events"
@@ -138,7 +133,6 @@
                    :on-click        (when-not disabled? (handler-fn (click-callback id false))) ;; false = group-heading item NOT selected
                    :on-double-click (when-not disabled? (handler-fn (double-click-callback id)))}}))
          (label-fn item)]))))
-
 
 (defn list-box
   "Render a list box which can be a single list or a grouped list"
@@ -348,6 +342,7 @@
     [{:name :choices            :required true                      :type "vector of maps | r/atom"  :validate-fn validate/vector-of-maps?    :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}
      {:name :id-fn              :required false :default :id        :type "map -> anything"          :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name :label-fn           :required false :default :label     :type "map -> string | hiccup"   :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
+     {:name :filter-fn          :required false :default "str∘label-fn" :type "map -> string"      :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the string to filter by. Called for each element in " [:code ":choices"] ". (Note: items are also filtered by group-fn)"]}
      {:name :group-fn           :required false :default :group     :type "map -> string | hiccup"   :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the group identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name :sort-fn            :required false :default "compare"  :type "map, map -> integer"      :validate-fn ifn?                        :description [:span "The comparator function used with " [:code "cljs.core/sort-by"] " to sort choices."]}
      {:name :model              :required true                      :type "a set of ids | r/atom"                                             :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
@@ -397,7 +392,7 @@
           *filter-selections-text            (reagent/atom "")]
       (fn multi-select-render
         [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
-                   placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn class style attr parts src]
+                   placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn filter-fn class style attr parts src]
             :or   {id-fn     :id
                    label-fn  :label
                    group-fn  :group
@@ -422,8 +417,8 @@
                 changeable?            (and on-change (not disabled?))
                 excludable?            (and @*current-selection-id (> (count @*internal-model) (if required? 1 0)))
                 choices-filter-fn      (if regex-filter?
-                                         (filter-items-regex group-fn label-fn @*filter-choices-text)
-                                         (filter-items group-fn label-fn @*filter-choices-text))
+                                         (filter-items-regex group-fn filter-fn @*filter-choices-text)
+                                         (filter-items group-fn filter-fn @*filter-choices-text))
                 filtered-choices       (into []
                                              (->> choices
                                                   (remove #(contains? @*internal-model (id-fn %)))
@@ -434,8 +429,8 @@
                                                   (map #(rc.util/item-for-id % choices :id-fn id-fn))
                                                   (sort-by sort-fn)))
                 selections-filter-fn   (if regex-filter?
-                                         (filter-items-regex group-fn label-fn @*filter-selections-text)
-                                         (filter-items group-fn label-fn @*filter-selections-text))
+                                         (filter-items-regex group-fn filter-fn @*filter-selections-text)
+                                         (filter-items group-fn filter-fn @*filter-selections-text))
                 filtered-selections    (into []
                                              (->> selections
                                                   (filter selections-filter-fn)
@@ -455,66 +450,47 @@
                 include-filtered-click #(do (if (and (some? max-selected-items) (> (+ (count @*internal-model) (count filtered-choices)) max-selected-items))
                                               (reset! *warning-message max-msg)
                                               (do
-                                                (reset! *internal-model (set (concat @*internal-model (map id-fn filtered-choices))))
-                                                (reset! *warning-message nil)))
-                                            (when (and changeable? (not= @*internal-model @*latest-ext-model))
-                                              (reset! *external-model @*internal-model)
-                                              (on-change @*internal-model))
-                                            (reset! *current-choice-id nil))
-                include-click          #(do (if @*choice-group-heading-selected?
-                                              (let [choices-to-include (->> filtered-choices
-                                                                            (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
-                                                                            (map id-fn) ;; TODO: Need to realise map output for prod build (dev doesn't need it). Why?
-                                                                            set)]       ;; TODO: See https://github.com/day8/apps-lib/issues/35
-                                                (if (and (some? max-selected-items) (> (+ (count @*internal-model) (count choices-to-include)) max-selected-items))
-                                                  (reset! *warning-message max-msg)
+                                                (swap! *internal-model conj @*current-choice-id)
+                                                (reset! *warning-message nil))))
+                                          (when (and changeable? (not= @*internal-model @*latest-ext-model))
+                                            (reset! *external-model @*internal-model)
+                                            (on-change @*internal-model))
+                                          (reset! *current-choice-id nil))
+              exclude-click          #(do (if excludable?
+                                            (if @*selection-group-heading-selected?
+                                              (let [new-internal-model (->> filtered-selections
+                                                                            (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
+                                                                            (map id-fn)
+                                                                            set
+                                                                            (set/difference @*internal-model))]
+                                                (if (and required? (empty? new-internal-model))
                                                   (do
-                                                    (reset! *internal-model (set (concat @*internal-model choices-to-include)))
-                                                    (reset! *choice-group-heading-selected? false))))
-                                              (if (and (some? max-selected-items) (>= (count @*internal-model) max-selected-items))
-                                                (reset! *warning-message max-msg)
-                                                (do
-                                                  (swap! *internal-model conj @*current-choice-id)
-                                                  (reset! *warning-message nil))))
-                                            (when (and changeable? (not= @*internal-model @*latest-ext-model))
-                                              (reset! *external-model @*internal-model)
-                                              (on-change @*internal-model))
-                                            (reset! *current-choice-id nil))
-                exclude-click          #(do (if excludable?
-                                              (if @*selection-group-heading-selected?
-                                                (let [new-internal-model (->> filtered-selections
-                                                                              (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
-                                                                              (map id-fn)
-                                                                              set
-                                                                              (set/difference @*internal-model))]
-                                                  (if (and required? (empty? new-internal-model))
-                                                    (do
-                                                      (reset! *internal-model (hash-set (first @*internal-model)))
-                                                      (reset! *warning-message min-msg))
-                                                    (do
-                                                      (reset! *internal-model new-internal-model)
-                                                      (reset! *selection-group-heading-selected? false)
-                                                      (reset! *warning-message nil))))
-                                                (do
-                                                  (swap! *internal-model disj @*current-selection-id)
-                                                  (reset! *warning-message nil)))
-                                              (reset! *warning-message min-msg))
-                                            (when (and changeable? (not= @*internal-model @*latest-ext-model))
-                                              (reset! *external-model @*internal-model)
-                                              (on-change @*internal-model))
-                                            (reset! *current-selection-id nil))
-                exclude-filtered-click #(let [new-internal-model (set/difference @*internal-model (set (map id-fn filtered-selections)))]
-                                          (if (and required? (zero? (count new-internal-model)))
-                                            (do
-                                              (reset! *internal-model (hash-set (first @*internal-model)))
-                                              (reset! *warning-message min-msg))
-                                            (do
-                                              (reset! *internal-model new-internal-model)
-                                              (reset! *warning-message nil)))
+                                                    (reset! *internal-model (hash-set (first @*internal-model)))
+                                                    (reset! *warning-message min-msg))
+                                                  (do
+                                                    (reset! *internal-model new-internal-model)
+                                                    (reset! *selection-group-heading-selected? false)
+                                                    (reset! *warning-message nil))))
+                                              (do
+                                                (swap! *internal-model disj @*current-selection-id)
+                                                (reset! *warning-message nil)))
+                                            (reset! *warning-message min-msg))
                                           (when (and changeable? (not= @*internal-model @*latest-ext-model))
                                             (reset! *external-model @*internal-model)
                                             (on-change @*internal-model))
                                           (reset! *current-selection-id nil))
+              exclude-filtered-click #(let [new-internal-model (set/difference @*internal-model (set (map id-fn filtered-selections)))]
+                                        (if (and required? (zero? (count new-internal-model)))
+                                          (do
+                                            (reset! *internal-model (hash-set (first @*internal-model)))
+                                            (reset! *warning-message min-msg))
+                                          (do
+                                            (reset! *internal-model new-internal-model)
+                                            (reset! *warning-message nil)))
+                                        (when (and changeable? (not= @*internal-model @*latest-ext-model))
+                                          (reset! *external-model @*internal-model)
+                                          (on-change @*internal-model))
+                                        (reset! *current-selection-id nil))
                 cmerger (merge-css multi-select-css-spec args)]
             [:div
              (merge

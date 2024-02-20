@@ -3,7 +3,6 @@
             [re-com.util    :refer [px]]
             [reagent.core  :as reagent]))
 
-
 (defn box-with-border
   [{:keys [name background height width]}]
   [v-box :src (at)
@@ -13,7 +12,6 @@
    :align  :center
    :justify :center
    :children [[label :src (at) :label name :style {:font-size 11 :font-weight "bold"}]]])
-
 
 (defn table-showing-renderers
   []

@@ -1,13 +1,12 @@
 (ns re-demo.checkbox
   (:require-macros
-    [re-com.core     :refer []])
+   [re-com.core     :refer []])
   (:require
-    [re-com.core     :refer [at h-box v-box box gap line checkbox label p]]
-    [re-com.checkbox :refer [checkbox-parts-desc checkbox-args-desc]]
-    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-    [re-com.util     :refer [px]]
-    [reagent.core    :as    reagent]))
-
+   [re-com.core     :refer [at h-box v-box box gap line checkbox label p]]
+   [re-com.checkbox :refer [checkbox-parts-desc checkbox-args-desc]]
+   [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+   [re-com.util     :refer [px]]
+   [reagent.core    :as    reagent]))
 
 (defn right-arrow
   []
@@ -16,7 +15,6 @@
    [:line {:x1 "0" :y1 "10" :x2 "20" :y2 "10"
            :style {:stroke "#888"}}]
    [:polygon {:points "20,6 20,14 25,10" :style {:stroke "#888" :fill "#888"}}]])
-
 
 (defn left-arrow
   []
@@ -40,8 +38,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[checkbox ... ]"
-                                "src/re_com/checkbox.cljs"
-                                "src/re_demo/checkbox.cljs"]
+                   "src/re_com/checkbox.cljs"
+                   "src/re_demo/checkbox.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"
@@ -116,7 +114,6 @@
                                                                   [label :src (at)
                                                                    :label "no label on this one"]]]]]]]]]
                   [parts-table "checkbox" checkbox-parts-desc]]])))
-
 
 ;; core holds onto references, so need one level of indirection to get figwheel updates
 (defn panel

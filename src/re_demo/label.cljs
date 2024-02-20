@@ -10,8 +10,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[label ... ]"
-                            "src/re_com/text.cljs"
-                            "src/re_demo/label.cljs"]
+               "src/re_com/text.cljs"
+               "src/re_demo/label.cljs"]
               [h-box :src (at)
                :gap      "100px"
                :children [[v-box :src (at)
@@ -27,7 +27,6 @@
                                       [v-box :src (at)
                                        :children [[label :src (at) :label "This is a label."]]]]]]]
               [parts-table "label" label-parts-desc]]])
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

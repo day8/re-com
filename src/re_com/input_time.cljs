@@ -1,7 +1,7 @@
 (ns re-com.input-time
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
@@ -11,11 +11,9 @@
     [re-com.box      :refer [h-box gap]]
     [re-com.util     :refer [pad-zero-number deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]))
 
-
 (defn- time->mins
   [time]
   (rem time 100))
-
 
 (defn- time->hrs
   [time]
@@ -31,7 +29,6 @@
   "Return a time integer from a triple int vector of form  [H  _  M]"
   [[hr _ mi]]
   (+ (* hr 100) mi))                                        ;; a four digit integer:  HHMM
-
 
 ;; This regular expression matchs all valid forms of time entry, including partial
 ;; forms which happen during user entry.
@@ -51,7 +48,6 @@
        (rest)                                               ;; get rid of the first value. It is the entire matched string.
        (filter (comp not nil?))))                           ;; of the 9 items, there should be only 3 non-nil matches coresponding to  H : M
 
-
 (defn text->time
   "return as a time int, the contents of 'text'"
   [text]
@@ -59,7 +55,6 @@
        extract-triple-from-text
        (map to-int)                                         ;; make them ints (or 0)
        triple->time))                                       ;; turn the triple of values into a single int
-
 
 (defn time->text
   "return a string of format HH:MM for 'time'"
@@ -102,11 +97,10 @@
                        :default
                        nil)]
     [debug/validate-args-error
-      :component "input-time"
-      :args      args
-      :problems  [{:problem            :validate-fn-map
-                   :validate-fn-result {:message message}}]]))
-
+     :component "input-time"
+     :args      args
+     :problems  [{:problem            :validate-fn-map
+                  :validate-fn-result {:message message}}]]))
 
 (defn- force-valid-time
   "Validate the time supplied.
@@ -130,7 +124,7 @@
 (defn- lose-focus-if-enter
   "When Enter is pressed, force the component to lose focus"
   [ev]
-  (when (= (.-keyCode ev) 13)
+  (when (= (.-key ev) "Enter")
     (-> ev .-target .blur)
     true))
 

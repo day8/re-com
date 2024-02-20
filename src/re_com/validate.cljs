@@ -1,17 +1,16 @@
 (ns re-com.validate
   (:require-macros
-    [re-com.validate])
+   [re-com.validate])
   (:require
-    [cljs-time.core         :as    time.core]
-    [clojure.set            :refer [superset?]]
-    [re-com.config          :refer [debug?]]
-    [re-com.debug           :as    debug]
-    [re-com.util            :refer [deref-or-value-peek]]
-    [reagent.core           :as    reagent]
-    [reagent.impl.component :as    component]
-    [reagent.impl.template  :refer [valid-tag?]]
-    [goog.string            :as    gstring]))
-
+   [cljs-time.core         :as    time.core]
+   [clojure.set            :refer [superset?]]
+   [re-com.config          :refer [debug?]]
+   [re-com.debug           :as    debug]
+   [re-com.util            :refer [deref-or-value-peek]]
+   [reagent.core           :as    reagent]
+   [reagent.impl.component :as    component]
+   [reagent.impl.template  :refer [valid-tag?]]
+   [goog.string            :as    gstring]))
 
 ;; -- Helpers -----------------------------------------------------------------
 
@@ -30,7 +29,6 @@
 (defn hash-map-with-name-keys
   [v]
   (zipmap (map :name v) v))
-
 
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
@@ -82,11 +80,14 @@
   [args-with-validators passed-args problems]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name          (:name v-arg-def)
-                             arg-val           (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
+                             arg-val           (try (deref-or-value-peek (arg-name passed-args))
+                                                    (catch js/Error _ {::problem :ref}))
+                             ref-problem?      (some? (get arg-val ::problem))
                              validate-fn       (:validate-fn v-arg-def)
-                             validate-result   (if (= 1 (.-length ^js/Function validate-fn))
-                                                 (validate-fn arg-val) ;; Standard call, just pass the arg
-                                                 (validate-fn arg-val (satisfies? IDeref (arg-name passed-args)))) ;; Extended call, also wants to know if arg-val is an atom
+                             validate-result   (when-not ref-problem?
+                                                 (if (= 1 (.-length ^js/Function validate-fn))
+                                                   (validate-fn arg-val) ;; Standard call, just pass the arg
+                                                   (validate-fn arg-val (satisfies? IDeref (arg-name passed-args))))) ;; Extended call, also wants to know if arg-val is an atom
                              required?         (:required v-arg-def)
                              problem-base      {:arg-name arg-name}
                              warning?          (= (:status validate-result) :warning)]
@@ -95,6 +96,11 @@
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?)))
                            nil
+
+                           ref-problem?
+                           (merge problem-base
+                                  {:problem :ref
+                                   :actual (left-string (pr-str (type (arg-name passed-args))) 60)})
 
                            (false? validate-result)
                            (merge problem-base
@@ -112,7 +118,7 @@
                                 warning?)
                            (do
                              (log-warning
-                               (str "Validation failed for argument '" arg-name "' in component '" (component/component-name (reagent/current-component)) "': " (:message validate-result)))
+                              (str "Validation failed for argument '" arg-name "' in component '" (component/component-name (reagent/current-component)) "': " (:message validate-result)))
                              nil)
 
                            :else
@@ -120,8 +126,8 @@
                                   {:problem            :validate-fn-return
                                    :validate-fn-result validate-result}))))]
     (into problems
-      (->> (select-keys args-with-validators (vec (keys passed-args)))
-           (map validate-arg)))))
+          (->> (select-keys args-with-validators (vec (keys passed-args)))
+               (map validate-arg)))))
 
 (defn validate-args
   "Calls three validation tests:
@@ -208,7 +214,6 @@
 (def popover-status-types-list (make-code-list popover-status-types))
 (def title-levels-list         (make-code-list title-levels))
 (def position-options-list     (make-code-list position-options))
-
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions
@@ -419,32 +424,31 @@
     (if-not debug?
       true
       (reduce-kv
-        (fn [_ k v]
-          (if-not (keys k)
-            (reduced {:status  :error
-                      :message (str "Invalid keyword in :parts parameter: " k)})
-            (reduce-kv
-              (fn [_ k2 v2]
-                (case k2
-                  :class (if-not (string? v2)
-                           (reduced {:status :error
-                                     :message (str "Parameter [:parts " k " " k2 "] expected string but got " (type v2))})
-                           true)
-                  :style (let [valid? (css-style? v2)]
-                           (if-not (true? valid?)
-                             (reduced valid?)
-                             true))
-                  :attr  (let [valid? (html-attr? v2)]
-                           (if-not (true? valid?)
-                             (reduced valid?)
-                             true))
-                  (reduced {:status :error
-                            :message (str "Invalid keyword in [:parts " k "] parameter: " k2)})))
-              true
-              v)))
-        true
-        arg))))
-
+       (fn [_ k v]
+         (if-not (keys k)
+           (reduced {:status  :error
+                     :message (str "Invalid keyword in :parts parameter: " k)})
+           (reduce-kv
+            (fn [_ k2 v2]
+              (case k2
+                :class (if-not (string? v2)
+                         (reduced {:status :error
+                                   :message (str "Parameter [:parts " k " " k2 "] expected string but got " (type v2))})
+                         true)
+                :style (let [valid? (css-style? v2)]
+                         (if-not (true? valid?)
+                           (reduced valid?)
+                           true))
+                :attr  (let [valid? (html-attr? v2)]
+                         (if-not (true? valid?)
+                           (reduced valid?)
+                           true))
+                (reduced {:status :error
+                          :message (str "Invalid keyword in [:parts " k "] parameter: " k2)})))
+            true
+            v)))
+       true
+       arg))))
 
 ;; Test for specific data types
 
@@ -471,7 +475,6 @@
   [arg]
   (or (nil? arg) (ifn? arg)))
 
-
 ;; Test for atoms containing specific data types
 ;; NOTE: These "test for atom" validation functions use the 2-arity option where the validation mechanism passes the value
 ;;       of the arg as with the 1-arity version (derefed with peek) but also a boolean (arg-is-atom?) showing whether
@@ -486,7 +489,6 @@
   "Returns true if the passed argument is an atom containing a map"
   [arg arg-is-atom?]
   (and arg-is-atom? (map? (deref-or-value-peek arg))))
-
 
 ;; Test for specific data types either as values or contained in atoms, but WITHOUT derefing the atoms
 

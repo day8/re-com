@@ -3,16 +3,16 @@
 (require '[babashka.deps :as deps])
 
 (deps/add-deps
-  '{:deps {docopt/docopt {:git/url "https://github.com/nubank/docopt.clj"
-                          :sha     "12b997548381b607ddb246e4f4c54c01906e70aa"}}})
+ '{:deps {docopt/docopt {:git/url "https://github.com/nubank/docopt.clj"
+                         :sha     "12b997548381b607ddb246e4f4c54c01906e70aa"}}})
 
 (ns add-at-macro
-    (:require
-      [clojure.java.io :as io]
-      [rewrite-clj.zip :as z]
-      [clojure.set :as clj-set]
-      [docopt.core :as docopt])
-    (:import (java.io File)))
+  (:require
+   [clojure.java.io :as io]
+   [rewrite-clj.zip :as z]
+   [clojure.set :as clj-set]
+   [docopt.core :as docopt])
+  (:import (java.io File)))
 
 (defn get-alias
   "Given `loc`, a rewrite-clj zipper for a `:require` vector such as `[re-com.core ... :as rc]`,
@@ -170,7 +170,7 @@
  and confuse it for both of the methods above which are instead looking for `:as`.
  As a result the script can't guess how many uneval forms exist before the intended location of the at macro.
  In case the form " (if macros? "imports the `at` macro, remove it manually."
-                                "needs to import the `at` macro, import it manually."))
+                        "needs to import the `at` macro, import it manually."))
       loc)))
 
 (defn fix-require-forms
@@ -476,32 +476,32 @@
   function definition, we save the arguments of the function to prevent adding `:src` annotations to
   components that share names with re-com components"
   [file-loc verbose? parsed-require]
-   (loop [loc file-loc]
-      (cond
-        (z/end? loc) (z/root loc)
+  (loop [loc file-loc]
+    (cond
+      (z/end? loc) (z/root loc)
 
         ;; Loc, is a (defn x [] ...) form
-        (a-function? loc)
-        (let [new-loc    (-> loc z/string (z/of-string {:track-position? true}))
-              arguments  (arguments (z/down new-loc))
-              arguments  (when arguments
-                           (parse-arguments arguments))
-              edited     (find-recom-usages new-loc parsed-require {:namespaced? false
-                                                                    :verbose?    verbose?
-                                                                    :arguments   arguments})
-              last?      (nil? (z/right loc))]
-          (if last?
-            (-> loc (z/replace edited) z/root)
-            (recur (-> loc (z/replace edited) z/right))))
+      (a-function? loc)
+      (let [new-loc    (-> loc z/string (z/of-string {:track-position? true}))
+            arguments  (arguments (z/down new-loc))
+            arguments  (when arguments
+                         (parse-arguments arguments))
+            edited     (find-recom-usages new-loc parsed-require {:namespaced? false
+                                                                  :verbose?    verbose?
+                                                                  :arguments   arguments})
+            last?      (nil? (z/right loc))]
+        (if last?
+          (-> loc (z/replace edited) z/root)
+          (recur (-> loc (z/replace edited) z/right))))
 
         ;; Loc, is possibly any other thing in a file eg (def x ...) form
-        :else
-        (let [new-loc (-> loc z/string (z/of-string {:track-position? true}))
-              edited  (find-recom-usages new-loc parsed-require {:namespaced? false
-                                                                 :verbose?    verbose?})]
-          (if (nil? (z/right loc))
-            (-> loc (z/replace edited) z/root)
-            (recur (-> loc (z/replace edited) z/right)))))))
+      :else
+      (let [new-loc (-> loc z/string (z/of-string {:track-position? true}))
+            edited  (find-recom-usages new-loc parsed-require {:namespaced? false
+                                                               :verbose?    verbose?})]
+        (if (nil? (z/right loc))
+          (-> loc (z/replace edited) z/root)
+          (recur (-> loc (z/replace edited) z/right)))))))
 
 (defn parse-file
   "Takes a file and determines if the file requires the `[re-com.core]` namespace. If so, we get the required components
@@ -526,14 +526,14 @@
         {required-namespaces :required-namespaces
          used-alias          :used-alias
          edited-require      :edit-require} parsed-require]
-      (if (or (seq required-namespaces) (seq used-alias))
-        (-> loc (z/replace edited-require)
-            z/right
-            (parse-body verbose? parsed-require))
-        (do
-          (when verbose?
-            (println "This file does not depend on re-com, skipping."))
-          (z/root file-loc)))))
+    (if (or (seq required-namespaces) (seq used-alias))
+      (-> loc (z/replace edited-require)
+          z/right
+          (parse-body verbose? parsed-require))
+      (do
+        (when verbose?
+          (println "This file does not depend on re-com, skipping."))
+        (z/root file-loc)))))
 
 (defn read-write-file
   "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does are printed to the

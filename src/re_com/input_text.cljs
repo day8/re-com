@@ -1,7 +1,7 @@
 (ns re-com.input-text
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -55,7 +55,7 @@
                                 status
                               :success "zmdi-check-circle"
                               :warning "zmdi-alert-triangle"
-                              :error "zmdi-alert-circle zmdi-spinner"
+                              :error "zmdi-alert-circle"
                               :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner"
                               nil)
                             "form-control-feedback"])
@@ -68,7 +68,7 @@
                                  status
                                :success "zmdi-check-circle"
                                :warning "zmdi-alert-triangle"
-                               :error "zmdi-alert-circle zmdi-spinner"
+                               :error "zmdi-alert-circle"
                                :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner"
                                nil)
                              "form-control-feedback"])
@@ -112,19 +112,19 @@
   "Returns markup for a basic text input label"
   [& {:keys [model input-type src] :as args}]
   (or
-    (validate-args-macro input-text-args-desc args)
-    (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-          internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
-      (fn input-text-base-render
-        [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src debug-as]
-            :or   {change-on-blur? true, on-alter identity}
-            :as   args}]
-        (or
-          (validate-args-macro input-text-args-desc args)
-          (let [latest-ext-model  (deref-or-value model)
-                disabled?         (deref-or-value disabled?)
-                change-on-blur?   (deref-or-value change-on-blur?)
-                showing?          (reagent/atom false)
+   (validate-args-macro input-text-args-desc args)
+   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
+     (fn input-text-base-render
+       [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src debug-as]
+           :or   {change-on-blur? true, on-alter identity}
+           :as   args}]
+       (or
+        (validate-args-macro input-text-args-desc args)
+        (let [latest-ext-model  (deref-or-value model)
+              disabled?         (deref-or-value disabled?)
+              change-on-blur?   (deref-or-value change-on-blur?)
+              showing?          (reagent/atom false)
                 ;; If the user types a value that is subsequently modified in :on-change to the prior value of :model, such
                 ;; as validation or filtering, the :model is reset! to the same value then the value that the user typed
                 ;; (not the value of :model after the reset!) will remain displayed in the text input as no change is
@@ -191,9 +191,9 @@
                              :on-key-up   (handler-fn
                                            (if disabled?
                                              (.preventDefault event)
-                                             (case (.-which event)
-                                               13 (on-change-handler)
-                                               27 (reset! internal-model @external-model)
+                                             (case (.-key event)
+                                               "Enter"  (on-change-handler)
+                                               "Escape" (reset! internal-model @external-model)
                                                true)))}
                             attr)]]
                          (when (and status-icon? status)
@@ -235,11 +235,9 @@
   [& args]
   (apply input-text-base :input-type :input :debug-as (reflect-current-component) args))
 
-
 (defn input-password
   [& args]
   (apply input-text-base :input-type :password :debug-as (reflect-current-component) args))
-
 
 (defn input-textarea
   [& args]

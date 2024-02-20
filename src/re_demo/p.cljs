@@ -1,7 +1,6 @@
 (ns re-demo.p
   (:require [re-com.core   :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
-            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text ]]))
-
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 (def arg-style {:style {:display     "inline-block"
                         :font-weight "bold"
@@ -13,8 +12,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[p ... ]"
-                            "src/re_com/text.cljs"
-                            "src/re_demo/p.cljs"]
+               "src/re_com/text.cljs"
+               "src/re_demo/p.cljs"]
               [h-box :src (at)
                :gap      "100px"
                :children [[v-box :src (at)
@@ -46,9 +45,8 @@
 
                                        [:span arg-style "optional-attr-map"] "e.g. " [:code "{:style {:color \"red\"}}"] [:br] [:br]
 
-                                       [:span arg-style "components"] "one or more hiccup components."
-                                       ]
-                                      ]]
+                                       [:span arg-style "components"] "one or more hiccup components."]]]
+
                           [v-box :src (at)
                            :gap      "10px"
                            :children [[title2 "Demo"]
@@ -59,6 +57,6 @@
                                                   you can do it with the attribute map. 300px in this case."]]]]]]]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
-  (defn panel
-    []
-    [p-demo])
+(defn panel
+  []
+  [p-demo])

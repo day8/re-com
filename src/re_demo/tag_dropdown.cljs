@@ -161,30 +161,29 @@
 
                   [gap :src (at) :size "10px"]]])))
 
-
 (defn panel
   []
   [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[tag-dropdown ... ]"
-                            "src/re_com/tag_dropdown.cljs"
-                            "src/re_demo/tag_dropdown.cljs"]
+               "src/re_com/tag_dropdown.cljs"
+               "src/re_demo/tag_dropdown.cljs"]
 
               [h-box :src (at)
                :gap      "100px"
                :children [[v-box :src (at)
-                            :gap      "10px"
-                            :width    "450px"
-                            :children [[title2 "Notes"]
-                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
-                                       [new-in-version "v2.13.0"]
-                                       [p "A multi-select component. Useful when the list of choices is small and (optionally) colour coded, and where those selected need to all be visible to the user."]
-                                       [p "If the user selects many of the choices, then displaying them horizontally can take more than " [:code ":width"] ". In this case, the programmer has two strategies:"]
-                                       [:ol
-                                        [:li  "allow the Component to grow horizontally to some limit by providing " [:code ":max-width"]]
-                                        [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  "[:code ":abbrev-threshold"]]]
-                                       [args-table tag-dropdown-args-desc]]]
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[title2 "Notes"]
+                                      [status-text "Alpha" {:color "red" :font-weight "bold"}]
+                                      [new-in-version "v2.13.0"]
+                                      [p "A multi-select component. Useful when the list of choices is small and (optionally) colour coded, and where those selected need to all be visible to the user."]
+                                      [p "If the user selects many of the choices, then displaying them horizontally can take more than " [:code ":width"] ". In this case, the programmer has two strategies:"]
+                                      [:ol
+                                       [:li  "allow the Component to grow horizontally to some limit by providing " [:code ":max-width"]]
+                                       [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  " [:code ":abbrev-threshold"]]]
+                                      [args-table tag-dropdown-args-desc]]]
                           [demo]]]
               [parts-table "tag-dropdown" tag-dropdown-parts-desc]]])
 

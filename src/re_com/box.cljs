@@ -1,7 +1,7 @@
 (ns re-com.box
   (:require-macros
-    [re-com.core     :refer [at]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [at]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [clojure.string   :as    string]
     [re-com.config    :refer [include-args-desc?]]
@@ -11,7 +11,6 @@
                               scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
 (def visualise-flow? false)
-
 
 ;; ------------------------------------------------------------------------------------
 ;;  Private Helper functions
@@ -62,14 +61,13 @@
                           (str grow " " shrink " " basis)
                           size)]
     {:-webkit-flex flex
-             :flex flex}))
-
+     :flex flex}))
 
 (defn flex-flow-style
   "A cross-browser helper function to output flex-flow with all it's potential browser prefixes"
   [flex-flow]
   {:-webkit-flex-flow flex-flow
-           :flex-flow flex-flow})
+   :flex-flow flex-flow})
 
 (defn justify-style
   "Determines the value for the flex 'justify-content' attribute.
@@ -85,8 +83,7 @@
              :around  "space-around"
              "flex-start")]
     {:-webkit-justify-content js
-             :justify-content js}))
-
+     :justify-content js}))
 
 (defn align-style
   "Determines the value for the flex align type attributes.
@@ -105,18 +102,16 @@
     {attribute-wk as
      attribute    as}))
 
-
 (defn scroll-style
   "Determines the value for the 'overflow' attribute.
    The scroll parameter is a keyword.
    Because we're translating scroll into overflow, the keyword doesn't appear to match the attribute value"
   [attribute scroll]
   {attribute (case scroll
-                  :auto  "auto"
-                  :off   "hidden"
-                  :on    "scroll"
-                  :spill "visible")})
-
+               :auto  "auto"
+               :off   "hidden"
+               :on    "scroll"
+               :spill "visible")})
 
 ;; ------------------------------------------------------------------------------------
 ;;  Private Component: box-base (visualise-flow? color: lightblue)
@@ -164,7 +159,6 @@
       (flatten-attr (cmerger :main (dissoc args :class :style :attr)))
       (->attr args))
      child]))
-
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: gap (visualise-flow? color: chocolate)
@@ -245,7 +239,7 @@
 (def h-box-args-desc
   (when include-args-desc?
     [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
-     {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
      {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
      {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -313,7 +307,7 @@
 (def v-box-args-desc
   (when include-args-desc?
     [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
-     {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
      {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
      {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -381,7 +375,7 @@
 (def box-args-desc
   (when include-args-desc?
     [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-     {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width      :required false                   :type "string"          :validate-fn string?           :description "a CSS width style"}
      {:name :height     :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
      {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -439,7 +433,7 @@
 (def scroller-args-desc
   (when include-args-desc?
     [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-     {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :scroll     :required false :default "auto"   :type "keyword"         :validate-fn scroll-style?     :description [:span "Sets both h-scroll and v-scroll at once: " [:br]
                                                                                                                                [:code ":auto"] ": only show scroll bar(s) if the content is larger than the scroller" [:br]
                                                                                                                                [:code ":on"] ": always show scroll bars" [:br]
@@ -525,7 +519,7 @@
      {:name :t-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
      {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
      {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
-     {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width      :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial width"}
      {:name :height     :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial height"}
      {:name :min-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}

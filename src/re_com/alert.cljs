@@ -1,15 +1,15 @@
 (ns re-com.alert
   (:require-macros
-    [re-com.core         :refer [handler-fn at reflect-current-component]])
+   [re-com.core         :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
-    [re-com.buttons      :refer [button]]
-    [re-com.close-button :refer [close-button]]
-    [re-com.config       :refer [include-args-desc?]]
-    [re-com.debug        :refer [->attr]]
-    [re-com.util         :refer [deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
-                                 vector-of-maps? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
+   [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
+   [re-com.buttons      :refer [button]]
+   [re-com.close-button :refer [close-button]]
+   [re-com.config       :refer [include-args-desc?]]
+   [re-com.debug        :refer [->attr]]
+   [re-com.util         :refer [deref-or-value merge-css add-map-to-hiccup-call flatten-attr]]
+   [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
+                                vector-of-maps? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert

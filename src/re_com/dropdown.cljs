@@ -1,6 +1,6 @@
 (ns re-com.dropdown
   (:require-macros
-    [re-com.core     :refer [handler-fn at]])
+   [re-com.core     :refer [handler-fn at]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -10,10 +10,10 @@
                              string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
     [re-com.popover  :refer [popover-tooltip]]
     [clojure.string  :as    string]
+    [react           :as    react]
     [reagent.core    :as    reagent]
     [goog.string     :as    gstring]
-    [goog.string.format]
-    [reagent.dom     :as    rdom]))
+    [goog.string.format]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -31,7 +31,6 @@
     (when (and new-index (pos? (count choices)))
       (id-fn (nth choices new-index)))))
 
-
 (defn- choices-with-group-headings
   "If necessary, inserts group headings entries into the choices"
   [opts group-fn]
@@ -42,7 +41,6 @@
                             (map #(hash-map :id (gensym) :group %)))]
     [group-headers groups]))
 
-
 (defn- filter-choices
   "Filter a list of choices based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters"
@@ -52,10 +50,9 @@
                             (let [group (if (nil? (group-fn opt)) "" (group-fn opt))
                                   label (str (label-fn opt))]
                               (or
-                                (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
-                                (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
+                               (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
+                               (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
     (filter filter-fn choices)))
-
 
 (defn- filter-choices-regex
   "Filter a list of choices based on a filter string using regex's (case insensitive). More powerful but can cause
@@ -70,21 +67,18 @@
                            re)]
     (filter filter-fn choices)))
 
-
 (defn filter-choices-by-keyword
   "Filter a list of choices extra data within the choices vector"
   [choices keyword value]
   (let [filter-fn (fn [opt] (>= (.indexOf (keyword opt) value) 0))]
     (filter filter-fn choices)))
 
-
 (defn- insert
   "Return text after insertion in place of selection"
   [& {:keys [text sel-start sel-end ins]}]
   (str (when text (subs text 0 sel-start))
-    ins
-    (when text (subs text sel-end))))
-
+       ins
+       (when text (subs text sel-end))))
 
 (defn auto-complete
   "Return text/selection map after insertion in place of selection & completion"
@@ -99,14 +93,12 @@
                (seq ins))
       ret)))
 
-
 (defn capitalize-first-letter
   "Capitalize the first letter leaving the rest as is"
   [text]
   (if (seq text)
     (str (string/upper-case (first text)) (subs text 1))
     text))
-
 
 (defn show-selected-item
   [node]
@@ -131,23 +123,16 @@
     ^{:key (:id m)} [:li (cmerger :group-heading)
                      (:group m)]))
 
-
 (defn- choice-item
   "Render a choice item and set up appropriate mouse events"
   [id label on-click internal-model]
-  (let [mouse-over? (reagent/atom false)]
+  (let [mouse-over? (reagent/atom false)
+        !ref        (atom nil)
+        ref!        (partial reset! !ref)
+        show!       #(when (= @internal-model id) (show-selected-item @!ref))]
     (reagent/create-class
-      {:component-did-mount
-       (fn [this]
-         (let [node (rdom/dom-node this)
-               selected (= @internal-model id)]
-           (when selected (show-selected-item node))))
-
-       :component-did-update
-       (fn [this]
-         (let [node (rdom/dom-node this)
-               selected (= @internal-model id)]
-           (when selected (show-selected-item node))))
+      {:component-did-mount  show!
+       :component-did-update show!
 
        :display-name "choice-item"
 
@@ -164,7 +149,8 @@
              (cmerger :choice-item
                       {:selected selected
                        :mouse-over? @mouse-over?
-                       :attr {:on-mouse-over (handler-fn (reset! mouse-over? true))
+                       :attr {:ref ref!
+                              :on-mouse-over (handler-fn (reset! mouse-over? true))
                               :on-mouse-out  (handler-fn (reset! mouse-over? false))
                               :on-mouse-down (handler-fn
                                               (on-click id)
@@ -178,37 +164,33 @@
         markup (render-fn opt)]
     ^{:key (str id)} [choice-item id markup callback internal-model]))
 
-
-(defn- filter-text-box-base
-  "Base function (before lifecycle metadata) to render a filter text box"
-  [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
-
-  (let [cmerger (merge-css single-dropdown-css-spec {})]
-    [:div
-     (flatten-attr (cmerger :filter-wrapper))
-    [:input
-     (flatten-attr
-      (cmerger
-       :filter-input-box
-       {:visible? filter-box?
-        :attr {:type          "text"
-               :auto-complete "off"
-               :value         @filter-text
-               :placeholder   filter-placeholder
-               :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
-               :on-key-down   (handler-fn (when-not (key-handler event)
-                                            (.stopPropagation event)
-                                            (.preventDefault event))) ;; When key-handler returns false, preventDefault
-               :on-blur       (handler-fn (reset! drop-showing? false))}}))]]))
-
-
-(def ^:private filter-text-box
+(defn- filter-text-box
   "Render a filter text box"
-  (with-meta filter-text-box-base
-             {:component-did-mount #(let [node (.-firstChild (rdom/dom-node %))]
-                                     (.focus node))
-              :component-did-update #(let [node (.-firstChild (rdom/dom-node %))]
-                                      (.focus node))}))
+  [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
+  (let [!ref   (atom nil)
+        ref!   (partial reset! !ref)
+        focus! #(.focus (.-firstChild @!ref))]
+    (reagent/create-class
+     {:component-did-mount  focus!
+      :component-did-update focus!
+      :reagent-render (fn [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
+                        (let [cmerger (merge-css single-dropdown-css-spec {})]
+                          [:div
+                           (flatten-attr (cmerger :filter-wrapper))
+                           [:input
+                            (flatten-attr
+                             (cmerger
+                              :filter-input-box
+                              {:visible? filter-box?
+                               :attr {:type          "text"
+                                      :auto-complete "off"
+                                      :value         @filter-text
+                                      :placeholder   filter-placeholder
+                                      :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
+                                      :on-key-down   (handler-fn (when-not (key-handler event)
+                                                                   (.stopPropagation event)
+                                                                   (.preventDefault event))) ;; When key-handler returns false, preventDefault
+                                      :on-blur       (handler-fn (reset! drop-showing? false))}}))]]))})))
 
 (defn- dropdown-top
   "Render the top part of the dropdown, with the clickable area and the up/down arrow"
@@ -493,18 +475,18 @@
       :or {debounce-delay 250}
       :as args}]
   (or
-    (validate-args-macro single-dropdown-args-desc args)
-    (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-          internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
-          drop-showing?  (reagent/atom (boolean just-drop?))
-          filter-text    (reagent/atom "")
-          choices-fn?    (fn? choices)
-          choices-state (reagent/atom {:loading? choices-fn?
+   (validate-args-macro single-dropdown-args-desc args)
+   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
+         drop-showing?  (reagent/atom (boolean just-drop?))
+         filter-text    (reagent/atom "")
+         choices-fn?    (fn? choices)
+         choices-state (reagent/atom {:loading? choices-fn?
                                        ; loading error
-                                       :error nil
-                                       :choices []
+                                      :error nil
+                                      :choices []
                                        ; request id to ignore handling response when new request was already made
-                                       :id 0
+                                      :id 0
                                        ; to debounce requests
                                        :timer nil})
           load-choices (partial load-choices choices-state choices debounce-delay)
@@ -656,17 +638,17 @@
                 press-end         #(press-home-or-end :end)
                 key-handler      #(if disabled?
                                    false
-                                   (case (.-which %)
-                                     13 (press-enter)
-                                     27 (press-escape)
-                                     9  (press-tab (.-shiftKey %))
-                                     38 (press-up)
-                                     40 (press-down)
-                                     33 (press-page-up)
-                                     34 (press-page-down)
-                                     36 (press-home)
-                                     35 (press-end)
-                                     (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
+                                   (case (.-key %)
+                                    "Enter"     (press-enter)
+                                    "Escape"    (press-escape)
+                                    "Tab"       (press-tab (.-shiftKey %))
+                                    "ArrowUp"   (press-up)
+                                    "ArrowDown" (press-down)
+                                    "PageUp"    (press-page-up)
+                                    "PageDown"  (press-page-down)
+                                    "Home"      (press-home)
+                                    "End"       (press-end)
+                                    (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
                 dropdown         [:div
                                   (merge
                                    (flatten-attr

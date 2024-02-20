@@ -1,6 +1,6 @@
 (ns re-com.splits
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -8,7 +8,6 @@
     [re-com.box      :refer [flex-child-style flex-flow-style]]
     [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
     [reagent.core    :as    reagent]))
-
 
 (declare hv-split-css-spec)
 
@@ -120,7 +119,7 @@
   (when include-args-desc?
     [{:name :panel-1         :required true                  :type "hiccup"          :validate-fn string-or-hiccup?       :description "markup to go in the left (or top) panel"}
      {:name :panel-2         :required true                  :type "hiccup"          :validate-fn string-or-hiccup?       :description "markup to go in the right (or bottom) panel"}
-     {:name :size            :required false :default "auto" :type "string"          :validate-fn string?                 :description [:span "applied to the outer container of the two panels. Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :size            :required false :default "auto" :type "string"          :validate-fn string?                 :description [:span "applied to the outer container of the two panels. Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width           :required false                 :type "string"          :validate-fn string?                 :description "width of the outer container of the two panels. A CSS width style"}
      {:name :height          :required false                 :type "string"          :validate-fn string?                 :description "height of the outer container of the two panels. A CSS height style"}
      {:name :split-is-px?    :required false :default false  :type "boolean"                                              :description [:span "when true, " [:code ":initial-split"] " is interpreted to be a fixed px value, otherwise a percentage value"]}

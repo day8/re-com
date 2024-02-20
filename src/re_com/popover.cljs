@@ -1,7 +1,7 @@
 (ns re-com.popover
   (:require-macros
-    [re-com.core         :refer [handler-fn at reflect-current-component]]
-    [re-com.validate     :refer [validate-args-macro]])
+   [re-com.core         :refer [handler-fn at reflect-current-component]]
+   [re-com.validate     :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
     [re-com.debug        :refer [->attr]]
@@ -11,8 +11,8 @@
     [re-com.validate     :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
                                  string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr? parts?]]
     [clojure.string      :as    string]
+    [react               :as    react]
     [reagent.core        :as    reagent]
-    [reagent.dom         :as    rdom]
     [reagent.ratom       :refer-macros [reaction]]))
 
 
@@ -20,14 +20,12 @@
   [x y]
   (str x "," y " "))
 
-
 (defn- split-keyword
   "Return the vector of the two keywords formed by splitting another keyword 'kw' on an internal delimiter (usually '-')
    (split-keyword  :above-left  \"-\") => [:above :left]"
   [kw delimiter]
   (let [keywords (string/split (str kw) (re-pattern (str "[" delimiter ":]")))]
     [(keyword (keywords 1)) (keyword (keywords 2))]))
-
 
 (defn- calc-popover-pos
   "Determine values for :left :right :top :bottom CSS styles.
@@ -60,7 +58,6 @@
                          :below          nil)]
     {:left popover-left :top popover-top :right popover-right :bottom popover-bottom}))
 
-
 (defn calculate-optimal-position
   "Calculate the optimal :position value that results in the least amount of clipping by the screen edges
   Taken from: https://github.com/Lambda-X/cljs-repl-web/blob/0.3.1/src/cljs/cljs_repl_web/views/utils.cljs#L52
@@ -77,7 +74,6 @@
         v-threshold       (quot h 2)
         v-position        (if (< y v-threshold) "below" "above")]
     (keyword (str v-position \- h-position))))
-
 
 (defn calc-element-midpoint
   "Given a node reference, calculate the absolute x and y coordinates of the node's midpoint"
@@ -135,7 +131,6 @@
                                                 :grey-arrow? grey-arrow?
                                                 :popover-border-color popover-border-color
                                                 :no-border? no-border?}))]]))
-
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: backdrop
@@ -360,6 +355,8 @@
           p-height                (reagent/atom 0)
           pop-offset              (reagent/atom 0)
           found-optimal           (reagent/atom false)
+          !pop-border             (atom nil)
+          ref!                    (partial reset! !pop-border)
           calc-metrics            (fn [pos]
                                     (let [popover-elem            (get-element-by-id pop-id)
                                           [orientation arrow-pos] (split-keyword pos "-")
@@ -377,15 +374,14 @@
 
          :component-did-update
          (fn [this]
-           (let [pop-border-node (rdom/dom-node this)
-                 clipped?        (popover-clipping pop-border-node)
-                 anchor-node     (-> pop-border-node .-parentNode .-parentNode .-parentNode)] ;; Get reference to rc-point-wrapper node
+           (let [clipped?        (popover-clipping @!pop-border)
+                 anchor-node     (-> @!pop-border .-parentNode .-parentNode .-parentNode)] ;; Get reference to rc-point-wrapper node
              (when (and clipped? (not @found-optimal))
                (reset! position (calculate-optimal-position (calc-element-midpoint anchor-node)))
                (reset! found-optimal true))
              (calc-metrics @position)
              (reset! ready-to-show? true)))
-
+         
          :reagent-render
          (fn popover-border-render
            [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length
@@ -411,7 +407,8 @@
                      :border-color popover-border-color :tooltip-style? tooltip-style?
                      :orientation orientation :margin-left margin-left :margin-top margin-top
                      :ready-to-show? @ready-to-show?})))
-                 (->attr args))
+                 (->attr args)
+                 {:ref ref!})
                 [(or arrow-renderer popover-arrow)
                  :orientation orientation
                  :pop-offset @pop-offset
@@ -672,7 +669,6 @@
 (def popover-tooltip-parts
   (when include-args-desc?
     (-> (map :name popover-tooltip-parts-desc) set)))
-
 
 (def popover-tooltip-args-desc
   (when include-args-desc?

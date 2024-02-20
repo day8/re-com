@@ -1,7 +1,7 @@
 (ns re-com.selection-list
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
     [re-com.debug        :refer [->attr]]
@@ -20,12 +20,12 @@
   ([selected? as-exclusions? selected-color]
     ;;TODO: margin-top required because currently checkbox & radio-button don't center label
    (let [base-style {:margin-top "1px"}
-          base-style (if (and selected? as-exclusions?)
-                       (merge base-style {:text-decoration "line-through"})
-                       base-style)
-          base-style (if (and selected? selected-color)
-                       (merge base-style {:color selected-color})
-                       base-style)]
+         base-style (if (and selected? as-exclusions?)
+                      (merge base-style {:text-decoration "line-through"})
+                      base-style)
+         base-style (if (and selected? selected-color)
+                      (merge base-style {:color selected-color})
+                      base-style)]
      base-style)))
 
 (declare selection-list-css-spec)
@@ -57,7 +57,6 @@
                :label-style (label-style (selections item-id) as-exclusions?)
                :label       (label-fn item)])])))
 
-
 (defn- radio-clicked
   [selections item-id]
   (if (selections item-id) #{} #{item-id}))
@@ -85,7 +84,6 @@
                :disabled?   disabled?
                :label-style (label-style (selections item-id) as-exclusions?)
                :label       (label-fn item)])])))
-
 
 (def list-style
   ;;TODO: These should be in CSS resource
@@ -150,7 +148,7 @@
      {:name :max-height     :required false                 :type "string | r/atom"                      :validate-fn string-or-atom?               :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
      {:name :disabled?      :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the time input will be disabled. Can be atom or value"}
      {:name :hide-border?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the list will be displayed without a border"}
-     {:name :item-renderer  :required false                 :type "-> nil | r/atom"                      :validate-fn fn?                           :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
+     {:name :item-renderer  :required false                 :type "choice, id-fn, selected, on-change, disabled?, label-fn, required?, as-exclusions? -> hiccup | r/atom"                      :validate-fn fn?                           :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
      {:name :class          :required false                 :type "string"                               :validate-fn string?                       :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style          :required false                 :type "CSS style map"                        :validate-fn css-style?                    :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr           :required false                 :type "HTML attr map"                        :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}

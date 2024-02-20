@@ -1,6 +1,6 @@
 (ns re-com.close-button
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
