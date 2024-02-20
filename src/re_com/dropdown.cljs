@@ -97,38 +97,39 @@
                (theme/apply state :backdrop theme)
                (theme/apply-parts parts :backdrop))])
 
+(defn nearest [x a b]
+  (cond
+    (< (Math/abs (- a x)) (Math/abs (- b x))) a
+    (< (Math/abs (- b x)) (Math/abs (- a x))) b
+    :else                                     (min a b)))
+
+#_(let [[a p]                   [(.querySelector js/document "#anchor")
+                                 (.querySelector js/document "#popover")]
+        a-rect                  (.getBoundingClientRect a)
+        [a-x a-y a-h a-w]       [(.-x a-rect) (.-y a-rect) (.-height a-rect) (.-width a-rect)]
+        [p-h p-w]               [(.-offsetHeight p) (.-offsetWidth p)]
+        [v-mid-x v-mid-y]       [(/ js/window.innerWidth 2) (/ js/window.innerHeight 2)]
+        [low-mid-x low-mid-y
+         high-mid-x high-mid-y] [(+ a-x (/ p-w 2))              (+ a-y a-h (/ p-w 2))
+                                 (-> a-x (+ a-w) (- (/ p-w 2))) (-> a-y (- (/ p-h 2)))]
+        high-v?                 (= high-mid-y (nearest v-mid-y low-mid-y high-mid-y))])
+;;
+
 (defn calculate-position! [position]
   (let [anchor (.querySelector js/document "#anchor")
         popover (.querySelector js/document "#popover")]
     (when (and anchor popover)
-      (let [anchor-rect (.getBoundingClientRect anchor)
-            [anchor-h anchor-w] [(.-height anchor-rect) (.-width anchor-rect)]
-            popover-height (.-offsetHeight popover)
-            viewport-width (.-innerWidth js/window)
-            viewport-height (.-innerHeight js/window)
-            initial-top (+ (.-bottom anchor-rect) (.-scrollY js/window))
-            initial-left (+ (.-left anchor-rect) (.-scrollX js/window))
-            crossing-bottom? (> (+ initial-top popover-height)
-                                (+ viewport-height (.-scrollY js/window)))
-            top (cond
-                  crossing-bottom?
-                  (- 0  popover-height (.-scrollY js/window))
-                  :else
-                  anchor-h)
-            left (cond
-                   ;; If right edge is exceeded
-                   (> (+ initial-left (.-offsetWidth popover)) viewport-width)
-                   (- initial-left (+ initial-left (.-offsetWidth popover)) viewport-width)
-
-                   ;; If left edge is exceeded
-                   (< initial-left 0)
-                   0
-
-                   :else
-
-                   0)]
-        (println left top)
-        (reset! position [left top])))))
+      (let [[a p]                   [(.querySelector js/document "#anchor")
+                                     (.querySelector js/document "#popover")]
+            a-rect                  (.getBoundingClientRect a)
+            [a-x a-y a-h a-w]       [(.-x a-rect) (.-y a-rect) (.-height a-rect) (.-width a-rect)]
+            [p-h p-w]               [(.-offsetHeight p) (.-offsetWidth p)]
+            [v-mid-x v-mid-y]       [(/ js/window.innerWidth 2) (/ js/window.innerHeight 2)]
+            [low-mid-x low-mid-y
+             high-mid-x high-mid-y] [(+ a-x (/ p-w 2))              (+ a-y a-h (/ p-w 2))
+                                     (-> a-x (+ a-w) (- (/ p-w 2))) (-> a-y (- (/ p-h 2)))]
+            high-v?                 (= high-mid-y (nearest v-mid-y low-mid-y high-mid-y))]
+        (reset! position [0 (if high-v? (- p-h) a-h)])))))
 
 (defn popover-component [& children]
   (let [position-popover (reagent/atom [0 0])
