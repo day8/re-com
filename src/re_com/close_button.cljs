@@ -2,13 +2,12 @@
   (:require-macros
    [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.validate :refer [string-or-hiccup? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
-    [re-com.box      :refer [box]]
-    [reagent.core    :as    reagent]))
-
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.validate :refer [string-or-hiccup? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+   [re-com.box      :refer [box]]
+   [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: close-button
@@ -72,32 +71,32 @@
     (fn close-button-render
       [& {:keys [on-click div-size font-size color hover-color tooltip top-offset left-offset disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro close-button-args-desc args)
-        (let [disabled?  (deref-or-value disabled?)
-              cmerger (merge-css close-button-css-spec args)]
-          (add-map-to-hiccup-call
-           (cmerger :wrapper {:div-size div-size :disabled? disabled?})
-           [box
-            :src      src
-            :debug-as (or debug-as (reflect-current-component))
-            :child    (add-map-to-hiccup-call
-                       (cmerger :main
-                                {:disabled? disabled?
-                                 :over? @over?
-                                 :font-size font-size
-                                 :div-size div-size
-                                 :top-offset top-offset
-                                 :left-offset left-offset
-                                 :color color
-                                 :hover-color hover-color
-                                 :attr {:title          tooltip
-                                         :on-click       (handler-fn
-                                                          (when (and on-click (not disabled?))
-                                                            (on-click event)
-                                                            (.stopPropagation event)))
-                                         :on-mouse-enter (handler-fn (reset! over? true))
-                                         :on-mouse-leave (handler-fn (reset! over? false))}})
-                       [box
-                        :src   (at)
-                        :child [:i
-                                (flatten-attr (cmerger :icon))]])]))))))
+       (validate-args-macro close-button-args-desc args)
+       (let [disabled?  (deref-or-value disabled?)
+             cmerger (merge-css close-button-css-spec args)]
+         (add-map-to-hiccup-call
+          (cmerger :wrapper {:div-size div-size :disabled? disabled?})
+          [box
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :child    (add-map-to-hiccup-call
+                      (cmerger :main
+                               {:disabled? disabled?
+                                :over? @over?
+                                :font-size font-size
+                                :div-size div-size
+                                :top-offset top-offset
+                                :left-offset left-offset
+                                :color color
+                                :hover-color hover-color
+                                :attr {:title          tooltip
+                                       :on-click       (handler-fn
+                                                        (when (and on-click (not disabled?))
+                                                          (on-click event)
+                                                          (.stopPropagation event)))
+                                       :on-mouse-enter (handler-fn (reset! over? true))
+                                       :on-mouse-leave (handler-fn (reset! over? false))}})
+                      [box
+                       :src   (at)
+                       :child [:i
+                               (flatten-attr (cmerger :icon))]])]))))))

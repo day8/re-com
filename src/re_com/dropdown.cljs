@@ -2,18 +2,18 @@
   (:require-macros
    [re-com.core     :refer [handler-fn at]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value position-for-id item-for-id add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.box      :refer [align-style flex-child-style]]
-    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
-                             string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [clojure.string  :as    string]
-    [react           :as    react]
-    [reagent.core    :as    reagent]
-    [goog.string     :as    gstring]
-    [goog.string.format]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value position-for-id item-for-id add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.box      :refer [align-style flex-child-style]]
+   [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
+                            string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [clojure.string  :as    string]
+   [react           :as    react]
+   [reagent.core    :as    reagent]
+   [goog.string     :as    gstring]
+   [goog.string.format]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -131,32 +131,31 @@
         ref!        (partial reset! !ref)
         show!       #(when (= @internal-model id) (show-selected-item @!ref))]
     (reagent/create-class
-      {:component-did-mount  show!
-       :component-did-update show!
+     {:component-did-mount  show!
+      :component-did-update show!
 
-       :display-name "choice-item"
+      :display-name "choice-item"
 
-       :reagent-render
-       (fn
-         [id label on-click internal-model]
-         (let [selected (= @internal-model id)
-               cmerger (merge-css single-dropdown-css-spec {})
-               class (if selected
-                       "highlighted"
-                       (when @mouse-over? "mouseover"))]
-           [:li
-            (flatten-attr
-             (cmerger :choice-item
-                      {:selected selected
-                       :mouse-over? @mouse-over?
-                       :attr {:ref ref!
-                              :on-mouse-over (handler-fn (reset! mouse-over? true))
-                              :on-mouse-out  (handler-fn (reset! mouse-over? false))
-                              :on-mouse-down (handler-fn
-                                              (on-click id)
-                                              (.preventDefault event))}}))  ;; Prevent free-text input as well as the normal dropdown from loosing focus
-            label]))})))
-
+      :reagent-render
+      (fn
+        [id label on-click internal-model]
+        (let [selected (= @internal-model id)
+              cmerger (merge-css single-dropdown-css-spec {})
+              class (if selected
+                      "highlighted"
+                      (when @mouse-over? "mouseover"))]
+          [:li
+           (flatten-attr
+            (cmerger :choice-item
+                     {:selected selected
+                      :mouse-over? @mouse-over?
+                      :attr {:ref ref!
+                             :on-mouse-over (handler-fn (reset! mouse-over? true))
+                             :on-mouse-out  (handler-fn (reset! mouse-over? false))
+                             :on-mouse-down (handler-fn
+                                             (on-click id)
+                                             (.preventDefault event))}}))  ;; Prevent free-text input as well as the normal dropdown from loosing focus
+           label]))})))
 
 (defn make-choice-item
   [id-fn render-fn callback internal-model opt]
@@ -259,46 +258,46 @@
   [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
   (let [cmerger (merge-css single-dropdown-css-spec {})]
     [:ul
-    (flatten-attr (cmerger :choices))
+     (flatten-attr (cmerger :choices))
      [:li
       (flatten-attr (cmerger :choices-search))
       [:div
        (flatten-attr (cmerger :free-text-wrapper {:disabled? disabled?}))
-      [:input
-       (flatten-attr
-        (cmerger
-         :free-text
-         {:width width
-          :attr
-          {:type          "text"
-           :auto-complete "off"
-           :tab-index     tab-index
-           :placeholder   placeholder
-           :value         @internal-model
-           :disabled      disabled?
-           :on-change     (handler-fn (let [value (-> event .-target .-value)]
-                                        (free-text-change (cond-> value capitalize? capitalize-first-letter))))
-           :on-key-down   (handler-fn (when-not (key-handler event)
-                                        (.stopPropagation event)
-                                        (.preventDefault event))) ;; When key-handler returns false, preventDefault
-           :on-key-press  (handler-fn
-                           (let [ins (.-key event)]
-                             (when (= (count ins) 1) ;; Filter out special keys (e.g. enter)
-                               (handle-free-text-insertion event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change))))
-           :on-paste      (handler-fn
-                           (let [ins (.getData (.-clipboardData event) "Text")]
-                             (handle-free-text-insertion event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change)))
-           :on-focus      (handler-fn
-                           (reset! free-text-focused? true)
-                           (reset! select-free-text? true))
-           :on-blur       (handler-fn
-                           (when-not filter-box?
-                             (cancel))
-                           (reset! free-text-focused? false))  ;; Set free-text-focused? after calling cancel to prevent re-focusing
-           :on-mouse-down (handler-fn (when @drop-showing?
-                                        (cancel)
-                                        (.preventDefault event))) ;; Prevent text selection flicker (esp. with filter-box)
-           :ref           #(reset! free-text-input %)}}))]
+       [:input
+        (flatten-attr
+         (cmerger
+          :free-text
+          {:width width
+           :attr
+           {:type          "text"
+            :auto-complete "off"
+            :tab-index     tab-index
+            :placeholder   placeholder
+            :value         @internal-model
+            :disabled      disabled?
+            :on-change     (handler-fn (let [value (-> event .-target .-value)]
+                                         (free-text-change (cond-> value capitalize? capitalize-first-letter))))
+            :on-key-down   (handler-fn (when-not (key-handler event)
+                                         (.stopPropagation event)
+                                         (.preventDefault event))) ;; When key-handler returns false, preventDefault
+            :on-key-press  (handler-fn
+                            (let [ins (.-key event)]
+                              (when (= (count ins) 1) ;; Filter out special keys (e.g. enter)
+                                (handle-free-text-insertion event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change))))
+            :on-paste      (handler-fn
+                            (let [ins (.getData (.-clipboardData event) "Text")]
+                              (handle-free-text-insertion event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change)))
+            :on-focus      (handler-fn
+                            (reset! free-text-focused? true)
+                            (reset! select-free-text? true))
+            :on-blur       (handler-fn
+                            (when-not filter-box?
+                              (cancel))
+                            (reset! free-text-focused? false))  ;; Set free-text-focused? after calling cancel to prevent re-focusing
+            :on-mouse-down (handler-fn (when @drop-showing?
+                                         (cancel)
+                                         (.preventDefault event))) ;; Prevent text selection flicker (esp. with filter-box)
+            :ref           #(reset! free-text-input %)}}))]
        [:span
         (flatten-attr
          (cmerger
@@ -400,15 +399,15 @@
    :choices-no-results {:class ["no-results" "rc-dropdown-choices-no-results"]}
    :group-heading {:class ["group-result"]}
    :choice-item {:class (fn [{:keys [selected mouse-over?]}]
-                           ["active-result" "group-option" (if selected
-                                                             "highlighted"
-                                                             (when mouse-over? "mouseover"))])}
+                          ["active-result" "group-option" (if selected
+                                                            "highlighted"
+                                                            (when mouse-over? "mouseover"))])}
    :filter-wrapper {:class ["chosen-search"]}
    :filter-input-box {:style (fn [{:keys [visible?]}]
-                          (when-not visible? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                                 :width    "0px"      ;; The rest of these styles make the textbox invisible
-                                                 :padding  "0px"
-                                              :border   "none"}))}
+                               (when-not visible? {:position "absolute" ;; When no filter box required, use it but hide it off screen
+                                                   :width    "0px"      ;; The rest of these styles make the textbox invisible
+                                                   :padding  "0px"
+                                                   :border   "none"}))}
    :dropdown-top {:class ["chosen-single" "chosen-default"]
                   :style (fn [{:keys [disabled?]}]
                            (when disabled?
@@ -489,157 +488,156 @@
                                        ; request id to ignore handling response when new request was already made
                                       :id 0
                                        ; to debounce requests
-                                       :timer nil})
-          load-choices (partial load-choices choices-state choices debounce-delay)
-          set-filter-text (fn [text {:keys [regex-filter?] :as args} debounce?]
-                            (load-choices text regex-filter? debounce?)
-                            (reset! filter-text text))
-          over?               (reagent/atom false)
-          showing?            (reagent/track #(and (not @drop-showing?) @over?))
-          free-text-focused?  (reagent/atom false)
-          free-text-input     (reagent/atom nil)
-          select-free-text?   (reagent/atom false)
-          free-text-sel-range (reagent/atom nil)
-          focus-free-text     #(when @free-text-input (.focus @free-text-input))
-          node                (reagent/atom nil)
-          focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))
-          ]
-      (load-choices "" regex-filter? false)
-      (fn single-dropdown-render
-        [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]
-            :or {id-fn :id label-fn :label group-fn :group render-fn label-fn enter-drop? true cancelable? true est-item-height 30}
-            :as args}]
-        (or
-          (validate-args-macro single-dropdown-args-desc args)
-          (let [cmerger (merge-css single-dropdown-css-spec args)
-                choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
-                id-fn            (if free-text? identity id-fn)
-                label-fn         (if free-text? identity label-fn)
-                render-fn        (if free-text? identity render-fn)
-                disabled?        (deref-or-value disabled?)
-                regex-filter?    (deref-or-value regex-filter?)
-                latest-ext-model (reagent/atom (deref-or-value model))
-                _                (when (not= @external-model @latest-ext-model) ;; Has model changed externally?
-                                   (reset! external-model @latest-ext-model)
-                                   (reset! internal-model @latest-ext-model))
-                changeable?      (and on-change (not disabled?))
-                call-on-change   #(when (and changeable? (or (not= @internal-model @latest-ext-model)
-                                                             repeat-change?))
-                                   (reset! external-model @internal-model)
-                                   (on-change @internal-model))
-                callback         #(do
-                                   (reset! internal-model (cond-> % (and free-text? capitalize?) capitalize-first-letter))
-                                   (reset! select-free-text? true)
-                                   (call-on-change)
-                                   (let [current-drop-showing? @drop-showing?]
-                                     (when current-drop-showing?
-                                       (focus-free-text))
-                                     (when-not just-drop?
-                                       (reset! drop-showing? (not current-drop-showing?))) ;; toggle to allow opening dropdown on Enter key
-                                     (when current-drop-showing?
-                                       (focus-anchor)))
-                                   (set-filter-text "" args false))
-                free-text-change #(do
-                                    (reset! internal-model %)
-                                    (reset! select-free-text? false)
-                                    (call-on-change))
-                cancel           #(do
-                                   (when-not @free-text-focused? ;; Prevent re-focusing free-text input on free-text input blur
-                                     (focus-free-text))
-                                   (reset! drop-showing? false)
-                                   (set-filter-text "" args false)
-                                   (reset! internal-model @external-model))
-                dropdown-click   #(when-not disabled?
-                                   (if @drop-showing?
-                                     (cancel)
-                                     (do
-                                       (reset! drop-showing? true)
-                                       (focus-free-text)            ;; After drop-showing? reset so hiding dropdown in filter-box blur will not be overwritten
-                                       (reset! select-free-text? true))))
-                filtered-choices (if choices-fn?
-                                   choices
-                                   (if regex-filter?
-                                     (filter-choices-regex choices group-fn label-fn @filter-text)
-                                     (filter-choices choices group-fn label-fn @filter-text)))
-                visible-count    #(let [results-node (and @node
-                                                          (.item (.getElementsByClassName @node "chosen-results") 0))]
-                                   (if (and results-node (.-firstChild results-node))
-                                     (quot (.-clientHeight results-node)
-                                           (.-offsetHeight (.-firstChild results-node)))
-                                     0))
-                est-drop-height  #(let [items-height  (* (count filtered-choices) est-item-height)
-                                        drop-margin   12
-                                        filter-height 32
-                                        maxh          (cond
-                                                        (not max-height) 240
-                                                        (string/ends-with? max-height "px") (js/parseInt max-height 10)
-                                                        :else (do (log-warning "max-height is not in pxs, using 240px for estimation")
-                                                                  240))]
-                                   (min (+ items-height drop-margin (if filter-box? filter-height 0))
-                                        maxh))
-                drop-height      (reagent/track
-                                   #(if-let [drop-node (and @node
-                                                            (.item (.getElementsByClassName @node "chosen-drop") 0))]
-                                     (-> drop-node .getBoundingClientRect .-height)
-                                     (est-drop-height)))
-                top-height       34
-                drop-above?      (reagent/track
-                                   #(when (and can-drop-above? @node)
-                                     (let [node-top      (-> @node .getBoundingClientRect .-top)
-                                           window-height (-> js/document .-documentElement .-clientHeight)]
-                                       (> (+ node-top top-height @drop-height)
-                                          window-height))))
-                press-enter      (fn []
-                                   (let [drop-was-showing? @drop-showing?]
-                                     (cond
-                                       disabled?                             (cancel)
-                                       (and (:on-enter-press set-to-filter)
-                                            (seq @filter-text)
-                                            (empty? filtered-choices)
-                                            free-text?
-                                            @drop-showing?)                  (callback @filter-text)
-                                       (or @drop-showing? enter-drop?)       (callback @internal-model))
-                                     (not drop-was-showing?)))
-                press-escape      (fn []
-                                    (let [drop-was-showing? @drop-showing?]
-                                      (cancel)
-                                      (when drop-was-showing?
-                                        (focus-anchor))
-                                      (not drop-was-showing?)))
-                press-tab         (fn [shift-key?]
-                                    (if disabled?
-                                      (cancel)
-                                      (let [drop-was-showing? @drop-showing?]  ;; Was (callback @internal-model) but needed a customised version
-                                        (call-on-change)
-                                        (reset! drop-showing? false)
-                                        (set-filter-text "" args false)
-                                        (when (and drop-was-showing? shift-key?)
-                                          (focus-anchor))))
-                                    (reset! drop-showing? false)
-                                    true)
-                press-arrow       (fn [offset]
-                                    (when (and @drop-showing? (seq filtered-choices))
-                                      (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model offset))
-                                      (when-not cancelable?
-                                        (call-on-change)))
-                                    (reset! drop-showing? true)
-                                    (reset! select-free-text? true)
-                                    true)
-                press-up          #(press-arrow -1)                   ;; Up arrow
-                press-down        #(press-arrow 1)                    ;; Down arrow
-                press-page-up     #(press-arrow (- (dec (visible-count))))
-                press-page-down   #(press-arrow (dec (visible-count)))
-                press-home-or-end (fn [offset]
-                                    (when (and (not @free-text-focused?)
-                                               (seq filtered-choices))
-                                      (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model offset))
-                                      (reset! select-free-text? true))
-                                    true)
-                press-home        #(press-home-or-end :start)
-                press-end         #(press-home-or-end :end)
-                key-handler      #(if disabled?
-                                   false
-                                   (case (.-key %)
+                                      :timer nil})
+         load-choices (partial load-choices choices-state choices debounce-delay)
+         set-filter-text (fn [text {:keys [regex-filter?] :as args} debounce?]
+                           (load-choices text regex-filter? debounce?)
+                           (reset! filter-text text))
+         over?               (reagent/atom false)
+         showing?            (reagent/track #(and (not @drop-showing?) @over?))
+         free-text-focused?  (reagent/atom false)
+         free-text-input     (reagent/atom nil)
+         select-free-text?   (reagent/atom false)
+         free-text-sel-range (reagent/atom nil)
+         focus-free-text     #(when @free-text-input (.focus @free-text-input))
+         node                (reagent/atom nil)
+         focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))]
+     (load-choices "" regex-filter? false)
+     (fn single-dropdown-render
+       [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]
+           :or {id-fn :id label-fn :label group-fn :group render-fn label-fn enter-drop? true cancelable? true est-item-height 30}
+           :as args}]
+       (or
+        (validate-args-macro single-dropdown-args-desc args)
+        (let [cmerger (merge-css single-dropdown-css-spec args)
+              choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
+              id-fn            (if free-text? identity id-fn)
+              label-fn         (if free-text? identity label-fn)
+              render-fn        (if free-text? identity render-fn)
+              disabled?        (deref-or-value disabled?)
+              regex-filter?    (deref-or-value regex-filter?)
+              latest-ext-model (reagent/atom (deref-or-value model))
+              _                (when (not= @external-model @latest-ext-model) ;; Has model changed externally?
+                                 (reset! external-model @latest-ext-model)
+                                 (reset! internal-model @latest-ext-model))
+              changeable?      (and on-change (not disabled?))
+              call-on-change   #(when (and changeable? (or (not= @internal-model @latest-ext-model)
+                                                           repeat-change?))
+                                  (reset! external-model @internal-model)
+                                  (on-change @internal-model))
+              callback         #(do
+                                  (reset! internal-model (cond-> % (and free-text? capitalize?) capitalize-first-letter))
+                                  (reset! select-free-text? true)
+                                  (call-on-change)
+                                  (let [current-drop-showing? @drop-showing?]
+                                    (when current-drop-showing?
+                                      (focus-free-text))
+                                    (when-not just-drop?
+                                      (reset! drop-showing? (not current-drop-showing?))) ;; toggle to allow opening dropdown on Enter key
+                                    (when current-drop-showing?
+                                      (focus-anchor)))
+                                  (set-filter-text "" args false))
+              free-text-change #(do
+                                  (reset! internal-model %)
+                                  (reset! select-free-text? false)
+                                  (call-on-change))
+              cancel           #(do
+                                  (when-not @free-text-focused? ;; Prevent re-focusing free-text input on free-text input blur
+                                    (focus-free-text))
+                                  (reset! drop-showing? false)
+                                  (set-filter-text "" args false)
+                                  (reset! internal-model @external-model))
+              dropdown-click   #(when-not disabled?
+                                  (if @drop-showing?
+                                    (cancel)
+                                    (do
+                                      (reset! drop-showing? true)
+                                      (focus-free-text)            ;; After drop-showing? reset so hiding dropdown in filter-box blur will not be overwritten
+                                      (reset! select-free-text? true))))
+              filtered-choices (if choices-fn?
+                                 choices
+                                 (if regex-filter?
+                                   (filter-choices-regex choices group-fn label-fn @filter-text)
+                                   (filter-choices choices group-fn label-fn @filter-text)))
+              visible-count    #(let [results-node (and @node
+                                                        (.item (.getElementsByClassName @node "chosen-results") 0))]
+                                  (if (and results-node (.-firstChild results-node))
+                                    (quot (.-clientHeight results-node)
+                                          (.-offsetHeight (.-firstChild results-node)))
+                                    0))
+              est-drop-height  #(let [items-height  (* (count filtered-choices) est-item-height)
+                                      drop-margin   12
+                                      filter-height 32
+                                      maxh          (cond
+                                                      (not max-height) 240
+                                                      (string/ends-with? max-height "px") (js/parseInt max-height 10)
+                                                      :else (do (log-warning "max-height is not in pxs, using 240px for estimation")
+                                                                240))]
+                                  (min (+ items-height drop-margin (if filter-box? filter-height 0))
+                                       maxh))
+              drop-height      (reagent/track
+                                #(if-let [drop-node (and @node
+                                                         (.item (.getElementsByClassName @node "chosen-drop") 0))]
+                                   (-> drop-node .getBoundingClientRect .-height)
+                                   (est-drop-height)))
+              top-height       34
+              drop-above?      (reagent/track
+                                #(when (and can-drop-above? @node)
+                                   (let [node-top      (-> @node .getBoundingClientRect .-top)
+                                         window-height (-> js/document .-documentElement .-clientHeight)]
+                                     (> (+ node-top top-height @drop-height)
+                                        window-height))))
+              press-enter      (fn []
+                                 (let [drop-was-showing? @drop-showing?]
+                                   (cond
+                                     disabled?                             (cancel)
+                                     (and (:on-enter-press set-to-filter)
+                                          (seq @filter-text)
+                                          (empty? filtered-choices)
+                                          free-text?
+                                          @drop-showing?)                  (callback @filter-text)
+                                     (or @drop-showing? enter-drop?)       (callback @internal-model))
+                                   (not drop-was-showing?)))
+              press-escape      (fn []
+                                  (let [drop-was-showing? @drop-showing?]
+                                    (cancel)
+                                    (when drop-was-showing?
+                                      (focus-anchor))
+                                    (not drop-was-showing?)))
+              press-tab         (fn [shift-key?]
+                                  (if disabled?
+                                    (cancel)
+                                    (let [drop-was-showing? @drop-showing?]  ;; Was (callback @internal-model) but needed a customised version
+                                      (call-on-change)
+                                      (reset! drop-showing? false)
+                                      (set-filter-text "" args false)
+                                      (when (and drop-was-showing? shift-key?)
+                                        (focus-anchor))))
+                                  (reset! drop-showing? false)
+                                  true)
+              press-arrow       (fn [offset]
+                                  (when (and @drop-showing? (seq filtered-choices))
+                                    (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model offset))
+                                    (when-not cancelable?
+                                      (call-on-change)))
+                                  (reset! drop-showing? true)
+                                  (reset! select-free-text? true)
+                                  true)
+              press-up          #(press-arrow -1)                   ;; Up arrow
+              press-down        #(press-arrow 1)                    ;; Down arrow
+              press-page-up     #(press-arrow (- (dec (visible-count))))
+              press-page-down   #(press-arrow (dec (visible-count)))
+              press-home-or-end (fn [offset]
+                                  (when (and (not @free-text-focused?)
+                                             (seq filtered-choices))
+                                    (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model offset))
+                                    (reset! select-free-text? true))
+                                  true)
+              press-home        #(press-home-or-end :start)
+              press-end         #(press-home-or-end :end)
+              key-handler      #(if disabled?
+                                  false
+                                  (case (.-key %)
                                     "Enter"     (press-enter)
                                     "Escape"    (press-escape)
                                     "Tab"       (press-tab (.-shiftKey %))
@@ -650,78 +648,78 @@
                                     "Home"      (press-home)
                                     "End"       (press-end)
                                     (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
-                dropdown         [:div
-                                  (merge
+              dropdown         [:div
+                                (merge
+                                 (flatten-attr
+                                  (cmerger :main {:free-text? free-text?
+                                                  :drop-showing? @drop-showing?
+                                                  :free-text-focused? @free-text-focused?
+                                                  :width width}))
+                                 {:ref   #(reset! node %)}
+                                 (when tooltip
+                                   {:on-mouse-over (handler-fn (reset! over? true))
+                                    :on-mouse-out (handler-fn (reset! over? false))})
+                                 (->attr args))
+                                (cond
+                                  just-drop? nil
+                                  free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
+                                  :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?])
+                                (when (and @drop-showing? (not disabled?))
+                                  [:div
                                    (flatten-attr
-                                    (cmerger :main {:free-text? free-text?
-                                                    :drop-showing? @drop-showing?
-                                                    :free-text-focused? @free-text-focused?
-                                                    :width width}))
-                                    {:ref   #(reset! node %)}
-                                    (when tooltip
-                                      {:on-mouse-over (handler-fn (reset! over? true))
-                                       :on-mouse-out (handler-fn (reset! over? false))})
-                                    (->attr args))
-                                  (cond
-                                    just-drop? nil
-                                    free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
-                                    :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?])
-                                  (when (and @drop-showing? (not disabled?))
-                                    [:div
-                                     (flatten-attr
-                                      (cmerger :chosen-drop {:drop-above? @drop-above?
-                                                             :top-height top-height
-                                                             :drop-height @drop-height}))
-                                     (when (and (or filter-box? (not free-text?))
-                                                (not just-drop?))
-                                       [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
-                                     [:ul
-                                      (flatten-attr
-                                       (cmerger :chosen-results {:max-height max-height}))
-                                      (cond
-                                        (and choices-fn? (:loading? @choices-state))
-                                        [:li
-                                         (flatten-attr (cmerger :choices-loading))
-                                         (get i18n :loading "Loading...")]
-                                        (and choices-fn? (:error @choices-state))
-                                        [:li
-                                         (flatten-attr (cmerger :choices-error))
-                                         (:error @choices-state)]
-                                        (-> filtered-choices count pos?)
-                                        (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
-                                              make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
-                                              make-choices                  #(map make-a-choice %1)
-                                              make-h-then-choices           (fn [h opts]
-                                                                              (cons (make-group-heading h)
-                                                                                    (make-choices opts)))
-                                              has-no-group-names?           (nil? (:group (first group-names)))]
-                                          (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
-                                            (make-choices (first group-opt-lists)) ;; one group means no headings
-                                            (apply concat (map make-h-then-choices group-names group-opt-lists))))
-                                        :else
-                                        [:li
-                                         (flatten-attr
-                                          (cmerger :choices-no-results
-                                                   {:attr
-                                                    {:on-mouse-down (handler-fn
-                                                                     (when (and (:on-no-results-match-click set-to-filter)
-                                                                                (seq @filter-text)
-                                                                                free-text?)
-                                                                       (callback @filter-text)))}}))
-                                         (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
-                                                             (and (empty? @filter-text) (:no-results i18n))
-                                                             (:no-results-match i18n)
-                                                             "No results match \"%s\"")
-                                                         @filter-text)])]])]
-                _                (when tooltip (add-watch drop-showing? :tooltip #(reset! over? false)))
-                _                (when on-drop (add-watch drop-showing? :on-drop #(when (and (not %3) %4) (on-drop))))]
-            (if tooltip
-              (add-map-to-hiccup-call
-               (cmerger :tooltip)
-               [popover-tooltip
-                :src      (at)
-                :label    tooltip
-                :position (or tooltip-position :below-center)
-                :showing? showing?
-                :anchor   dropdown])
-              dropdown)))))))
+                                    (cmerger :chosen-drop {:drop-above? @drop-above?
+                                                           :top-height top-height
+                                                           :drop-height @drop-height}))
+                                   (when (and (or filter-box? (not free-text?))
+                                              (not just-drop?))
+                                     [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
+                                   [:ul
+                                    (flatten-attr
+                                     (cmerger :chosen-results {:max-height max-height}))
+                                    (cond
+                                      (and choices-fn? (:loading? @choices-state))
+                                      [:li
+                                       (flatten-attr (cmerger :choices-loading))
+                                       (get i18n :loading "Loading...")]
+                                      (and choices-fn? (:error @choices-state))
+                                      [:li
+                                       (flatten-attr (cmerger :choices-error))
+                                       (:error @choices-state)]
+                                      (-> filtered-choices count pos?)
+                                      (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
+                                            make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
+                                            make-choices                  #(map make-a-choice %1)
+                                            make-h-then-choices           (fn [h opts]
+                                                                            (cons (make-group-heading h)
+                                                                                  (make-choices opts)))
+                                            has-no-group-names?           (nil? (:group (first group-names)))]
+                                        (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
+                                          (make-choices (first group-opt-lists)) ;; one group means no headings
+                                          (apply concat (map make-h-then-choices group-names group-opt-lists))))
+                                      :else
+                                      [:li
+                                       (flatten-attr
+                                        (cmerger :choices-no-results
+                                                 {:attr
+                                                  {:on-mouse-down (handler-fn
+                                                                   (when (and (:on-no-results-match-click set-to-filter)
+                                                                              (seq @filter-text)
+                                                                              free-text?)
+                                                                     (callback @filter-text)))}}))
+                                       (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
+                                                           (and (empty? @filter-text) (:no-results i18n))
+                                                           (:no-results-match i18n)
+                                                           "No results match \"%s\"")
+                                                       @filter-text)])]])]
+              _                (when tooltip (add-watch drop-showing? :tooltip #(reset! over? false)))
+              _                (when on-drop (add-watch drop-showing? :on-drop #(when (and (not %3) %4) (on-drop))))]
+          (if tooltip
+            (add-map-to-hiccup-call
+             (cmerger :tooltip)
+             [popover-tooltip
+              :src      (at)
+              :label    tooltip
+              :position (or tooltip-position :below-center)
+              :showing? showing?
+              :anchor   dropdown])
+            dropdown)))))))

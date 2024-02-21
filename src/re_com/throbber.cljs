@@ -3,13 +3,13 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: throbber
@@ -54,17 +54,17 @@
   "Render an animated throbber using CSS"
   [& {:keys [size color class style attr parts src debug-as] :as args}]
   (or
-    (validate-args-macro throbber-args-desc args)
-    (let [cmerger (merge-css throbber-css-spec args)
-          seg (fn []
-                [:li (cmerger :segment {:color color})])]
-      (add-map-to-hiccup-call
-       (cmerger :wrapper)
-       [box
-        :src      src
-        :debug-as (or debug-as (reflect-current-component))
-        :align    :start
-        :child    [:ul
-                   (cmerger :main {:size size})
-                   [seg] [seg] [seg] [seg]
-                   [seg] [seg] [seg] [seg]]])))) ;; Each :li element in [seg] represents one of the eight circles in the throbber
+   (validate-args-macro throbber-args-desc args)
+   (let [cmerger (merge-css throbber-css-spec args)
+         seg (fn []
+               [:li (cmerger :segment {:color color})])]
+     (add-map-to-hiccup-call
+      (cmerger :wrapper)
+      [box
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :align    :start
+       :child    [:ul
+                  (cmerger :main {:size size})
+                  [seg] [seg] [seg] [seg]
+                  [seg] [seg] [seg] [seg]]])))) ;; Each :li element in [seg] represents one of the eight circles in the throbber

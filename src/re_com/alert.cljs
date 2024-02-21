@@ -45,8 +45,7 @@
    :h4 {:class ["rc-alert-h4"]
         :style {:margin-bottom "0px"}}
    :close-button {:class ["rc-alert-close-button"]}
-   :body {:class ["rc-alert-body"]}
-})
+   :body {:class ["rc-alert-body"]}})
 
 (def alert-box-args-desc
   (when include-args-desc?
@@ -70,41 +69,41 @@
       :or   {alert-type :info}
       :as   args}]
   (or
-    (validate-args-macro alert-box-args-desc args)
-    (let [cmerger (merge-css alert-box-css-spec args)
-          close-alert  (add-map-to-hiccup-call
-                        (cmerger :close-button)
-                        [close-button
-                         :src       (at)
-                         :on-click  #(on-close id)
-                         :div-size  20
-                         :font-size 20])]
-      [:div
-       (merge (flatten-attr
-               (cmerger :main {:alert-type alert-type :padding padding}))
-              (->attr args))
-       (when heading
-         (add-map-to-hiccup-call
-          (cmerger :heading {:body body})
-          [h-box
-           :src      (at)
-           :justify  :between
-           :align    :center
-           :children [[:h4
-                       (flatten-attr (cmerger :h4))
-                       heading]
-                      (when (and closeable? on-close)
-                        close-alert)]]))
-       (when body
-         (add-map-to-hiccup-call
-          (cmerger :body)
-          [h-box
-           :src      (at)
-           :justify  :between
-           :align    :center
-           :children [[:div body]
-                      (when (and (not heading) closeable? on-close)
-                        close-alert)]]))])))
+   (validate-args-macro alert-box-args-desc args)
+   (let [cmerger (merge-css alert-box-css-spec args)
+         close-alert  (add-map-to-hiccup-call
+                       (cmerger :close-button)
+                       [close-button
+                        :src       (at)
+                        :on-click  #(on-close id)
+                        :div-size  20
+                        :font-size 20])]
+     [:div
+      (merge (flatten-attr
+              (cmerger :main {:alert-type alert-type :padding padding}))
+             (->attr args))
+      (when heading
+        (add-map-to-hiccup-call
+         (cmerger :heading {:body body})
+         [h-box
+          :src      (at)
+          :justify  :between
+          :align    :center
+          :children [[:h4
+                      (flatten-attr (cmerger :h4))
+                      heading]
+                     (when (and closeable? on-close)
+                       close-alert)]]))
+      (when body
+        (add-map-to-hiccup-call
+         (cmerger :body)
+         [h-box
+          :src      (at)
+          :justify  :between
+          :align    :center
+          :children [[:div body]
+                     (when (and (not heading) closeable? on-close)
+                       close-alert)]]))])))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list
@@ -163,40 +162,40 @@
       :or   {padding "4px"}
       :as   args}]
   (or
-    (validate-args-macro alert-list-args-desc args)
-    (let [alerts (deref-or-value alerts)
-          cmerger (merge-css alert-list-css-spec args)]
-      (add-map-to-hiccup-call
-       (cmerger :wrapper)
-       [box
-        :src      src
-        :debug-as (or debug-as (reflect-current-component))
-        :child    (add-map-to-hiccup-call
-                   (cmerger :main)
-                   [border
-                    :src     (at)
-                    :padding padding
-                    :border  border-style
-                    :child   (add-map-to-hiccup-call
-                              (cmerger :scroller {:max-height max-height})
-                              [scroller
-                               :src      (at)
-                               :v-scroll :auto
-                               :child    (add-map-to-hiccup-call
-                                          (cmerger :v-box)
-                                          [v-box
-                                           :src      (at)
-                                           :size     "auto"
-                                           :children [(for [alert alerts]
-                                                        (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                                          ^{:key id} [alert-box
-                                                                      :src        (at)
-                                                                      :id         id
-                                                                      :alert-type alert-type
-                                                                      :heading    heading
-                                                                      :body       body
-                                                                      :padding    padding
-                                                                      :closeable? closeable?
-                                                                      :on-close   on-close
-                                                                      :class      alert-class
-                                                                      :style      (merge alert-style (:style alert))]))]])])])]))))
+   (validate-args-macro alert-list-args-desc args)
+   (let [alerts (deref-or-value alerts)
+         cmerger (merge-css alert-list-css-spec args)]
+     (add-map-to-hiccup-call
+      (cmerger :wrapper)
+      [box
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :child    (add-map-to-hiccup-call
+                  (cmerger :main)
+                  [border
+                   :src     (at)
+                   :padding padding
+                   :border  border-style
+                   :child   (add-map-to-hiccup-call
+                             (cmerger :scroller {:max-height max-height})
+                             [scroller
+                              :src      (at)
+                              :v-scroll :auto
+                              :child    (add-map-to-hiccup-call
+                                         (cmerger :v-box)
+                                         [v-box
+                                          :src      (at)
+                                          :size     "auto"
+                                          :children [(for [alert alerts]
+                                                       (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                                         ^{:key id} [alert-box
+                                                                     :src        (at)
+                                                                     :id         id
+                                                                     :alert-type alert-type
+                                                                     :heading    heading
+                                                                     :body       body
+                                                                     :padding    padding
+                                                                     :closeable? closeable?
+                                                                     :on-close   on-close
+                                                                     :class      alert-class
+                                                                     :style      (merge alert-style (:style alert))]))]])])])]))))

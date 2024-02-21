@@ -3,19 +3,19 @@
    [re-com.core     :refer [handler-fn at]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [clojure.set                 :as set]
-    [clojure.string              :as string]
-    [goog.string                 :as gstring]
-    [re-com.config               :refer [include-args-desc?]]
-    [re-com.debug                :refer [->attr]]
-    [re-com.input-text           :refer [input-text]]
-    [re-com.box                  :as box]
-    [re-com.text                 :as text]
-    [re-com.buttons              :as buttons]
-    [re-com.close-button         :as close-button]
-    [re-com.util                 :as rc.util :refer [deref-or-value add-map-to-hiccup-call flatten-attr merge-css]]
-    [re-com.validate             :as validate :refer [string-or-hiccup? parts?]]
-    [reagent.core                :as reagent]))
+   [clojure.set                 :as set]
+   [clojure.string              :as string]
+   [goog.string                 :as gstring]
+   [re-com.config               :refer [include-args-desc?]]
+   [re-com.debug                :refer [->attr]]
+   [re-com.input-text           :refer [input-text]]
+   [re-com.box                  :as box]
+   [re-com.text                 :as text]
+   [re-com.buttons              :as buttons]
+   [re-com.close-button         :as close-button]
+   [re-com.util                 :as rc.util :refer [deref-or-value add-map-to-hiccup-call flatten-attr merge-css]]
+   [re-com.validate             :as validate :refer [string-or-hiccup? parts?]]
+   [reagent.core                :as reagent]))
 
 (declare multi-select-css-spec)
 
@@ -306,9 +306,9 @@
    :right-filter-result-count {:class ["rc-multi-select-right-filter-result-count"]
                                :style {:font-size "smaller"}}
    :group-heading-item {:class (fn [{:keys [selected? mouse-over?]}]
-                           ["group-result" (if selected?
-                                             "highlighted"
-                                             (when mouse-over? "mouseover"))])
+                                 ["group-result" (if selected?
+                                                   "highlighted"
+                                                   (when mouse-over? "mouseover"))])
                         :style (fn [{:keys [disabled? selected?]}]
                                  (merge {:padding-left "6px"
                                          :cursor       (when-not disabled? "pointer")
@@ -380,84 +380,84 @@
   RHS - selections - comes from model => internal-model - the selected items from choices collection
   "
   (or
-    (validate-args-macro multi-select-args-desc args)
-    (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
-          *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
-          *current-choice-id                 (reagent/atom nil)
-          *current-selection-id              (reagent/atom nil)
-          *choice-group-heading-selected?    (reagent/atom false)
-          *selection-group-heading-selected? (reagent/atom false)
-          *warning-message                   (reagent/atom nil)
-          *filter-choices-text               (reagent/atom "")
-          *filter-selections-text            (reagent/atom "")]
-      (fn multi-select-render
-        [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
-                   placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn filter-fn class style attr parts src]
-            :or   {id-fn     :id
-                   label-fn  :label
-                   group-fn  :group
-                   sort-fn   compare
-                   required? false}
-            :as   args}]
-        (or
-          (validate-args-macro multi-select-args-desc args)
-          (let [required?              (deref-or-value required?)
-                filter-box?            (deref-or-value filter-box?)
-                regex-filter?          (deref-or-value regex-filter?)
-                min-msg                "Must have at least one"
-                max-msg                (str "Max items allowed is " max-selected-items)
-                group-fn               (or group-fn ::$$$) ;; TODO: If nil is passed because of a when, this will prevent exceptions...smelly!
-                choices                (set (deref-or-value choices))
-                disabled?              (deref-or-value disabled?)
-                regex-filter?          (deref-or-value regex-filter?)
-                *latest-ext-model      (reagent/atom (deref-or-value model))
-                _                      (when (not= @*external-model @*latest-ext-model) ;; Has model changed externally?
-                                         (reset! *external-model @*latest-ext-model)
-                                         (reset! *internal-model @*latest-ext-model))
-                changeable?            (and on-change (not disabled?))
-                excludable?            (and @*current-selection-id (> (count @*internal-model) (if required? 1 0)))
-                filter-fn              (or filter-fn (comp str label-fn))
-                choices-filter-fn      (if regex-filter?
-                                         (filter-items-regex group-fn filter-fn @*filter-choices-text)
-                                         (filter-items group-fn filter-fn @*filter-choices-text))
-                filtered-choices       (into []
-                                             (->> choices
-                                                  (remove #(contains? @*internal-model (id-fn %)))
-                                                  (filter choices-filter-fn)
-                                                  (sort-by sort-fn)))
-                selections             (into []
-                                             (->> @*internal-model
-                                                  (map #(rc.util/item-for-id % choices :id-fn id-fn))
-                                                  (sort-by sort-fn)))
-                selections-filter-fn   (if regex-filter?
-                                         (filter-items-regex group-fn filter-fn @*filter-selections-text)
-                                         (filter-items group-fn filter-fn @*filter-selections-text))
-                filtered-selections    (into []
-                                             (->> selections
-                                                  (filter selections-filter-fn)
-                                                  (sort-by sort-fn)))
-                potential-count        (->> @*internal-model
-                                            (set/difference (set (map id-fn choices)))
-                                            count)
-                chosen-count           (count selections)
-                choice-click           (fn [id group-heading-selected?]
-                                         (reset! *current-choice-id id)
-                                         (reset! *choice-group-heading-selected? group-heading-selected?)
-                                         (reset! *warning-message nil))
-                selection-click        (fn [id group-heading-selected?]
-                                         (reset! *current-selection-id id)
-                                         (reset! *selection-group-heading-selected? group-heading-selected?)
-                                         (reset! *warning-message nil))
-                include-filtered-click #(do (if (and (some? max-selected-items) (> (+ (count @*internal-model) (count filtered-choices)) max-selected-items))
-                                              (reset! *warning-message max-msg)
-                                              (do
-                                                (swap! *internal-model conj @*current-choice-id)
-                                                (reset! *warning-message nil)))
+   (validate-args-macro multi-select-args-desc args)
+   (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
+         *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
+         *current-choice-id                 (reagent/atom nil)
+         *current-selection-id              (reagent/atom nil)
+         *choice-group-heading-selected?    (reagent/atom false)
+         *selection-group-heading-selected? (reagent/atom false)
+         *warning-message                   (reagent/atom nil)
+         *filter-choices-text               (reagent/atom "")
+         *filter-selections-text            (reagent/atom "")]
+     (fn multi-select-render
+       [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
+                  placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn filter-fn class style attr parts src]
+           :or   {id-fn     :id
+                  label-fn  :label
+                  group-fn  :group
+                  sort-fn   compare
+                  required? false}
+           :as   args}]
+       (or
+        (validate-args-macro multi-select-args-desc args)
+        (let [required?              (deref-or-value required?)
+              filter-box?            (deref-or-value filter-box?)
+              regex-filter?          (deref-or-value regex-filter?)
+              min-msg                "Must have at least one"
+              max-msg                (str "Max items allowed is " max-selected-items)
+              group-fn               (or group-fn ::$$$) ;; TODO: If nil is passed because of a when, this will prevent exceptions...smelly!
+              choices                (set (deref-or-value choices))
+              disabled?              (deref-or-value disabled?)
+              regex-filter?          (deref-or-value regex-filter?)
+              *latest-ext-model      (reagent/atom (deref-or-value model))
+              _                      (when (not= @*external-model @*latest-ext-model) ;; Has model changed externally?
+                                       (reset! *external-model @*latest-ext-model)
+                                       (reset! *internal-model @*latest-ext-model))
+              changeable?            (and on-change (not disabled?))
+              excludable?            (and @*current-selection-id (> (count @*internal-model) (if required? 1 0)))
+              filter-fn              (or filter-fn (comp str label-fn))
+              choices-filter-fn      (if regex-filter?
+                                       (filter-items-regex group-fn filter-fn @*filter-choices-text)
+                                       (filter-items group-fn filter-fn @*filter-choices-text))
+              filtered-choices       (into []
+                                           (->> choices
+                                                (remove #(contains? @*internal-model (id-fn %)))
+                                                (filter choices-filter-fn)
+                                                (sort-by sort-fn)))
+              selections             (into []
+                                           (->> @*internal-model
+                                                (map #(rc.util/item-for-id % choices :id-fn id-fn))
+                                                (sort-by sort-fn)))
+              selections-filter-fn   (if regex-filter?
+                                       (filter-items-regex group-fn filter-fn @*filter-selections-text)
+                                       (filter-items group-fn filter-fn @*filter-selections-text))
+              filtered-selections    (into []
+                                           (->> selections
+                                                (filter selections-filter-fn)
+                                                (sort-by sort-fn)))
+              potential-count        (->> @*internal-model
+                                          (set/difference (set (map id-fn choices)))
+                                          count)
+              chosen-count           (count selections)
+              choice-click           (fn [id group-heading-selected?]
+                                       (reset! *current-choice-id id)
+                                       (reset! *choice-group-heading-selected? group-heading-selected?)
+                                       (reset! *warning-message nil))
+              selection-click        (fn [id group-heading-selected?]
+                                       (reset! *current-selection-id id)
+                                       (reset! *selection-group-heading-selected? group-heading-selected?)
+                                       (reset! *warning-message nil))
+              include-filtered-click #(do (if (and (some? max-selected-items) (> (+ (count @*internal-model) (count filtered-choices)) max-selected-items))
+                                            (reset! *warning-message max-msg)
+                                            (do
+                                              (swap! *internal-model conj @*current-choice-id)
+                                              (reset! *warning-message nil)))
                                           (when (and changeable? (not= @*internal-model @*latest-ext-model))
                                             (reset! *external-model @*internal-model)
                                             (on-change @*internal-model))
                                           (reset! *current-choice-id nil))
-                include-click          #(do (if @*choice-group-heading-selected?
+              include-click          #(do (if @*choice-group-heading-selected?
                                             (let [choices-to-include (->> filtered-choices
                                                                           (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
                                                                           (map id-fn) ;; TODO: Need to realise map output for prod build (dev doesn't need it). Why?
@@ -512,193 +512,193 @@
                                           (reset! *external-model @*internal-model)
                                           (on-change @*internal-model))
                                         (reset! *current-selection-id nil))
-                cmerger (merge-css multi-select-css-spec args)]
-            [:div
-             (merge
-              (flatten-attr (cmerger :main {:width width}))
-              (->attr args)) ;; Prevent user text selection
-             (add-map-to-hiccup-call
-              (cmerger :container)
-              [box/h-box
-               :src        (at)
-               :height     height
-               :max-height max-height
-               :gap        "4px"
-               :children   [(add-map-to-hiccup-call
-                             (cmerger :left)
-                             [box/v-box
-                              :src      (at)
-                              :size     "50%"
-                              :gap      "4px"
-                              :children [(when left-label
-                                           (if (string? left-label)
-                                             (add-map-to-hiccup-call
-                                              (cmerger :left-label-container)
-                                              [box/h-box
-                                               :src      (at)
-                                               :justify  :between
-                                               :children [[:span
-                                                           (flatten-attr (cmerger :left-label))
-                                                           left-label]
-                                                          [:span
-                                                           (flatten-attr
-                                                            (cmerger :left-label-item-count))
-                                                           (if (string/blank? @*filter-choices-text)
-                                                             (rc.util/pluralize potential-count "item")
-                                                             (str "showing " (count filtered-choices) " of " potential-count))]]])
-                                             left-label))
-                                         (add-map-to-hiccup-call
-                                          (cmerger :left-list-box)
-                                          [list-box
-                                           :src                     (at)
-                                           :items                   filtered-choices
-                                           :id-fn                   id-fn
-                                           :label-fn                label-fn
-                                           :group-fn                group-fn
-                                           :disabled?               disabled?
-                                           :*current-item-id        *current-choice-id
-                                           :group-heading-selected? @*choice-group-heading-selected?
-                                           :click-callback          choice-click
-                                           :double-click-callback   include-click
-                                           :filter-choices-text     @*filter-choices-text])
-                                         (when filter-box?
-                                           [:<>
-                                            [box/gap
-                                             :src  (at)
-                                             :size "4px"]
-                                            [filter-text-box *filter-choices-text placeholder *warning-message disabled? parts]
-                                            [box/gap
-                                             :src  (at)
-                                             :size "4px"]
-                                            (if (string/blank? @*filter-choices-text)
-                                              [text/label
-                                               :src   (at)
-                                               :label (gstring/unescapeEntities "&nbsp;")
-                                               :style {:font-size "smaller"}]
-                                              (add-map-to-hiccup-call
-                                               (cmerger :left-filter-result-count)
-                                               [text/label
-                                                :src   (at)
-                                                :label [:span "Found " (rc.util/pluralize (count filtered-choices) "match" "matches") " containing " [:strong @*filter-choices-text]]]))])]])
+              cmerger (merge-css multi-select-css-spec args)]
+          [:div
+           (merge
+            (flatten-attr (cmerger :main {:width width}))
+            (->attr args)) ;; Prevent user text selection
+           (add-map-to-hiccup-call
+            (cmerger :container)
+            [box/h-box
+             :src        (at)
+             :height     height
+             :max-height max-height
+             :gap        "4px"
+             :children   [(add-map-to-hiccup-call
+                           (cmerger :left)
+                           [box/v-box
+                            :src      (at)
+                            :size     "50%"
+                            :gap      "4px"
+                            :children [(when left-label
+                                         (if (string? left-label)
+                                           (add-map-to-hiccup-call
+                                            (cmerger :left-label-container)
+                                            [box/h-box
+                                             :src      (at)
+                                             :justify  :between
+                                             :children [[:span
+                                                         (flatten-attr (cmerger :left-label))
+                                                         left-label]
+                                                        [:span
+                                                         (flatten-attr
+                                                          (cmerger :left-label-item-count))
+                                                         (if (string/blank? @*filter-choices-text)
+                                                           (rc.util/pluralize potential-count "item")
+                                                           (str "showing " (count filtered-choices) " of " potential-count))]]])
+                                           left-label))
+                                       (add-map-to-hiccup-call
+                                        (cmerger :left-list-box)
+                                        [list-box
+                                         :src                     (at)
+                                         :items                   filtered-choices
+                                         :id-fn                   id-fn
+                                         :label-fn                label-fn
+                                         :group-fn                group-fn
+                                         :disabled?               disabled?
+                                         :*current-item-id        *current-choice-id
+                                         :group-heading-selected? @*choice-group-heading-selected?
+                                         :click-callback          choice-click
+                                         :double-click-callback   include-click
+                                         :filter-choices-text     @*filter-choices-text])
+                                       (when filter-box?
+                                         [:<>
+                                          [box/gap
+                                           :src  (at)
+                                           :size "4px"]
+                                          [filter-text-box *filter-choices-text placeholder *warning-message disabled? parts]
+                                          [box/gap
+                                           :src  (at)
+                                           :size "4px"]
+                                          (if (string/blank? @*filter-choices-text)
+                                            [text/label
+                                             :src   (at)
+                                             :label (gstring/unescapeEntities "&nbsp;")
+                                             :style {:font-size "smaller"}]
+                                            (add-map-to-hiccup-call
+                                             (cmerger :left-filter-result-count)
+                                             [text/label
+                                              :src   (at)
+                                              :label [:span "Found " (rc.util/pluralize (count filtered-choices) "match" "matches") " containing " [:strong @*filter-choices-text]]]))])]])
 
-                            (add-map-to-hiccup-call
-                             (cmerger :middle-container)
-                             [box/v-box
-                              :src      (at)
-                              :justify  :between
-                              :children [(add-map-to-hiccup-call
-                                          (cmerger :middle-spacer)
-                                          [box/box
-                                           :src   (at)
-                                           :size  "0 1 22px" ;; 22 = (+ 18 4) - height of the top components
-                                           :child ""])
-                                         (add-map-to-hiccup-call
-                                          (cmerger :middle)
-                                          [box/v-box
-                                           :src      (at)
-                                           :justify  :center
-                                           :children [(add-map-to-hiccup-call
-                                                       (cmerger :include-all-button)
-                                                       [multi-button
-                                                        :src (at)
-                                                        :label (str " include " (if (string/blank? @*filter-choices-text) potential-count (count filtered-choices)))
-                                                        :icon "fast-forward"
-                                                        :disabled? (or disabled? (zero? (count filtered-choices)))
-                                                        :on-click  include-filtered-click])
-                                                      (add-map-to-hiccup-call
-                                                       (cmerger :include-selected-button)
-                                                       [multi-button
-                                                        :src (at)
-                                                        :label (str " include " (when @*choice-group-heading-selected?
-                                                                                 (->> filtered-choices ;; TODO: Inefficient
-                                                                                      (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
-                                                                                      count)))
-                                                        :icon "play"
-                                                        :disabled? (or disabled? (not @*current-choice-id))
-                                                        :on-click  include-click])
-                                                      (add-map-to-hiccup-call
-                                                       (cmerger :exclude-selected-button)
-                                                       [multi-button
-                                                        :src (at)
-                                                        :label (str " exclude " (when @*selection-group-heading-selected?
-                                                                                 (->> filtered-selections ;; TODO: Inefficient
-                                                                                      (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
-                                                                                      count)))
+                          (add-map-to-hiccup-call
+                           (cmerger :middle-container)
+                           [box/v-box
+                            :src      (at)
+                            :justify  :between
+                            :children [(add-map-to-hiccup-call
+                                        (cmerger :middle-spacer)
+                                        [box/box
+                                         :src   (at)
+                                         :size  "0 1 22px" ;; 22 = (+ 18 4) - height of the top components
+                                         :child ""])
+                                       (add-map-to-hiccup-call
+                                        (cmerger :middle)
+                                        [box/v-box
+                                         :src      (at)
+                                         :justify  :center
+                                         :children [(add-map-to-hiccup-call
+                                                     (cmerger :include-all-button)
+                                                     [multi-button
+                                                      :src (at)
+                                                      :label (str " include " (if (string/blank? @*filter-choices-text) potential-count (count filtered-choices)))
+                                                      :icon "fast-forward"
+                                                      :disabled? (or disabled? (zero? (count filtered-choices)))
+                                                      :on-click  include-filtered-click])
+                                                    (add-map-to-hiccup-call
+                                                     (cmerger :include-selected-button)
+                                                     [multi-button
+                                                      :src (at)
+                                                      :label (str " include " (when @*choice-group-heading-selected?
+                                                                                (->> filtered-choices ;; TODO: Inefficient
+                                                                                     (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
+                                                                                     count)))
+                                                      :icon "play"
+                                                      :disabled? (or disabled? (not @*current-choice-id))
+                                                      :on-click  include-click])
+                                                    (add-map-to-hiccup-call
+                                                     (cmerger :exclude-selected-button)
+                                                     [multi-button
+                                                      :src (at)
+                                                      :label (str " exclude " (when @*selection-group-heading-selected?
+                                                                                (->> filtered-selections ;; TODO: Inefficient
+                                                                                     (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
+                                                                                     count)))
                                                         ;;TODO: Zmdi reference should be in -css-spec
-                                                        :icon "play zmdi-hc-rotate-180"
-                                                        :disabled? (or disabled? (not excludable?))
-                                                        :on-click  exclude-click])
-                                                      (add-map-to-hiccup-call
-                                                       (cmerger :exclude-all-button)
-                                                       [multi-button
-                                                        :src       (at)
-                                                        :label (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))
-                                                        :icon "fast-rewind"
-                                                        :disabled? (or disabled? (zero? (count filtered-selections)) (not (> (count @*internal-model) (if required? 1 0))))
-                                                        :on-click  exclude-filtered-click])]])
-                                         [box/box
-                                          :src   (at)
-                                          :size  (str "0 2 " (if filter-box? "55px" "0px")) ;; 55 = (+ 4 4 28 4 15) - height of the bottom components
+                                                      :icon "play zmdi-hc-rotate-180"
+                                                      :disabled? (or disabled? (not excludable?))
+                                                      :on-click  exclude-click])
+                                                    (add-map-to-hiccup-call
+                                                     (cmerger :exclude-all-button)
+                                                     [multi-button
+                                                      :src       (at)
+                                                      :label (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))
+                                                      :icon "fast-rewind"
+                                                      :disabled? (or disabled? (zero? (count filtered-selections)) (not (> (count @*internal-model) (if required? 1 0))))
+                                                      :on-click  exclude-filtered-click])]])
+                                       [box/box
+                                        :src   (at)
+                                        :size  (str "0 2 " (if filter-box? "55px" "0px")) ;; 55 = (+ 4 4 28 4 15) - height of the bottom components
                                         ;:style {:background-color "lightblue"}
-                                          :child ""]]])
-                            (add-map-to-hiccup-call
-                             (cmerger :right)
-                             [box/v-box
-                              :src      (at)
-                              :size     "50%"
-                              :gap      "4px"
-                              :children [^{:key (gensym)}
-                                         (add-map-to-hiccup-call
-                                          (cmerger :warning-message {:warning-message @*warning-message})
-                                          [text/label
-                                           :src   (at)
-                                           :label @*warning-message])
-                                         (when right-label
-                                           (if (string? right-label)
-                                             (add-map-to-hiccup-call
-                                              (cmerger :right-label-container)
-                                              [box/h-box
-                                               :src      (at)
-                                               :justify  :between
-                                               :children [[:span
-                                                           (flatten-attr (cmerger :right-label))
-                                                           right-label]
-                                                          [:span
-                                                           (flatten-attr (cmerger :right-label-item-count))
-                                                           (if (string/blank? @*filter-selections-text)
-                                                             (rc.util/pluralize chosen-count "item")
-                                                             (str "showing " (count filtered-selections) " of " chosen-count))]]])
-                                             right-label))
-                                         (add-map-to-hiccup-call
-                                          (cmerger :right-list-box)
-                                          [list-box
-                                           :src                     (at)
-                                           :items                   filtered-selections
-                                           :id-fn                   id-fn
-                                           :label-fn                label-fn
-                                           :group-fn                group-fn
-                                           :disabled?               disabled?
-                                           :*current-item-id        *current-selection-id
-                                           :group-heading-selected? @*selection-group-heading-selected?
-                                           :click-callback          selection-click
-                                           :double-click-callback   exclude-click
-                                           :filter-choices-text     @*filter-selections-text])
-                                         (when filter-box?
-                                           [:<>
-                                            [box/gap
-                                             :src  (at)
-                                             :size "4px"]
-                                            [filter-text-box *filter-selections-text placeholder *warning-message disabled? parts]
-                                            [box/gap
-                                             :src  (at)
-                                             :size "4px"]
-                                            (if (string/blank? @*filter-selections-text)
-                                              [text/label
-                                               :src   (at)
-                                               :label (gstring/unescapeEntities "&nbsp;")
-                                               :style {:font-size "smaller"}]
-                                              (add-map-to-hiccup-call
-                                               (cmerger :right-filter-result-count)
-                                               [text/label
-                                                :src   (at)
-                                                :label [:span "Found " (rc.util/pluralize (count filtered-selections) "match" "matches") " containing " [:strong @*filter-selections-text]]]))])]])]])]))))))
+                                        :child ""]]])
+                          (add-map-to-hiccup-call
+                           (cmerger :right)
+                           [box/v-box
+                            :src      (at)
+                            :size     "50%"
+                            :gap      "4px"
+                            :children [^{:key (gensym)}
+                                       (add-map-to-hiccup-call
+                                        (cmerger :warning-message {:warning-message @*warning-message})
+                                        [text/label
+                                         :src   (at)
+                                         :label @*warning-message])
+                                       (when right-label
+                                         (if (string? right-label)
+                                           (add-map-to-hiccup-call
+                                            (cmerger :right-label-container)
+                                            [box/h-box
+                                             :src      (at)
+                                             :justify  :between
+                                             :children [[:span
+                                                         (flatten-attr (cmerger :right-label))
+                                                         right-label]
+                                                        [:span
+                                                         (flatten-attr (cmerger :right-label-item-count))
+                                                         (if (string/blank? @*filter-selections-text)
+                                                           (rc.util/pluralize chosen-count "item")
+                                                           (str "showing " (count filtered-selections) " of " chosen-count))]]])
+                                           right-label))
+                                       (add-map-to-hiccup-call
+                                        (cmerger :right-list-box)
+                                        [list-box
+                                         :src                     (at)
+                                         :items                   filtered-selections
+                                         :id-fn                   id-fn
+                                         :label-fn                label-fn
+                                         :group-fn                group-fn
+                                         :disabled?               disabled?
+                                         :*current-item-id        *current-selection-id
+                                         :group-heading-selected? @*selection-group-heading-selected?
+                                         :click-callback          selection-click
+                                         :double-click-callback   exclude-click
+                                         :filter-choices-text     @*filter-selections-text])
+                                       (when filter-box?
+                                         [:<>
+                                          [box/gap
+                                           :src  (at)
+                                           :size "4px"]
+                                          [filter-text-box *filter-selections-text placeholder *warning-message disabled? parts]
+                                          [box/gap
+                                           :src  (at)
+                                           :size "4px"]
+                                          (if (string/blank? @*filter-selections-text)
+                                            [text/label
+                                             :src   (at)
+                                             :label (gstring/unescapeEntities "&nbsp;")
+                                             :style {:font-size "smaller"}]
+                                            (add-map-to-hiccup-call
+                                             (cmerger :right-filter-result-count)
+                                             [text/label
+                                              :src   (at)
+                                              :label [:span "Found " (rc.util/pluralize (count filtered-selections) "match" "matches") " containing " [:strong @*filter-selections-text]]]))])]])]])]))))))

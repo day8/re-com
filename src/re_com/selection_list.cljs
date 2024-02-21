@@ -3,14 +3,14 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config       :refer [include-args-desc?]]
-    [re-com.debug        :refer [->attr]]
-    [re-com.text         :refer [label]]
-    [re-com.checkbox     :refer [checkbox]]
-    [re-com.radio-button :refer [radio-button]]
-    [re-com.box          :refer [box border h-box v-box]]
-    [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
-    [re-com.util         :refer [fmap deref-or-value merge-css add-map-to-hiccup-call flatten-attr]]))
+   [re-com.config       :refer [include-args-desc?]]
+   [re-com.debug        :refer [->attr]]
+   [re-com.text         :refer [label]]
+   [re-com.checkbox     :refer [checkbox]]
+   [re-com.radio-button :refer [radio-button]]
+   [re-com.box          :refer [box border h-box v-box]]
+   [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
+   [re-com.util         :refer [fmap deref-or-value merge-css add-map-to-hiccup-call flatten-attr]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style
@@ -171,41 +171,41 @@
              label-fn       :label}
       :as   args}]
   (or
-    (validate-args-macro selection-list-args-desc args)
-    (let [choices        (deref-or-value choices)
-          model          (deref-or-value model)
-          on-change      (deref-or-value on-change)
-          multi-select?  (deref-or-value multi-select?)
-          as-exclusions? (deref-or-value as-exclusions?)
-          required?      (deref-or-value required?)
-          width          (deref-or-value width)
-          height         (deref-or-value height)
-          max-height     (deref-or-value max-height)
-          disabled?      (deref-or-value disabled?)
-          hide-border?   (deref-or-value hide-border?)
-          item-renderer  (deref-or-value item-renderer)
-          selected       (if multi-select? model (-> model first vector set))
-          items          (map (if item-renderer
-                                #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
-                                (if multi-select?
-                                  #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
-                                  #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
-                              choices)
-          cmerger (merge-css selection-list-css-spec args)]
+   (validate-args-macro selection-list-args-desc args)
+   (let [choices        (deref-or-value choices)
+         model          (deref-or-value model)
+         on-change      (deref-or-value on-change)
+         multi-select?  (deref-or-value multi-select?)
+         as-exclusions? (deref-or-value as-exclusions?)
+         required?      (deref-or-value required?)
+         width          (deref-or-value width)
+         height         (deref-or-value height)
+         max-height     (deref-or-value max-height)
+         disabled?      (deref-or-value disabled?)
+         hide-border?   (deref-or-value hide-border?)
+         item-renderer  (deref-or-value item-renderer)
+         selected       (if multi-select? model (-> model first vector set))
+         items          (map (if item-renderer
+                               #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
+                               (if multi-select?
+                                 #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
+                                 #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
+                             choices)
+         cmerger (merge-css selection-list-css-spec args)]
       ;; In single select mode force selections to one. This causes a second render
       ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
-      #_(when-not (= selected model) (on-change selected))
-      (add-map-to-hiccup-call
-       (cmerger :main {:disabled? (deref-or-value disabled?)})
-       [border
-        :src      src
-        :debug-as (or debug-as (reflect-current-component))
-        :radius   "4px"
-        :border   (when hide-border? "none")
-        :child    (into [:div
-                         (flatten-attr
-                          (cmerger :list-group {:width width :height height :max-height max-height
-                                                :hide-border? hide-border?}))]
-                        items)]))))
+     #_(when-not (= selected model) (on-change selected))
+     (add-map-to-hiccup-call
+      (cmerger :main {:disabled? (deref-or-value disabled?)})
+      [border
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :radius   "4px"
+       :border   (when hide-border? "none")
+       :child    (into [:div
+                        (flatten-attr
+                         (cmerger :list-group {:width width :height height :max-height max-height
+                                               :hide-border? hide-border?}))]
+                       items)]))))
 
 

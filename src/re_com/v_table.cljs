@@ -4,13 +4,13 @@
    [re-com.core        :refer [handler-fn at reflect-current-component]]
    [re-com.validate    :refer [validate-args-macro]])
   (:require
-    [reagent.core       :as    reagent]
-    [re-com.config      :refer [debug? include-args-desc?]]
-    [re-com.debug       :refer [->attr]]
-    [re-com.box         :as    box]
-    [re-com.util        :as    util :refer [deref-or-value px-n add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
-    [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
+   [reagent.core       :as    reagent]
+   [re-com.config      :refer [debug? include-args-desc?]]
+   [re-com.debug       :refer [->attr]]
+   [re-com.box         :as    box]
+   [re-com.util        :as    util :refer [deref-or-value px-n add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
+   [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
 ;; The public API for this component is called table (see last component in this file)
 
@@ -48,9 +48,9 @@
                      :cursor "default"
                      :background-color
                      (case
-                         dragging? "#777" ;thumb-drag-color
-                         mouse-over? "#999" ;thumb-hover-color
-                         :else "#bbb") ;thumb-color
+                      dragging? "#777" ;thumb-drag-color
+                      mouse-over? "#999" ;thumb-hover-color
+                      :else "#bbb") ;thumb-color
                      (if horizontal? :margin-left :margin-top)
                      (px scroll-position)})}})
 
@@ -325,7 +325,6 @@
                  (iterate inc top-row-index)
                  rows)])))
 
-
 (defn row-viewport
   "Render section 5 - the viewport component (which renders the content component as its child)"
   [row-renderer key-fn top-row-index rows scroll-x scroll-y
@@ -554,8 +553,7 @@
    :v-scroll-section {:class ["rc-v-table-v-scroll-section"]}
    :v-scroll {:class ["rc-v-table-v-scroll"]
               :style (fn [{:keys [scrollbar-margin]}]
-                       {:margin (px-n scrollbar-margin 0)})}
-   })
+                       {:margin (px-n scrollbar-margin 0)})}})
 
 ;;This is for the selection-renderer component embedded in v-table. Perhaps it should be a key in
 ;; v-table-css-spec, above. But it doesn't seem to be addressable using `parts` so for now just has
@@ -962,35 +960,35 @@
          sel-content-y-end                 (reagent/atom 0)      ;; Current mouse y drag position of the content selection
 
           ;; The selection rectangle component
-          selection-renderer                (fn selection-renderer
-                                              [class style attr]
-                                              (let [selecting-down?  (> @sel-content-y-end @sel-content-y-start)
-                                                    selecting-right? (> @sel-content-x-end @sel-content-x-start)
-                                                    width            (if selecting-right?
-                                                                       (- @sel-content-x-end @sel-content-x-start)
-                                                                       (- @sel-content-x-start @sel-content-x-end))
-                                                    height           (if selecting-down?
-                                                                       (- @sel-content-y-end @sel-content-y-start)
-                                                                       (- @sel-content-y-start @sel-content-y-end))
-                                                    top              (if selecting-down?
-                                                                       (- @sel-content-y-start @scroll-y)
-                                                                       (- @sel-content-y-start @scroll-y height))
-                                                    left             (if selecting-right?
-                                                                       (- @sel-content-x-start @scroll-x)
-                                                                       (- @sel-content-x-start @scroll-x width))
-                                                    cmerger (merge-css
-                                                             v-table-selection-css-spec
-                                                             {:class class :style style :attr attr})]
-                                                [:div
-                                                 (flatten-attr (cmerger :main {:width width :height height
-                                                                  :top top :left left}))
-                                                 ""]))
+         selection-renderer                (fn selection-renderer
+                                             [class style attr]
+                                             (let [selecting-down?  (> @sel-content-y-end @sel-content-y-start)
+                                                   selecting-right? (> @sel-content-x-end @sel-content-x-start)
+                                                   width            (if selecting-right?
+                                                                      (- @sel-content-x-end @sel-content-x-start)
+                                                                      (- @sel-content-x-start @sel-content-x-end))
+                                                   height           (if selecting-down?
+                                                                      (- @sel-content-y-end @sel-content-y-start)
+                                                                      (- @sel-content-y-start @sel-content-y-end))
+                                                   top              (if selecting-down?
+                                                                      (- @sel-content-y-start @scroll-y)
+                                                                      (- @sel-content-y-start @scroll-y height))
+                                                   left             (if selecting-right?
+                                                                      (- @sel-content-x-start @scroll-x)
+                                                                      (- @sel-content-x-start @scroll-x width))
+                                                   cmerger (merge-css
+                                                            v-table-selection-css-spec
+                                                            {:class class :style style :attr attr})]
+                                               [:div
+                                                (flatten-attr (cmerger :main {:width width :height height
+                                                                              :top top :left left}))
+                                                ""]))
 
-          coords-debug                      (reagent/atom nil)    ;; Handy when debugging - used to show selection coords on the left-hand debug section
-          event-debug                       (reagent/atom nil)    ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
-          selection-target                  (reagent/atom nil)    ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
-          sel-max-content-rows-px           (reagent/atom 0)      ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
-          sel-max-content-cols-px           (reagent/atom 0)      ;; The maximum number of px columns to be used for the selection callback
+         coords-debug                      (reagent/atom nil)    ;; Handy when debugging - used to show selection coords on the left-hand debug section
+         event-debug                       (reagent/atom nil)    ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
+         selection-target                  (reagent/atom nil)    ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
+         sel-max-content-rows-px           (reagent/atom 0)      ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
+         sel-max-content-cols-px           (reagent/atom 0)      ;; The maximum number of px columns to be used for the selection callback
 
           ;; Calculates the map representing the selection dimensions that will be passed back to the caller (translates px to row numbers if required)
          selection-coords                  (fn selection-coords
@@ -1194,16 +1192,16 @@
 
                  ;; TODO: [DJ] Suggested that the many merges below could be placed in the let above as reaction for performance improvements (readability would suffer a bit)
 
-                 (let [cmerger (merge-css v-table-css-spec args)]
-                   (add-map-to-hiccup-call
-                    (cmerger :wrapper {:max-width max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
-                                       :max-height
-                                       (when remove-empty-row-space?
-                                         (+
-                                          (or column-header-height 0)
-                                          (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
-                                          (or column-footer-height 0)
-                                          scrollbar-tot-thick))
+              (let [cmerger (merge-css v-table-css-spec args)]
+                (add-map-to-hiccup-call
+                 (cmerger :wrapper {:max-width max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
+                                    :max-height
+                                    (when remove-empty-row-space?
+                                      (+
+                                       (or column-header-height 0)
+                                       (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
+                                       (or column-footer-height 0)
+                                       scrollbar-tot-thick))
 
                                        ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
                                        ;; The solution seems to be to use CSS overscroll-behavior
@@ -1214,244 +1212,239 @@
                                         ;:overscroll-behavior "contain"
                                         ;:overscroll-behavior-block "none"
 
+                                    :attr {:on-wheel (handler-fn (on-wheel event))}})
+                 [box/h-box
+                  :src      src
+                  :debug-as (or debug-as (reflect-current-component))
+                  :size     "auto"
+                  :children [;; ========== LEFT SECTION (1, 2, 3) - row header area
 
-                                       :attr {:on-wheel (handler-fn (on-wheel event))}})
-                    [box/h-box
-                     :src      src
-                     :debug-as (or debug-as (reflect-current-component))
-                     :size     "auto"
-                     :children [
-                                ;; ========== LEFT SECTION (1, 2, 3) - row header area
+                             (add-map-to-hiccup-call
+                              (cmerger :left-section)
+                              [box/v-box
+                               :src      (at)
+                               :children [;; ========== SECTION 1 - top-left
 
-                                (add-map-to-hiccup-call
-                                 (cmerger :left-section)
-                                 [box/v-box
-                                  :src      (at)
-                                  :children [
-                                             ;; ========== SECTION 1 - top-left
-
-                                             [top-left-content
-                                              top-left-renderer
+                                          [top-left-content
+                                           top-left-renderer
                                         ;-----------------
-                                              column-header-height
+                                           column-header-height
                                         ;-----------------
-                                              parts]
+                                           parts]
 
                                              ;; ========== SECTION 2 - row-headers
 
-                                             [row-header-viewport
-                                              row-header-renderer
-                                              key-fn
-                                              @top-row-index
-                                              (if virtual? @virtual-rows @model)           ;; rows
-                                              (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
+                                          [row-header-viewport
+                                           row-header-renderer
+                                           key-fn
+                                           @top-row-index
+                                           (if virtual? @virtual-rows @model)           ;; rows
+                                           (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                         ;-----------------
-                                              row-header-selection-fn
-                                              selection-fns
-                                              (and row-header-selection-fn @sel-parent-bounding-rect (= @selection-target :row-header)) ;; selection-allowed?
+                                           row-header-selection-fn
+                                           selection-fns
+                                           (and row-header-selection-fn @sel-parent-bounding-rect (= @selection-target :row-header)) ;; selection-allowed?
                                         ;-----------------
-                                              row-viewport-height
-                                              @content-rows-height
+                                           row-viewport-height
+                                           @content-rows-height
                                         ;-----------------
-                                              parts]
+                                           parts]
 
                                              ;; ========== SECTION 3 - bottom-left
 
-                                             [bottom-left-content
-                                              bottom-left-renderer
+                                          [bottom-left-content
+                                           bottom-left-renderer
                                         ;-----------------
-                                              column-footer-height
+                                           column-footer-height
                                         ;-----------------
-                                              parts]
+                                           parts]
 
-                                             [box/gap
-                                              :src  (at)
-                                              :size (px scrollbar-tot-thick)]]])
+                                          [box/gap
+                                           :src  (at)
+                                           :size (px scrollbar-tot-thick)]]])
 
                                 ;; ========== MIDDLE SECTION (4, 5, 6) - column header/footer and content area
 
-                                 (add-map-to-hiccup-call
-                                  (cmerger :middle-section {:max-width @content-rows-width})
-                                  [box/v-box
-                                   :src      (at)
-                                   :size     (if row-viewport-width "none" "auto")
-                                   :children [
-                                              ;; ========== SECTION 4 - column-headers
+                             (add-map-to-hiccup-call
+                              (cmerger :middle-section {:max-width @content-rows-width})
+                              [box/v-box
+                               :src      (at)
+                               :size     (if row-viewport-width "none" "auto")
+                               :children [;; ========== SECTION 4 - column-headers
 
-                                              [column-header-viewport
-                                               column-header-renderer
-                                               @scroll-x
+                                          [column-header-viewport
+                                           column-header-renderer
+                                           @scroll-x
                                         ;-----------------
-                                               column-header-selection-fn
-                                               selection-fns
-                                               (and column-header-selection-fn @sel-parent-bounding-rect (= @selection-target :column-header)) ;; selection-allowed?
+                                           column-header-selection-fn
+                                           selection-fns
+                                           (and column-header-selection-fn @sel-parent-bounding-rect (= @selection-target :column-header)) ;; selection-allowed?
                                         ;-----------------
-                                               row-viewport-width
-                                               column-header-height
-                                               @content-rows-width
+                                           row-viewport-width
+                                           column-header-height
+                                           @content-rows-width
                                         ;-----------------
-                                               parts]
+                                           parts]
 
                                               ;; ========== SECTION 5 - rows (main content area)
 
-                                              [row-viewport
-                                               row-renderer
-                                               key-fn
-                                               @top-row-index
-                                               (if virtual? @virtual-rows @model)           ;; rows
-                                               @scroll-x
-                                               (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
+                                          [row-viewport
+                                           row-renderer
+                                           key-fn
+                                           @top-row-index
+                                           (if virtual? @virtual-rows @model)           ;; rows
+                                           @scroll-x
+                                           (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                         ;-----------------
-                                               row-selection-fn
-                                               selection-fns
-                                               (and row-selection-fn @sel-parent-bounding-rect (= @selection-target :row)) ;; selection-allowed?
+                                           row-selection-fn
+                                           selection-fns
+                                           (and row-selection-fn @sel-parent-bounding-rect (= @selection-target :row)) ;; selection-allowed?
                                         ;-----------------
-                                               row-viewport-height
-                                               row-viewport-width
-                                               row-viewport-id
-                                               @content-rows-height
-                                               @content-rows-width
+                                           row-viewport-height
+                                           row-viewport-width
+                                           row-viewport-id
+                                           @content-rows-height
+                                           @content-rows-width
                                         ;-----------------
-                                               parts]
+                                           parts]
 
                                               ;; ========== SECTION 6 - column-footers
 
-                                              [column-footer-viewport
-                                               column-footer-renderer
-                                               @scroll-x
+                                          [column-footer-viewport
+                                           column-footer-renderer
+                                           @scroll-x
                                         ;-----------------
-                                               row-viewport-width
-                                               column-footer-height
+                                           row-viewport-width
+                                           column-footer-height
                                         ;-----------------
-                                               parts]
+                                           parts]
 
                                               ;; ========== Horizontal scrollbar section
 
-                                              (add-map-to-hiccup-call
-                                               (flatten-attr (cmerger :h-scroll {:scrollbar-margin scrollbar-margin}))
-                                               [scrollbar
-                                                :src            (at)
-                                                :type           :horizontal
-                                                :length         @rl-row-viewport-width
-                                                :width          scrollbar-thickness
-                                                :content-length @content-rows-width
-                                                :scroll-pos     @scroll-x
-                                                :on-change      on-h-scroll-change])]])
+                                          (add-map-to-hiccup-call
+                                           (flatten-attr (cmerger :h-scroll {:scrollbar-margin scrollbar-margin}))
+                                           [scrollbar
+                                            :src            (at)
+                                            :type           :horizontal
+                                            :length         @rl-row-viewport-width
+                                            :width          scrollbar-thickness
+                                            :content-length @content-rows-width
+                                            :scroll-pos     @scroll-x
+                                            :on-change      on-h-scroll-change])]])
 
                                 ;; ========== Right section (7, 8, 9) - row footer area
 
-                                (add-map-to-hiccup-call
-                                 (cmerger :right-section)
-                                 [box/v-box
-                                  :src      (at)
-                                  :children [
-                                             ;; ========== SECTION 7 - top-right
+                             (add-map-to-hiccup-call
+                              (cmerger :right-section)
+                              [box/v-box
+                               :src      (at)
+                               :children [;; ========== SECTION 7 - top-right
 
-                                             [top-right-content
-                                              top-right-renderer
+                                          [top-right-content
+                                           top-right-renderer
                                         ;-----------------
-                                              column-header-height
+                                           column-header-height
                                         ;-----------------
-                                              parts]
+                                           parts]
 
                                              ;; ========== SECTION 8 - row-footers
 
-                                             [row-footer-viewport
-                                              row-footer-renderer
-                                              key-fn
-                                              @top-row-index
-                                              (if virtual? @virtual-rows @model)            ;; rows
-                                              (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
+                                          [row-footer-viewport
+                                           row-footer-renderer
+                                           key-fn
+                                           @top-row-index
+                                           (if virtual? @virtual-rows @model)            ;; rows
+                                           (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                         ;-----------------
-                                              row-viewport-height
-                                              @content-rows-height
+                                           row-viewport-height
+                                           @content-rows-height
                                         ;-----------------
-                                              parts]
+                                           parts]
 
                                              ;; ========== SECTION 9 - bottom-right
 
-                                             [bottom-right-content
-                                              bottom-right-renderer
+                                          [bottom-right-content
+                                           bottom-right-renderer
                                         ;-----------------
-                                              column-footer-height
+                                           column-footer-height
                                         ;-----------------
-                                              parts]
+                                           parts]
 
-                                             [box/gap
-                                              :src  (at)
-                                              :size (px scrollbar-tot-thick)]]])
+                                          [box/gap
+                                           :src  (at)
+                                           :size (px scrollbar-tot-thick)]]])
 
                                 ;; ========== Vertical scrollbar section
 
-                                (add-map-to-hiccup-call
-                                 (cmerger :v-scroll-section)
-                                 [box/v-box
-                                  :src      (at)
-                                  :children [[box/gap
-                                              :src  (at)
-                                              :size (px (or column-header-height 0))]
-                                             [box/box
-                                              :src   (at)
-                                              :size  "auto"
-                                              :child (add-map-to-hiccup-call
-                                                      (flatten-attr
-                                                       (cmerger
-                                                        :v-scroll {:scrollbar-margin scrollbar-margin}))
-                                                      [scrollbar
-                                                       :src            (at)
-                                                       :type           :vertical
-                                                       :length         @rl-row-viewport-height
-                                                       :width          scrollbar-thickness
-                                                       :content-length @content-rows-height
-                                                       :scroll-pos     @scroll-y
-                                                       :on-change      on-v-scroll-change])]
-                                             [box/gap
-                                              :src  (at)
-                                              :size (px (or column-footer-height 0))]
-                                             [box/gap
-                                              :src  (at)
-                                              :size (px scrollbar-tot-thick)]]])
+                             (add-map-to-hiccup-call
+                              (cmerger :v-scroll-section)
+                              [box/v-box
+                               :src      (at)
+                               :children [[box/gap
+                                           :src  (at)
+                                           :size (px (or column-header-height 0))]
+                                          [box/box
+                                           :src   (at)
+                                           :size  "auto"
+                                           :child (add-map-to-hiccup-call
+                                                   (flatten-attr
+                                                    (cmerger
+                                                     :v-scroll {:scrollbar-margin scrollbar-margin}))
+                                                   [scrollbar
+                                                    :src            (at)
+                                                    :type           :vertical
+                                                    :length         @rl-row-viewport-height
+                                                    :width          scrollbar-thickness
+                                                    :content-length @content-rows-height
+                                                    :scroll-pos     @scroll-y
+                                                    :on-change      on-v-scroll-change])]
+                                          [box/gap
+                                           :src  (at)
+                                           :size (px (or column-footer-height 0))]
+                                          [box/gap
+                                           :src  (at)
+                                           :size (px scrollbar-tot-thick)]]])
 
                                 ;; ========== Debug section
 
-                                #_ [:pre
-                                   {:style {:font-size "11px"
-                                            :min-width "220px"}}
-                                   (str
-                                    "virtual?: "          virtual? "\n"
-                                    "row-height: "        row-height "\n"
-                                    "rows-per-viewport: " @rows-per-viewport "\n"
-                                    "rows: "              (if virtual? (count @virtual-rows) (count @model)) " of " (count @model) "\n"
-                                    "\n"
+                             #_[:pre
+                                {:style {:font-size "11px"
+                                         :min-width "220px"}}
+                                (str
+                                 "virtual?: "          virtual? "\n"
+                                 "row-height: "        row-height "\n"
+                                 "rows-per-viewport: " @rows-per-viewport "\n"
+                                 "rows: "              (if virtual? (count @virtual-rows) (count @model)) " of " (count @model) "\n"
+                                 "\n"
 
-                                    "top-row-index: "     @top-row-index "\n"
-                                    "bot-row-index: "     @bot-row-index "\n"
-                                    "max-scroll-y: "      @max-scroll-y "\n"
-                                    "scroll-y: "          @scroll-y "\n"
-                                    "v-scroll-y: "        @virtual-scroll-y "\n"
-                                    "\n"
+                                 "top-row-index: "     @top-row-index "\n"
+                                 "bot-row-index: "     @bot-row-index "\n"
+                                 "max-scroll-y: "      @max-scroll-y "\n"
+                                 "scroll-y: "          @scroll-y "\n"
+                                 "v-scroll-y: "        @virtual-scroll-y "\n"
+                                 "\n"
 
-                                    "left-col-px: "       @scroll-x "\n"
-                                    "right-col-px: "      (+ @scroll-x @rl-row-viewport-width -1) "\n"
-                                    "max-scroll-x: "      @max-scroll-x "\n"
-                                    "scroll-x: "          @scroll-x "\n"
-                                    "\n"
+                                 "left-col-px: "       @scroll-x "\n"
+                                 "right-col-px: "      (+ @scroll-x @rl-row-viewport-width -1) "\n"
+                                 "max-scroll-x: "      @max-scroll-x "\n"
+                                 "scroll-x: "          @scroll-x "\n"
+                                 "\n"
 
-                                    "selection-target: "  (if @dragging? @selection-target "-") "\n"
-                                    "sel-parent-l/t: "    (if @dragging? (str "(" (.-left @sel-parent-bounding-rect) "," (.-top @sel-parent-bounding-rect) ")") "-") "\n"
-                                    "sel-parent-r/b: "    (if @dragging? (str "(" (.-right @sel-parent-bounding-rect) "," (.-bottom @sel-parent-bounding-rect) ")") "-") "\n"
-                                    "sel-parent-w/h: "    (if @dragging? (str "(" (.-width @sel-parent-bounding-rect) "," (.-height @sel-parent-bounding-rect) ")") "-") "\n"
-                                    "\n"
+                                 "selection-target: "  (if @dragging? @selection-target "-") "\n"
+                                 "sel-parent-l/t: "    (if @dragging? (str "(" (.-left @sel-parent-bounding-rect) "," (.-top @sel-parent-bounding-rect) ")") "-") "\n"
+                                 "sel-parent-r/b: "    (if @dragging? (str "(" (.-right @sel-parent-bounding-rect) "," (.-bottom @sel-parent-bounding-rect) ")") "-") "\n"
+                                 "sel-parent-w/h: "    (if @dragging? (str "(" (.-width @sel-parent-bounding-rect) "," (.-height @sel-parent-bounding-rect) ")") "-") "\n"
+                                 "\n"
 
-                                    "sel-x/y-start: "     (if @dragging? (str "(" @sel-content-x-start "," @sel-content-y-start ")") "-") "\n"
-                                    "sel-x/y-end: "       (if @dragging? (str "(" @sel-content-x-end "," @sel-content-y-end ")") "-") "\n"
-                                    "dragging-outside?: " @dragging-outside? "\n"
-                                    "sel-rows: "          (if @dragging? (str "(" (:start-row @coords-debug) "," (:end-row @coords-debug) ")") "-") "\n"
-                                    "sel-cols: "          (if @dragging? (str "(" (:start-col @coords-debug) "," (:end-col @coords-debug) ")") "-") "\n"
-                                    "clientXY: "          (if @dragging? (str "(" (.-clientX @event-debug) "," (.-clientY @event-debug) ")") "-") "\n"
+                                 "sel-x/y-start: "     (if @dragging? (str "(" @sel-content-x-start "," @sel-content-y-start ")") "-") "\n"
+                                 "sel-x/y-end: "       (if @dragging? (str "(" @sel-content-x-end "," @sel-content-y-end ")") "-") "\n"
+                                 "dragging-outside?: " @dragging-outside? "\n"
+                                 "sel-rows: "          (if @dragging? (str "(" (:start-row @coords-debug) "," (:end-row @coords-debug) ")") "-") "\n"
+                                 "sel-cols: "          (if @dragging? (str "(" (:start-col @coords-debug) "," (:end-col @coords-debug) ")") "-") "\n"
+                                 "clientXY: "          (if @dragging? (str "(" (.-clientX @event-debug) "," (.-clientY @event-debug) ")") "-") "\n"
 
-                                    "viewport-wh: "       (str "(" (.-innerWidth js/window) "," (.-innerHeight js/window) ")") "\n"
-                                    "content-rows-wh: "   (str "(" @content-rows-width "," @content-rows-height ")") "\n")]]])))))})))))
+                                 "viewport-wh: "       (str "(" (.-innerWidth js/window) "," (.-innerHeight js/window) ")") "\n"
+                                 "content-rows-wh: "   (str "(" @content-rows-width "," @content-rows-height ")") "\n")]]])))))})))))
 
                                   ;"call-count: "       @call-count "\n"
 

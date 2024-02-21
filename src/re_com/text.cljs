@@ -3,11 +3,11 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.box      :refer [v-box box line flex-child-style]]
-    [re-com.util     :refer [deep-merge add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.box      :refer [v-box box line flex-child-style]]
+   [re-com.util     :refer [deep-merge add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: label
@@ -44,22 +44,21 @@
   [& {:keys [label on-click width class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro label-args-desc args)
-    (let [cmerger (merge-css label-css-spec args)]
-      (add-map-to-hiccup-call
-       (cmerger :wrapper)
-       [box
-        :debug-as (or debug-as (reflect-current-component))
-        :src      src
-        :width    width
-        :align    :start
-        :child    [:span
-                   (merge
-                    (cmerger :main)
-                    (when on-click
-                      {:on-click (handler-fn (on-click))}))
-                   label]]))))
-
+   (validate-args-macro label-args-desc args)
+   (let [cmerger (merge-css label-css-spec args)]
+     (add-map-to-hiccup-call
+      (cmerger :wrapper)
+      [box
+       :debug-as (or debug-as (reflect-current-component))
+       :src      src
+       :width    width
+       :align    :start
+       :child    [:span
+                  (merge
+                   (cmerger :main)
+                   (when on-click
+                     {:on-click (handler-fn (on-click))}))
+                  label]]))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: title
@@ -110,23 +109,22 @@
   [& {:keys [label level underline? margin-top margin-bottom class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro title-args-desc args)
-    (let [cmerger (merge-css title-css-spec args)]
-      (add-map-to-hiccup-call
-       (cmerger :wrapper {:level level})
-       [v-box
-        :src      src
-        :debug-as (or debug-as (reflect-current-component))
-        :children [[:span (merge (flatten-attr
-                                  (cmerger :main {:level level :underline? underline?
-                                                  :margin-top margin-top :margin-bottom margin-bottom})))
-                    label]
-                   (when underline? (add-map-to-hiccup-call
-                                     (cmerger :underline {:margin-bottom margin-bottom})
-                                     [line
-                                      :src  (at)
-                                      :size "1px"]))]]))))
-
+   (validate-args-macro title-args-desc args)
+   (let [cmerger (merge-css title-css-spec args)]
+     (add-map-to-hiccup-call
+      (cmerger :wrapper {:level level})
+      [v-box
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :children [[:span (merge (flatten-attr
+                                 (cmerger :main {:level level :underline? underline?
+                                                 :margin-top margin-top :margin-bottom margin-bottom})))
+                   label]
+                  (when underline? (add-map-to-hiccup-call
+                                    (cmerger :underline {:margin-bottom margin-bottom})
+                                    [line
+                                     :src  (at)
+                                     :size "1px"]))]]))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: p

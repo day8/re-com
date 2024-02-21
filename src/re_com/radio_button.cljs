@@ -3,13 +3,13 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: radio-button
@@ -58,30 +58,30 @@
   [& {:keys [model value on-change label disabled? label-class label-style class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro radio-button-args-desc args)
-    (let [model       (deref-or-value model)
-          disabled?   (deref-or-value disabled?)
-          checked?    (= model value)
-          callback-fn #(when (and on-change (not disabled?))
-                         (on-change value))  ;; call on-change with the :value arg
-          cmerger (merge-css radio-button-css-spec args)]
-      (add-map-to-hiccup-call
-       (cmerger :wrapper)
-       [h-box
-        :src      src
-        :debug-as (or debug-as (reflect-current-component))
-        :align    :start
-        :children [[:input
-                    (merge
-                     (flatten-attr (cmerger :main))
-                     {:type      "radio"
-                      :disabled  disabled?
-                      :checked   checked?
-                      :on-change (handler-fn (callback-fn))})]
-                   (when label
-                     [:span
-                      (flatten-attr
-                       (cmerger :label {:class label-class
-                                        :style label-style
-                                        :attr {:on-click (handler-fn (callback-fn))}}))
-                      label])]]))))
+   (validate-args-macro radio-button-args-desc args)
+   (let [model       (deref-or-value model)
+         disabled?   (deref-or-value disabled?)
+         checked?    (= model value)
+         callback-fn #(when (and on-change (not disabled?))
+                        (on-change value))  ;; call on-change with the :value arg
+         cmerger (merge-css radio-button-css-spec args)]
+     (add-map-to-hiccup-call
+      (cmerger :wrapper)
+      [h-box
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :align    :start
+       :children [[:input
+                   (merge
+                    (flatten-attr (cmerger :main))
+                    {:type      "radio"
+                     :disabled  disabled?
+                     :checked   checked?
+                     :on-change (handler-fn (callback-fn))})]
+                  (when label
+                    [:span
+                     (flatten-attr
+                      (cmerger :label {:class label-class
+                                       :style label-style
+                                       :attr {:on-click (handler-fn (callback-fn))}}))
+                     label])]]))))

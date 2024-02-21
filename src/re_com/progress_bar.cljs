@@ -3,13 +3,13 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                                     number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: progress-bar
@@ -57,22 +57,22 @@
   [& {:keys [model width striped? class bar-class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro progress-bar-args-desc args)
-    (let [model (deref-or-value model)
-          cmerger (merge-css progress-bar-css-spec args)]
-      (add-map-to-hiccup-call
-       (cmerger :wrapper)
-       [box
-        :src      src
-        :debug-as (or debug-as (reflect-current-component))
-        :align    :start
-        :child    [:div
+   (validate-args-macro progress-bar-args-desc args)
+   (let [model (deref-or-value model)
+         cmerger (merge-css progress-bar-css-spec args)]
+     (add-map-to-hiccup-call
+      (cmerger :wrapper)
+      [box
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :align    :start
+       :child    [:div
+                  (flatten-attr
+                   (cmerger :main {:width width}))
+                  [:div
                    (flatten-attr
-                    (cmerger :main {:width width}))
-                   [:div
-                    (flatten-attr
-                     (cmerger :portion
-                              {:striped? striped?
-                               :percent model
-                               :attr {:role  "progressbar"}}))
-                    (str model "%")]]]))))
+                    (cmerger :portion
+                             {:striped? striped?
+                              :percent model
+                              :attr {:role  "progressbar"}}))
+                   (str model "%")]]]))))

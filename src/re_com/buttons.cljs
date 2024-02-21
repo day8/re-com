@@ -2,14 +2,14 @@
   (:require-macros
    [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.util     :refer [deref-or-value px merge-css add-map-to-hiccup-call flatten-attr]]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
-                             string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
-    [reagent.core    :as    reagent]))
+   [re-com.util     :refer [deref-or-value px merge-css add-map-to-hiccup-call flatten-attr]]
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
+                            string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
+   [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: button
@@ -24,7 +24,7 @@
 (def button-css-spec
   {:main {:class (fn [{:keys [class]}]
                    ["rc-button" "btn" (when (empty? class) "btn-default")])
-          :style (flex-child-style "none") }
+          :style (flex-child-style "none")}
    :wrapper {:class ["rc-button-wrapper" "display-inline-flex"]}
    :tooltip {:class ["rc-button-tooltip"]}})
 
@@ -54,41 +54,40 @@
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as]
           :as   args}]
       (or
-        (validate-args-macro button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [disabled? (deref-or-value disabled?)
-                cmerger (merge-css button-css-spec args)
-                the-button [:button
-                            (merge
-                             (flatten-attr (cmerger :main {:class class :disabled? disabled?}))
-                             {:disabled disabled?
-                              :on-click (handler-fn
-                                         (when (and on-click (not disabled?))
-                                           (on-click event)))}
-                             (when tooltip
-                               {:on-mouse-over (handler-fn (reset! showing? true))
-                                :on-mouse-out  (handler-fn (reset! showing? false))}))
-                            label]]
-            (when disabled?
-              (reset! showing? false))
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :align    :start
-              :child    (if tooltip
-                          (add-map-to-hiccup-call
-                           (cmerger :tooltip)
-                           [popover-tooltip
-                            :src      (at)
-                            :label    tooltip
-                            :position (or tooltip-position :below-center)
-                            :showing? showing?
-                            :anchor   the-button])
-                          the-button)])))))))
-
+       (validate-args-macro button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [disabled? (deref-or-value disabled?)
+               cmerger (merge-css button-css-spec args)
+               the-button [:button
+                           (merge
+                            (flatten-attr (cmerger :main {:class class :disabled? disabled?}))
+                            {:disabled disabled?
+                             :on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))}))
+                           label]]
+           (when disabled?
+             (reset! showing? false))
+           (add-map-to-hiccup-call
+            (cmerger :wrapper)
+            [box
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :child    (if tooltip
+                         (add-map-to-hiccup-call
+                          (cmerger :tooltip)
+                          [popover-tooltip
+                           :src      (at)
+                           :label    tooltip
+                           :position (or tooltip-position :below-center)
+                           :showing? showing?
+                           :anchor   the-button])
+                         the-button)])))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-circle-icon-button
@@ -113,15 +112,14 @@
              (when disabled? "rc-circle-disabled")])
           :style
           (fn [{:keys [disabled?]}]
-                (if disabled?
-                  {}
-                  {:cursor "pointer"}))}
+            (if disabled?
+              {}
+              {:cursor "pointer"}))}
    :wrapper {:class ["display-inline-flex" "rc-md-circle-icon-button-wrapper"]}
    :tooltip {:class ["rc-md-circle-icon-button-tooltip"]}
    :icon {:class
           (fn [{:keys [md-icon-name]}]
-            ["zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-circle-icon-button-icon"])}
-   })
+            ["zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-circle-icon-button-icon"])}})
 
 (def md-circle-icon-button-parts
   (when include-args-desc?
@@ -152,38 +150,37 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro md-circle-icon-button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css md-circle-icon-button-css-spec args)
-                the-button [:div
-                            (merge
-                             (flatten-attr
-                              (cmerger :main {:emphasise? emphasise? :disabled? disabled? :size size}))
-                             {:on-click (handler-fn
-                                         (when (and on-click (not disabled?))
-                                           (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))}))
-                            [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :align    :start
-              :child    (if tooltip
-                          (add-map-to-hiccup-call
-                           (cmerger :tooltip)
-                           [popover-tooltip
-                            :src      (at)
-                            :label    tooltip
-                            :position (or tooltip-position :below-center)
-                            :showing? showing?
-                            :anchor   the-button])
-                          the-button)])))))))
-
+       (validate-args-macro md-circle-icon-button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [cmerger (merge-css md-circle-icon-button-css-spec args)
+               the-button [:div
+                           (merge
+                            (flatten-attr
+                             (cmerger :main {:emphasise? emphasise? :disabled? disabled? :size size}))
+                            {:on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))}))
+                           [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
+           (add-map-to-hiccup-call
+            (cmerger :wrapper)
+            [box
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :child    (if tooltip
+                         (add-map-to-hiccup-call
+                          (cmerger :tooltip)
+                          [popover-tooltip
+                           :src      (at)
+                           :label    tooltip
+                           :position (or tooltip-position :below-center)
+                           :showing? showing?
+                           :anchor   the-button])
+                         the-button)])))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-icon-button
@@ -208,15 +205,14 @@
              (when disabled? "rc-icon-disabled")])
           :style
           (fn [{:keys [disabled?]}]
-                (if disabled?
-                  {}
-                  {:cursor "pointer"}))}
+            (if disabled?
+              {}
+              {:cursor "pointer"}))}
    :wrapper {:class ["display-inline-flex" "rc-md-icon-button-wrapper"]}
    :tooltip {:class ["rc-md-icon-button-tooltip"]}
    :icon {:class
           (fn [{:keys [md-icon-name]}]
-            ["zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-icon-button-icon"])}
-   })
+            ["zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-icon-button-icon"])}})
 
 (def md-icon-button-parts
   (when include-args-desc?
@@ -247,38 +243,37 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro md-icon-button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css md-icon-button-css-spec args)
-                the-button [:div
-                            (merge
-                             (flatten-attr
-                              (cmerger :main {:size size :emphasise? emphasise? :disabled? disabled?}))
-                             {:on-click (handler-fn
-                                         (when (and on-click (not disabled?))
-                                           (on-click event)))}
-                             (when tooltip
-                               {:on-mouse-over (handler-fn (reset! showing? true))
-                                :on-mouse-out  (handler-fn (reset! showing? false))}))
-                            [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :align    :start
-              :child    (if tooltip
-                          (add-map-to-hiccup-call
-                           (cmerger :tooltip)
-                           [popover-tooltip
-                            :src      (at)
-                            :label    tooltip
-                            :position (or tooltip-position :below-center)
-                            :showing? showing?
-                            :anchor   the-button])
-                          the-button)])))))))
-
+       (validate-args-macro md-icon-button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [cmerger (merge-css md-icon-button-css-spec args)
+               the-button [:div
+                           (merge
+                            (flatten-attr
+                             (cmerger :main {:size size :emphasise? emphasise? :disabled? disabled?}))
+                            {:on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))}))
+                           [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
+           (add-map-to-hiccup-call
+            (cmerger :wrapper)
+            [box
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :child    (if tooltip
+                         (add-map-to-hiccup-call
+                          (cmerger :tooltip)
+                          [popover-tooltip
+                           :src      (at)
+                           :label    tooltip
+                           :position (or tooltip-position :below-center)
+                           :showing? showing?
+                           :anchor   the-button])
+                         the-button)])))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: info-button
@@ -326,35 +321,34 @@
     (fn info-button-render
       [& {:keys [info position width disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro info-button-args-desc args)
-        (let [cmerger (merge-css info-button-css-spec args)]
-          (add-map-to-hiccup-call
-           (cmerger :tooltip)
-           [popover-tooltip
-            :src       src
-            :debug-as  (or debug-as (reflect-current-component))
-            :label     info
-            :status    :info
-            :position  (or position :right-below)
-            :width     (or width "250px")
-            :showing?  showing?
-            :on-cancel #(swap! showing? not)
-            :anchor    [:div
+       (validate-args-macro info-button-args-desc args)
+       (let [cmerger (merge-css info-button-css-spec args)]
+         (add-map-to-hiccup-call
+          (cmerger :tooltip)
+          [popover-tooltip
+           :src       src
+           :debug-as  (or debug-as (reflect-current-component))
+           :label     info
+           :status    :info
+           :position  (or position :right-below)
+           :width     (or width "250px")
+           :showing?  showing?
+           :on-cancel #(swap! showing? not)
+           :anchor    [:div
+                       (merge
+                        (flatten-attr
+                         (cmerger :main {:disabled? disabled?}))
+                        {:on-click (handler-fn
+                                    (when (not disabled?)
+                                      (swap! showing? not)))})
+                       [:svg
                         (merge
-                         (flatten-attr
-                          (cmerger :main {:disabled? disabled?}))
-                         {:on-click (handler-fn
-                                     (when (not disabled?)
-                                       (swap! showing? not)))})
-                        [:svg
-                         (merge
-                          (flatten-attr (cmerger :icon))
-                          {:width  "11"
-                           :height "11"})
-                         [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
-                         [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
-                         [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]]))))))
-
+                         (flatten-attr (cmerger :icon))
+                         {:width  "11"
+                          :height "11"})
+                        [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
+                        [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
+                        [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]]))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: row-button
@@ -405,38 +399,37 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro row-button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css row-button-css-spec args)
-                the-button [:div
-                            (merge
-                             (flatten-attr
-                              (cmerger :main {:mouse-over-row? mouse-over-row? :disabled? disabled?}))
-                              {:on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})) ;; Need to return true to ALLOW default events to be performed
-                            [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [box
-              :src      src
-              :debug-as (reflect-current-component)
-              :align    :start
-              :child    (if tooltip
-                          (add-map-to-hiccup-call
-                           (cmerger :tooltip)
-                           [popover-tooltip
-                            :src      (at)
-                            :label    tooltip
-                            :position (or tooltip-position :below-center)
-                            :showing? showing?
-                            :anchor   the-button])
-                          the-button)])))))))
-
+       (validate-args-macro row-button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [cmerger (merge-css row-button-css-spec args)
+               the-button [:div
+                           (merge
+                            (flatten-attr
+                             (cmerger :main {:mouse-over-row? mouse-over-row? :disabled? disabled?}))
+                            {:on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))})) ;; Need to return true to ALLOW default events to be performed
+                           [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
+           (add-map-to-hiccup-call
+            (cmerger :wrapper)
+            [box
+             :src      src
+             :debug-as (reflect-current-component)
+             :align    :start
+             :child    (if tooltip
+                         (add-map-to-hiccup-call
+                          (cmerger :tooltip)
+                          [popover-tooltip
+                           :src      (at)
+                           :label    tooltip
+                           :position (or tooltip-position :below-center)
+                           :showing? showing?
+                           :anchor   the-button])
+                         the-button)])))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: hyperlink
@@ -490,44 +483,43 @@
     (fn hyperlink-render
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro hyperlink-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [label      (deref-or-value label)
-                disabled?  (deref-or-value disabled?)
-                cmerger (merge-css hyperlink-css-spec args)
-                the-button (add-map-to-hiccup-call
-                            (cmerger :container)
-                            [box
-                             :src   (at)
-                             :align :start
-                             :child [:a
-                                     (merge
-                                      (flatten-attr (cmerger :main {:disabled? disabled?}))
-                                      {:on-click (handler-fn
-                                                  (when (and on-click (not disabled?))
-                                                    (on-click event)))}
-                                      (when tooltip
-                                        {:on-mouse-over (handler-fn (reset! showing? true))
-                                         :on-mouse-out  (handler-fn (reset! showing? false))}))
-                                     label]])]
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :align    :start
-              :child    (if tooltip
-                          (add-map-to-hiccup-call
-                           (cmerger :tooltip)
-                           [popover-tooltip
-                            :src      (at)
-                            :label    tooltip
-                            :position (or tooltip-position :below-center)
-                            :showing? showing?
-                            :anchor   the-button])
-                          the-button)])))))))
-
+       (validate-args-macro hyperlink-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [label      (deref-or-value label)
+               disabled?  (deref-or-value disabled?)
+               cmerger (merge-css hyperlink-css-spec args)
+               the-button (add-map-to-hiccup-call
+                           (cmerger :container)
+                           [box
+                            :src   (at)
+                            :align :start
+                            :child [:a
+                                    (merge
+                                     (flatten-attr (cmerger :main {:disabled? disabled?}))
+                                     {:on-click (handler-fn
+                                                 (when (and on-click (not disabled?))
+                                                   (on-click event)))}
+                                     (when tooltip
+                                       {:on-mouse-over (handler-fn (reset! showing? true))
+                                        :on-mouse-out  (handler-fn (reset! showing? false))}))
+                                    label]])]
+           (add-map-to-hiccup-call
+            (cmerger :wrapper)
+            [box
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :child    (if tooltip
+                         (add-map-to-hiccup-call
+                          (cmerger :tooltip)
+                          [popover-tooltip
+                           :src      (at)
+                           :label    tooltip
+                           :position (or tooltip-position :below-center)
+                           :showing? showing?
+                           :anchor   the-button])
+                         the-button)])))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: hyperlink-href
@@ -580,42 +572,42 @@
     (fn hyperlink-href-render
       [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro hyperlink-href-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [label      (deref-or-value label)
-                href       (deref-or-value href)
-                target     (deref-or-value target)
-                disabled?  (deref-or-value disabled?)
-                cmerger (merge-css hyperlink-href-css-spec args)
-                the-button [:a
-                            (merge (flatten-attr (cmerger :main {:disabled? disabled?}))
-                                   {:target target}
+       (validate-args-macro hyperlink-href-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [label      (deref-or-value label)
+               href       (deref-or-value href)
+               target     (deref-or-value target)
+               disabled?  (deref-or-value disabled?)
+               cmerger (merge-css hyperlink-href-css-spec args)
+               the-button [:a
+                           (merge (flatten-attr (cmerger :main {:disabled? disabled?}))
+                                  {:target target}
                                    ;; As of HTML5 the href attribute on a elements is not required; when those elements do
                                    ;; not have href attributes they do not create hyperlinks. These are also known as a
                                    ;; 'placeholder link'. A placeholder link resembles a traditional hyperlink, but does not
                                    ;; lead anywhere; i.e. it is disabled.
                                    ;; Ref: https://www.w3.org/TR/html5/links.html#attr-hyperlink-href
-                                   (when (not disabled?)
-                                     {:href   href})
-                                   (when tooltip
-                                     {:on-mouse-over (handler-fn (reset! showing? true))
-                                      :on-mouse-out  (handler-fn (reset! showing? false))}))
-                            label]]
+                                  (when (not disabled?)
+                                    {:href   href})
+                                  (when tooltip
+                                    {:on-mouse-over (handler-fn (reset! showing? true))
+                                     :on-mouse-out  (handler-fn (reset! showing? false))}))
+                           label]]
 
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :align    :start
-              :child    (if tooltip
-                          (add-map-to-hiccup-call
-                           (cmerger :tooltip)
-                           [popover-tooltip
-                            :src      (at)
-                            :label    tooltip
-                            :position (or tooltip-position :below-center)
-                            :showing? showing?
-                            :anchor   the-button])
-                          the-button)])))))))
+           (add-map-to-hiccup-call
+            (cmerger :wrapper)
+            [box
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :child    (if tooltip
+                         (add-map-to-hiccup-call
+                          (cmerger :tooltip)
+                          [popover-tooltip
+                           :src      (at)
+                           :label    tooltip
+                           :position (or tooltip-position :below-center)
+                           :showing? showing?
+                           :anchor   the-button])
+                         the-button)])))))))

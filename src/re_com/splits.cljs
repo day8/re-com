@@ -2,12 +2,12 @@
   (:require-macros
    [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [get-element-by-id sum-scroll-offsets merge-css flatten-attr]]
-    [re-com.box      :refer [flex-child-style flex-flow-style]]
-    [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
-    [reagent.core    :as    reagent]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [get-element-by-id sum-scroll-offsets merge-css flatten-attr]]
+   [re-com.box      :refer [flex-child-style flex-flow-style]]
+   [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
+   [reagent.core    :as    reagent]))
 
 (declare hv-split-css-spec)
 
@@ -108,12 +108,9 @@
                      (merge (flex-child-style flex)
                             (when dragging? {:pointer-events "none"})))}})
 
-
 (def hv-split-parts
   (when include-args-desc?
     (-> (map :name hv-split-parts-desc) set)))
-
-
 
 (def hv-split-args-desc
   (when include-args-desc?
@@ -140,75 +137,74 @@
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
-    (validate-args-macro hv-split-args-desc args)
-    (let [container-id         (gensym "h-split-")
-          split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
-          dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
-          over?                (reagent/atom false)                       ;; is the mouse over the splitter, if so, highlight it
+   (validate-args-macro hv-split-args-desc args)
+   (let [container-id         (gensym "h-split-")
+         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
+         dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
+         over?                (reagent/atom false)                       ;; is the mouse over the splitter, if so, highlight it
 
-          stop-drag            (fn []
-                                 (when on-split-change (on-split-change @split-perc))
-                                 (reset! dragging? false))
+         stop-drag            (fn []
+                                (when on-split-change (on-split-change @split-perc))
+                                (reset! dragging? false))
 
-          calc-perc            (fn [mouse-x]                                                                 ;; turn a mouse x coordinate into a percentage position
-                                 (let [container  (get-element-by-id container-id)                           ;; the outside container
-                                       c-width    (.-clientWidth container)                                  ;; the container's width
-                                       c-left-x   (+ (.-pageXOffset js/window)
-                                                     (-> container .getBoundingClientRect .-left))           ;; the container's left X
-                                       relative-x (- mouse-x c-left-x)]                                      ;; the X of the mouse, relative to container
-                                   (if split-is-px?
-                                     relative-x                                              ;; return the left offset in px
-                                     (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
+         calc-perc            (fn [mouse-x]                                                                 ;; turn a mouse x coordinate into a percentage position
+                                (let [container  (get-element-by-id container-id)                           ;; the outside container
+                                      c-width    (.-clientWidth container)                                  ;; the container's width
+                                      c-left-x   (+ (.-pageXOffset js/window)
+                                                    (-> container .getBoundingClientRect .-left))           ;; the container's left X
+                                      relative-x (- mouse-x c-left-x)]                                      ;; the X of the mouse, relative to container
+                                  (if split-is-px?
+                                    relative-x                                              ;; return the left offset in px
+                                    (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
 
-          <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
+         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
 
-          mouseout             (fn [event]
-                                 (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
-                                   (stop-drag)))
+         mouseout             (fn [event]
+                                (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
+                                  (stop-drag)))
 
-          mousemove            (fn [event]
-                                 (reset! split-perc (calc-perc (.-clientX event))))
+         mousemove            (fn [event]
+                                (reset! split-perc (calc-perc (.-clientX event))))
 
-          mousedown            (fn [event]
-                                 (.preventDefault event)                                    ;; stop selection of text during drag
-                                 (reset! dragging? true))
+         mousedown            (fn [event]
+                                (.preventDefault event)                                    ;; stop selection of text during drag
+                                (reset! dragging? true))
 
-          mouseover-split      #(reset! over? true) ;; true CANCELs mouse-over (false cancels all others)
-          mouseout-split       #(reset! over? false)]
+         mouseover-split      #(reset! over? true) ;; true CANCELs mouse-over (false cancels all others)
+         mouseout-split       #(reset! over? false)]
 
-      (fn h-split-render
-        [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
-        (let [cmerger (merge-css hv-split-css-spec args)]
+     (fn h-split-render
+       [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
+       (let [cmerger (merge-css hv-split-css-spec args)]
+         [:div
+          (flatten-attr
+           (cmerger :main {:vertical? false :size size :margin margin :width width :height height
+                           :attr (merge
+                                  {:id container-id}
+                                  (when @dragging?  ;; only listen when we are dragging
+                                    {:on-mouse-up   (handler-fn (stop-drag))
+                                     :on-mouse-move (handler-fn (mousemove event))
+                                     :on-mouse-out  (handler-fn (mouseout event))}))}))
           [:div
            (flatten-attr
-            (cmerger :main {:vertical? false :size size :margin margin :width width :height height
-                            :attr (merge
-                                   {:id container-id}
-                                   (when @dragging?  ;; only listen when we are dragging
-                                     {:on-mouse-up   (handler-fn (stop-drag))
-                                      :on-mouse-move (handler-fn (mousemove event))
-                                      :on-mouse-out  (handler-fn (mouseout event))}))}))
-           [:div
-            (flatten-attr
-             (cmerger :left {:dragging? @dragging?
-                             :flex (calculate-split-flex-style @split-perc split-is-px?)}))
-            panel-1]
-           [:div
-            (flatten-attr
-             (cmerger :splitter {:vertical? false :size splitter-size :over? @over?
-                                 :attr {:on-mouse-down (handler-fn (mousedown event))
-                                        :on-mouse-over (handler-fn (mouseover-split))
-                                        :on-mouse-out  (handler-fn (mouseout-split))}}))
-            [drag-handle :vertical @over? parts]]
-           [:div
-            (flatten-attr
-             (cmerger :right {:dragging? @dragging?
-                              :flex (calculate-split-flex-style (if split-is-px?
-                                                                  (- @split-perc) ;; Negative value indicates this is for panel-2
-                                                                  (- 100 @split-perc))
-                                                                split-is-px?)}))
-            panel-2]])))))
-
+            (cmerger :left {:dragging? @dragging?
+                            :flex (calculate-split-flex-style @split-perc split-is-px?)}))
+           panel-1]
+          [:div
+           (flatten-attr
+            (cmerger :splitter {:vertical? false :size splitter-size :over? @over?
+                                :attr {:on-mouse-down (handler-fn (mousedown event))
+                                       :on-mouse-over (handler-fn (mouseover-split))
+                                       :on-mouse-out  (handler-fn (mouseout-split))}}))
+           [drag-handle :vertical @over? parts]]
+          [:div
+           (flatten-attr
+            (cmerger :right {:dragging? @dragging?
+                             :flex (calculate-split-flex-style (if split-is-px?
+                                                                 (- @split-perc) ;; Negative value indicates this is for panel-2
+                                                                 (- 100 @split-perc))
+                                                               split-is-px?)}))
+           panel-2]])))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: v-split
@@ -220,72 +216,72 @@
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
-    (validate-args-macro hv-split-args-desc args)
-    (let [container-id         (gensym "v-split-")
-          split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
-          dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?
-          over?                (reagent/atom false)                        ;; is the mouse over the splitter, if so, highlight it
+   (validate-args-macro hv-split-args-desc args)
+   (let [container-id         (gensym "v-split-")
+         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
+         dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?
+         over?                (reagent/atom false)                        ;; is the mouse over the splitter, if so, highlight it
 
-          stop-drag            (fn []
-                                 (when on-split-change (on-split-change @split-perc))
-                                 (reset! dragging? false))
+         stop-drag            (fn []
+                                (when on-split-change (on-split-change @split-perc))
+                                (reset! dragging? false))
 
-          calc-perc            (fn [mouse-y]                                                                ;; turn a mouse y coordinate into a percentage position
-                                 (let [container  (get-element-by-id container-id)                          ;; the outside container
-                                       c-height   (.-clientHeight container)                                ;; the container's height
-                                       c-top-y    (+ (.-pageYOffset js/window)
-                                                     (-> container .getBoundingClientRect .-top))           ;; the container's top Y
-                                       relative-y (- mouse-y c-top-y)]                                      ;; the Y of the mouse, relative to container
-                                   (if split-is-px?
-                                     relative-y                                              ;; return the top offset in px
-                                     (* 100.0 (/ relative-y c-height)))))                    ;; return the percentage panel-1 height against container width
+         calc-perc            (fn [mouse-y]                                                                ;; turn a mouse y coordinate into a percentage position
+                                (let [container  (get-element-by-id container-id)                          ;; the outside container
+                                      c-height   (.-clientHeight container)                                ;; the container's height
+                                      c-top-y    (+ (.-pageYOffset js/window)
+                                                    (-> container .getBoundingClientRect .-top))           ;; the container's top Y
+                                      relative-y (- mouse-y c-top-y)]                                      ;; the Y of the mouse, relative to container
+                                  (if split-is-px?
+                                    relative-y                                              ;; return the top offset in px
+                                    (* 100.0 (/ relative-y c-height)))))                    ;; return the percentage panel-1 height against container width
 
-          <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
+         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
 
-          mouseout             (fn [event]
-                                 (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
-                                   (stop-drag)))
+         mouseout             (fn [event]
+                                (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
+                                  (stop-drag)))
 
-          mousemove            (fn [event]
-                                 (reset! split-perc (calc-perc (.-clientY event))))
+         mousemove            (fn [event]
+                                (reset! split-perc (calc-perc (.-clientY event))))
 
-          mousedown            (fn [event]
-                                 (.preventDefault event)                                    ;; stop selection of text during drag
-                                 (reset! dragging? true))
+         mousedown            (fn [event]
+                                (.preventDefault event)                                    ;; stop selection of text during drag
+                                (reset! dragging? true))
 
-          mouseover-split      #(reset! over? true)
-          mouseout-split       #(reset! over? false)]
+         mouseover-split      #(reset! over? true)
+         mouseout-split       #(reset! over? false)]
 
-      (fn v-split-render
-        [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
+     (fn v-split-render
+       [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
 
-        (let [cmerger (merge-css hv-split-css-spec args)]
+       (let [cmerger (merge-css hv-split-css-spec args)]
+         [:div
+          (flatten-attr
+           (cmerger :main {:vertical? true :size size :margin margin :width width :height height
+                           :attr (merge
+                                  {:id container-id}
+                                  (when @dragging?  ;; only listen when we are dragging
+                                    {:on-mouse-up   (handler-fn (stop-drag))
+                                     :on-mouse-move (handler-fn (mousemove event))
+                                     :on-mouse-out  (handler-fn (mouseout event))}))}))
           [:div
            (flatten-attr
-            (cmerger :main {:vertical? true :size size :margin margin :width width :height height
-                            :attr (merge
-                                   {:id container-id}
-                                   (when @dragging?  ;; only listen when we are dragging
-                                     {:on-mouse-up   (handler-fn (stop-drag))
-                                      :on-mouse-move (handler-fn (mousemove event))
-                                      :on-mouse-out  (handler-fn (mouseout event))}))}))
-           [:div
-            (flatten-attr
-             (cmerger :top {:dragging? @dragging?
-                            :flex (calculate-split-flex-style @split-perc split-is-px?)}))
-            panel-1]
-           [:div
-            (flatten-attr
-             (cmerger :splitter {:vertical? true :size splitter-size :over? @over?
-                                 :attr {:on-mouse-down (handler-fn (mousedown event))
-                                        :on-mouse-over (handler-fn (mouseover-split))
-                                        :on-mouse-out  (handler-fn (mouseout-split))}}))
-            [drag-handle :horizontal @over? parts]]
-           [:div
-            (flatten-attr
-             (cmerger :bottom {:dragging? @dragging?
-                               :flex (calculate-split-flex-style (if split-is-px?
-                                                                   (- @split-perc) ;; Negative value indicates this is for panel-2
-                                                                   (- 100 @split-perc))
-                                                                 split-is-px?)}))
-            panel-2]])))))
+            (cmerger :top {:dragging? @dragging?
+                           :flex (calculate-split-flex-style @split-perc split-is-px?)}))
+           panel-1]
+          [:div
+           (flatten-attr
+            (cmerger :splitter {:vertical? true :size splitter-size :over? @over?
+                                :attr {:on-mouse-down (handler-fn (mousedown event))
+                                       :on-mouse-over (handler-fn (mouseover-split))
+                                       :on-mouse-out  (handler-fn (mouseout-split))}}))
+           [drag-handle :horizontal @over? parts]]
+          [:div
+           (flatten-attr
+            (cmerger :bottom {:dragging? @dragging?
+                              :flex (calculate-split-flex-style (if split-is-px?
+                                                                  (- @split-perc) ;; Negative value indicates this is for panel-2
+                                                                  (- 100 @split-perc))
+                                                                split-is-px?)}))
+           panel-2]])))))

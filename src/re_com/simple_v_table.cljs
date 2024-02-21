@@ -3,15 +3,14 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [reagent.core    :as    reagent]
-    [re-com.buttons  :refer [hyperlink row-button]]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.box      :refer [box h-box gap]]
-    [re-com.util     :refer [px deref-or-value assoc-in-if-empty merge-css add-map-to-hiccup-call flatten-attr ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
-    [re-com.text     :refer [label]]
-    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
-    [re-com.v-table  :as    v-table]))
-
+   [reagent.core    :as    reagent]
+   [re-com.buttons  :refer [hyperlink row-button]]
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.box      :refer [box h-box gap]]
+   [re-com.util     :refer [px deref-or-value assoc-in-if-empty merge-css add-map-to-hiccup-call flatten-attr ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
+   [re-com.text     :refer [label]]
+   [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
+   [re-com.v-table  :as    v-table]))
 
 (def default-sort-criterion {:keyfn :label :order :asc})
 
@@ -72,19 +71,19 @@
   (let [hover?      (reagent/atom false)]
     (fn [{:keys [id row-label-fn width height align header-label sort-by]} parts sort-by-column]
       (let
-          [sort-by                  (cond (true? sort-by) {} :else sort-by)
-           default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
-           ps                       (position-for-id id @sort-by-column)
-           {current-order :order}   (item-for-id id @sort-by-column)
-           add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
-           replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
-           on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
-                                       (add-criteria!)
-                                       (replace-criteria!))
-           justify                  (get align->justify (keyword align) :start)
-           multiple-columns-sorted? (> (count @sort-by-column) 1)
-           cmerger (merge-css simple-v-table-css-spec {:parts parts})]
-    (add-map-to-hiccup-call
+       [sort-by                  (cond (true? sort-by) {} :else sort-by)
+        default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
+        ps                       (position-for-id id @sort-by-column)
+        {current-order :order}   (item-for-id id @sort-by-column)
+        add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
+        replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
+        on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
+                                    (add-criteria!)
+                                    (replace-criteria!))
+        justify                  (get align->justify (keyword align) :start)
+        multiple-columns-sorted? (> (count @sort-by-column) 1)
+        cmerger (merge-css simple-v-table-css-spec {:parts parts})]
+        (add-map-to-hiccup-call
          (cmerger :simple-column-header-item
                   {:height height
                    ;:align align
@@ -99,22 +98,22 @@
           :align    :center
           :children [header-label
                      (when sort-by
-                        (add-map-to-hiccup-call
-                         (cmerger :simple-column-header-sort
-                                {:current-order current-order})
-                         [h-box
-                          :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
-                          :min-width "35px"
-                          :style (when current-order {:opacity 0.3})
-                          :justify :center
-                          :align :center
-                          :children
-                          [(case current-order
-                             :asc  [arrow-up-icon]
-                             :desc [arrow-down-icon]
-                             [sort-icon])
-                           (when ps
-                             [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])]]))]])))))
+                       (add-map-to-hiccup-call
+                        (cmerger :simple-column-header-sort
+                                 {:current-order current-order})
+                        [h-box
+                         :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
+                         :min-width "35px"
+                         :style (when current-order {:opacity 0.3})
+                         :justify :center
+                         :align :center
+                         :children
+                         [(case current-order
+                            :asc  [arrow-up-icon]
+                            :desc [arrow-down-icon]
+                            [sort-icon])
+                          (when ps
+                            [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])]]))]])))))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
@@ -140,28 +139,27 @@
                                 :cell-style cell-style
                                 :row row
                                 :column column})
-    (row-label-fn row)]))
+     (row-label-fn row)]))
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
   [columns on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color row-index row]
   (let [cmerger (merge-css simple-v-table-css-spec {:parts parts})]
     (into
-    [:div
-     (cmerger :simple-row
-              {:row-height row-height
-               :row-style row-style
-               :table-row-line-color table-row-line-color
-               :on-click-row on-click-row
-               :odd-row? (and striped? (odd? row-index))
-               :row row
-               :attr {:on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
-                                                      (when on-click-row (on-click-row row-index))))
-                      :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
-                      :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}})]
-    (for [column columns]
-      [row-item row column cell-style parts]))))
-
+     [:div
+      (cmerger :simple-row
+               {:row-height row-height
+                :row-style row-style
+                :table-row-line-color table-row-line-color
+                :on-click-row on-click-row
+                :odd-row? (and striped? (odd? row-index))
+                :row row
+                :attr {:on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
+                                                       (when on-click-row (on-click-row row-index))))
+                       :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
+                       :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}})]
+     (for [column columns]
+       [row-item row column cell-style parts]))))
 
 (def simple-v-table-exclusive-parts-desc
   (when include-args-desc?
@@ -178,8 +176,8 @@
 (def simple-v-table-parts-desc
   (when include-args-desc?
     (into
-      simple-v-table-exclusive-parts-desc
-      (map #(update % :level inc) v-table/v-table-parts-desc))))
+     simple-v-table-exclusive-parts-desc
+     (map #(update % :level inc) v-table/v-table-parts-desc))))
 
 (def simple-v-table-css-spec
   {:simple-wrapper {:class ["rc-simple-v-table-wrapper"]

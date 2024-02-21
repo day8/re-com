@@ -205,12 +205,10 @@
   []
   (let [local-date-time (js/goog.date.DateTime.)]
     (js/goog.date.UtcDateTime.
-      (.getYear local-date-time)
-      (.getMonth local-date-time)
-      (.getDate local-date-time)
-      0 0 0 0)))
-
-
+     (.getYear local-date-time)
+     (.getMonth local-date-time)
+     (.getDate local-date-time)
+     0 0 0 0)))
 
 ;; Merge-css - a tool for handling the css that comes into re-com components
 ;;
@@ -282,7 +280,6 @@
 ;; ## The :main key
 ;;
 ;; The :main key is a special case. Most re-com components receive a :parts parameter for fine-grained css control. But they also receive a simpler set of :class, :style and :attr components. What happens to these? They are generally directed toward the element that the end user will perceive as being the central one. The :main one, in other words. So merge-css will take these toplevel CSS parameters and apply them to the request named :main. The :use-toplevel key, placed in the :main section of the -css-spec structure with a `false` value, will suppress this behavior. Placed in another section - say, :wrapper - with a `true` value, it will cause that element to receive the toplevel user CSS parameters.
-
 
 (defn merge-css [css-desc {:as params :keys [class style attr parts]}]
   (for [[k v] css-desc

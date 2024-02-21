@@ -3,13 +3,13 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [reagent.core    :as    reagent]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :as debug :refer [->attr]]
-    [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
-    [re-com.text     :refer [label]]
-    [re-com.box      :refer [h-box gap]]
-    [re-com.util     :refer [pad-zero-number deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]))
+   [reagent.core    :as    reagent]
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :as debug :refer [->attr]]
+   [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
+   [re-com.text     :refer [label]]
+   [re-com.box      :refer [h-box gap]]
+   [re-com.util     :refer [pad-zero-number deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]))
 
 (defn- time->mins
   [time]
@@ -185,47 +185,47 @@
   [& {:keys [model minimum maximum] :as args
       :or   {minimum 0 maximum 2359}}]
   (or
-    (validate-args-macro input-time-args-desc args)
-    (validate-arg-times (deref-or-value model) minimum maximum args)
-    (let [deref-model    (deref-or-value model)
-          text-model     (reagent/atom (time->text deref-model))
-          previous-model (reagent/atom deref-model)]
-      (fn input-time-render
-        [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src debug-as] :as args
-            :or   {minimum 0 maximum 2359}}]
-        (or
-          (validate-args-macro input-time-args-desc args)
-          (validate-arg-times (deref-or-value model) minimum maximum args)
-          (let [style (merge (when hide-border? {:border "none"})
-                             style)
-                new-val (deref-or-value model)
-                new-val (if (< new-val minimum) minimum new-val)
-                new-val (if (> new-val maximum) maximum new-val)
-                cmerger (merge-css input-time-css-spec args)]
+   (validate-args-macro input-time-args-desc args)
+   (validate-arg-times (deref-or-value model) minimum maximum args)
+   (let [deref-model    (deref-or-value model)
+         text-model     (reagent/atom (time->text deref-model))
+         previous-model (reagent/atom deref-model)]
+     (fn input-time-render
+       [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src debug-as] :as args
+           :or   {minimum 0 maximum 2359}}]
+       (or
+        (validate-args-macro input-time-args-desc args)
+        (validate-arg-times (deref-or-value model) minimum maximum args)
+        (let [style (merge (when hide-border? {:border "none"})
+                           style)
+              new-val (deref-or-value model)
+              new-val (if (< new-val minimum) minimum new-val)
+              new-val (if (> new-val maximum) maximum new-val)
+              cmerger (merge-css input-time-css-spec args)]
             ;; if the model is different to that currently shown in text, then reset the text to match
             ;; other than that we want to keep the current text, because the user is probably typing
-            (when (not= @previous-model new-val)
-              (reset! text-model (time->text new-val))
-              (reset! previous-model new-val))
+          (when (not= @previous-model new-val)
+            (reset! text-model (time->text new-val))
+            (reset! previous-model new-val))
 
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [h-box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :children [[:input
-                          (merge
-                           (flatten-attr
-                            (cmerger :main {:width width}))
-                           {:type      "text"
-                            :value     @text-model
-                            :disabled  (deref-or-value disabled?)
-                            :on-change (handler-fn (on-new-keypress event text-model))
-                            :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-                            :on-key-up (handler-fn (lose-focus-if-enter event))})]
-                         (when show-icon?
+          (add-map-to-hiccup-call
+           (cmerger :wrapper)
+           [h-box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :children [[:input
+                        (merge
+                         (flatten-attr
+                          (cmerger :main {:width width}))
+                         {:type      "text"
+                          :value     @text-model
+                          :disabled  (deref-or-value disabled?)
+                          :on-change (handler-fn (on-new-keypress event text-model))
+                          :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+                          :on-key-up (handler-fn (lose-focus-if-enter event))})]
+                       (when show-icon?
                            ;; Leaving time-icon class (below) for backwards compatibility only.
-                           [:div
-                            (flatten-attr (cmerger :time-icon-container))
-                            [:i
-                             (flatten-attr (cmerger :time-icon))]])]])))))))
+                         [:div
+                          (flatten-attr (cmerger :time-icon-container))
+                          [:i
+                           (flatten-attr (cmerger :time-icon))]])]])))))))

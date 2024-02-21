@@ -2,16 +2,16 @@
   (:require-macros
    [re-com.core          :refer [handler-fn at reflect-current-component]])
   (:require
-    [reagent.core         :as reagent]
-    [cljs-time.core       :as cljs-time]
-    [re-com.config        :refer [include-args-desc?]]
-    [re-com.validate      :refer [date-like? css-style? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
-    [cljs-time.predicates :refer [sunday?]]
-    [cljs-time.format     :refer [parse unparse formatters formatter]]
-    [re-com.box           :refer [border gap box line h-box flex-child-style]]
-    [re-com.util          :refer [deref-or-value now->utc add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
-    [clojure.string       :as string])
+   [reagent.core         :as reagent]
+   [cljs-time.core       :as cljs-time]
+   [re-com.config        :refer [include-args-desc?]]
+   [re-com.validate      :refer [date-like? css-style? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
+   [cljs-time.predicates :refer [sunday?]]
+   [cljs-time.format     :refer [parse unparse formatters formatter]]
+   [re-com.box           :refer [border gap box line h-box flex-child-style]]
+   [re-com.util          :refer [deref-or-value now->utc add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
+   [clojure.string       :as string])
   (:import
    [goog.i18n DateTimeFormat]))
 
@@ -301,39 +301,39 @@
   (let [minimum (deref-or-value minimum)
         maximum (deref-or-value maximum)
         cmerger (merge-css datepicker-css-spec {:parts parts})]
-  [:th
-   (flatten-attr (cmerger :nav))
-   [h-box
-    :src      (at)
-    :height   "100%"
-    :children [[prev-year-nav
-                :display-month display-month
-                :minimum       minimum
-                :disabled?     disabled?
-                :parts         parts]
-               [prev-month-nav
-                :display-month display-month
-                :minimum       minimum
-                :disabled?     disabled?
-                :parts         parts]
-               (add-map-to-hiccup-call
-                (cmerger :month)
-                [box
-                 :src     (at)
-                 :size    "1"
-                 :align   :center
-                 :justify :center
-                 :child   (month-label @display-month i18n)])
-               [next-month-nav
-                :display-month display-month
-                :maximum       maximum
-                :disabled?     disabled?
-                :parts         parts]
-               [next-year-nav
-                :display-month display-month
-                :maximum       maximum
-                :disabled?     disabled?
-                :parts         parts]]]]))
+    [:th
+     (flatten-attr (cmerger :nav))
+     [h-box
+      :src      (at)
+      :height   "100%"
+      :children [[prev-year-nav
+                  :display-month display-month
+                  :minimum       minimum
+                  :disabled?     disabled?
+                  :parts         parts]
+                 [prev-month-nav
+                  :display-month display-month
+                  :minimum       minimum
+                  :disabled?     disabled?
+                  :parts         parts]
+                 (add-map-to-hiccup-call
+                  (cmerger :month)
+                  [box
+                   :src     (at)
+                   :size    "1"
+                   :align   :center
+                   :justify :center
+                   :child   (month-label @display-month i18n)])
+                 [next-month-nav
+                  :display-month display-month
+                  :maximum       maximum
+                  :disabled?     disabled?
+                  :parts         parts]
+                 [next-year-nav
+                  :display-month display-month
+                  :maximum       maximum
+                  :disabled?     disabled?
+                  :parts         parts]]]]))
 
 (defn- week-days
   [& {:keys [start-of-week i18n parts]}]
@@ -395,7 +395,6 @@
                       :date date
                       :attr {:on-click (handler-fn (on-click))}}))
      (cljs-time/day date)]))
-
 
 (defn- week-td [start-of-week date cmerger]
   [:td
@@ -466,7 +465,6 @@
   (when include-args-desc?
     (-> (map :name datepicker-parts-desc) set)))
 
-
 (def datepicker-css-spec
   {:main {:class ["datepicker" "noselect" "rc-datepicker"]
           :style {:font-size "13px"
@@ -526,7 +524,6 @@
                            ["rc-datepicker-today"]
                            :else []))))}})
 
-
 (def datepicker-args-desc
   (when include-args-desc?
     [{:name :model          :required false                               :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
@@ -550,36 +547,35 @@
 (defn datepicker
   [& {:keys [model] :as args}]
   (or
-    (validate-args-macro datepicker-args-desc args)
-    (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
-          internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
-      (fn datepicker-render
-        [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
-            :or   {start-of-week 6} ;; Default to Sunday
-            :as   args}]
-        (or
-          (validate-args-macro datepicker-args-desc args)
-          (let [latest-ext-model    (deref-or-value model)
-                disabled?           (deref-or-value disabled?)
-                props-with-defaults (merge args {:start-of-week start-of-week})
-                configuration       (configure props-with-defaults)
-                cmerger (merge-css datepicker-css-spec args)]
-            (when (not= @external-model latest-ext-model) ;; Has model changed externally?
-              (reset! external-model latest-ext-model)
-              (reset! internal-model latest-ext-model)
-              (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
-            [main-div-with
-             [:table
-              (flatten-attr (cmerger :table))
-              [table-thead display-month configuration disabled? parts]
-              [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
-             hide-border?
-             cmerger
-             attr
-             src
-             (or debug-as (reflect-current-component))]))))))
-
+   (validate-args-macro datepicker-args-desc args)
+   (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
+         internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
+         display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
+     (fn datepicker-render
+       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
+           :or   {start-of-week 6} ;; Default to Sunday
+           :as   args}]
+       (or
+        (validate-args-macro datepicker-args-desc args)
+        (let [latest-ext-model    (deref-or-value model)
+              disabled?           (deref-or-value disabled?)
+              props-with-defaults (merge args {:start-of-week start-of-week})
+              configuration       (configure props-with-defaults)
+              cmerger (merge-css datepicker-css-spec args)]
+          (when (not= @external-model latest-ext-model) ;; Has model changed externally?
+            (reset! external-model latest-ext-model)
+            (reset! internal-model latest-ext-model)
+            (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
+          [main-div-with
+           [:table
+            (flatten-attr (cmerger :table))
+            [table-thead display-month configuration disabled? parts]
+            [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
+           hide-border?
+           cmerger
+           attr
+           src
+           (or debug-as (reflect-current-component))]))))))
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"

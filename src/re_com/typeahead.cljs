@@ -4,18 +4,18 @@
    [re-com.validate        :refer [validate-args-macro]]
    [cljs.core.async.macros :refer [alt! go-loop]])
   (:require
-    [cljs.core.async   :refer [chan timeout <! put!]]
-    [re-com.config     :refer [include-args-desc?]]
-    [re-com.debug      :refer [->attr]]
-    [re-com.throbber   :refer [throbber]]
-    [re-com.input-text :refer [input-text]]
-    [re-com.util       :refer [deref-or-value px add-map-to-hiccup-call merge-css]]
-    [re-com.popover    :refer [popover-tooltip]] ;; need?
-    [re-com.box        :refer [h-box v-box box gap line flex-child-style align-style]] ;; need?
-    [re-com.validate   :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts? number-or-string?
-                               string-or-atom? throbber-size? throbber-sizes-list]]
-    [reagent.core      :as    reagent]
-    [goog.events.KeyCodes]))
+   [cljs.core.async   :refer [chan timeout <! put!]]
+   [re-com.config     :refer [include-args-desc?]]
+   [re-com.debug      :refer [->attr]]
+   [re-com.throbber   :refer [throbber]]
+   [re-com.input-text :refer [input-text]]
+   [re-com.util       :refer [deref-or-value px add-map-to-hiccup-call merge-css]]
+   [re-com.popover    :refer [popover-tooltip]] ;; need?
+   [re-com.box        :refer [h-box v-box box gap line flex-child-style align-style]] ;; need?
+   [re-com.validate   :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts? number-or-string?
+                              string-or-atom? throbber-size? throbber-sizes-list]]
+   [reagent.core      :as    reagent]
+   [goog.events.KeyCodes]))
 
 ;; TODO
 ;; ability to focus & blur the input-text would be nice... this is also missing from input-text
@@ -267,7 +267,6 @@
    :suggestion {:class (fn [{:keys [selected?]}]
                          ["rc-typeahead-suggestion" (when selected? "active")])}})
 
-
 (defn typeahead
   "typeahead reagent component"
   [& {:keys [] :as args}]
@@ -281,72 +280,72 @@
        [& {:as   args
            :keys [data-source _on-change _change-on-blur? _immediate-model-update? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                    ;; forwarded to wrapped `input-text`:
-                   status status-icon? status-tooltip placeholder width height disabled? class style attr parts src debug-as]}]
-        (or
-          (validate-args-macro typeahead-args-desc args)
-          (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
-                last-data-source      (:data-source state)
-                latest-external-model (deref-or-value model)
-                width                 (or width "250px")
-                cmerger (merge-css typeahead-css-spec args)]
-            (when (not= last-data-source data-source)
-              (swap! state-atom change-data-source data-source))
-            (when (not= latest-external-model external-model)
-              (swap! state-atom external-model-changed latest-external-model))
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [v-box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :width    width
-              :children [(add-map-to-hiccup-call
-                          (cmerger :main
-                                   {:attr {:on-key-down (partial input-text-on-key-down! state-atom)
-                                           :on-focus #()
+                  status status-icon? status-tooltip placeholder width height disabled? class style attr parts src debug-as]}]
+       (or
+        (validate-args-macro typeahead-args-desc args)
+        (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
+              last-data-source      (:data-source state)
+              latest-external-model (deref-or-value model)
+              width                 (or width "250px")
+              cmerger (merge-css typeahead-css-spec args)]
+          (when (not= last-data-source data-source)
+            (swap! state-atom change-data-source data-source))
+          (when (not= latest-external-model external-model)
+            (swap! state-atom external-model-changed latest-external-model))
+          (add-map-to-hiccup-call
+           (cmerger :wrapper)
+           [v-box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :width    width
+            :children [(add-map-to-hiccup-call
+                        (cmerger :main
+                                 {:attr {:on-key-down (partial input-text-on-key-down! state-atom)
+                                         :on-focus #()
                                            ;; on-blur should behave the same as tabbing off
-                                           :on-blur #(swap! state-atom input-text-will-blur)}})
-                          [input-text
-                           :src            (at)
-                           :model          input-text-model
-                           :disabled?      disabled?
-                           :status-icon?   status-icon?
-                           :status         status
-                           :status-tooltip status-tooltip
-                           :width          width
-                           :height         height
-                           :placeholder    placeholder
-                           :on-change      (partial input-text-on-change! state-atom)
-                           :change-on-blur? false])
-                         (if (or (not-empty suggestions) waiting?)
-                           (add-map-to-hiccup-call
-                            (cmerger :suggestions-container-wrapper)
-                            [box
-                             :src   (at)
-                             :child (add-map-to-hiccup-call
-                                     (cmerger :suggestions-container)
-                                     [v-box
-                                      :src      (at)
-                                      :children [(when waiting?
-                                                   [box
-                                                    :src   (at)
-                                                    :align :center
-                                                    :child (add-map-to-hiccup-call
-                                                            (cmerger :throbber)
-                                                            [throbber
-                                                             :src   (at)
-                                                             :size  :small])])
-                                                 (for [[i s] (map vector (range) suggestions)
-                                                       :let [selected? (= suggestion-active-index i)]]
-                                                   (add-map-to-hiccup-call
-                                                    (cmerger :suggestion {:selected? selected?
-                                                                          :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
-                                                                                 :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}})
-                                                    ^{:key i}
-                                                    [box
-                                                     :src   (at)
-                                                     :child (if render-suggestion
-                                                              (render-suggestion s)
-                                                              s)]))]])]))]])))))))
+                                         :on-blur #(swap! state-atom input-text-will-blur)}})
+                        [input-text
+                         :src            (at)
+                         :model          input-text-model
+                         :disabled?      disabled?
+                         :status-icon?   status-icon?
+                         :status         status
+                         :status-tooltip status-tooltip
+                         :width          width
+                         :height         height
+                         :placeholder    placeholder
+                         :on-change      (partial input-text-on-change! state-atom)
+                         :change-on-blur? false])
+                       (if (or (not-empty suggestions) waiting?)
+                         (add-map-to-hiccup-call
+                          (cmerger :suggestions-container-wrapper)
+                          [box
+                           :src   (at)
+                           :child (add-map-to-hiccup-call
+                                   (cmerger :suggestions-container)
+                                   [v-box
+                                    :src      (at)
+                                    :children [(when waiting?
+                                                 [box
+                                                  :src   (at)
+                                                  :align :center
+                                                  :child (add-map-to-hiccup-call
+                                                          (cmerger :throbber)
+                                                          [throbber
+                                                           :src   (at)
+                                                           :size  :small])])
+                                               (for [[i s] (map vector (range) suggestions)
+                                                     :let [selected? (= suggestion-active-index i)]]
+                                                 (add-map-to-hiccup-call
+                                                  (cmerger :suggestion {:selected? selected?
+                                                                        :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
+                                                                               :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}})
+                                                  ^{:key i}
+                                                  [box
+                                                   :src   (at)
+                                                   :child (if render-suggestion
+                                                            (render-suggestion s)
+                                                            s)]))]])]))]])))))))
 
 (defn- debounce
   "Return a channel which will receive a value from the `in` channel only

@@ -3,14 +3,14 @@
    [re-com.core     :refer [handler-fn at]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.box      :refer [flex-child-style]]
-    [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps?
-                             position? position-options-list]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [reagent.core    :as    reagent]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.box      :refer [flex-child-style]]
+   [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps?
+                            position? position-options-list]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [reagent.core    :as    reagent]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: horizontal-tabs
@@ -57,35 +57,34 @@
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro horizontal-tabs-args-desc args)
-    (let [current  (deref-or-value model)
-          tabs     (deref-or-value tabs)
-          disabled? (deref-or-value disabled?)
-          _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")
-          cmerger (merge-css horizontal-tabs-css-spec args)]
-      [:ul
-       (merge (flatten-attr
-               (cmerger :wrapper))
-              (->attr args))
-       (for [t tabs]
-         (let [id        (id-fn  t)
-               label     (label-fn  t)
-               disabled? (or disabled? (:disabled? t))
-               selected? (= id current)]                   ;; must use current instead of @model to avoid reagent warnings
-           [:li
+   (validate-args-macro horizontal-tabs-args-desc args)
+   (let [current  (deref-or-value model)
+         tabs     (deref-or-value tabs)
+         disabled? (deref-or-value disabled?)
+         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")
+         cmerger (merge-css horizontal-tabs-css-spec args)]
+     [:ul
+      (merge (flatten-attr
+              (cmerger :wrapper))
+             (->attr args))
+      (for [t tabs]
+        (let [id        (id-fn  t)
+              label     (label-fn  t)
+              disabled? (or disabled? (:disabled? t))
+              selected? (= id current)]                   ;; must use current instead of @model to avoid reagent warnings
+          [:li
+           (flatten-attr
+            (cmerger :tab {:selected? selected?
+                           :disabled? disabled?
+                           :attr {:key (str id)}}))
+           [:a
             (flatten-attr
-             (cmerger :tab {:selected? selected?
-                            :disabled? disabled?
-                            :attr {:key (str id)}}))
-            [:a
-             (flatten-attr
-              (cmerger :anchor {:selected? selected?
-                                :disabled? disabled?
-                                :attr
-                                {:on-click (when (and on-change (not selected?) (not disabled?))
-                                             (handler-fn (on-change id)))}}))
-             label]]))])))
-
+             (cmerger :anchor {:selected? selected?
+                               :disabled? disabled?
+                               :attr
+                               {:on-click (when (and on-change (not selected?) (not disabled?))
+                                            (handler-fn (on-change id)))}}))
+            label]]))])))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: horizontal-bar-tabs
@@ -135,37 +134,37 @@
                (merge
                 (flatten-attr
                  (cmerger :wrapper {:vertical? vertical?}))
-                 (->attr args)
-                 attr)]
-         (for [t tabs]
-           (let [id        (id-fn t)
-                 label     (label-fn t)
-                 tooltip   (when tooltip-fn (tooltip-fn t))
-                 selected? (= id current)
-                 disabled? (or disabled? (:disabled? t))
-                 the-button [:button
-                             (merge
-                              (cmerger :button {:selected? selected?
-                                                :vertical? vertical?
-                                                :disabled? disabled?})
-                              {:type     "button"
-                               :key      (str id)
-                               :on-click (when (and on-change (not selected?) (not disabled?))
-                                           (handler-fn (on-change id)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing id))
-                                 :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))}))
-                             label]]
-             (if tooltip
-               (add-map-to-hiccup-call
-                (cmerger :tooltip)
-                [popover-tooltip
-                 :src      (at)
-                 :label    tooltip
-                 :position (or tooltip-position :below-center)
-                 :showing? (reagent/track #(= id @showing))
-                 :anchor   the-button])
-               the-button))))))))
+                (->attr args)
+                attr)]
+              (for [t tabs]
+                (let [id        (id-fn t)
+                      label     (label-fn t)
+                      tooltip   (when tooltip-fn (tooltip-fn t))
+                      selected? (= id current)
+                      disabled? (or disabled? (:disabled? t))
+                      the-button [:button
+                                  (merge
+                                   (cmerger :button {:selected? selected?
+                                                     :vertical? vertical?
+                                                     :disabled? disabled?})
+                                   {:type     "button"
+                                    :key      (str id)
+                                    :on-click (when (and on-change (not selected?) (not disabled?))
+                                                (handler-fn (on-change id)))}
+                                   (when tooltip
+                                     {:on-mouse-over (handler-fn (reset! showing id))
+                                      :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))}))
+                                  label]]
+                  (if tooltip
+                    (add-map-to-hiccup-call
+                     (cmerger :tooltip)
+                     [popover-tooltip
+                      :src      (at)
+                      :label    tooltip
+                      :position (or tooltip-position :below-center)
+                      :showing? (reagent/track #(= id @showing))
+                      :anchor   the-button])
+                    the-button))))))))
 
 (defn horizontal-bar-tabs
   [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts src debug-as validate? disabled?]
@@ -256,9 +255,9 @@
     [:ul
      (merge
       (flatten-attr (cmerger :wrapper {:vertical? vertical?}))
-       {:role  "tabslist"}
-       (->attr args)
-       attr)
+      {:role  "tabslist"}
+      (->attr args)
+      attr)
      (for [t tabs]
        (let [id        (id-fn  t)
              label     (label-fn  t)

@@ -3,10 +3,10 @@
    [re-com.core     :refer [handler-fn at]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [merge-css add-map-to-hiccup-call flatten-attr]]
-    [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [merge-css add-map-to-hiccup-call flatten-attr]]
+   [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
@@ -71,10 +71,10 @@
       :or   {wrap-nicely? true}
       :as   args}]
   (or
-    (validate-args-macro modal-panel-args-desc args)
-    (let [cmerger (merge-css modal-panel-css-spec args)]
-      [:div    ;; Containing div
-       (merge (flatten-attr (cmerger :main))
+   (validate-args-macro modal-panel-args-desc args)
+   (let [cmerger (merge-css modal-panel-css-spec args)]
+     [:div    ;; Containing div
+      (merge (flatten-attr (cmerger :main))
              (->attr args))
       [:div    ;; Backdrop
        (flatten-attr
@@ -83,5 +83,5 @@
                                                          (.preventDefault event)
                                                          (.stopPropagation event))}}))]
       [:div    ;; Child container
-       (cmerger :child-container {:wrap-nicely? wrap-nicely?}) 
+       (cmerger :child-container {:wrap-nicely? wrap-nicely?})
        child]])))

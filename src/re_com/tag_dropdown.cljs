@@ -4,17 +4,17 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [goog.string           :as gstring]
-    [reagent.core          :as reagent]
-    [re-com.config         :refer [include-args-desc?]]
-    [re-com.debug          :refer [->attr]]
-    [re-com.util           :refer [deref-or-value px-n assoc-in-if-empty merge-css add-map-to-hiccup-call flatten-attr]]
-    [re-com.validate       :as validate :refer [parts?]]
-    [re-com.box            :refer [box h-box v-box gap]]
-    [re-com.checkbox       :refer [checkbox]]
-    [re-com.selection-list :as    selection-list]
-    [re-com.close-button   :refer [close-button]]
-    [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]))
+   [goog.string           :as gstring]
+   [reagent.core          :as reagent]
+   [re-com.config         :refer [include-args-desc?]]
+   [re-com.debug          :refer [->attr]]
+   [re-com.util           :refer [deref-or-value px-n assoc-in-if-empty merge-css add-map-to-hiccup-call flatten-attr]]
+   [re-com.validate       :as validate :refer [parts?]]
+   [re-com.box            :refer [box h-box v-box gap]]
+   [re-com.checkbox       :refer [checkbox]]
+   [re-com.selection-list :as    selection-list]
+   [re-com.close-button   :refer [close-button]]
+   [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]))
 
 ;; TODO: [GR] Ripped off from re-com.selection-list
 (defn label-style
@@ -215,107 +215,107 @@
               disabled?          (deref-or-value disabled?)
               unselect-buttons?  (deref-or-value unselect-buttons?)
 
-                choices-num-chars  (reduce
-                                     (fn [n choice]
-                                       (if (contains? model (:id choice))
-                                         (+ n (count (label-fn choice)))
-                                         n))
-                                     0
-                                     choices)
-                abbrev?            (and (>= choices-num-chars abbrev-threshold)
-                                        (number? abbrev-threshold)
-                                        (fn? abbrev-fn))
-                cmerger (merge-css tag-dropdown-css-spec args)
+              choices-num-chars  (reduce
+                                  (fn [n choice]
+                                    (if (contains? model (:id choice))
+                                      (+ n (count (label-fn choice)))
+                                      n))
+                                  0
+                                  choices)
+              abbrev?            (and (>= choices-num-chars abbrev-threshold)
+                                      (number? abbrev-threshold)
+                                      (fn? abbrev-fn))
+              cmerger (merge-css tag-dropdown-css-spec args)
 
-                placeholder-tag [text-tag
-                                 :tag-data    {:id               :$placeholder$
-                                               :label            ""
-                                               :background-color "white"
-                                               :width            (if abbrev? "20px" "40px")}
-                                 :on-click    #(reset! showing? true)
-                                 :tooltip     "Click to select tags"
-                                 :hover-style {:background-color "#eee"}]
-                tag-list-body   (add-map-to-hiccup-call
-                                 (cmerger :selection-list)
-                                 [selection-list/selection-list
-                                  :src           (at)
-                                  :disabled?     disabled?
-                                  :required?     required?
-                                  :parts         (->
-                                                  (select-keys parts selection-list/selection-list-parts)
-                                                  (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")
-                                                  (assoc-in-if-empty [:list-group-item :style :height] "auto")
-                                                  (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px"))
-                                  :choices       choices
-                                  :hide-border?  true
-                                  :label-fn      (fn [tag]
-                                                   [text-tag
-                                                    :label-fn       label-fn
-                                                    :description-fn description-fn
-                                                    :tag-data       tag
-                                                    :style          style])
-                                  :model         model
-                                  :on-change     #(on-change %)
-                                  :multi-select? true])
-                tag-main        (add-map-to-hiccup-call
-                                 (cmerger :main {:disabled? disabled?
-                                                 :attr (when (not disabled?)
-                                                         {:on-click (handler-fn (reset! showing? true))})})
-                                 [h-box
-                                  :src       (at)
-                                  :min-width min-width
-                                  :max-width max-width
-                                  :height    height
-                                  :align     :center
-                                  :padding   "0px 6px"
-                                  :children  [(add-map-to-hiccup-call
-                                               (cmerger :tags)
-                                               [h-box
-                                                :src      (at)
-                                                :size     "1" ;; This line will align the tag placeholder to the right
-                                                :children (conj
-                                                           (mapv (fn [tag]
-                                                                   (when (contains? model (:id tag))
-                                                                     [text-tag
-                                                                      :label-fn    (if abbrev? abbrev-fn label-fn)
-                                                                      :tag-data    tag
-                                                                      :tooltip     (:label tag)
-                                                                      :disabled?   disabled?
-                                                                      :on-click    #(reset! showing? true)      ;; Show dropdown
-                                                                      :on-unselect (when (and unselect-buttons? (not (and (= 1 (count model)) required?))) #(on-change (disj model %)))
-                                                                      :hover-style {:opacity "0.8"}
-                                                                      :style       style
-                                                                      :parts       parts]))
-                                                                 choices)
-                                                           (when (not disabled?)
-                                                             placeholder-tag)
-                                                           [gap
-                                                            :src  (at)
-                                                            :size "20px"]
-                                                           (when (zero? (count model))
-                                                             [box
-                                                              :src   (at)
-                                                              :child (if placeholder placeholder "")]))])
-                                              (when (and (not-empty model) (not disabled?)
-                                                         (not required?))
-                                                [close-button
-                                                 :src       (at)
-                                                 :parts     {:wrapper (cmerger :close-button-wrapper)}
-                                                 :on-click  #(on-change #{})])]])]
-            (add-map-to-hiccup-call
-             (cmerger :popover-anchor-wrapper)
-             [popover-anchor-wrapper
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :showing? showing?
-              :position :below-center
-              :anchor   tag-main
-              :popover  [popover-content-wrapper
-                         :src             (at)
-                         :arrow-length    0
-                         :arrow-width     0
-                         :arrow-gap       1
-                         :no-clip?        true
-                         :on-cancel       #(reset! showing? false)
-                         :padding         "19px 19px"
-                         :body            tag-list-body]])))))))
+              placeholder-tag [text-tag
+                               :tag-data    {:id               :$placeholder$
+                                             :label            ""
+                                             :background-color "white"
+                                             :width            (if abbrev? "20px" "40px")}
+                               :on-click    #(reset! showing? true)
+                               :tooltip     "Click to select tags"
+                               :hover-style {:background-color "#eee"}]
+              tag-list-body   (add-map-to-hiccup-call
+                               (cmerger :selection-list)
+                               [selection-list/selection-list
+                                :src           (at)
+                                :disabled?     disabled?
+                                :required?     required?
+                                :parts         (->
+                                                (select-keys parts selection-list/selection-list-parts)
+                                                (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")
+                                                (assoc-in-if-empty [:list-group-item :style :height] "auto")
+                                                (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px"))
+                                :choices       choices
+                                :hide-border?  true
+                                :label-fn      (fn [tag]
+                                                 [text-tag
+                                                  :label-fn       label-fn
+                                                  :description-fn description-fn
+                                                  :tag-data       tag
+                                                  :style          style])
+                                :model         model
+                                :on-change     #(on-change %)
+                                :multi-select? true])
+              tag-main        (add-map-to-hiccup-call
+                               (cmerger :main {:disabled? disabled?
+                                               :attr (when (not disabled?)
+                                                       {:on-click (handler-fn (reset! showing? true))})})
+                               [h-box
+                                :src       (at)
+                                :min-width min-width
+                                :max-width max-width
+                                :height    height
+                                :align     :center
+                                :padding   "0px 6px"
+                                :children  [(add-map-to-hiccup-call
+                                             (cmerger :tags)
+                                             [h-box
+                                              :src      (at)
+                                              :size     "1" ;; This line will align the tag placeholder to the right
+                                              :children (conj
+                                                         (mapv (fn [tag]
+                                                                 (when (contains? model (:id tag))
+                                                                   [text-tag
+                                                                    :label-fn    (if abbrev? abbrev-fn label-fn)
+                                                                    :tag-data    tag
+                                                                    :tooltip     (:label tag)
+                                                                    :disabled?   disabled?
+                                                                    :on-click    #(reset! showing? true)      ;; Show dropdown
+                                                                    :on-unselect (when (and unselect-buttons? (not (and (= 1 (count model)) required?))) #(on-change (disj model %)))
+                                                                    :hover-style {:opacity "0.8"}
+                                                                    :style       style
+                                                                    :parts       parts]))
+                                                               choices)
+                                                         (when (not disabled?)
+                                                           placeholder-tag)
+                                                         [gap
+                                                          :src  (at)
+                                                          :size "20px"]
+                                                         (when (zero? (count model))
+                                                           [box
+                                                            :src   (at)
+                                                            :child (if placeholder placeholder "")]))])
+                                            (when (and (not-empty model) (not disabled?)
+                                                       (not required?))
+                                              [close-button
+                                               :src       (at)
+                                               :parts     {:wrapper (cmerger :close-button-wrapper)}
+                                               :on-click  #(on-change #{})])]])]
+          (add-map-to-hiccup-call
+           (cmerger :popover-anchor-wrapper)
+           [popover-anchor-wrapper
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :showing? showing?
+            :position :below-center
+            :anchor   tag-main
+            :popover  [popover-content-wrapper
+                       :src             (at)
+                       :arrow-length    0
+                       :arrow-width     0
+                       :arrow-gap       1
+                       :no-clip?        true
+                       :on-cancel       #(reset! showing? false)
+                       :padding         "19px 19px"
+                       :body            tag-list-body]])))))))

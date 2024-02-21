@@ -2,11 +2,10 @@
   (:require-macros
    [re-com.core    :refer [handler-fn at]])
   (:require
-    [reagent.core   :as    reagent]
-    [re-com.box     :refer [flex-child-style]]
-    [re-com.buttons :refer [button]]
-    [re-com.util    :refer [add-map-to-hiccup-call merge-css flatten-attr]]))
-
+   [reagent.core   :as    reagent]
+   [re-com.box     :refer [flex-child-style]]
+   [re-com.buttons :refer [button]]
+   [re-com.util    :refer [add-map-to-hiccup-call merge-css flatten-attr]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: tour

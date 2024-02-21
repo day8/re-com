@@ -3,15 +3,15 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.throbber :refer [throbber]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]
-    [reagent.core    :as    reagent]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.throbber :refer [throbber]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]
+   [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: input-text
@@ -52,7 +52,7 @@
    :tooltip-icon {:class (fn [{:keys [status]}]
                            ["zmdi" "zmdi-hc-fw"
                             (case
-                                status
+                             status
                               :success "zmdi-check-circle"
                               :warning "zmdi-alert-triangle"
                               :error "zmdi-alert-circle"
@@ -65,7 +65,7 @@
    :tooltip-icon2 {:class (fn [{:keys [status]}]
                             ["zmdi" "zmdi-hc-fw"
                              (case
-                                 status
+                              status
                                :success "zmdi-check-circle"
                                :warning "zmdi-alert-triangle"
                                :error "zmdi-alert-circle"
@@ -136,100 +136,99 @@
                 ;; fix this problem there is an optional 2-arity version of on-change that receives a function as the second
                 ;; arg that when called signals that :model has reached a 'steady state' and the reset! of external-model
                 ;; can be done thus avoiding the flicker.
-                on-change-handler (fn []
-                                    (when (fn? on-change)
-                                      (let [has-done-fn? (= 2 (.-length ^js/Function on-change))
-                                            reset-fn     #(reset! external-model @internal-model)]
-                                        (if has-done-fn?
-                                          (on-change @internal-model reset-fn)
-                                          (do
-                                            (on-change @internal-model)
-                                            (reset-fn))))))
-                cmerger (merge-css input-text-css-spec args)]
-            (when (not= @external-model latest-ext-model) ;; Has model changed externally?
-              (reset! external-model latest-ext-model)
-              (reset! internal-model latest-ext-model))
-            (add-map-to-hiccup-call
-             (cmerger :wrapper)
-             [h-box
-              :src      src
-              :debug-as (or debug-as (reflect-current-component))
-              :align    :start
-              :width    (if width width "250px")
-              :children [[:div
+              on-change-handler (fn []
+                                  (when (fn? on-change)
+                                    (let [has-done-fn? (= 2 (.-length ^js/Function on-change))
+                                          reset-fn     #(reset! external-model @internal-model)]
+                                      (if has-done-fn?
+                                        (on-change @internal-model reset-fn)
+                                        (do
+                                          (on-change @internal-model)
+                                          (reset-fn))))))
+              cmerger (merge-css input-text-css-spec args)]
+          (when (not= @external-model latest-ext-model) ;; Has model changed externally?
+            (reset! external-model latest-ext-model)
+            (reset! internal-model latest-ext-model))
+          (add-map-to-hiccup-call
+           (cmerger :wrapper)
+           [h-box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :align    :start
+            :width    (if width width "250px")
+            :children [[:div
+                        (flatten-attr
+                         (cmerger :inner {:status status :status-icon? status-icon?}))
+                        [(if (= input-type :password) :input input-type)
+                         (merge
                           (flatten-attr
-                           (cmerger :inner {:status status :status-icon? status-icon?}))
-                          [(if (= input-type :password) :input input-type)
-                           (merge
-                            (flatten-attr
-                             (cmerger :main {:height height}))
-                            {:type        (case input-type
-                                            :input "text"
-                                            :password "password"
-                                            nil)
-                             :rows        (when (= input-type :textarea) (or rows 3))
-                             :placeholder placeholder
-                             :value       @internal-model
-                             :disabled    disabled?
-                             :on-change   (handler-fn
-                                           (let [new-val-orig (-> event .-target .-value)
-                                                 new-val (on-alter new-val-orig)]
-                                             (when (not= new-val new-val-orig)
-                                               (set! (-> event .-target .-value) new-val))
-                                             (when (and
-                                                    on-change
-                                                    (not disabled?)
-                                                    (if validation-regex (re-find validation-regex new-val) true))
-                                               (reset! internal-model new-val)
-                                               (when-not change-on-blur?
-                                                 (on-change-handler)))))
-                             :on-blur     (handler-fn
+                           (cmerger :main {:height height}))
+                          {:type        (case input-type
+                                          :input "text"
+                                          :password "password"
+                                          nil)
+                           :rows        (when (= input-type :textarea) (or rows 3))
+                           :placeholder placeholder
+                           :value       @internal-model
+                           :disabled    disabled?
+                           :on-change   (handler-fn
+                                         (let [new-val-orig (-> event .-target .-value)
+                                               new-val (on-alter new-val-orig)]
+                                           (when (not= new-val new-val-orig)
+                                             (set! (-> event .-target .-value) new-val))
                                            (when (and
-                                                  change-on-blur?
-                                                  (not= @internal-model @external-model))
-                                             (on-change-handler)))
-                             :on-key-up   (handler-fn
-                                           (if disabled?
-                                             (.preventDefault event)
-                                             (case (.-key event)
-                                               "Enter"  (on-change-handler)
-                                               "Escape" (reset! internal-model @external-model)
-                                               true)))}
-                            attr)]]
-                         (when (and status-icon? status)
-                           (if status-tooltip
-                             (add-map-to-hiccup-call
-                              (cmerger :popover)
-                              [popover-tooltip
-                               :src      (at)
-                               :label    status-tooltip
-                               :position :right-center
-                               :status   status
+                                                  on-change
+                                                  (not disabled?)
+                                                  (if validation-regex (re-find validation-regex new-val) true))
+                                             (reset! internal-model new-val)
+                                             (when-not change-on-blur?
+                                               (on-change-handler)))))
+                           :on-blur     (handler-fn
+                                         (when (and
+                                                change-on-blur?
+                                                (not= @internal-model @external-model))
+                                           (on-change-handler)))
+                           :on-key-up   (handler-fn
+                                         (if disabled?
+                                           (.preventDefault event)
+                                           (case (.-key event)
+                                             "Enter"  (on-change-handler)
+                                             "Escape" (reset! internal-model @external-model)
+                                             true)))}
+                          attr)]]
+                       (when (and status-icon? status)
+                         (if status-tooltip
+                           (add-map-to-hiccup-call
+                            (cmerger :popover)
+                            [popover-tooltip
+                             :src      (at)
+                             :label    status-tooltip
+                             :position :right-center
+                             :status   status
                                         ;:width    "200px"
-                               :showing? showing?
-                               :anchor   (if (= :validating status)
-                                           (add-map-to-hiccup-call
-                                            (cmerger :throbber
-                                                     {:attr {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                                             :on-mouse-out  (handler-fn (reset! showing? false))}})
-                                            [throbber
-                                             :size  :regular])
-                                           [:i (merge
-                                                (flatten-attr
-                                                 (cmerger :tooltip-icon {:status status}))
-                                                {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                                 :on-mouse-out  (handler-fn (reset! showing? false))})])])
-                             (if (= :validating status)
-                               (add-map-to-hiccup-call
-                                (cmerger :throbber)
-                                [throbber
-                                 :src   (at)
-                                 :size  :regular])
-                               [:i (flatten-attr
-                                    (cmerger :tooltip-icon2
-                                             {:status status
-                                              :attr {:title status-tooltip}}))])))]])))))))
-
+                             :showing? showing?
+                             :anchor   (if (= :validating status)
+                                         (add-map-to-hiccup-call
+                                          (cmerger :throbber
+                                                   {:attr {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                                           :on-mouse-out  (handler-fn (reset! showing? false))}})
+                                          [throbber
+                                           :size  :regular])
+                                         [:i (merge
+                                              (flatten-attr
+                                               (cmerger :tooltip-icon {:status status}))
+                                              {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                               :on-mouse-out  (handler-fn (reset! showing? false))})])])
+                           (if (= :validating status)
+                             (add-map-to-hiccup-call
+                              (cmerger :throbber)
+                              [throbber
+                               :src   (at)
+                               :size  :regular])
+                             [:i (flatten-attr
+                                  (cmerger :tooltip-icon2
+                                           {:status status
+                                            :attr {:title status-tooltip}}))])))]])))))))
 
 (defn input-text
   [& args]
