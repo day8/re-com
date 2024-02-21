@@ -416,6 +416,7 @@
                                          (reset! *internal-model @*latest-ext-model))
                 changeable?            (and on-change (not disabled?))
                 excludable?            (and @*current-selection-id (> (count @*internal-model) (if required? 1 0)))
+                filter-fn              (or filter-fn (comp str label-fn))
                 choices-filter-fn      (if regex-filter?
                                          (filter-items-regex group-fn filter-fn @*filter-choices-text)
                                          (filter-items group-fn filter-fn @*filter-choices-text))
@@ -451,11 +452,31 @@
                                               (reset! *warning-message max-msg)
                                               (do
                                                 (swap! *internal-model conj @*current-choice-id)
+                                                (reset! *warning-message nil)))
+                                          (when (and changeable? (not= @*internal-model @*latest-ext-model))
+                                            (reset! *external-model @*internal-model)
+                                            (on-change @*internal-model))
+                                          (reset! *current-choice-id nil))
+                include-click          #(do (if @*choice-group-heading-selected?
+                                            (let [choices-to-include (->> filtered-choices
+                                                                          (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
+                                                                          (map id-fn) ;; TODO: Need to realise map output for prod build (dev doesn't need it). Why?
+                                                                          set)]       ;; TODO: See https://github.com/day8/apps-lib/issues/35
+                                              (if (and (some? max-selected-items) (> (+ (count @*internal-model) (count choices-to-include)) max-selected-items))
+                                                (reset! *warning-message max-msg)
+                                                (do
+                                                  (reset! *internal-model (set (concat @*internal-model choices-to-include)))
+                                                  (reset! *choice-group-heading-selected? false))))
+                                            (if (and (some? max-selected-items) (>= (count @*internal-model) max-selected-items))
+                                              (reset! *warning-message max-msg)
+                                              (do
+                                                (swap! *internal-model conj @*current-choice-id)
                                                 (reset! *warning-message nil))))
                                           (when (and changeable? (not= @*internal-model @*latest-ext-model))
                                             (reset! *external-model @*internal-model)
                                             (on-change @*internal-model))
                                           (reset! *current-choice-id nil))
+
               exclude-click          #(do (if excludable?
                                             (if @*selection-group-heading-selected?
                                               (let [new-internal-model (->> filtered-selections

@@ -176,7 +176,8 @@
       :reagent-render (fn [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
                         (let [cmerger (merge-css single-dropdown-css-spec {})]
                           [:div
-                           (flatten-attr (cmerger :filter-wrapper))
+                           (merge (flatten-attr (cmerger :filter-wrapper))
+                                  {:ref ref!})
                            [:input
                             (flatten-attr
                              (cmerger

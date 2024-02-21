@@ -247,7 +247,7 @@
       {:name :parts            :required false                        :type "map"                      :validate-fn (parts? pill-tabs-parts) :description "See Parts section below."}))))
 
 (defn- pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr parts src] :as args}]
+  [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr parts src disabled?] :as args}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         disabled? (deref-or-value disabled?)

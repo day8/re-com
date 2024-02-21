@@ -488,11 +488,12 @@
     (validate-args-macro popover-content-wrapper-args-desc args)
     (let [left-offset              (reagent/atom 0)
           top-offset               (reagent/atom 0)
+          !ref                     (atom nil)
+          ref!                     (partial reset! !ref)
           position-no-clip-popover (fn position-no-clip-popover
                                      [this]
                                      (when no-clip?
-                                       (let [node               (rdom/dom-node this)
-                                             popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
+                                       (let [popover-point-node (.-parentNode @!ref)                          ;; Get reference to rc-popover-point node
                                              bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop. Returns this: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect
                                          (reset! left-offset (.-left bounding-rect))
                                          (reset! top-offset  (.-top  bounding-rect)))))]
@@ -523,7 +524,8 @@
                         (cmerger :main {:no-clip? no-clip?
                                         :left-offset @left-offset
                                         :top-offset @top-offset}))
-                       (->attr args))
+                       (->attr args)
+                       {:ref ref!})
                 (when (and (deref-or-value showing-injected?)  on-cancel)
                   (add-map-to-hiccup-call
                    (cmerger :backdrop)
