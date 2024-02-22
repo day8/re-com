@@ -31,7 +31,7 @@
 
 (defn sort-icon
   [{:keys [size fill]
-    :or   {size "16px"
+    :or   {size "24px"
            fill "black"}}]
   [:svg {:width   size
          :height  size
@@ -66,8 +66,8 @@
 
 (defn column-header-item
   [& _]
-  (let [hover?      (reagent/atom false)]
-    (fn [{:keys [id row-label-fn width height align header-label sort-by]} parts sort-by-column]
+  (fn [{:keys [parts sort-by-column hover? column-header-height]
+        {:keys [id row-label-fn width height align header-label sort-by]} :column}]
       (let [sort-by                  (cond (true? sort-by) {} :else sort-by)
             default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
             ps                       (position-for-id id @sort-by-column)
@@ -96,10 +96,7 @@
                       {:cursor "pointer"})
                     (get-in parts [:simple-column-header-item :style]))
          :attr     (merge
-                    {:on-mouse-enter #(reset! hover? true)
-                     :on-mouse-leave #(reset! hover? false)}
-                    (when sort-by
-                      {:on-click on-click})
+                  (when sort-by {:on-click on-click})
                     (get-in parts [:simple-column-header-item :attr]))
          :children [header-label
                     (when sort-by
@@ -110,27 +107,30 @@
                        :justify :center
                        :align :center
                        :children
-                       [(case current-order
-                          :asc  [arrow-up-icon]
-                          :desc [arrow-down-icon]
-                          [sort-icon])
+                     (if-not (or hover? current-order)
+                       []
+                       [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
+                         {:size (or height "16px")
+                          :fill "#777"}]
                         (when ps
-                          [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])]])]]))))
+                          [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]])))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
-  [columns parts sort-by-column]
+  [{:keys [columns parts sort-by-column column-header-height hover?]}]
   [h-box
    :class    (str "rc-simple-v-table-column-header noselect " (get-in parts [:simple-column-header :class]))
    :style    (merge {:padding     "4px 0px"
                      :overflow    "hidden"
                      :white-space "nowrap"}
                     (get-in parts [:simple-column-header :style]))
-   :attr     (merge {:on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}
+   :attr     (merge {:on-mouse-enter #(do  (reset! hover? true))
+                     :on-mouse-leave #(do  (reset! hover? false))
+                     :on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}
                     (get-in parts [:simple-column-header :attr]))
    :children (into []
                    (for [column columns]
-                     [column-header-item column parts sort-by-column]))])
+                     [column-header-item {:column-header-height column-header-height :column column :parts parts :sort-by-column sort-by-column :hover? @hover?}]))])
 
 (defn row-item
   "Render a single row item (column) of a single row"
@@ -261,7 +261,8 @@
   [& {:keys [src] :as args}]
   (or
    (validate-args-macro simple-v-table-args-desc args)
-   (let [sort-by-column         (reagent/atom nil)]
+   (let [sort-by-column         (reagent/atom nil)
+         header-hover?          (reagent/atom nil)]
      (fn simple-v-table-render
        [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
                   max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
@@ -318,7 +319,7 @@
                       :model                   model
                       :sort-comp               (multi-comparator (->v @sort-by-column))
                         ;; ===== Column header (section 4)
-                      :column-header-renderer  (partial column-header-renderer content-cols parts sort-by-column)
+                      :column-header-renderer  #(do [column-header-renderer {:column-header-height column-header-height :columns content-cols :parts parts :sort-by-column sort-by-column :hover? header-hover?}])
                       :column-header-height    column-header-height
 
                         ;; ===== Row header (section 2)
