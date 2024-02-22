@@ -19,12 +19,11 @@
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
-(defn base-theme [attr state part]
+(defn base-theme [attr {:keys [state part variables]}]
   (->> {}
        (case part
          :wrapper        {:attr           {:tab-index (or (:tab-index state) 0)}}
-         :anchor-wrapper {:attr  {}
-                          :style {:outline (when (and (= :focused (:focusable state))
+         :anchor-wrapper {:style {:outline        (when (and (= :focused (:focusable state))
                                                       (not= :open (:openable state)))
                                              "2px auto #ddd")
                                   :outline-offset "-2px"
@@ -48,7 +47,7 @@
                                   :overflow-x "visible"}})
        (theme/merge-attr attr)))
 
-(defn main-theme [attr state part]
+(defn main-theme [attr {:keys [state part]}]
   (->> {}
        (case part
          :wrapper        {:style {:max-width "250px"}}
@@ -87,7 +86,7 @@
        (theme/merge-attr attr)))
 
 (defn anchor [{:keys [dropdown-open? label placeholder state theme toggle-dropdown! parts]}]
-  [:a (-> (theme/apply {} state :anchor theme)
+  [:a (-> (theme/apply {} {:state state :part :anchor} theme)
           (theme/apply-parts parts :anchor))
    (or label placeholder "Select an item")])
 
@@ -99,7 +98,7 @@
         [:div (-> {:on-click #(reset! dropdown-open? nil)
                    :style {:opacity opacity
                            :transition "opacity 0.2s"}}
-               (theme/apply state :backdrop theme)
+                  (theme/apply {:state state :part :backdrop} theme)
                   (theme/apply-parts parts :backdrop))]))))
 
 (defn nearest [x a b]
@@ -163,7 +162,7 @@
                     :left (str left "px")
                       :opacity    (if @!position 1 0)
                       :transition "opacity 0.2s"}}
-             (theme/apply state :body-wrapper theme)
+             (theme/apply {:state state :part :body-wrapper} theme)
              (theme/apply-parts parts :body-wrapper))]
            children)))})))
 
@@ -211,7 +210,7 @@
        :style (into {:display "inline-block"
                        :position "relative"
                        :height   anchor-height})}
-        (theme/apply state :wrapper theme)
+          (theme/apply {:state state :part :wrapper} theme)
         (theme/apply-parts parts :wrapper)
         (assoc
        :children
@@ -221,7 +220,7 @@
                   :attr {:ref      anchor-ref!
                          :id       "anchor"
                          :on-click #(swap! model not)}}
-               (theme/apply state :anchor-wrapper theme)
+                 (theme/apply {:state state :part :anchor-wrapper} theme)
                (theme/apply-parts parts :anchor-wrapper)
                (assoc :child anchor))]
 

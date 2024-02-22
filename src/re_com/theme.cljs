@@ -23,13 +23,15 @@
 (defn apply-parts [attr parts-spec part]
   (parts parts-spec attr nil part))
 
-(defn ensure-spread [args]
-  (cond-> args (sequential? (last args)) spread))
+(defn rf [[attr ctx] theme]
+  (let [result (theme attr ctx)]
+    (if (vector? result) result [result ctx])))
 
 (defn apply
-  ([attr state part & themes]
+  ([attr ctx & themes]
    (->> themes
-        ensure-spread
-        (remove nil?)
         (into @global)
-        (reduce #(%2 %1 state part) attr))))
+        flatten
+        (remove nil?)
+        (reduce rf [attr ctx])
+        first)))
