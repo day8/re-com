@@ -6,9 +6,10 @@
    [clojure.string :as str]
    [reagent.core          :as r]
    [re-com.config         :refer [include-args-desc?]]
-   [re-com.util           :refer [deref-or-value remove-id-item]]
+   [re-com.util           :refer [deref-or-value remove-id-item add-map-to-hiccup-call flatten-attr merge-css]]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
+   [re-com.popover        :refer [backdrop]]
    [re-com.validate       :as validate :refer [css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
 
 (def tree-select-dropdown-parts-desc
@@ -21,6 +22,43 @@
      {:name :backdrop         :level 2 :class "rc-tree-select-dropdown-backdrop"         :impl "[:div]"}
      {:name :dropdown-wrapper :level 2 :class "rc-tree-select-dropdown-dropdown-wrapper" :impl "[v-box]"}
      {:name :body             :level 3 :class "rc-tree-select-dropdown-body"             :impl "[tree-select]"}]))
+
+(def tree-select-dropdown-css-spec
+  {:main {:class ["rc-tree-select-dropdown" "fade in"]
+         :style {:position "relative"}}
+   :wrapper {:class ["rc-tree-select-dropdown-wrapper"]
+             :style (fn [{:keys [max-width min-width]}]
+                      {:display  "inline-block"
+                       :max-width max-width
+                       :min-width min-width})}
+   :anchor {:class ["rc-tree-select-dropdown-anchor"]
+            :style (fn [{:keys [disabled? min-width max-width]}]
+                     {:min-width        min-width
+                      :max-width        max-width
+                      :background-color (if disabled? "#EEE" "white")
+                      :border           "1px solid lightgrey"
+                      :border-radius    "2px"
+                      :overflow         "hidden"
+                      :cursor           (if disabled? "default" "pointer")})}
+   :anchor-label {:style (fn [{:keys [max-width]}]
+                           {:max-width     max-width
+                            :white-space   "nowrap"
+                            :overflow      "hidden"
+                            :text-overflow "ellipsis"})}
+   :counter {:class ["rc-tree-select-dropdown-counter"]
+             :style {:margin-left "10px"
+                     :margin-right "10px"
+                     :opacity "50%"}}
+   :anchor-expander {:class ["rc-tree-select-dropdown-anchor-expander"]}
+   :backdrop {:class ["rc-tree-select-dropdown-backdrop"]}
+   :dropdown-wrapper {:class ["rc-tree-select-dropdown-dropdown-wrapper"]
+                      :style {:position         "absolute"
+                              :background-color "white"
+                              :border-radius    "4px"
+                              :border           "1px solid #ccc"
+                              :padding          "5px 10px 5px 5px"
+                              :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}}
+   :body {:class ["rc-tree-select-dropdown-body"]}})
 
 (def tree-select-dropdown-parts
   (when include-args-desc?
@@ -35,6 +73,17 @@
      {:name :offset   :level 3 :class "rc-tree-select-offset"   :impl "[box]"}
      {:name :expander :level 3 :class "rc-tree-select-expander" :impl "[box]"}
      {:name :checkbox :level 3 :class "rc-tree-select-checkbox" :impl "[checkbox]"}]))
+
+(def tree-select-css-spec
+  {:main {:class ["rc-tree-select"]}
+   :wrapper {:class ["rc-tree-select-wrapper"]
+             :style {:overflow-y "scroll"}}
+   :choice {:class ["rc-tree-select-choice"]}
+   :group {:class ["rc-tree-select-group"]}
+   :offset {:class ["rc-tree-select-offset"]}
+   :expander {:class ["rc-tree-select-expander"]
+              :style {:cursor "pointer"}}
+   :checkbox {:class ["rc-tree-select-checkbox"]}})
 
 (def tree-select-parts
   (when include-args-desc?
@@ -170,72 +219,55 @@
        :validate-fn (parts? tree-select-dropdown-parts)
        :description "See Parts section below."}])))
 
-(defn backdrop
-  [{:keys [opacity on-click parts]}]
-  [:div
-   (merge
-    (into {:class    (str "noselect rc-backdrop " (get-in parts [:backdrop :class]))
-           :style    (into {:position         "fixed"
-                            :left             "0px"
-                            :top              "0px"
-                            :width            "100%"
-                            :height           "100%"
-                            :background-color "black"
-                            :opacity          (or opacity 0.0)}
-                           (get-in parts [:backdrop :style]))
-           :on-click (when on-click (handler-fn (on-click)))}
-          (get-in parts [:backdrop :attr])))])
+(defn offset [& {:keys [level] :as args}]
+  (let [cmerger (merge-css tree-select-css-spec args)]
+    (add-map-to-hiccup-call
+     (cmerger :offset)
+     [box
+      :src (at)
+      :child (apply str (repeat level "⯈"))])))
 
-(defn offset [& {:keys [parts level]}]
-  [box
-   :src (at)
-   :style (into {:visibility "hidden"} (get-in parts [:offset :style]))
-   :class (str "rc-tree-select-offset " (get-in parts [:offset :class]))
-   :attr (get-in parts [:offset :attr])
-   :child (apply str (repeat level "⯈"))])
+(defn choice-checkbox [{:keys [checked? toggle! label disabled?] :as args}]
+  (let [cmerger (merge-css tree-select-css-spec args)]
+    (add-map-to-hiccup-call
+     (cmerger :checkbox)
+     [checkbox
+      :src (at)
+      :model checked?
+      :on-change toggle!
+      :label label
+      :disabled? disabled?])))
 
-(defn choice-checkbox [{:keys [parts checked? toggle! label disabled? attr]}]
-  [checkbox
-   :src (at)
-   :style (get-in parts [:checkbox :style])
-   :class (str "rc-tree-select-checkbox " (get-in parts [:checkbox :class]))
-   :attr  (into attr (get-in parts [:checkbox :attr]))
-   :model checked?
-   :on-change toggle!
-   :label label
-   :disabled? disabled?])
-
-(defn choice-item [& {:keys [level showing? parts] :as props}]
+(defn choice-item [& {:keys [level showing? parts] :as args}]
   (when showing?
-    [h-box
-     :src (at)
-     :style (get-in parts [:choice :style])
-     :class (str "rc-tree-select-choice " (get-in parts [:choice :class]))
-     :attr  (get-in parts [:choice :attr])
-     :children
-     [[offset :parts parts :level level]
-      [choice-checkbox props]]]))
+    (let [cmerger (merge-css tree-select-css-spec args)]
+      (add-map-to-hiccup-call
+       (cmerger :choice)
+       [h-box
+        :src (at)
+        :children
+        [[offset :parts parts :level level]
+         [choice-checkbox args]]]))))
 
-(defn group-item [& {:keys [label checked? toggle! hide-show! level showing? open? disabled? parts] :as props}]
+(defn group-item [& {:keys [label checked? toggle! hide-show! level showing? open? disabled? parts] :as args}]
   (when showing?
-    [h-box
-     :src (at)
-     :style (get-in parts [:group :style])
-     :class (str "rc-tree-select-group " (get-in parts [:group :class]))
-     :attr  (get-in parts [:group :attr])
-     :children
-     [[offset :parts parts :level (dec level)]
-      [box
-       :src (at)
-       :attr (into {:on-click hide-show!} (get-in parts [:expander :attr]))
-       :style (into {:cursor "pointer"} (get-in parts [:expander :style]))
-       :class (str "rc-tree-select-expander " (get-in parts [:expander :class]))
-       :child
-       (if open? "⯆" "⯈")]
-      " "
-      [choice-checkbox (into props {:attr {:ref #(when %
-                                                   (set! (.-indeterminate %)
-                                                         (= :some checked?)))}})]]]))
+    (let [cmerger (merge-css tree-select-css-spec args)]
+      (add-map-to-hiccup-call
+       (cmerger :group)
+       [h-box
+        :src (at)
+        :children
+        [[offset :parts parts :level (dec level)]
+         (add-map-to-hiccup-call
+          (cmerger :expander)
+          [box
+           :src (at)
+           :child
+           (if open? "⯆" "⯈")])
+         " "
+         [choice-checkbox (into args {:attr {:ref #(when %
+                                                     (set! (.-indeterminate %)
+                                                           (= :some checked?)))}})]]]))))
 
 (def group? (comp #{:group} :type))
 
@@ -348,17 +380,17 @@
                                                                 new-groups (into #{} (map :group) (full-groups new-model choices))]
                                                             (on-change new-model new-groups)))
                                    :checked?  (get model id)
-                                   :level     (inc (count group))])))]
-         [v-box
-          :src (at)
-          :min-width min-width
-          :max-width max-width
-          :min-height min-height
-          :max-height max-height
-          :class (str "rc-tree-select-wrapper " class (get-in parts [:wrapper :class]))
-          :style (merge {:overflow-y "scroll"} style (get-in parts [:wrapper :style]))
-          :attr (merge attr (get-in parts [:wrapper :attr]))
-          :children (mapv item items)])))))
+                                   :level     (inc (count group))])))
+             cmerger (merge-css tree-select-css-spec args)]
+         (add-map-to-hiccup-call
+          (cmerger :wrapper)
+          [v-box
+           :src (at)
+           :min-width min-width
+           :max-width max-width
+           :min-height min-height
+           :max-height max-height
+           :children (mapv item items)]))))))
 
 (defn field-label [{:keys [items group-label-fn label-fn]}]
   (let [item-label-fn             #((if (group? %) group-label-fn label-fn) %)]
@@ -405,96 +437,71 @@
             anchor-label    (field-label-fn {:items labelable-items
                                              :label-fn label-fn
                                              :group-label-fn group-label-fn})
-            body   [v-box
-                    :src (at)
-                    :height "fit-content"
-                    :class (str "rc-tree-select-dropdown-dropdown-wrapper " (get-in parts [:dropdown-wrapper :class]))
-                    :attr (get-in parts [:dropdown-wrapper :attr])
-                    :style (merge {:position         "absolute"
-                                   :background-color "white"
-                                   :border-radius    "4px"
-                                   :border           "1px solid #ccc"
-                                   :padding          "5px 10px 5px 5px"
-                                   :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}
-                                  (get-in parts [:dropdown-wrapper :style]))
-                    :children [[tree-select
-                                :class (str "rc-tree-select-dropdown-body " (get-in parts [:body :class]))
-                                :style (get-in parts [:body :style])
-                                :attr  (get-in parts [:body :attr])
-                                :choices choices
-                                :group-label-fn group-label-fn
-                                :disabled? disabled?
-                                :min-width min-width
-                                :max-width max-width
-                                :min-height min-height
-                                :max-height max-height
-                                :on-change on-change
-                                :label-fn label-fn
-                                :model model]]]
+            cmerger (merge-css tree-select-dropdown-css-spec args)
+            body   (add-map-to-hiccup-call
+                    (cmerger :dropdown-wrapper)
+                    [v-box
+                     :src (at)
+                     :height "fit-content"
+                     :children [(add-map-to-hiccup-call
+                                 (cmerger :body)
+                                 [tree-select
+                                  :choices choices
+                                  :group-label-fn group-label-fn
+                                  :disabled? disabled?
+                                  :min-width min-width
+                                  :max-width max-width
+                                  :min-height min-height
+                                  :max-height max-height
+                                  :on-change on-change
+                                  :label-fn label-fn
+                                  :model model])]])
             anchor (fn []
                      (let [model     (deref-or-value model)
                            disabled? (deref-or-value disabled?)]
-                       [h-box
-                        :src       (at)
-                        :height    height
-                        :padding   "0px 6px"
-                        :class     (str "rc-multi-select-dropdown " (get-in parts [:anchor :class]))
-                        :style     (merge {:min-width        min-width
-                                           :max-width        max-width
-                                           :background-color (if disabled? "#EEE" "white")
-                                           :border           "1px solid lightgrey"
-                                           :border-radius    "2px"
-                                           :overflow         "hidden"
-                                           :cursor           (if disabled? "default" "pointer")}
-                                          style
-                                          (get-in parts [:anchor :style]))
-                        :attr      (merge {}
-                                          (when (not disabled?) {:on-click #(swap! showing? not)})
-                                          (get-in parts [:anchor :attr]))
-                        :children  [(if (empty? model)
-                                      placeholder
-                                      (let [selections (filter (comp (set model) id-fn) choices)
-                                            _          (reset! !anchor-label anchor-label)]
-                                        [:span {:ref   #(reset! !anchor-span %)
-                                                :title (alt-text-fn {:items labelable-items
-                                                                     :label-fn label-fn
-                                                                     :group-label-fn group-label-fn})
-                                                :style {:max-width     max-width
-                                                        :white-space   "nowrap"
-                                                        :overflow      "hidden"
-                                                        :text-overflow "ellipsis"}}
-                                         anchor-label]))
-                                    [gap
-                                     :src (at)
-                                     :size "1"]
-                                    (when-let [model (seq model)]
-                                      [box
-                                       :src (at)
-                                       :class (str "rc-tree-select-dropdown-counter " (get-in parts [:counter :class]))
-                                       :style (merge {:margin-left "10px"
-                                                      :margin-right "10px"
-                                                      :opacity "50%"}
-                                                     (get-in parts [:counter :style]))
-                                       :attr  (get-in parts [:counter :attr])
-                                       :child (str (count model))])
-                                    (when-not disabled?
-                                      [box
-                                       :src (at)
-                                       :class (str "rc-tree-select-dropdown-anchor-expander " (get-in parts [:anchor-expander :class]))
-                                       :style (get-in parts [:anchor-expander :style])
-                                       :attr  (get-in parts [:anchor-expander :attr])
-                                       :child
-                                       (if @showing? "▲" "▼")])]]))]
-        [:div (into {:class (str "rc-tree-select-dropdown-wrapper " (get-in parts [:wrapper :class]))
-                     :style (into {:display  "inline-block"
-                                   :maxWidth max-width
-                                   :minWidth min-width}
-                                  (get-in parts [:wrapper :style]))}
-                    (get-in parts [:wrapper :attr]))
+                       (add-map-to-hiccup-call
+                        (cmerger :anchor {:disabled? disabled?
+                                          :min-width min-width
+                                          :max-width max-width
+                                          :attr
+                                          {:on-click #(swap! showing? not)}})
+                        [h-box
+                         :src       (at)
+                         :height    height
+                         :padding   "0px 6px"
+                         :children  [(if (empty? model)
+                                       placeholder
+                                       (let [selections (filter (comp (set model) id-fn) choices)
+                                             _          (reset! !anchor-label anchor-label)]
+                                         [:span (merge
+                                                 (flatten-attr (cmerger :anchor-label {:max-width max-width}))
+                                                 {:ref   #(reset! !anchor-span %)
+                                                  :title (alt-text-fn {:items labelable-items
+                                                                       :label-fn label-fn
+                                                                       :group-label-fn group-label-fn})})
+                                          anchor-label]))
+                                     [gap
+                                      :src (at)
+                                      :size "1"]
+                                     (when-let [model (seq model)]
+                                       (add-map-to-hiccup-call
+                                        (cmerger :counter)
+                                        [box
+                                         :src (at)
+                                         :child (str (count model))]))
+                                     (when-not disabled?
+                                       (add-map-to-hiccup-call
+                                        (cmerger :anchor-expander)
+                                        [box
+                                         :src (at)
+                                         :child
+                                         (if @showing? "▲" "▼")]))]])))]
+        [:div (flatten-attr (cmerger :wrapper {:max-width max-width :min-width min-width}))
          [anchor]
          (when @showing?
-           [:div {:class "fade in"
-                  :style {:position "relative"}}
-            [backdrop {:parts parts
-                       :on-click #(reset! showing? false)}]
+           [:div (flatten-attr (cmerger :main))
+            (add-map-to-hiccup-call
+             (cmerger :backdrop)
+             [backdrop
+              :on-click #(reset! showing? false)])
             body])]))))

@@ -156,7 +156,7 @@
                     :background-color "black"
                     :opacity          (or opacity 0.0)})}})
 
-(defn- backdrop
+(defn backdrop
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click class style attr] :as args}]
   (or
