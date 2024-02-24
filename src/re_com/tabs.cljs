@@ -5,7 +5,7 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
-   [re-com.util     :refer [deref-or-value]]
+   [re-com.util     :refer [deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]
    [re-com.box      :refer [flex-child-style]]
    [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps?
                             position? position-options-list]]
@@ -27,6 +27,15 @@
 (def horizontal-tabs-parts
   (when include-args-desc?
     (-> (map :name horizontal-tabs-parts-desc) set)))
+
+(def horizontal-tabs-css-spec
+  {:wrapper {:class ["nav" "nav-tabs" "noselect" "rc-tabs"]
+             :style (flex-child-style "none")
+             :use-toplevel true}
+   :tab {:class (fn [{:keys [selected? disabled?]}]
+                  ["rc-tab" (when selected? "active") (when disabled? "disabled")])}
+   :anchor {:class ["rc-tab-anchor"]
+            :style {:cursor "pointer"}}})
 
 (def horizontal-tabs-args-desc
   (when include-args-desc?
@@ -52,33 +61,29 @@
    (let [current  (deref-or-value model)
          tabs     (deref-or-value tabs)
          disabled? (deref-or-value disabled?)
-         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
+         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")
+         cmerger (merge-css horizontal-tabs-css-spec args)]
      [:ul
-      (merge {:class (str "nav nav-tabs noselect rc-tabs " class)
-              :style (merge (flex-child-style "none")
-                            (get-in parts [:wrapper :style]))}
-             (->attr args)
-             attr)
+      (merge (flatten-attr
+              (cmerger :wrapper))
+             (->attr args))
       (for [t tabs]
         (let [id        (id-fn  t)
               label     (label-fn  t)
               disabled? (or disabled? (:disabled? t))
               selected? (= id current)]                   ;; must use current instead of @model to avoid reagent warnings
           [:li
-           (merge
-            {:class (str (when disabled? "disabled ")
-                         (when selected? "active rc-tab ")
-                         (get-in parts [:tab :class]))
-             :style (get-in parts [:tab :style])
-             :key   (str id)}
-            (get-in parts [:tab :attr]))
+           (flatten-attr
+            (cmerger :tab {:selected? selected?
+                           :disabled? disabled?
+                           :attr {:key (str id)}}))
            [:a
-            (merge
-             {:class    (str "rc-tab-anchor " (get-in parts [:anchor :class]))
-              :style    (merge {:cursor "pointer"}
-                               style)
-              :on-click (when (and on-change (not selected?) (not disabled?)) (handler-fn (on-change id)))}
-             (get-in parts [:anchor :attr]))
+            (flatten-attr
+             (cmerger :anchor {:selected? selected?
+                               :disabled? disabled?
+                               :attr
+                               {:on-click (when (and on-change (not selected?) (not disabled?))
+                                            (handler-fn (on-change id)))}}))
             label]]))])))
 
 ;;--------------------------------------------------------------------------------------------------
@@ -96,6 +101,14 @@
 (def bar-tabs-parts
   (when include-args-desc?
     (-> (map :name horizontal-tabs-parts-desc) set)))
+
+(def bar-tabs-css-spec
+  {:wrapper {:class (fn [{:keys [vertical?]}]
+                      ["noselect" (if vertical? "btn-group-vertical" "btn-group") "rc-tabs"])
+             :style (flex-child-style "none")}
+   :tooltip {:class ["rc-tabs-tooltip"]}
+   :button {:class (fn [{:keys [selected? disabled?]}]
+                     ["btn" "btn-default" (when selected? "active") (when disabled? "disabled") "rc-tabs-btn"])}})
 
 (def bar-tabs-args-desc
   (when include-args-desc?
@@ -115,12 +128,12 @@
       (let [current  (deref-or-value model)
             tabs     (deref-or-value tabs)
             disabled? (deref-or-value disabled?)
-            _        (assert (or (not validate?) (not-empty (filter #(= current (id-fn %)) tabs))) "model not found in tabs vector")]
+            _        (assert (or (not validate?) (not-empty (filter #(= current (id-fn %)) tabs))) "model not found in tabs vector")
+            cmerger (merge-css bar-tabs-css-spec args)]
         (into [:div
                (merge
-                {:class (str "noselect btn-group" (when vertical? "-vertical") " rc-tabs " class)
-                 :style (merge (flex-child-style "none")
-                               (get-in parts [:wrapper :style]))}
+                (flatten-attr
+                 (cmerger :wrapper {:vertical? vertical?}))
                 (->attr args)
                 attr)]
               (for [t tabs]
@@ -129,34 +142,28 @@
                       tooltip   (when tooltip-fn (tooltip-fn t))
                       selected? (= id current)
                       disabled? (or disabled? (:disabled? t))
-                      the-button
-                      [:button
-                       (merge
-                        {:type     "button"
-                         :key      (str id)
-                         :class    (str "btn btn-default "
-                                        (when disabled? "disabled ")
-                                        (when selected? "active ")
-                                        "rc-tabs-btn "
-                                        (get-in parts [:button :class]))
-                         :style    style
-                         :on-click (when (and on-change (not selected?) (not disabled?))
-                                     (handler-fn (println (gensym)) (on-change id)))}
-                        (when tooltip
-                          {:on-mouse-over (handler-fn (reset! showing id))
-                           :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))})
-                        (get-in parts [:button :attr]))
-                       label]]
+                      the-button [:button
+                                  (merge
+                                   (cmerger :button {:selected? selected?
+                                                     :vertical? vertical?
+                                                     :disabled? disabled?})
+                                   {:type     "button"
+                                    :key      (str id)
+                                    :on-click (when (and on-change (not selected?) (not disabled?))
+                                                (handler-fn (on-change id)))}
+                                   (when tooltip
+                                     {:on-mouse-over (handler-fn (reset! showing id))
+                                      :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))}))
+                                  label]]
                   (if tooltip
-                    [popover-tooltip
-                     :src      (at)
-                     :label    tooltip
-                     :position (or tooltip-position :below-center)
-                     :showing? (reagent/track #(= id @showing))
-                     :anchor   the-button
-                     :class    (str "rc-tabs-tooltip " (get-in parts [:tooltip :class]))
-                     :style    (get-in parts [:tooltip :style])
-                     :attr     (get-in parts [:tooltip :attr])]
+                    (add-map-to-hiccup-call
+                     (cmerger :tooltip)
+                     [popover-tooltip
+                      :src      (at)
+                      :label    tooltip
+                      :position (or tooltip-position :below-center)
+                      :showing? (reagent/track #(= id @showing))
+                      :anchor   the-button])
                     the-button))))))))
 
 (defn horizontal-bar-tabs
@@ -221,6 +228,15 @@
   (when include-args-desc?
     (-> (map :name horizontal-tabs-parts-desc) set)))
 
+(def pill-tabs-css-spec
+  {:wrapper {:class (fn [{:keys [vertical?]}]
+                      ["rc-tabs" "noselect" "nav" "nav-pills" (when vertical? "nav-stacked")])
+             :style (flex-child-style "none")}
+   :tab {:class (fn [{:keys [selected? disabled?]}]
+                  ["rc-tabs-pill" (when selected? "active") (when disabled? "disabled")])}
+   :anchor {:class ["rc-tabs-anchor"]
+            :style {:cursor "pointer"}}})
+
 (def pill-tabs-args-desc
   (when include-args-desc?
     (->
@@ -231,16 +247,15 @@
 
 (defn- pill-tabs    ;; tabs-like in action
   [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr parts src disabled?] :as args}]
-  (let [current   (deref-or-value model)
-        tabs      (deref-or-value tabs)
+  (let [current  (deref-or-value model)
+        tabs     (deref-or-value tabs)
         disabled? (deref-or-value disabled?)
-        _         (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
+        _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")
+        cmerger (merge-css pill-tabs-css-spec args)]
     [:ul
      (merge
-      {:class (str "rc-tabs noselect nav nav-pills" (when vertical? " nav-stacked") " " class)
-       :style (merge (flex-child-style "none")
-                     (get-in parts [:wrapper :style]))
-       :role  "tabslist"}
+      (flatten-attr (cmerger :wrapper {:vertical? vertical?}))
+      {:role  "tabslist"}
       (->attr args)
       attr)
      (for [t tabs]
@@ -249,22 +264,15 @@
              disabled? (or disabled? (:disabled? t))
              selected? (= id current)]                   ;; must use 'current' instead of @model to avoid reagent warnings
          [:li
-          (merge
-           {:class (str "rc-tabs-pill "
-                        (when disabled? "disabled ")
-                        (when selected? "active ")
-                        (get-in parts [:tab :class]))
-            :style (get-in parts [:tab :style])
-            :key   (str id)}
-           (get-in parts [:tab :attr]))
+          (flatten-attr
+           (cmerger :tab {:selected? selected? :vertical? vertical? :disabled? disabled?
+                          :attr {:key (str id)}}))
           [:a
-           (merge
-            {:class    (str "rc-tabs-anchor " (get-in parts [:anchor :class]))
-             :style    (merge {:cursor "pointer"}
-                              style)
-             :on-click (when (and on-change (not selected?) (not disabled?))
-                         (handler-fn (on-change id)))}
-            (get-in parts [:anchor :attr]))
+           (flatten-attr
+            (cmerger :anchor
+                     {:selected? selected?
+                      :attr {:on-click  (when (and on-change (not selected?) (not disabled?))
+                                          (handler-fn (on-change id)))}}))
            label]]))]))
 
 (defn horizontal-pill-tabs
