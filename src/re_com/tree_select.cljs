@@ -80,7 +80,8 @@
              :style {:overflow-y "scroll"}}
    :choice {:class ["rc-tree-select-choice"]}
    :group {:class ["rc-tree-select-group"]}
-   :offset {:class ["rc-tree-select-offset"]}
+   :offset {:class ["rc-tree-select-offset"]
+            :style {:visibility "hidden"}}
    :expander {:class ["rc-tree-select-expander"]
               :style {:cursor "pointer"}}
    :checkbox {:class ["rc-tree-select-checkbox"]}})
@@ -227,10 +228,10 @@
       :src (at)
       :child (apply str (repeat level "⯈"))])))
 
-(defn choice-checkbox [{:keys [checked? toggle! label disabled?] :as args}]
+(defn choice-checkbox [{:keys [checked? toggle! label disabled? indeterminate?] :as args}]
   (let [cmerger (merge-css tree-select-css-spec args)]
     (add-map-to-hiccup-call
-     (cmerger :checkbox)
+     (cmerger :checkbox {:attr {:ref #(when % (set! (.-indeterminate %) indeterminate?))}})
      [checkbox
       :src (at)
       :model checked?
@@ -259,15 +260,13 @@
         :children
         [[offset :parts parts :level (dec level)]
          (add-map-to-hiccup-call
-          (cmerger :expander)
+          (cmerger :expander {:attr {:on-click hide-show!}})
           [box
            :src (at)
            :child
            (if open? "⯆" "⯈")])
          " "
-         [choice-checkbox (into args {:attr {:ref #(when %
-                                                     (set! (.-indeterminate %)
-                                                           (= :some checked?)))}})]]]))))
+         [choice-checkbox (into args {:indeterminate? (= :some checked?)})]]]))))
 
 (def group? (comp #{:group} :type))
 
