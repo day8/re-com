@@ -19,7 +19,17 @@
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
-(defn base-theme [attr {:keys [state part variables]}]
+(defn base-variables [props {:keys [state part] :as ctx}]
+  [props (assoc ctx :variables {:primary   "#0d6efd"
+                                :secondary "#6c757d"
+                                :success   "#198754"
+                                :info      "#0dcaf0"
+                                :warning   "#ffc107"
+                                :danger    "#dc3545"
+                                :light     "#f8f9fa"
+                                :dark      "#212529"})])
+
+(defn base-theme [props {:keys [state part]}]
   (->> {}
        (case part
          :wrapper        {:attr           {:tab-index (or (:tab-index state) 0)}}
@@ -45,9 +55,9 @@
          :body-wrapper   {:style {:position   "absolute"
                                   :overflow-y "auto"
                                   :overflow-x "visible"}})
-       (theme/merge-attr attr)))
+       (theme/merge-props props)))
 
-(defn main-theme [attr {:keys [state part]}]
+(defn main-theme [props {:keys [state part] $ :variables}]
   (->> {}
        (case part
          :wrapper        {:style {:max-width "250px"}}
@@ -60,7 +70,7 @@
                                   #_#_:opacity 0.1}}
          :anchor-wrapper (let [open?   (= :open (:openable state))
                                closed? (= :closed (:openable state))]
-                           {:style {:background-color           "white"
+                           {:style {:background-color           (:light $)
                                     :background-clip            "padding-box"
                                     :border                     (str "1px solid "
                                                                      (cond
@@ -83,11 +93,10 @@
          :anchor         {:style (cond-> {:color "#777777"}
                                    (-> state :enable :disabled)
                                    (merge {:background-color "#EEE"}))})
-       (theme/merge-attr attr)))
+       (theme/merge-props props)))
 
 (defn anchor [{:keys [dropdown-open? label placeholder state theme toggle-dropdown! parts]}]
-  [:a (-> (theme/apply {} {:state state :part :anchor} theme)
-          (theme/apply-parts parts :anchor))
+  [:a (theme/apply {} {:state state :part :anchor} theme)
    (or label placeholder "Select an item")])
 
 (defn backdrop-part [_]
@@ -98,15 +107,10 @@
         [:div (-> {:on-click #(reset! dropdown-open? nil)
                    :style {:opacity opacity
                            :transition "opacity 0.2s"}}
-                  (theme/apply {:state state :part :backdrop} theme)
-                  (theme/apply-parts parts :backdrop))]))))
+                  (theme/apply {:state state :part :backdrop} theme))]))))
 
 (defn nearest [x a b]
   (if (< (Math/abs (- a x)) (Math/abs (- b x))) a b))
-
-(case (nearest 2 -1 4)
-  3 :hi
-  4 :lo)
 
 (defn optimize-position!
   "Returns an [x y] position for popover, relative to anchor.
@@ -144,7 +148,7 @@
                               (.addEventListener js/window "resize" optimize-position!)
                               (.addEventListener js/window "scroll" optimize-position!))
         unmounted!         #(do
-                              (.removeEventListener js/window "resize" optimize-position!)
+                              (js/window.removeEventListener "resize" optimize-position!)
                               (.removeEventListener js/window "scroll" optimize-position!))]
     (reagent/create-class
      {:component-did-mount    mounted!
@@ -162,8 +166,7 @@
                     :left (str left "px")
                       :opacity    (if @!position 1 0)
                       :transition "opacity 0.2s"}}
-             (theme/apply {:state state :part :body-wrapper} theme)
-             (theme/apply-parts parts :body-wrapper))]
+             (theme/apply {:state state :part :body-wrapper} theme))]
            children)))})))
 
 (defn dropdown
@@ -177,16 +180,19 @@
                width height min-width max-width min-height max-height anchor-height
                label placeholder 
                anchor backdrop body
-               parts style theme main-theme base-theme]
+                 parts style theme main-theme theme-vars base-theme]
         :as   args
         :or   {anchor     re-com.dropdown/anchor
+                 theme-vars  re-com.dropdown/base-variables
                base-theme re-com.dropdown/base-theme
                main-theme re-com.dropdown/main-theme}}]
-    (let [theme    (flatten (cond-> [base-theme main-theme] theme (conj theme)))
+      (let [theme      [@theme/global theme-vars base-theme main-theme theme
+                        (theme/parts parts)]
           state    {:openable (if @model :open :closed)
                     :enable   (if disabled? :disabled :enabled)
                       :tab-index tab-index
                       :focusable (if @focused? :focused :blurred)}
+            themed (fn [part props] (theme/apply props {:state state :part part} theme))
           toggle!  (if on-change
                      (handler-fn (on-change (not @model)))
                      (handler-fn (swap! model not)))
@@ -201,7 +207,7 @@
             backdrop (or (part-renderer backdrop part-props)
                          [backdrop-part part-props])]
       [v-box
-       (->
+         (themed :wrapper
         {:src   (at)
            :attr  {:on-focus #(reset! focused? true)
                    :on-blur #(do
@@ -209,10 +215,7 @@
                                (reset! model false))}
        :style (into {:display "inline-block"
                        :position "relative"
-                       :height   anchor-height})}
-          (theme/apply {:state state :part :wrapper} theme)
-        (theme/apply-parts parts :wrapper)
-        (assoc
+                                :height   anchor-height})
        :children
            [(when (= :open (:openable state)) backdrop)
           [box
@@ -221,7 +224,6 @@
                          :id       "anchor"
                          :on-click #(swap! model not)}}
                  (theme/apply {:state state :part :anchor-wrapper} theme)
-               (theme/apply-parts parts :anchor-wrapper)
                (assoc :child anchor))]
 
             (when (= :open (:openable state))
@@ -230,7 +232,7 @@
                              :!position !position
                              :parts     parts
                              :state     state
-                             :theme     theme} body])]))]))))
+                                    :theme     theme} body])]})]))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
