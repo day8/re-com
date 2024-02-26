@@ -5,7 +5,7 @@
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.theme    :as    theme]
-   [re-com.util     :refer [deref-or-value position-for-id item-for-id ->v part-renderer]]
+   [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id ->v]]
    [re-com.box      :refer [align-style flex-child-style v-box h-box box]]
    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
@@ -19,95 +19,14 @@
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
-(defn base-variables [props {:keys [state part] :as ctx}]
-  [props (assoc ctx :variables {:primary   "#0d6efd"
-                                :secondary "#6c757d"
-                                :success   "#198754"
-                                :info      "#0dcaf0"
-                                :warning   "#ffc107"
-                                :danger    "#dc3545"
-                                :light     "#f8f9fa"
-                                :dark      "#212529"})])
-
-(defn base-theme [props {:keys [state part]}]
-  (->> {}
-       (case part
-         :wrapper        {:attr           {:tab-index (or (:tab-index state) 0)}}
-         :anchor-wrapper {:style {:outline        (when (and (= :focused (:focusable state))
-                                                      (not= :open (:openable state)))
-                                             "2px auto #ddd")
-                                  :outline-offset "-2px"
-                                  :position    "relative"
-                                  :display     "block"
-                                  :overflow    "hidden"
-                                  :user-select "none"
-                                  :z-index     (case (:openable state)
-                                                 :open 99999 nil)}}
-         :backdrop       {:class "noselect"
-                            :style    {:position         "fixed"
-                                       :left             "0px"
-                                       :top              "0px"
-                                       :width            "100%"
-                                       :height           "100%"
-                                  :pointer-events "none"
-                                  :z-index        (case (:openable state)
-                                                    :open 99998 nil)}}
-         :body-wrapper   {:style {:position   "absolute"
-                                  :overflow-y "auto"
-                                  :overflow-x "visible"}})
-       (theme/merge-props props)))
-
-(defn main-theme [props {:keys [state part] $ :variables}]
-  (->> {}
-       (case part
-         :wrapper        {:style {:max-width "250px"}}
-         :body-wrapper   {:style {:background-color "white"
-                                  :border-radius    "0 0 4px 4px"
-                                  :border           "1px solid #ccc"
-                                  :padding          "5px 10px 5px 5px"
-                                  :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}}
-         :backdrop       {:style {:color   "black"
-                                  #_#_:opacity 0.1}}
-         :anchor-wrapper (let [open?   (= :open (:openable state))
-                               closed? (= :closed (:openable state))]
-                           {:style {:background-color           (:light $)
-                                    :background-clip            "padding-box"
-                                    :border                     (str "1px solid "
-                                                                     (cond
-                                                                       closed? "#cccccc"
-                                                                       open?   "#66afe9"))
-
-                                    :border-top-right-radius    "4px"
-                                    :border-top-left-radius     "4px"
-                                    :border-bottom-right-radius "4px"
-                                    :border-bottom-left-radius  "4px"
-                                    :box-shadow                 (cond-> "0 1px 1px rgba(0, 0, 0, .2) inset"
-                                                                  open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
-                                    :color                      "#555555"
-                                    :height                     "34px"
-                                    :line-height                "34px"
-                                    :padding                    "0 0 0 8px"
-                                    :text-decoration            "none"
-                                    :white-space                "nowrap"
-                                    :transition                 "border 0.2s box-shadow 0.2s"}})
-         :anchor         {:style (cond-> {:color "#777777"}
-                                   (-> state :enable :disabled)
-                                   (merge {:background-color "#EEE"}))})
-       (theme/merge-props props)))
-
-(defn anchor [{:keys [dropdown-open? label placeholder state theme toggle-dropdown! parts]}]
-  [:a (theme/apply {} {:state state :part :anchor} theme)
+(defn anchor [{:keys [label placeholder state theme]}]
+  [:a (theme/props {:state state :part ::anchor} theme)
    (or label placeholder "Select an item")])
 
-(defn backdrop-part [_]
-  (let [in? (reagent/atom nil)] ;; TODO use the state machine for this
+(defn backdrop-part [{:keys [state transition!]}]
+  (let [] ;; TODO use the state machine for this
     (fn [{:keys [dropdown-open? state theme parts]}]
-      (let [opacity (if @in? 0.1 0)]
-        (js/setTimeout #(reset! in? true) 16)
-        [:div (-> {:on-click #(reset! dropdown-open? nil)
-                   :style {:opacity opacity
-                           :transition "opacity 0.2s"}}
-                  (theme/apply {:state state :part :backdrop} theme))]))))
+      [:div (theme/props {:state state :part ::backdrop} theme)])))
 
 (defn nearest [x a b]
   (if (< (Math/abs (- a x)) (Math/abs (- b x))) a b))
@@ -140,9 +59,9 @@
         best-y      (case v-pos :low a-h :high (- p-h))]
     [best-x best-y]))
 
-(defn body-wrapper [{:keys [state parts theme !anchor !popover !position]} & children]
-  (let [set-popover-ref!   #(reset! !popover %)
-        optimize-position! #(reset! !position (optimize-position! @!anchor @!popover))
+(defn body-wrapper [{:keys [state parts theme anchor-ref popover-ref anchor-position]} & children]
+  (let [set-popover-ref!   #(reset! popover-ref %)
+        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @popover-ref))
         mounted!           #(do
                               (optimize-position!)
                               (.addEventListener js/window "resize" optimize-position!)
@@ -155,7 +74,7 @@
       :component-will-unmount unmounted!
       :reagent-render
       (fn []
-        (let [[left top] (or @!position [0 0])]
+        (let [[left top] (or @anchor-position [0 0])]
           (into
           [:div#popover
             (->
@@ -164,75 +83,85 @@
                       :position   "absolute"
                     :top (str top "px")
                     :left (str left "px")
-                      :opacity    (if @!position 1 0)
+                      :opacity    (if @anchor-position 1 0)
                       :transition "opacity 0.2s"}}
-             (theme/apply {:state state :part :body-wrapper} theme))]
+             (theme/apply {:state state :part ::body-wrapper} theme))]
            children)))})))
 
 (defn dropdown
   "A clickable anchor above an openable, floating body.
   "
   [& {:keys [model] :or {model (reagent/atom nil)}}]
-  (let [[focused? !anchor !popover !position] (repeatedly #(reagent/atom nil))
-        anchor-ref! #(reset! !anchor %)]
+  (let [[focused? anchor-ref popover-ref anchor-position] (repeatedly #(reagent/atom nil))
+        anchor-ref!                                       #(reset! anchor-ref %)
+        transitionable                                    (reagent/atom
+                                                           (if @model :in :out))]
   (fn dropdown-render
     [& {:keys [disabled? on-change tab-index
                width height min-width max-width min-height max-height anchor-height
                label placeholder 
                anchor backdrop body
                  parts style theme main-theme theme-vars base-theme]
-        :as   args
-        :or   {anchor     re-com.dropdown/anchor
-                 theme-vars  re-com.dropdown/base-variables
-               base-theme re-com.dropdown/base-theme
-               main-theme re-com.dropdown/main-theme}}]
-      (let [theme      [@theme/global theme-vars base-theme main-theme theme
-                        (theme/parts parts)]
+          :as   args}]
+      (let [theme       {:variables theme-vars
+                         :base      base-theme
+                         :main      main-theme
+                         :user      [theme (theme/parts parts)]}
           state    {:openable (if @model :open :closed)
                     :enable   (if disabled? :disabled :enabled)
                       :tab-index tab-index
-                      :focusable (if @focused? :focused :blurred)}
-            themed (fn [part props] (theme/apply props {:state state :part part} theme))
-          toggle!  (if on-change
-                     (handler-fn (on-change (not @model)))
-                     (handler-fn (swap! model not)))
-            part-props {:toggle-dropdown! toggle!
-                                          :placeholder      placeholder
+                         :focusable      (if @focused? :focused :blurred)
+
+                         :transitionable @transitionable}
+            open!       (if on-change
+                          (handler-fn (on-change true))
+                          (handler-fn (reset! model true)))
+            close!      (if on-change
+                          (handler-fn (on-change false))
+                          (handler-fn (reset! model false)))
+            transition! (fn [k]
+                          ((case k
+                             :toggle (if (-> state :openable (= :open)) open! close!)
+                             :open   open!
+                             :close  close!
+                             :focus  #(reset! focused? true)
+                             :blur   #(do
+                                        (reset! focused? false)
+                                        (reset! model false))
+                             :enter  #(js/setTimeout (fn [] (reset! transitionable :in)) 50)
+                             :exit   #(js/setTimeout (fn [] (reset! transitionable :out)) 50))))
+            themed      (fn [part props] (theme/apply props
+                                                      {:state       state
+                                                       :part        part
+                                                       :transition! transition!}
+                                                      theme))
+            part-props  {:placeholder placeholder
+                         :transition! transition!
                                           :label            label
                                           :theme            theme
                                           :parts            parts
-                        :state            state}
-            anchor   (part-renderer anchor part-props)
-            body     (part-renderer body part-props)
-            backdrop (or (part-renderer backdrop part-props)
-                         [backdrop-part part-props])]
+                         :state       state}]
       [v-box
-         (themed :wrapper
+         (themed ::wrapper
         {:src   (at)
-           :attr  {:on-focus #(reset! focused? true)
-                   :on-blur #(do
-                               (reset! focused? false)
-                               (reset! model false))}
-       :style (into {:display "inline-block"
-                       :position "relative"
-                                :height   anchor-height})
+                  :style {:height anchor-height}
        :children
-           [(when (= :open (:openable state)) backdrop)
+                  [(when (= :open (:openable state))
+                     [u/part backdrop part-props backdrop-part])
           [box
-           (-> {:src  (at)
+                    (themed ::anchor-wrapper
+                            {:src   (at)
                   :attr {:ref      anchor-ref!
-                         :id       "anchor"
-                         :on-click #(swap! model not)}}
-                 (theme/apply {:state state :part :anchor-wrapper} theme)
-               (assoc :child anchor))]
-
+                                     :on-click #(swap! model not)}
+                             :child [u/part anchor part-props re-com.dropdown/anchor]})]
             (when (= :open (:openable state))
-              [body-wrapper {:!anchor   !anchor
-                             :!popover  !popover
-                             :!position !position
+                     [body-wrapper {:anchor-ref      anchor-ref
+                                    :popover-ref     popover-ref
+                                    :anchor-position anchor-position
                              :parts     parts
                              :state     state
-                                    :theme     theme} body])]})]))))
+                                    :theme           theme}
+                      [u/part body part-props]])]})]))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away

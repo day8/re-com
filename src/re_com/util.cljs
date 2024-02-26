@@ -226,8 +226,9 @@
 
 (def hiccup? vector?)
 
-(defn part-renderer [x & args]
+(defn part [x props & [default]]
   (cond
     (hiccup? x) x
-    (fn? x)     (into [x] args)
+    (fn? x)     [x props]
+    default     (part default props)
     :else       nil))
