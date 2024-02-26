@@ -47,6 +47,10 @@ That number includes ReactJS plus the ClojureScript libs and runtime. So, everyt
 Note:  these numbers no longer match the demo app. We wanted to show off some of the debug features in our demo app, 
 so we backed away from fully advanced, minified compilation. 
 
+## re-com for tailwind
+
+[re-com-tailwind](https://github.com/BnMcGn/re-com-tailwind) - an edition of re-com that is compatible with tailwindcss - is available for testing.
+
 ## So, Without Ado Being Any Furthered ...
 
 Start by [looking at the demo](https://re-com.day8.com.au).
