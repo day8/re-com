@@ -9,6 +9,7 @@
    [re-com.box      :refer [box h-box gap]]
    [re-com.util     :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
    [re-com.text     :refer [label]]
+   [re-com.theme    :as    theme]
    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
    [re-com.v-table  :as    v-table]))
 
@@ -156,7 +157,7 @@
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
-  [columns on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color row-index row]
+  [{:keys [columns on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color row-index row]}]
   (into
    [:div
     (merge
@@ -249,6 +250,20 @@
    :tooltip         (str "Copy " (count rows) " rows, " (count columns) " columns to clipboard.")
    :on-click        on-export])
 
+(def default-args {:column-header-renderer    column-header-renderer
+                   :export-button-renderer    clipboard-export-button
+                   :fixed-column-border-color "#BBBEC0"
+                   :fixed-column-count        0
+                   :on-export                 (fn [{:keys [columns rows]}]
+                                                (-> (remove (comp false? :export?) columns)
+                                                    (table->tsv rows)
+                                                    clipboard-write!))
+                   :row-height                31
+                   :show-export-button?       false
+                   :table-padding             19
+                   :table-row-line-color      "#EAEEF1"
+                   :column-header-height      31})
+
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
   Of the nine possible sections of v-table, this table only supports four:
@@ -258,33 +273,23 @@
    - (cell-style row col)
   where row is the data for that row and col is the definition map for that column
   "
-  [& {:keys [src] :as args}]
+  [& {:keys [src] :as static-args}]
   (or
-   (validate-args-macro simple-v-table-args-desc args)
+   (validate-args-macro simple-v-table-args-desc static-args)
    (let [sort-by-column         (reagent/atom nil)
          header-hover?          (reagent/atom nil)]
      (fn simple-v-table-render
-       [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
-                  max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
-                  show-export-button? on-export export-button-renderer
-                  striped? row-style cell-style class parts src debug-as]
-
-           :or   {column-header-height      31
-                  row-height                31
-                  fixed-column-count        0
-                  table-padding             19
-                  table-row-line-color      "#EAEEF1"
-                  fixed-column-border-color "#BBBEC0"
-                  column-header-renderer    column-header-renderer
-                  show-export-button?       false
-                  on-export                 (fn [{:keys [columns rows]}] (-> (remove (comp false? :export?) columns)
-                                                                             (table->tsv rows)
-                                                                             clipboard-write!))
-                  export-button-renderer    clipboard-export-button}
-           :as   args}]
+       [& {:as dynamic-args}]
        (or
-        (validate-args-macro simple-v-table-args-desc args)
-        (let [fcc-bounded            (min fixed-column-count (count columns))
+        (validate-args-macro simple-v-table-args-desc dynamic-args)
+        (let [{:keys [model columns fixed-column-count fixed-column-border-color
+                      column-header-height column-header-renderer
+                      max-width max-rows row-height table-padding table-row-line-color
+                      on-click-row on-enter-row on-leave-row
+                      show-export-button? on-export export-button-renderer
+                      striped? row-style class parts src debug-as]
+               :as   args}           (merge default-args dynamic-args)
+              fcc-bounded            (min fixed-column-count (count columns))
               fixed-cols             (subvec columns 0 fcc-bounded)
               content-cols           (subvec columns fcc-bounded (count columns))
               fixed-content-width    (->> fixed-cols (map :width) (reduce + 0))
@@ -319,21 +324,26 @@
                       :model                   model
                       :sort-comp               (multi-comparator (->v @sort-by-column))
                         ;; ===== Column header (section 4)
-                      :column-header-renderer  #(do [column-header-renderer {:column-header-height column-header-height :columns content-cols :parts parts :sort-by-column sort-by-column :hover? header-hover?}])
+                      :column-header-renderer  #(do [column-header-renderer (into args {:columns        content-cols
+                                                                                        :hover?         header-hover?
+                                                                                        :sort-by-column sort-by-column})])
                       :column-header-height    column-header-height
-
                         ;; ===== Row header (section 2)
-                      :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
-
+                      :row-header-renderer     #(fn [i row] [row-renderer (into args {:columns   fixed-cols
+                                                                                      :row       row
+                                                                                      :row-index i})])
                         ;; ===== Rows (section 5)
-                      :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
+                      :row-renderer            #(fn [i row] [row-renderer (into args {:columns   content-cols
+                                                                                      :row       row
+                                                                                      :row-index i})])
                       :row-content-width       content-width
                       :row-height              row-height
                       :max-row-viewport-height (when max-rows (* max-rows row-height))
                       ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
-
                         ;; ===== Corners (section 1, 3)
-                      :top-left-renderer       (partial column-header-renderer fixed-cols parts sort-by-column) ;; Used when there are fixed columns
+                      :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
+                                                                                    :parts          parts
+                                                                                    :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
                       :top-right-renderer      (when show-export-button?
                                                  #(let [rows    (deref-or-value model)
                                                         columns (deref-or-value columns)
@@ -345,18 +355,8 @@
                                                                                                                     sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
                       ;; ===== Styling
                       :class                   class
-                      :parts                   (cond-> (->
-                                                           ;; Remove the parts that are exclusive to simple-v-table, or v-table part
-                                                           ;; validation will fail:
-                                                        (apply dissoc (into [parts] simple-v-table-exclusive-parts))
-                                                           ;; Inject styles, if not set already, into parts. merge is not safe as it is not
-                                                           ;; recursive so e.g. simply setting :attr would delete :style map.
-
-                                                           ;(assoc-in-if-empty [:wrapper :style :background-color] "antiquewhite") ;; DEBUG
-                                                        (assoc-in-if-empty [:wrapper :style :font-size] "13px")
-                                                        (assoc-in-if-empty [:wrapper :style :cursor] "default"))
-
-                                                 (pos? fixed-column-count)
-                                                 (->
-                                                  (assoc-in-if-empty [:top-left :style :border-right] fixed-col-border-style)
-                                                  (assoc-in-if-empty [:row-headers :style :border-right] fixed-col-border-style)))]]))))))
+                      :parts                   (cond-> {:wrapper {:style {:font-size "13px"
+                                                                          :cursor "default"}}}
+                                                 (pos? fixed-column-count) (theme/merge-props {:top-left    {:style {:border-right fixed-col-border-style}}
+                                                                                               :row-headers {:style {:border-right fixed-col-border-style}}})
+                                                 :do                       (theme/merge-props (apply dissoc parts simple-v-table-exclusive-parts)))]]))))))

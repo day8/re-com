@@ -111,7 +111,6 @@
                     :enable   (if disabled? :disabled :enabled)
                       :tab-index tab-index
                          :focusable      (if @focused? :focused :blurred)
-
                          :transitionable @transitionable}
             open!       (if on-change
                           (handler-fn (on-change true))
