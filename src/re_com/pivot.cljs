@@ -43,21 +43,17 @@
 (defn row-width     [path] (get (last path) :width default-width))
 (defn row-height    [path] (get (last path) :height default-height))
 
-(defn column-label [path]
+(defn column-label [{:keys [path leaf?]}]
   [h-box
-   :style {:outline        "1px solid green"
-           :outline-offset "-1px"}
    :children
    [[:div {:style {:height            (px (column-height path))
-                   :width             (px (column-width path))
+                   :width             (when leaf? (px (column-width path)))
                    :text-align        "center"}}
      (let [column (last path)]
        (or (:label column) (name column)))]]])
 
 (defn row-label [path]
   [v-box
-   :style {:outline        "1px solid green"
-           :outline-offset "-1px"}
    :children
    [[:div {:style {:height     (row-height path)
                    :width      (row-width path)
@@ -74,21 +70,27 @@
                          (filter (partial descendant? path)))
         parent-gap  (when (and (seq path)
                                (seq this-level))
-                      [:div {:style {:height (px (row-height path))}}])]
+                      [:div {:style {:height (px (row-height path))}}])
+        h-gap       [:div {:style {:width (px (row-width path))}}]]
     [v-box
+     :style {:outline        "1px solid blue"
+             :outline-offset "-1px"}
      :children
      (into
-      [parent-gap]
+      []
       (for [r this-level]
+        [v-box
+         :children
+         [(when (seq this-level)
+            [row-label r])
         [h-box
          :children
-         [[row-label r]
+           [h-gap
           [v-box
-           :style {:outline        "1px solid blue"
-                   :outline-offset "-1px"}
+
            :children
            [[row-headers (merge props {:level (inc level)
-                                       :path  (conj path (last r))})]]]]]))]))
+                                         :path  (conj path (last r))})]]]]]]]))]))
 
 (defn col-headers [& {:keys [columns level path]
                       :or   {path []
@@ -98,24 +100,28 @@
         level->cols  (group-by count column-props)
         this-level   (->> (get level->cols level)
                           (filter (partial descendant? path)))
-        parent-gap   (when (and (seq path)
-                                (seq this-level))
-                       [:div
+        parent-gap   [:div
                         {:style
-                         {:width (px (column-width path))}}])]
+                       {:width (px (column-width path))}}]]
     [h-box
      :children
      (into
-      [parent-gap]
+      []
       (for [c this-level
-            :let [c (cond-> c)]]
-                   [v-box
-                    :children
-                    [[column-label c]
+            :let [c (cond-> c)
+                  descendants (filter (partial descendant? c) column-props)]]
+        [:div
+         {:style {:position       "relative"
+                  :outline        "1px solid green"
+                  :outline-offset "-1px"}}
+         [:div.hihihi {:style {:max-width "100%"}}
+          [column-label {:path c}]]
                      [h-box
                       :children
-                      [[col-headers (merge props {:level (inc level)
-                                       :path  (conj path (last c))})]]]]]))]))
+          [(when (seq this-level)
+             parent-gap)
+           [col-headers (merge props {:level (inc level)
+                                      :path  (conj path (last c))})]]]]))]))
 
 (defn cell-renderer [{:keys [row-path column-path]}]
   (let [col (last column-path)]
@@ -124,16 +130,14 @@
 (defn cell-wrapper [{:keys [row-path column-path cell] :as props}]
   [:div {:style {:outline        "1px solid red"
                  :outline-offset "-1px"
-                 #_#_:border "1px solid red"
                  :width (px (column-width column-path))
                  :height (px (row-height row-path))}}
    [(or cell cell-renderer) props]])
 
 (defn table [& {:keys [columns rows cell] :as props}]
-  (let [column-props (spec->headers columns)
-        row-props    (spec->headers rows)
-        level->cols  (group-by count column-props)
-        corner-gap [gap :size (px (->> column-props
+  (let [column-paths (spec->headers columns)
+        row-paths    (spec->headers rows)
+        corner-gap [gap :size (px (->> column-paths
                                        (sort-by count)
                                        (partition-by count)
                                        (map (fn [paths]
@@ -151,10 +155,11 @@
      [[col-headers props]
       [h-box
        :children
-       (for [c column-props]
+         (for [c column-paths
+               :let [c (cond-> c (map? c) (do))]]
          [v-box
           :children
-            (doall (for [r row-props]
+            (doall (for [r row-paths]
                      [cell-wrapper {:row-path r
                                     :column-path c
                                     :cell cell}]))])]]]
@@ -165,3 +170,78 @@
        :content-length 500
        :scroll-pos @scroll-pos
        :on-change #(reset! scroll-pos %)]]]))
+
+(defn drag-button [& {:as args}]
+  (let [dragging?    (r/atom false)
+        mouse-down-x (r/atom 0)
+        last-drag-x  (r/atom 0)
+        drag-x       (r/atom 0)
+        hovering?    (r/atom nil)]
+    (fn [& {:keys [on-resize column-index]}]
+      [:<>
+       [:div.butt {:on-mouse-enter #(reset! hovering? true)
+                   :on-mouse-leave #(reset! hovering? false)
+                   :on-mouse-down #(do (reset! dragging?    true)
+                                       (reset! mouse-down-x (.-clientX %))
+                                       (reset! drag-x       (.-clientX %))
+                                       (reset! last-drag-x       (.-clientX %)))
+                   :style         {:position         "absolute"
+                                   :opacity          (if (or @hovering? @dragging?) 1 0)
+                                   :top              0
+                                   :right            0
+                                   :height           "100%"
+                                   :width            "25px"
+                                   :background-color "blue"}}]
+       (when @dragging?
+         [:div {:on-mouse-up   #(do (reset! dragging? false)
+                                    (reset! hovering? true))
+                :on-mouse-move #(do (.preventDefault %)
+                                    (let [x (.-clientX %)]
+                                      (reset! drag-x x)
+                                      (when on-resize
+                                        (on-resize {:distance (- x @last-drag-x)
+                                                    :column-index column-index}))
+                                      (reset! last-drag-x x)))
+                :style         {:position         "fixed"
+                                :z-index          99999
+                                :width            "100%"
+                                :height           "100%"
+                                :top              0
+                                :left             0
+                                :font-size        100}}])])))
+
+(defn grid-cell [{:keys [on-resize
+                         column-index
+                         row-index
+                         column-path
+                         row-path]}]
+  [:div {:style {:background-color "#fff"
+                   :padding "10px"
+                   :position "relative"}}
+     (str (rand 10))
+     [drag-button {:on-resize on-resize :column-index column-index}]])
+
+(defn grid [& {:keys [columns rows]}]
+  (let [column-count (r/atom (count (spec->headers columns)))
+        widths      (r/atom (vec (repeat @column-count 30)))
+        on-resize-cell (fn [{:keys [distance column-index]}]
+                         (swap! widths update column-index + distance))]
+    (fn [& {:keys [columns rows]}]
+      (let [column-paths (spec->headers columns)
+            row-paths    (spec->headers rows)]
+        [:div {:style {:padding "2px"
+                       :display "grid"
+                       :grid-template-columns (->> @widths (map #(str % "px ")) (apply str))
+                       :gap "2px"
+                       :background-color "red"}}
+         (for [row-index    (range (count row-paths))
+               column-index (range (count column-paths))
+               :let [c (nth column-paths column-index)
+                     r (nth row-paths row-index)]]
+           ^{:key [column-index row-index]}
+           [grid-cell
+            {:column-path c
+             :column-index column-index
+             :row-index row-index
+             :row-path r
+             :on-resize on-resize-cell}])]))))
