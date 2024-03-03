@@ -12,7 +12,8 @@
 (def parent? (some-fn keyword? map?))
 
 (defn descendant? [v1 v2]
-  (= v1 (vec (take (count v1) v2))))
+  (and (not= v1 v2)
+       (= v1 (vec (take (count v1) v2)))))
 
 (defn spec->headers
   ([item]
@@ -26,11 +27,11 @@
            new-path (cond-> path parent (conj parent))]
        (into acc (reduce (partial spec->headers new-path) [] item))))))
 
-(spec->headers [:x :z [:a :b]])
-
-(->> [:a [:b :c]]
-     spec->headers
-     (group-by count))
+(defn header-span [group-path all-paths]
+  (->> all-paths
+       (filter (partial descendant? group-path))
+       count
+       inc))
 
 (def widths (r/atom {[:z] 100}))
 (def heights (r/atom {[{:product-category :fruit :label "fruit"} :banana] 80}))
@@ -210,38 +211,80 @@
                                 :left             0
                                 :font-size        100}}])])))
 
+(defn path->grid-line-name [path]
+  (str (apply str (interpose "__" (map name path))) "-start"))
+
+(defn bracketize [x] (str "[" x "]"))
+
 (defn grid-cell [{:keys [on-resize
                          column-index
                          row-index
                          column-path
                          row-path]}]
-  [:div {:style {:background-color "#fff"
+  [:div {:style {:grid-column (path->grid-line-name column-path)
+                 :grid-row (path->grid-line-name row-path)
+                 :background-color "#fff"
                    :padding "10px"
                    :position "relative"}}
      (str (rand 10))
      [drag-button {:on-resize on-resize :column-index column-index}]])
 
+(def cc [:spot
+         :price
+         [:foreign
+          [:kilo
+           :ton]
+          :domestic
+          [:kilo
+           :ton]]])
+
 (defn grid [& {:keys [columns rows]}]
-  (let [column-count (r/atom (count (spec->headers columns)))
-        widths      (r/atom (vec (repeat @column-count 30)))
+  (let [init-cols (spec->headers columns)
+        init-rows (spec->headers rows)
+        col-widths         (r/atom (vec (repeat (count init-cols) 100)))
+        col-heights        (r/atom (vec (repeat (->> init-cols (map count) (apply max)) 40)))
+        row-heights        (r/atom (vec (repeat (count init-rows) 40)))
         on-resize-cell (fn [{:keys [distance column-index]}]
-                         (swap! widths update column-index + distance))]
+                         (swap! col-widths update column-index + distance))]
     (fn [& {:keys [columns rows]}]
       (let [column-paths (spec->headers columns)
-            row-paths    (spec->headers rows)]
+            row-paths             (spec->headers rows)
+            grid-template-columns (->> @col-widths
+                                       (map #(str % "px"))
+                                       (interleave (map (comp bracketize path->grid-line-name) column-paths))
+                                       (interpose " ")
+                                       (apply str))
+            grid-template-rows (->> @row-heights
+                                    (map #(str % "px"))
+                                    (interleave (map (comp bracketize path->grid-line-name) row-paths))
+                                    (into (mapv #(str % "px") @col-heights))
+                                    (interpose " ")
+                                    (apply str))]
+
         [:div {:style {:padding "2px"
                        :display "grid"
-                       :grid-template-columns (->> @widths (map #(str % "px ")) (apply str))
+                       :overflow              "hidden"
+                       :grid-template-columns grid-template-columns
+                       :grid-template-rows    grid-template-rows
                        :gap "2px"
                        :background-color "red"}}
+         (for [path column-paths
+               :let [span        (header-span path column-paths)
+                     column-name (path->grid-line-name path)]]
+           [:div {:key   path
+                  :style {:grid-column      (str column-name " / span " span)
+                          :grid-row         (count path)
+                          :height           "40px"
+                          :background-color "black"}}
+            (str path)])
          (for [row-index    (range (count row-paths))
                column-index (range (count column-paths))
-               :let [c (nth column-paths column-index)
-                     r (nth row-paths row-index)]]
+               :let         [c-path (nth column-paths column-index)
+                             r-path (nth row-paths row-index)]]
            ^{:key [column-index row-index]}
            [grid-cell
-            {:column-path c
+            {:column-path  c-path
              :column-index column-index
              :row-index row-index
-             :row-path r
+             :row-path     r-path
              :on-resize on-resize-cell}])]))))
