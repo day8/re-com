@@ -609,6 +609,12 @@
      {:name :position      :required false :default :below-center :type "keyword"                  :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :no-clip?      :required false :default true          :type "boolean"                                                    :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
      {:name :width         :required false                        :type "string"                   :validate-fn string?              :description "specifies width of the tooltip"}
+     {:name :popover-color :required false  :default "black"      :type "string"                   :validate-fn string?              :description "default fill color when status is nil."}
+     {:name :warning-color :required false  :default "#f57c00"    :type "string"                   :validate-fn string?              :description "default fill color for the warning status."}
+     {:name :error-color   :required false  :default "#d50000"    :type "string"                   :validate-fn string?              :description "default fill color for the error status."}
+     {:name :info-color    :required false  :default "#333333"    :type "string"                   :validate-fn string?              :description "default fill color for the info status."}
+     {:name :success-color :required false  :default "#13C200"    :type "string"                   :validate-fn string?              :description "default fill color for the success status."}
+     
      {:name :class         :required false                        :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
      {:name :style         :required false                        :type "CSS style map"            :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency (applies to popover-anchor-wrapper component)"}
      {:name :attr          :required false                        :type "HTML attr map"            :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}
@@ -618,18 +624,24 @@
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr parts src debug-as]
-      :or   {no-clip? true}
+  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr parts src debug-as
+             popover-color warning-color error-color info-color success-color]
+      :or   {no-clip?      true
+             popover-color "black"
+             warning-color "#f57c00"
+             error-color   "#d50000"
+             info-color    "#333333"
+             success-color "#13C200"}
       :as   args}]
   (or
    (validate-args-macro popover-tooltip-args-desc args)
    (let [label         (deref-or-value label)
          popover-color (case status
-                         :warning "#f57c00"
-                         :error   "#d50000"
-                         :info    "#333333"
-                         :success "#13C200"
-                         "black")]
+                         :warning warning-color
+                         :error   error-color
+                         :info    info-color
+                         :success success-color
+                         popover-color)]
      [popover-anchor-wrapper
       :src      src
       :debug-as (or debug-as (reflect-current-component))

@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.19.0 (2024-03-07)
+
+#### Added
+
+- `popover-tooltip` - added a prop for the color of each status.
+
 ## 2.18.1 (2024-02-16)
 
 #### Added
