@@ -1,15 +1,16 @@
 (ns re-com.pivot
   (:require
+   [clojure.string :as str]
    [re-com.box :refer [h-box v-box box gap]]
    [re-com.v-table :as v-table :refer [v-table]]
-   [re-com.util :refer [px]]
+   [re-com.util :as u :refer [px]]
    [reagent.core :as r]))
 
 (def scroll-pos (r/atom 0))
 
-(def child? vector?)
+(def child? (some-fn vector? seq?))
 
-(def parent? (some-fn keyword? map?))
+(def parent? (complement child?))
 
 (defn descendant? [v1 v2]
   (and (not= v1 v2)
@@ -27,11 +28,14 @@
            new-path (cond-> path parent (conj parent))]
        (into acc (reduce (partial spec->headers new-path) [] item))))))
 
-(defn header-span [group-path all-paths]
+(defn header-cross-span [group-path all-paths]
   (->> all-paths
        (filter (partial descendant? group-path))
        count
        inc))
+
+(defn header-main-span [group-path all-paths]
+  (->> all-paths (map count) (apply max) (+ (- (count group-path))) inc))
 
 (def widths (r/atom {[:z] 100}))
 (def heights (r/atom {[{:product-category :fruit :label "fruit"} :banana] 80}))
@@ -212,79 +216,96 @@
                                 :font-size        100}}])])))
 
 (defn path->grid-line-name [path]
-  (str (apply str (interpose "__" (map name path))) "-start"))
+  (str "line__" (hash path) "-start"))
 
-(defn bracketize [x] (str "[" x "]"))
+(def path? vector?)
+
+(defn grid-template [tokens]
+  (let [serialize (fn [token] (cond (number? token) (str token "px")
+                                    (path? token) (str "[" (path->grid-line-name token) "]")))]
+    (->> tokens
+         (map serialize)
+         (str/join " "))))
+
+(defn default-cell-fn [{:keys [column-path row-path]}]
+  (str column-path))
 
 (defn grid-cell [{:keys [on-resize
                          column-index
                          row-index
                          column-path
-                         row-path]}]
+                         row-path
+                         cell-fn]
+                  :as args}]
   [:div {:style {:grid-column (path->grid-line-name column-path)
                  :grid-row (path->grid-line-name row-path)
                  :background-color "#fff"
                    :padding "10px"
                    :position "relative"}}
-     (str (rand 10))
+   [u/part cell-fn args default-cell-fn]
      [drag-button {:on-resize on-resize :column-index column-index}]])
 
-(def cc [:spot
-         :price
-         [:foreign
-          [:kilo
-           :ton]
-          :domestic
-          [:kilo
-           :ton]]])
+(defn column-header [{:keys [path column-paths]}]
+  [:div {:style {:grid-column-start (path->grid-line-name path)
+                 :grid-column-end   (str "span " (header-cross-span path column-paths))
+                 :grid-row-start    (count path)
+                 :padding           "10px"
+                 :background-color  "black"}}
+   (str path)])
 
-(defn grid [& {:keys [columns rows]}]
-  (let [init-cols (spec->headers columns)
+(defn row-header [{:keys [path row-paths]}]
+  [:div {:style {:grid-row-start    (path->grid-line-name path)
+                 :grid-column-start (count path)
+                 :grid-column-end   (str "span " (header-main-span path row-paths))
+                 :padding           "10px"
+                 :background-color  "black"}}
+   (str path)])
+
+(defn grid [& {:keys [columns rows hide-columns]}]
+  (let [ainit-cols      (spec->headers columns)
         init-rows (spec->headers rows)
+        hide-columns   (r/atom #{["Total TV"]})
         col-widths         (r/atom (vec (repeat (count init-cols) 100)))
-        col-heights        (r/atom (vec (repeat (->> init-cols (map count) (apply max)) 40)))
-        row-heights        (r/atom (vec (repeat (count init-rows) 40)))
+        col-heights    (r/atom (vec (repeat (->> init-cols (map count) (apply max)) 50)))
+        row-widths     (r/atom (vec (repeat (->> init-rows (map count) (apply max)) 60)))
+        row-heights    (r/atom (vec (repeat (count init-rows) 50)))
         on-resize-cell (fn [{:keys [distance column-index]}]
                          (swap! col-widths update column-index + distance))]
-    (fn [& {:keys [columns rows]}]
+    (fn [& {:keys [columns rows cell-fn max-height]}]
       (let [column-paths (spec->headers columns)
             row-paths             (spec->headers rows)
             grid-template-columns (->> @col-widths
-                                       (map #(str % "px"))
-                                       (interleave (map (comp bracketize path->grid-line-name) column-paths))
-                                       (interpose " ")
-                                       (apply str))
+                                       (interleave column-paths)
+                                       (into @row-widths)
+                                       grid-template)
             grid-template-rows (->> @row-heights
-                                    (map #(str % "px"))
-                                    (interleave (map (comp bracketize path->grid-line-name) row-paths))
-                                    (into (mapv #(str % "px") @col-heights))
-                                    (interpose " ")
-                                    (apply str))]
-
+                                       (interleave row-paths)
+                                       (into @col-heights)
+                                       grid-template)]
         [:div {:style {:padding "2px"
+                       :width                 "fit-content"
+                       :max-height            max-height
                        :display "grid"
-                       :overflow              "hidden"
+                       :overflow              "auto"
                        :grid-template-columns grid-template-columns
                        :grid-template-rows    grid-template-rows
                        :gap "2px"
-                       :background-color "red"}}
-         (for [path column-paths
-               :let [span        (header-span path column-paths)
-                     column-name (path->grid-line-name path)]]
-           [:div {:key   path
-                  :style {:grid-column      (str column-name " / span " span)
-                          :grid-row         (count path)
-                          :height           "40px"
-                          :background-color "black"}}
-            (str path)])
+                       :background-color      "lightgrey"}}
+         (for [path column-paths]
+           ^{:key (or path (gensym))}
+           [column-header {:path path :column-paths column-paths}])
+         (for [path row-paths]
+           ^{:key (or path (gensym))}
+           [row-header {:path path :row-paths row-paths}])
          (for [row-index    (range (count row-paths))
                column-index (range (count column-paths))
                :let         [c-path (nth column-paths column-index)
                              r-path (nth row-paths row-index)]]
-           ^{:key [column-index row-index]}
+           ^{:key (or [column-index row-index] (gensym))}
            [grid-cell
             {:column-path  c-path
              :column-index column-index
              :row-index row-index
              :row-path     r-path
-             :on-resize on-resize-cell}])]))))
+             :on-resize    on-resize-cell
+             :cell-fn      cell-fn}])]))))
