@@ -48,8 +48,9 @@
   [props (assoc ctx :variables static-variables)])
 
 (defn base [props {:keys                   [state part transition!]
-                   $                       :variables
-                   {:keys [anchor-height]} :component-props}]
+                   {:keys [sm-2]}          :variables
+                   {:keys [anchor-height]} :component-props
+                   :as    ctx}]
   (->> {}
        (case part
 
@@ -65,8 +66,8 @@
          ::dropdown/anchor-wrapper
          {:style {:outline        (when (and (= :focused (:focusable state))
                                              (not= :open (:openable state)))
-                                    (str (:sm-2 $) " auto #ddd"))
-                  :outline-offset (str "-" (:sm-2 $))
+                                    (str sm-2 " auto #ddd"))
+                  :outline-offset (str "-" sm-2)
                   :position       "relative"
                   :display        "block"
                   :overflow       "hidden"
@@ -105,9 +106,9 @@
 
          ::dropdown/body-wrapper
          {:style {:background-color "white"
-                  :border-radius    (str "0 0 " sm-3 " " sm-3)
+                  :border-radius    sm-3
                   :border           (str sm-1 " solid " (:border $))
-                  :padding          (str/join " " [sm-4 sm-6 sm-4 sm-6])
+                  :padding          sm-3
                   :box-shadow       (str/join " " [sm-4 sm-6 shadow])}}
 
          ::dropdown/backdrop
@@ -124,10 +125,7 @@
                                                      (cond
                                                        closed? "#cccccc"
                                                        open?   "#66afe9"))
-                    :border-top-right-radius    sm-4
-                    :border-top-left-radius     sm-4
-                    :border-bottom-right-radius sm-4
-                    :border-bottom-left-radius  sm-4
+                    :border-radius              sm-3
                     :box-shadow                 (cond-> "0 1px 1px rgba(0, 0, 0, .2) inset"
                                                   open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
                     :color                      (:neutral $)
