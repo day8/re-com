@@ -6,8 +6,8 @@
    [reagent.core    :as    reagent]
    [re-com.buttons  :refer [hyperlink row-button]]
    [re-com.config   :refer [include-args-desc?]]
-   [re-com.box      :refer [box h-box gap]]
-   [re-com.util     :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
+   [re-com.box      :refer [box h-box v-box gap]]
+   [re-com.util     :as u :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
    [re-com.text     :refer [label]]
    [re-com.theme    :as    theme]
    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
@@ -69,7 +69,8 @@
   [& _]
   (fn [{:keys [parts sort-by-column hover? column-header-height]
         {:keys [id row-label-fn width height align header-label sort-by]} :column}]
-      (let [sort-by                  (cond (true? sort-by) {} :else sort-by)
+    (let [header-label             (or header-label (name id))
+          sort-by                  (cond (true? sort-by) {} :else sort-by)
             default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
             ps                       (position-for-id id @sort-by-column)
             {current-order :order}   (item-for-id id @sort-by-column)
@@ -80,7 +81,9 @@
                                         (replace-criteria!))
             justify                  (get align->justify (keyword align) :start)
             multiple-columns-sorted? (> (count @sort-by-column) 1)]
-        [h-box
+      [v-box
+       :children
+       [[h-box
          :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
          :width    (px width)
          :justify  justify
@@ -114,7 +117,7 @@
                          {:size (or height "16px")
                           :fill "#777"}]
                         (when ps
-                          [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]])))
+                            [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]]]])))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
@@ -131,11 +134,12 @@
                     (get-in parts [:simple-column-header :attr]))
    :children (into []
                    (for [column columns]
-                     [column-header-item {:column-header-height column-header-height :column column :parts parts :sort-by-column sort-by-column :hover? @hover?}]))])
+                     [column-header-item {:column-header-height column-header-height :column column :parts parts :sort-by-column sort-by-column :hover? hover?}]))])
+
 
 (defn row-item
   "Render a single row item (column) of a single row"
-  [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style parts]
+  [row {:keys [id width height align vertical-align row-label-fn] :as column} cell-style parts]
   [:div
    (merge
     {:class (str "rc-simple-v-table-row-item " (get-in parts [:simple-row-item :class]))
@@ -153,7 +157,7 @@
                      (cell-style row column)
                      cell-style))}
     (get-in parts [:simple-row-item :attr]))
-   (row-label-fn row)])
+   ((or row-label-fn (comp str id)) row)])
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
@@ -292,8 +296,8 @@
               fcc-bounded            (min fixed-column-count (count columns))
               fixed-cols             (subvec columns 0 fcc-bounded)
               content-cols           (subvec columns fcc-bounded (count columns))
-              fixed-content-width    (->> fixed-cols (map :width) (reduce + 0))
-              content-width          (->> content-cols (map :width) (reduce + 0))
+              fixed-content-width    (->> fixed-cols (map #(:width % 25)) (reduce + 0))
+              content-width          (->> content-cols (map #(:width % 25)) (reduce + 0))
               table-border-style     (str "1px solid " table-row-line-color)
               fixed-col-border-style (str "1px solid " fixed-column-border-color)
               actual-table-width     (+ fixed-content-width
@@ -324,18 +328,184 @@
                       :model                   model
                       :sort-comp               (multi-comparator (->v @sort-by-column))
                         ;; ===== Column header (section 4)
-                      :column-header-renderer  #(do [column-header-renderer (into args {:columns        content-cols
-                                                                                        :hover?         header-hover?
-                                                                                        :sort-by-column sort-by-column})])
+                      :column-header-renderer  #(do [column-header-renderer (into args {:columns content-cols :hover? @header-hover? :sort-by-column sort-by-column})])
                       :column-header-height    column-header-height
                         ;; ===== Row header (section 2)
-                      :row-header-renderer     #(fn [i row] [row-renderer (into args {:columns   fixed-cols
-                                                                                      :row       row
-                                                                                      :row-index i})])
+                      :row-header-renderer     #(fn [i row] [row-renderer (into args {:columns fixed-cols :row row :row-index i})])
                         ;; ===== Rows (section 5)
-                      :row-renderer            #(fn [i row] [row-renderer (into args {:columns   content-cols
-                                                                                      :row       row
-                                                                                      :row-index i})])
+                      :row-renderer            #(fn [i row] [row-renderer (into args {:columns content-cols :row row :row-index i})])
+                      :row-content-width       content-width
+                      :row-height              row-height
+                      :max-row-viewport-height (when max-rows (* max-rows row-height))
+                      ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
+                        ;; ===== Corners (section 1, 3)
+                      :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
+                                                                                    :parts          parts
+                                                                                    :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
+                      :top-right-renderer      (when show-export-button?
+                                                 #(let [rows           (deref-or-value model)
+                                                        columns        (deref-or-value columns)
+                                                        sort-by-column (deref-or-value sort-by-column)]
+                                                    [export-button-renderer {:rows      rows
+                                                                             :columns   columns
+                                                                             :on-export (fn [_] (on-export {:columns columns
+                                                                                                            :rows    (cond->> rows
+                                                                                                                       sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
+                      ;; ===== Styling
+                      :class                   class
+                      :parts                   (cond-> {:wrapper {:style {:font-size "13px"
+                                                                          :cursor "default"}}}
+                                                 (pos? fixed-column-count) (theme/merge-props {:top-left    {:style {:border-right fixed-col-border-style}}
+                                                                                               :row-headers {:style {:border-right fixed-col-border-style}}})
+                                                 :do                       (theme/merge-props (apply dissoc parts simple-v-table-exclusive-parts)))]]))))))
+
+(defn nested-column
+  [& _]
+  (fn [{:keys [parts sort-by-column hover? column-header-height rows]
+        {:keys [id row-label-fn width height align header-label sort-by]} :column}]
+    (let [header-label             (or header-label (name id))
+          sort-by                  (cond (true? sort-by) {} :else sort-by)
+          default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
+          ps                       (position-for-id id @sort-by-column)
+          {current-order :order}   (item-for-id id @sort-by-column)
+          add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
+          replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
+          on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
+                                      (add-criteria!)
+                                      (replace-criteria!))
+          justify                  (get align->justify (keyword align) :start)
+          multiple-columns-sorted? (> (count @sort-by-column) 1)]
+      [v-box
+       :children
+       (-> [[h-box
+             :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
+             :width    (px width)
+             :justify  justify
+             :align    :center
+             :style    (merge
+                        {:padding       "0px 12px"
+                         :min-height    "24px"
+                         :height        (px height)
+                         :font-weight   "bold"
+                         :white-space   "nowrap"
+                         :overflow      "hidden"
+                         :text-overflow "ellipsis"}
+                        (when sort-by
+                          {:cursor "pointer"})
+                        (get-in parts [:simple-column-header-item :style]))
+             :attr     (merge
+                        (when sort-by {:on-click on-click})
+                        (get-in parts [:simple-column-header-item :attr]))
+             :children [header-label
+                        (when sort-by
+                          [h-box
+                           :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
+                           :min-width "35px"
+                           :style (when current-order {:opacity 0.3})
+                           :justify :center
+                           :align :center
+                           :children
+                           (if-not (or hover? current-order)
+                             []
+                             [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
+                               {:size (or height "16px")
+                                :fill "#777"}]
+                              (when ps
+                                [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]]]
+           (into [[:div (str #p rows)]]))])))
+
+(defn column-node [{:keys [column column-model]}]
+  [:div "HI"])
+
+(defn descendant? [group-a group-b]
+  (or (empty? group-a)
+      (= group-a (vec (take (count group-a) group-b)))))
+
+(defn nested-columns
+  ":column-header-renderer AND :top-left-renderer - Render the table header"
+  [{:keys [columns parts sort-by-column column-header-height hover? column-model ancestry]
+    :as   args}]
+  (let [level            (count ancestry)
+        [this-level next-level] (->> (group-by (comp count key) @column-model)
+                                     ((juxt #(get % level) #(get % (inc level)))))
+        descendants (filter #(descendant? ancestry (key %)) next-level)]
+    [v-box
+     :children
+     [[:div {:style {:font-size 7}} (str ancestry)]
+      [h-box
+       :children
+       (for [[path state] descendants]
+         [nested-columns (merge args {:ancestry path})])]]]))
+
+#_(into []
+        (for [column columns]
+          [nested-column {:column-header-height column-header-height
+                          :column column
+                          :parts parts
+                          :sort-by-column sort-by-column
+                          :hover? @hover?}]))
+
+(defn tree-v-table
+  "Render a v-table and introduce the concept of columns (provide a spec for each).
+  Of the nine possible sections of v-table, this table only supports four:
+  top-left (1), row-headers (2), col-headers (4) and rows (5)
+  Note that row-style and cell-style can either be a style map or functions which return a style map:
+   - (row-style row)
+  x   - (cell-style row col)
+  where row is the data for that row and col is the definition map for that column
+  "
+  [& {:keys [src] :as static-args}]
+  (or
+   #_(validate-args-macro simple-v-table-args-desc static-args)
+   (let [sort-by-column (reagent/atom nil)
+         header-hover?  (reagent/atom nil)]
+     (fn tree-v-table-render
+       [& {:as dynamic-args}]
+       (or
+        #_(validate-args-macro simple-v-table-args-desc dynamic-args)
+        (let [{:keys [model columns fixed-column-count fixed-column-border-color
+                      column-header-height column-header-renderer
+                      max-width max-rows row-height table-padding table-row-line-color
+                      on-click-row on-enter-row on-leave-row
+                      show-export-button? on-export export-button-renderer
+                      striped? row-style class parts src debug-as]
+               :as   args}           (merge default-args dynamic-args)
+              fcc-bounded            (min fixed-column-count (count columns))
+              fixed-cols             (subvec columns 0 fcc-bounded)
+              content-cols           (subvec columns fcc-bounded (count columns))
+              fixed-content-width    (->> fixed-cols (map #(:width % 25)) (reduce + 0))
+              content-width          (->> content-cols (map #(:width % 25)) (reduce + 0))
+              table-border-style     (str "1px solid " table-row-line-color)
+              fixed-col-border-style (str "1px solid " fixed-column-border-color)
+              actual-table-width     (+ fixed-content-width
+                                        (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
+                                        content-width
+                                        v-table/scrollbar-tot-thick
+                                        (* 2 table-padding)
+                                        2)]  ;; 2 border widths
+          [box
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
+           :style    (merge {:flex             (if max-rows "0 1 auto" "100%")
+                             :background-color "white"
+                             :padding          (px table-padding)
+                             :max-width        (or max-width (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
+                             :border           table-border-style
+                             :border-radius    "3px"}
+                            (get-in parts [:simple-wrapper :style]))
+           :attr     (get-in parts [:simple-wrapper :attr])
+           :child    [v-table/v-table
+                      :src                     (at)
+                      :model                   model
+                      :sort-comp               (multi-comparator (->v @sort-by-column))
+                        ;; ===== Column header (section 4)
+                      :column-header-renderer  #(do [nested-columns (into args {:columns content-cols :hover? header-hover? :sort-by-column sort-by-column})])
+                      :column-header-height    column-header-height
+                        ;; ===== Row header (section 2)
+                      :row-header-renderer     #(fn [i row] [row-renderer (into args {:columns fixed-cols :row row :row-index i})])
+                        ;; ===== Rows (section 5)
+                      :row-renderer            (constantly nil)
                       :row-content-width       content-width
                       :row-height              row-height
                       :max-row-viewport-height (when max-rows (* max-rows row-height))
