@@ -8,25 +8,35 @@
 
 (def scroll-pos (r/atom 0))
 
-(def child? (some-fn vector? seq?))
+(defn descendant? [path-a path-b]
+  (and (not= path-a path-b)
+       (= path-a (vec (take (count path-a) path-b)))))
 
-(def parent? (complement child?))
+(def header? (complement (some-fn vector? seq?)))
 
-(defn descendant? [v1 v2]
-  (and (not= v1 v2)
-       (= v1 (vec (take (count v1) v2)))))
+(defn spec->headers ;; TODO simplify
+  ([data] (spec->headers [] data))
+  ([path data]
+   (let [pairs
+         (->> data
+              (into [::stub]) ;; make sure 1st partition is always headers
+              (partition-by header?)
+              (partition-all 2))]
+     (vec
+      (apply concat
+             (for [[headers branches] pairs
+                   :let              [headers (remove #{::stub} headers)
+                                      branch-path (into path (take-last 1 headers))]]
+               (concat
+                (map (partial conj path) headers)
+                (mapcat (partial spec->headers branch-path) branches))))))))
 
-(defn spec->headers
-  ([item]
-   (spec->headers [] [] item))
-  ([path acc item]
-   (cond
-     (parent? item)
-     (conj acc (conj path item))
-     (child? item)
-     (let [parent (last (last acc))
-           new-path (cond-> path parent (conj parent))]
-       (into acc (reduce (partial spec->headers new-path) [] item))))))
+(assert (= (spec->headers [:a :b :c])
+           [[:a] [:b] [:c]]))
+(assert (= (spec->headers [[:a [:b] [:c]]])
+           [[:a] [:a :b] [:a :c]]))
+(assert (= (spec->headers [[:a :b [:c]]])
+           [[:a] [:b] [:b :c]]))
 
 (defn header-cross-span [group-path all-paths]
   (->> all-paths
@@ -182,9 +192,9 @@
         last-drag-x  (r/atom 0)
         drag-x       (r/atom 0)
         hovering?    (r/atom nil)]
-    (fn [& {:keys [on-resize column-index]}]
+    (fn [& {:keys [on-resize column-index path]}]
       [:<>
-       [:div.butt {:on-mouse-enter #(reset! hovering? true)
+       [:div {:on-mouse-enter #(reset! hovering? true)
                    :on-mouse-leave #(reset! hovering? false)
                    :on-mouse-down #(do (reset! dragging?    true)
                                        (reset! mouse-down-x (.-clientX %))
@@ -205,7 +215,7 @@
                                       (reset! drag-x x)
                                       (when on-resize
                                         (on-resize {:distance (- x @last-drag-x)
-                                                    :column-index column-index}))
+                                                    :path     path}))
                                       (reset! last-drag-x x)))
                 :style         {:position         "fixed"
                                 :z-index          99999
@@ -218,42 +228,43 @@
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
 
-(def path? vector?)
-
 (defn grid-template [tokens]
-  (let [serialize (fn [token] (cond (number? token) (str token "px")
-                                    (path? token) (str "[" (path->grid-line-name token) "]")))]
+  (let [rf (fn [s group]
+             (str s " "
+                  (if (number? (first group))
+                    (str/join " " (map px group))
+                    (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
     (->> tokens
-         (map serialize)
-         (str/join " "))))
+         (partition-by number?)
+         (reduce rf ""))))
 
-(defn default-cell-fn [{:keys [column-path row-path]}]
-  (str column-path))
+(defn cell-part [{:keys [column-path row-path]}]
+  nil)
 
-(defn grid-cell [{:keys [on-resize
-                         column-index
-                         row-index
-                         column-path
-                         row-path
-                         cell-fn]
+(defn cell-wrapper-part [{:keys [column-path row-path cell]
                   :as args}]
   [:div {:style {:grid-column (path->grid-line-name column-path)
                  :grid-row (path->grid-line-name row-path)
                  :background-color "#fff"
                    :padding "10px"
                    :position "relative"}}
-   [u/part cell-fn args default-cell-fn]
-     [drag-button {:on-resize on-resize :column-index column-index}]])
+   [u/part cell args cell-part]])
 
-(defn column-header [{:keys [path column-paths]}]
+(defn column-header-part [{:keys [path]}]
+  (str (get (last path) :id (last path))))
+
+(defn column-header-wrapper-part [{:keys [column-header path column-paths on-resize state hide-cells?] :as props}]
   [:div {:style {:grid-column-start (path->grid-line-name path)
                  :grid-column-end   (str "span " (header-cross-span path column-paths))
                  :grid-row-start    (count path)
-                 :padding           "10px"
-                 :background-color  "black"}}
-   (str path)])
+                 :padding           "4px"
+                 :border            "2px solid orange"
+                 :background-color  "black"
+                 :position          "relative"}}
+   [u/part column-header props column-header-part]
+   [drag-button {:on-resize on-resize :path path}]])
 
-(defn row-header [{:keys [path row-paths]}]
+(defn row-header-part [{:keys [path row-paths]}]
   [:div {:style {:grid-row-start    (path->grid-line-name path)
                  :grid-column-start (count path)
                  :grid-column-end   (str "span " (header-main-span path row-paths))
@@ -261,51 +272,90 @@
                  :background-color  "black"}}
    (str path)])
 
-(defn grid [& {:keys [columns rows hide-columns]}]
-  (let [ainit-cols      (spec->headers columns)
-        init-rows (spec->headers rows)
-        hide-columns   (r/atom #{["Total TV"]})
-        col-widths         (r/atom (vec (repeat (count init-cols) 100)))
-        col-heights    (r/atom (vec (repeat (->> init-cols (map count) (apply max)) 50)))
-        row-widths     (r/atom (vec (repeat (->> init-rows (map count) (apply max)) 60)))
-        row-heights    (r/atom (vec (repeat (count init-rows) 50)))
-        on-resize-cell (fn [{:keys [distance column-index]}]
-                         (swap! col-widths update column-index + distance))]
-    (fn [& {:keys [columns rows cell-fn max-height]}]
-      (let [column-paths (spec->headers columns)
+(def level count)
+
+(defn grid [& {:as args}]
+  (let [column-state       (r/atom {})
+        row-state          (r/atom {})
+        column-header-prop (fn [path k & [default]]
+                             (or (some-> @column-state (get path) (get k))
+                                 (get (meta (last path)) k)
+                                 (get (last path) k)
+                                 default))
+        row-header-prop    (fn [path k & [default]]
+                             (or (some-> @row-state (get path) (get k))
+                                 (get (meta (last path)) k)
+                                 (get (last path) k)
+                                 default))
+        max-props          (fn [k default paths]
+                             (->> paths
+                                  (group-by level)
+                                  (sort-by key)
+                                  (map val)
+                                  (map (fn [paths] (apply max (map #(column-header-prop % k default) paths))))))]
+    (fn [& {:keys [columns rows cell
+                   cell-wrapper column-header row-header
+                   show-branch-cells?
+                   max-height column-width column-height row-width row-height]
+            :or   {column-height      40
+                   column-width       60
+                   row-width          100
+                   row-height         30
+                   show-branch-cells? false}}]
+      (let [on-resize-cell        (fn [{:keys [distance path]}]
+                                    (swap! column-state update-in [path :width]
+                                           #(+ distance (or % (column-header-prop path :width column-width)))))
+            column-paths          (spec->headers columns)
+            column-leaf-paths     (reduce (fn [paths p] (remove #(descendant? % p) paths)) column-paths column-paths)
+            column-widths         (map #(column-header-prop % :width column-width) column-paths)
+            max-column-heights    (max-props :height column-height column-paths)
             row-paths             (spec->headers rows)
-            grid-template-columns (->> @col-widths
-                                       (interleave column-paths)
-                                       (into @row-widths)
+            row-leaf-paths        (reduce (fn [paths p] (remove #(descendant? % p) paths)) row-paths row-paths)
+            row-heights           (map #(column-header-prop % :height row-height) row-paths)
+            max-row-widths        (max-props :width row-width row-paths)
+            grid-template-columns (->> (mapcat
+                                        (fn [path width]
+                                          (cond-> [path]
+                                            (or show-branch-cells?
+                                                ((set column-leaf-paths) path)) (conj width)))
+                                        column-paths column-widths)
+                                       (concat max-row-widths)
                                        grid-template)
-            grid-template-rows (->> @row-heights
-                                       (interleave row-paths)
-                                       (into @col-heights)
+            grid-template-rows    (->> (mapcat
+                                        (fn [path height]
+                                          (cond-> [path]
+                                            (or show-branch-cells?
+                                                ((set row-leaf-paths) path)) (conj height)))
+                                        row-paths row-heights)
+                                       (concat max-column-heights)
                                        grid-template)]
-        [:div {:style {:padding "2px"
-                       :width                 "fit-content"
+        [:div {:style {:padding               "0px"
                        :max-height            max-height
                        :display "grid"
                        :overflow              "auto"
                        :grid-template-columns grid-template-columns
                        :grid-template-rows    grid-template-rows
-                       :gap "2px"
-                       :background-color      "lightgrey"}}
-         (for [path column-paths]
+                       :gap                   "0px"
+                       :background-color      "transparent"}}
+         (for [path column-paths
+               :let [props {:path          path
+                            :column-paths  column-paths
+                            :on-resize     on-resize-cell
+                            :column-header column-header
+                            :hide-cells?   true}]]
            ^{:key (or path (gensym))}
-           [column-header {:path path :column-paths column-paths}])
+           [u/part column-header props column-header-wrapper-part])
          (for [path row-paths]
            ^{:key (or path (gensym))}
-           [row-header {:path path :row-paths row-paths}])
-         (for [row-index    (range (count row-paths))
-               column-index (range (count column-paths))
-               :let         [c-path (nth column-paths column-index)
-                             r-path (nth row-paths row-index)]]
-           ^{:key (or [column-index row-index] (gensym))}
-           [grid-cell
-            {:column-path  c-path
-             :column-index column-index
-             :row-index row-index
-             :row-path     r-path
-             :on-resize    on-resize-cell
-             :cell-fn      cell-fn}])]))))
+           [u/part row-header
+            {:path      path
+             :row-paths row-paths}
+            row-header-part])
+         (for [column-path column-leaf-paths
+               row-path    row-paths]
+           ^{:key (or [column-path row-path] (gensym))}
+           [u/part cell-wrapper
+            {:column-path column-path
+             :row-path    row-path
+             :cell        cell}
+            cell-wrapper-part])]))))
