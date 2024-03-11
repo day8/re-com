@@ -147,11 +147,24 @@
                    (merge {:background-color (:background-disabled $)}))}
 
          ::pivot/column-header-wrapper
+         {:style {:padding          sm-3
+                  :border           (str sm-1 " solid " border)
+                  :background-color light-neutral
+                  :color            dark
+                  :text-align       "center"
+                  :font-size        sm-6
+                  :font-weight      "bold"
+                  :overflow         "hidden"
+                  :white-space      "nowrap"
+                  :text-overflow    "ellipsis"}}
+
+         ::pivot/row-header-wrapper
          {:style {:padding       sm-3
                   :border        (str sm-1 " solid " border)
                   :background-color light-neutral
                   :color  dark
                   :text-align    "center"
+                  :font-size        sm-6
                   :font-weight   "bold"
                   :overflow      "hidden"
                   :white-space   "nowrap"
