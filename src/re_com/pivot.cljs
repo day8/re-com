@@ -253,28 +253,34 @@
 (defn column-header-part [{:keys [path]}]
   (str (get (last path) :id (last path))))
 
-(defn column-header-wrapper-part [{:keys [column-header path column-paths on-resize state hide-cells?] :as props}]
+(defn column-header-wrapper-part [{:keys [column-header path column-paths on-resize show-branch-cells? leaf?] :as props}]
+  (let [hide? (and (not leaf?) (not show-branch-cells?))]
   [:div {:style {:grid-column-start (path->grid-line-name path)
-                 :grid-column-end   (str "span " (header-cross-span path column-paths))
+                   :grid-column-end   (str "span " (cond-> path
+                                                     :do   (header-cross-span column-paths)
+                                                     hide? dec))
                  :grid-row-start    (count path)
                  :padding           "4px"
                  :border            "2px solid orange"
                  :background-color  "black"
                  :position          "relative"}}
    [u/part column-header props column-header-part]
-   [drag-button {:on-resize on-resize :path path}]])
+     [drag-button {:on-resize on-resize :path path}]]))
 
-(defn row-header-part [{:keys [path row-paths]}]
+(defn row-header-part [{:keys [path row-paths row-header show-branch-cells? leaf?] :as props}]
+  (let [hide? (and (not leaf?) (not show-branch-cells?))]
   [:div {:style {:grid-row-start    (path->grid-line-name path)
                  :grid-column-start (count path)
-                 :grid-column-end   (str "span " (header-main-span path row-paths))
+                   :grid-column-end   (str "span " (cond-> path
+                                                     :do   (header-main-span row-paths)
+                                                     hide? dec))
                  :padding           "10px"
                  :background-color  "black"}}
-   (str path)])
+     [u/part row-header props column-header-part]]))
 
 (def level count)
 
-(defn grid [& {:as args}]
+(defn grid [& {:as _args}]
   (let [column-state       (r/atom {})
         row-state          (r/atom {})
         column-header-prop (fn [path k & [default]]
@@ -306,18 +312,20 @@
                                     (swap! column-state update-in [path :width]
                                            #(+ distance (or % (column-header-prop path :width column-width)))))
             column-paths          (spec->headers columns)
-            column-leaf-paths     (reduce (fn [paths p] (remove #(descendant? % p) paths)) column-paths column-paths)
+            column-leaf-paths     (set (reduce (fn [paths p] (remove #(descendant? % p) paths)) column-paths column-paths))
+            leaf-column?          column-leaf-paths
             column-widths         (map #(column-header-prop % :width column-width) column-paths)
             max-column-heights    (max-props :height column-height column-paths)
             row-paths             (spec->headers rows)
-            row-leaf-paths        (reduce (fn [paths p] (remove #(descendant? % p) paths)) row-paths row-paths)
+            row-leaf-paths        (set (reduce (fn [paths p] (remove #(descendant? % p) paths)) row-paths row-paths))
+            leaf-row?             row-leaf-paths
             row-heights           (map #(column-header-prop % :height row-height) row-paths)
             max-row-widths        (max-props :width row-width row-paths)
             grid-template-columns (->> (mapcat
                                         (fn [path width]
                                           (cond-> [path]
                                             (or show-branch-cells?
-                                                ((set column-leaf-paths) path)) (conj width)))
+                                                (leaf-column? path)) (conj width)))
                                         column-paths column-widths)
                                        (concat max-row-widths)
                                        grid-template)
@@ -325,7 +333,7 @@
                                         (fn [path height]
                                           (cond-> [path]
                                             (or show-branch-cells?
-                                                ((set row-leaf-paths) path)) (conj height)))
+                                                (row-leaf-paths path)) (conj height)))
                                         row-paths row-heights)
                                        (concat max-column-heights)
                                        grid-template)]
@@ -342,20 +350,21 @@
                             :column-paths  column-paths
                             :on-resize     on-resize-cell
                             :column-header column-header
-                            :hide-cells?   true}]]
-           ^{:key (or path (gensym))}
+                            :show-branch-cells? show-branch-cells?
+                            :leaf?              (column-leaf-paths path)}]]
+           ^{:key [::column (or path (gensym))]}
            [u/part column-header props column-header-wrapper-part])
-         (for [path row-paths]
-           ^{:key (or path (gensym))}
-           [u/part row-header
-            {:path      path
-             :row-paths row-paths}
-            row-header-part])
-         (for [column-path column-leaf-paths
-               row-path    row-paths]
-           ^{:key (or [column-path row-path] (gensym))}
-           [u/part cell-wrapper
-            {:column-path column-path
+         (for [path row-paths
+               :let [props {:path               path
+                            :row-paths          row-paths
+                            :show-branch-cells? show-branch-cells?
+                            :leaf?              (leaf-row? path)}]]
+           ^{:key [::row (or path (gensym))]}
+           [u/part row-header props row-header-part])
+         (for [column-path column-paths
+               row-path    row-paths
+               :let        [props {:column-path column-path
              :row-path    row-path
-             :cell        cell}
-            cell-wrapper-part])]))))
+                                   :cell        cell}]]
+           ^{:key [::cell (or [column-path row-path] (gensym))]}
+           [u/part cell-wrapper props cell-wrapper-part])]))))
