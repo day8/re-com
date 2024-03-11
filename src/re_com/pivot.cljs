@@ -4,7 +4,8 @@
    [re-com.box :refer [h-box v-box box gap]]
    [re-com.v-table :as v-table :refer [v-table]]
    [re-com.util :as u :refer [px]]
-   [reagent.core :as r]))
+   [reagent.core :as r]
+   [re-com.theme :as theme]))
 
 (def scroll-pos (r/atom 0))
 
@@ -253,17 +254,17 @@
 (defn column-header-part [{:keys [path]}]
   (str (get (last path) :id (last path))))
 
-(defn column-header-wrapper-part [{:keys [column-header path column-paths on-resize show-branch-cells? leaf?] :as props}]
+(theme/apply {} {:part ::column-header-wrapper} [])
+
+(defn column-header-wrapper-part [{:keys [column-header path column-paths on-resize show-branch-cells? leaf? theme] :as props}]
   (let [hide? (and (not leaf?) (not show-branch-cells?))]
-  [:div {:style {:grid-column-start (path->grid-line-name path)
+    [:div
+     (-> {:style {:grid-column-start (path->grid-line-name path)
                    :grid-column-end   (str "span " (cond-> path
                                                      :do   (header-cross-span column-paths)
                                                      hide? dec))
-                 :grid-row-start    (count path)
-                 :padding           "4px"
-                 :border            "2px solid orange"
-                 :background-color  "black"
-                 :position          "relative"}}
+                  :grid-row-start    (count path)}}
+         (theme/apply {:state {} :part ::column-header-wrapper} theme))
    [u/part column-header props column-header-part]
      [drag-button {:on-resize on-resize :path path}]]))
 
@@ -274,8 +275,7 @@
                    :grid-column-end   (str "span " (cond-> path
                                                      :do   (header-main-span row-paths)
                                                      hide? dec))
-                 :padding           "10px"
-                 :background-color  "black"}}
+                   :padding           "10px"}}
      [u/part row-header props column-header-part]]))
 
 (def level count)
@@ -300,10 +300,10 @@
                                   (map val)
                                   (map (fn [paths] (apply max (map #(column-header-prop % k default) paths))))))]
     (fn [& {:keys [columns rows cell
-                   cell-wrapper column-header row-header
+                   cell-wrapper column-header-wrapper column-header row-header
                    show-branch-cells?
                    max-height column-width column-height row-width row-height]
-            :or   {column-height      40
+            :or   {column-height      30
                    column-width       60
                    row-width          100
                    row-height         30
@@ -353,7 +353,7 @@
                             :show-branch-cells? show-branch-cells?
                             :leaf?              (column-leaf-paths path)}]]
            ^{:key [::column (or path (gensym))]}
-           [u/part column-header props column-header-wrapper-part])
+           [u/part column-header-wrapper props column-header-wrapper-part])
          (for [path row-paths
                :let [props {:path               path
                             :row-paths          row-paths
