@@ -213,11 +213,13 @@
 (defn clipboard-write! [s]
   ^js (-> js/navigator .-clipboard (.writeText s)))
 
+(defn tsv-line [row]
+  (str (str/join "\t" row) "\n"))
+
 (defn table->tsv [columns rows]
   (let [header-value-fn  (some-fn :export-header-label :header-label (comp name :id))
         row-value-fn     (some-fn :row-export-fn :row-label-fn :id)
-        row->cells       (apply juxt (map row-value-fn columns))
-        tsv-line         #(str (str/join "\t" %) "\n")]
+        row->cells       (apply juxt (map row-value-fn columns))]
     (->> rows
          (map row->cells)
          (cons (map header-value-fn columns))
