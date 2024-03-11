@@ -1,13 +1,9 @@
 (ns re-com.pivot
   (:require
    [clojure.string :as str]
-   [re-com.box :refer [h-box v-box box gap]]
-   [re-com.v-table :as v-table :refer [v-table]]
    [re-com.util :as u :refer [px]]
    [reagent.core :as r]
    [re-com.theme :as theme]))
-
-(def scroll-pos (r/atom 0))
 
 (defn descendant? [path-a path-b]
   (and (not= path-a path-b)
@@ -47,145 +43,6 @@
 
 (defn header-main-span [group-path all-paths]
   (->> all-paths (map count) (apply max) (+ (- (count group-path))) inc))
-
-(def widths (r/atom {[:z] 100}))
-(def heights (r/atom {[{:product-category :fruit :label "fruit"} :banana] 80}))
-
-(def default-width 40)
-(def default-height 30)
-
-(defn column-width  [path] (get (last path) :width default-width))
-(defn column-height [path] (get (last path) :height default-height))
-(defn row-width     [path] (get (last path) :width default-width))
-(defn row-height    [path] (get (last path) :height default-height))
-
-(defn column-label [{:keys [path leaf?]}]
-  [h-box
-   :children
-   [[:div {:style {:height            (px (column-height path))
-                   :width             (when leaf? (px (column-width path)))
-                   :text-align        "center"}}
-     (let [column (last path)]
-       (or (:label column) (name column)))]]])
-
-(defn row-label [path]
-  [v-box
-   :children
-   [[:div {:style {:height     (row-height path)
-                   :width      (row-width path)
-                   :text-align "center"}}
-     (let [row (last path)]
-       (or (:label row) (name row)))]]])
-
-(defn row-headers [& {:keys [rows level path]
-                      :or   {path [] level 1}
-                      :as   props}]
-  (let [row-props   (spec->headers rows)
-        level->rows (group-by count row-props)
-        this-level  (->> (get level->rows level)
-                         (filter (partial descendant? path)))
-        parent-gap  (when (and (seq path)
-                               (seq this-level))
-                      [:div {:style {:height (px (row-height path))}}])
-        h-gap       [:div {:style {:width (px (row-width path))}}]]
-    [v-box
-     :style {:outline        "1px solid blue"
-             :outline-offset "-1px"}
-     :children
-     (into
-      []
-      (for [r this-level]
-        [v-box
-         :children
-         [(when (seq this-level)
-            [row-label r])
-        [h-box
-         :children
-           [h-gap
-          [v-box
-
-           :children
-           [[row-headers (merge props {:level (inc level)
-                                         :path  (conj path (last r))})]]]]]]]))]))
-
-(defn col-headers [& {:keys [columns level path]
-                      :or   {path []
-                             level 1}
-                      :as   props}]
-  (let [column-props (spec->headers columns)
-        level->cols  (group-by count column-props)
-        this-level   (->> (get level->cols level)
-                          (filter (partial descendant? path)))
-        parent-gap   [:div
-                        {:style
-                       {:width (px (column-width path))}}]]
-    [h-box
-     :children
-     (into
-      []
-      (for [c this-level
-            :let [c (cond-> c)
-                  descendants (filter (partial descendant? c) column-props)]]
-        [:div
-         {:style {:position       "relative"
-                  :outline        "1px solid green"
-                  :outline-offset "-1px"}}
-         [:div.hihihi {:style {:max-width "100%"}}
-          [column-label {:path c}]]
-                     [h-box
-                      :children
-          [(when (seq this-level)
-             parent-gap)
-           [col-headers (merge props {:level (inc level)
-                                      :path  (conj path (last c))})]]]]))]))
-
-(defn cell-renderer [{:keys [row-path column-path]}]
-  (let [col (last column-path)]
-    (or (:label col) (name col))))
-
-(defn cell-wrapper [{:keys [row-path column-path cell] :as props}]
-  [:div {:style {:outline        "1px solid red"
-                 :outline-offset "-1px"
-                 :width (px (column-width column-path))
-                 :height (px (row-height row-path))}}
-   [(or cell cell-renderer) props]])
-
-(defn table [& {:keys [columns rows cell] :as props}]
-  (let [column-paths (spec->headers columns)
-        row-paths    (spec->headers rows)
-        corner-gap [gap :size (px (->> column-paths
-                                       (sort-by count)
-                                       (partition-by count)
-                                       (map (fn [paths]
-                                              (apply max
-                                                     (map column-height paths))))
-                                       (reduce +)))]]
-    [h-box
-     :children
-     [[v-box
-       :children
-       [corner-gap
-        [row-headers props]]]
-    [v-box
-     :children
-     [[col-headers props]
-      [h-box
-       :children
-         (for [c column-paths
-               :let [c (cond-> c (map? c) (do))]]
-         [v-box
-          :children
-            (doall (for [r row-paths]
-                     [cell-wrapper {:row-path r
-                                    :column-path c
-                                    :cell cell}]))])]]]
-      [v-table/scrollbar
-       :type :horizontal
-       :length 300
-       :width 50
-       :content-length 500
-       :scroll-pos @scroll-pos
-       :on-change #(reset! scroll-pos %)]]]))
 
 (defn drag-button [& {:as args}]
   (let [dragging?    (r/atom false)
