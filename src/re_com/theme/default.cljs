@@ -2,7 +2,8 @@
   (:require
    [clojure.string :as str]
    [re-com.theme.util :refer [merge-props]]
-   [re-com.dropdown :as-alias dropdown]))
+   [re-com.dropdown :as-alias dropdown]
+   [re-com.pivot :as-alias pivot]))
 
 (def golden-section-50
   {:sm-1   "1px"
@@ -37,6 +38,7 @@
    :dark                "#212529"
    :neutral             "#555555"
    :foreground          "#777777"
+   :light-neutral       "#aaa"
    :background          "white"
    :background-disabled "#EEE"
    :border              "#ccc"
@@ -90,14 +92,17 @@
          ::dropdown/body-wrapper
          {:style {:position   "absolute"
                   :overflow-y "auto"
-                  :overflow-x "visible"}})
+                  :overflow-x "visible"}}
+
+         ::pivot/column-header-wrapper
+         {:style {:position "relative"}})
        (merge-props props)))
 
 (defn main-variables [props _] props)
 
 (defn main [props {:keys [state part]
                    {:as $
-                    :keys [sm-1 sm-3 sm-4 sm-6 md-2 shadow]} :variables}]
+                    :keys [sm-1 sm-3 sm-4 sm-6 md-2 dark shadow light-neutral border]} :variables}]
   (->> {}
        (case part
 
@@ -139,5 +144,16 @@
          ::dropdown/anchor
          {:style (cond-> {:color (:foreground $)}
                    (-> state :enable (= :disabled))
-                   (merge {:background-color (:background-disabled $)}))})
+                   (merge {:background-color (:background-disabled $)}))}
+
+         ::pivot/column-header-wrapper
+         {:style {:padding       sm-3
+                  :border        (str sm-1 " solid " border)
+                  :background-color light-neutral
+                  :color  dark
+                  :text-align    "center"
+                  :font-weight   "bold"
+                  :overflow      "hidden"
+                  :white-space   "nowrap"
+                  :text-overflow "ellipsis"}})
        (merge-props props)))
