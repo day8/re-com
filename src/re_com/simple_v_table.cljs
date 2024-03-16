@@ -412,7 +412,7 @@
                                 :fill "#777"}]
                               (when ps
                                 [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]]]
-           (into [[:div (str #p rows)]]))])))
+           (into [[:div (str rows)]]))])))
 
 (defn column-node [{:keys [column column-model]}]
   [:div "HI"])

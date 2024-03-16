@@ -13,6 +13,6 @@
 
 (defn parts [part->props]
   (fn [props {:keys [part]}]
-    (if-let [v (part->props part (part->props (keyword (name part))))]
+    (if-let [v (get part->props part (part->props (keyword (name part))))]
       (merge-props props v)
       props)))
