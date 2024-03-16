@@ -4,9 +4,8 @@
   (:require
    [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
    [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc dropdown]]
-   [re-com.util     :refer [item-for-id]]
+   [re-com.util     :refer [item-for-id px]]
    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-   [re-com.util     :refer [px]]
    [reagent.core    :as    reagent]))
 
 (def demos [{:id 1  :label "Simple dropdown"}
@@ -117,8 +116,8 @@
   []
   [h-box :src (at)
    :gap "10px"
-   :children [[dropdown
-               :body [label :label "body!"]]
+   :children [#_[dropdown
+                 :body [label :label "body!"]]
               [p "The dropdown above is the simple case."]
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
 

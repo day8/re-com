@@ -52,7 +52,7 @@
 (defn base [props {:keys                   [state part transition!]
                    {:keys [sm-2]}          :variables
                    {:keys [anchor-height]} :component-props
-                   :as    ctx}]
+                   :as                     ctx}]
   (->> {}
        (case part
 
@@ -78,16 +78,16 @@
                                     :open 99999 nil)}}
 
          ::dropdown/backdrop
-         {:class "noselect"
+         {:class    "noselect"
           :on-click #(transition! :close)
-          :style {:position       "fixed"
-                  :left           "0px"
-                  :top            "0px"
-                  :width          "100%"
-                  :height         "100%"
-                  :pointer-events "none"
-                  :z-index        (case (:openable state)
-                                    :open 99998 nil)}}
+          :style    {:position       "fixed"
+                     :left           "0px"
+                     :top            "0px"
+                     :width          "100%"
+                     :height         "100%"
+                     :pointer-events "none"
+                     :z-index        (case (:openable state)
+                                       :open 99998 nil)}}
 
          ::dropdown/body-wrapper
          {:style {:position   "absolute"
@@ -100,8 +100,8 @@
 
 (defn main-variables [props _] props)
 
-(defn main [props {:keys [state part]
-                   {:as $
+(defn main [props {:keys                                                               [state part]
+                   {:as   $
                     :keys [sm-1 sm-3 sm-4 sm-6 md-2 dark shadow light-neutral border]} :variables}]
   (->> {}
        (case part
@@ -117,29 +117,29 @@
                   :box-shadow       (str/join " " [sm-4 sm-6 shadow])}}
 
          ::dropdown/backdrop
-         {:style {:color       "black"
-                  :opacity (if (-> state :transitionable (= :in)) 0.1 0)
+         {:style {:color      "black"
+                  :opacity    (if (-> state :transitionable (= :in)) 0.1 0)
                   :transition "opacity 0.25s"}}
 
          ::dropdown/anchor-wrapper
          (let [open?   (= :open (:openable state))
                closed? (= :closed (:openable state))]
-           {:style {:background-color           (:light $)
-                    :background-clip            "padding-box"
-                    :border                     (str "1px solid "
-                                                     (cond
-                                                       closed? "#cccccc"
-                                                       open?   "#66afe9"))
-                    :border-radius              sm-3
-                    :box-shadow                 (cond-> "0 1px 1px rgba(0, 0, 0, .2) inset"
-                                                  open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
-                    :color                      (:neutral $)
-                    :height                     md-2
-                    :line-height                md-2
-                    :padding                    "0 0 0 8px"
-                    :text-decoration            "none"
-                    :white-space                "nowrap"
-                    :transition                 "border 0.2s box-shadow 0.2s"}})
+           {:style {:background-color (:light $)
+                    :background-clip  "padding-box"
+                    :border           (str "1px solid "
+                                           (cond
+                                             closed? "#cccccc"
+                                             open?   "#66afe9"))
+                    :border-radius    sm-3
+                    :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .2) inset"
+                                        open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
+                    :color            (:neutral $)
+                    :height           md-2
+                    :line-height      md-2
+                    :padding          "0 0 0 8px"
+                    :text-decoration  "none"
+                    :white-space      "nowrap"
+                    :transition       "border 0.2s box-shadow 0.2s"}})
 
          ::dropdown/anchor
          {:style (cond-> {:color (:foreground $)}
@@ -159,14 +159,14 @@
                   :text-overflow    "ellipsis"}}
 
          ::pivot/row-header-wrapper
-         {:style {:padding       sm-3
-                  :border        (str sm-1 " solid " border)
+         {:style {:padding          sm-3
+                  :border           (str sm-1 " solid " border)
                   :background-color light-neutral
-                  :color  dark
-                  :text-align    "center"
+                  :color            dark
+                  :text-align       "center"
                   :font-size        sm-6
-                  :font-weight   "bold"
-                  :overflow      "hidden"
-                  :white-space   "nowrap"
-                  :text-overflow "ellipsis"}})
+                  :font-weight      "bold"
+                  :overflow         "hidden"
+                  :white-space      "nowrap"
+                  :text-overflow    "ellipsis"}})
        (merge-props props)))

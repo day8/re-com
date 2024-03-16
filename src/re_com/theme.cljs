@@ -40,10 +40,10 @@
           main           (assoc  :main                main)
           user           (update :user           conj user))))
     named->vec
-        flatten
-        (remove nil?)
-        (reduce rf [props ctx])
-        first)))
+    flatten
+    (remove nil?)
+    (reduce rf [props ctx])
+    first)))
 
 (defn props [ctx themes]
   (apply {} ctx themes))
