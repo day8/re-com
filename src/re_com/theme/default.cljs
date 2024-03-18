@@ -60,7 +60,7 @@
          {:attr  {:tab-index (or (:tab-index state) 0)
                   :on-focus  #(do (transition! :focus)
                                   (transition! :enter))
-                  :on-blur   #(do (transition! :blur)
+                  #_#_:on-blur   #(do (transition! :blur)
                                   (transition! :exit))}
           :style {:display  "inline-block"
                   :position "relative"}}
@@ -85,7 +85,7 @@
                      :top            "0px"
                      :width          "100%"
                      :height         "100%"
-                     :pointer-events "none"
+                     #_#_:pointer-events "none"
                      :z-index        (case (:openable state)
                                        :open 99998 nil)}}
 

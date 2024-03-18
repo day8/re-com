@@ -356,7 +356,7 @@
           :min-height min-height
           :max-height max-height
           :class (str "rc-tree-select-wrapper " class (get-in parts [:wrapper :class]))
-          :style (merge {:overflow-y "scroll"} style (get-in parts [:wrapper :style]))
+          :style (merge {:overflow-y "auto"} style (get-in parts [:wrapper :style]))
           :attr (merge attr (get-in parts [:wrapper :attr]))
           :children (mapv item items)])))))
 

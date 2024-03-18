@@ -24,9 +24,8 @@
    (or label placeholder "Select an item")])
 
 (defn backdrop-part [{:keys [state transition!]}]
-  (let [] ;; TODO use the state machine for this
     (fn [{:keys [dropdown-open? state theme parts]}]
-      [:div (theme/props {:state state :part ::backdrop} theme)])))
+    [:div (theme/props {:transition! transition! :state state :part ::backdrop} theme)]))
 
 (defn nearest [x a b]
   (if (< (Math/abs (- a x)) (Math/abs (- b x))) a b))
@@ -64,11 +63,11 @@
         optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @popover-ref))
         mounted!           #(do
                               (optimize-position!)
-                              (.addEventListener js/window "resize" optimize-position!)
-                              (.addEventListener js/window "scroll" optimize-position!))
+                              (js/window.addEventListener "resize" optimize-position!)
+                              (js/window.addEventListener "scroll" optimize-position!))
         unmounted!         #(do
                               (js/window.removeEventListener "resize" optimize-position!)
-                              (.removeEventListener js/window "scroll" optimize-position!))]
+                              (js/window.removeEventListener "scroll" optimize-position!))]
     (reagent/create-class
      {:component-did-mount    mounted!
       :component-will-unmount unmounted!
