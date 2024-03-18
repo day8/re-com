@@ -211,7 +211,8 @@
                    cell-wrapper column-header-wrapper column-header row-header
                    show-branch-cells?
                    max-height column-width column-height row-width row-height
-                   show-export-button? on-export on-export-cell on-export-column-header on-export-row-header]
+                  show-export-button? on-export on-export-success on-export-failure
+                  on-export-cell on-export-column-header on-export-row-header]
             :or   {column-height       30
                    column-width        60
                    row-width           100
@@ -293,8 +294,13 @@
                :style          {:width "fit-content"}}
          [controls {:show-export-button? show-export-button?
                     :hover?              hover?
-                    :on-export           #((or on-export default-on-export)
-                                           (get-header-rows) (get-main-rows))}]
+                    :on-export           #(try
+                                            (let [header-rows (get-header-rows)
+                                                  main-rows   (get-main-rows)]
+                                              ((or on-export default-on-export) header-rows main-rows)
+                                              (when on-export-success (on-export-success header-rows main-rows)))
+                                              (catch :default e
+                                                (when on-export-failure (on-export-failure e))))}]
          [:div {:style {:padding               "0px"
                         :max-height            max-height
                         :display               "grid"
