@@ -123,9 +123,7 @@
                              :open   open!
                              :close  close!
                              :focus  #(reset! focused? true)
-                             :blur   #(do
-                                        (reset! focused? false)
-                                        (reset! model false))
+                             :blur   #(reset! focused? false)
                              :enter  #(js/setTimeout (fn [] (reset! transitionable :in)) 50)
                              :exit   #(js/setTimeout (fn [] (reset! transitionable :out)) 50))))
             themed      (fn [part props] (theme/apply props

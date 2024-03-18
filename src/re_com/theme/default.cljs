@@ -57,16 +57,18 @@
        (case part
 
          ::dropdown/wrapper
-         {:attr  {:tab-index (or (:tab-index state) 0)
-                  :on-focus  #(do (transition! :focus)
+         {:attr  {:on-focus  #(do (transition! :focus)
                                   (transition! :enter))
-                  #_#_:on-blur   #(do (transition! :blur)
+                  :on-blur   #(do (transition! :blur)
                                   (transition! :exit))}
           :style {:display  "inline-block"
                   :position "relative"}}
 
          ::dropdown/anchor-wrapper
-         {:style {:outline        (when (and (= :focused (:focusable state))
+         {:attr {:tab-index (or (:tab-index state) 0)
+                 :on-blur   #(do (transition! :blur)
+                                 (transition! :exit))}
+          :style {:outline        (when (and (= :focused (:focusable state))
                                              (not= :open (:openable state)))
                                     (str sm-2 " auto #ddd"))
                   :outline-offset (str "-" sm-2)
@@ -79,7 +81,8 @@
 
          ::dropdown/backdrop
          {:class    "noselect"
-          :on-click #(transition! :close)
+          :on-click #(do (transition! :close)
+                         (transition! :blur))
           :style    {:position       "fixed"
                      :left           "0px"
                      :top            "0px"

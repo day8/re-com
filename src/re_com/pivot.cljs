@@ -56,7 +56,7 @@
 (defn header-main-span [group-path all-paths]
   (->> all-paths (map count) (apply max) (+ (- (count group-path))) inc))
 
-(defn drag-button [& {:as args}]
+(defn resize-button [& {:as args}]
   (let [dragging?    (r/atom false)
         mouse-down-x (r/atom 0)
         last-drag-x  (r/atom 0)
@@ -66,7 +66,9 @@
       [:<>
        [:div {:on-mouse-enter #(reset! hovering? true)
               :on-mouse-leave #(reset! hovering? false)
-              :on-mouse-down  #(do (reset! dragging?    true)
+              :on-mouse-down  #(do
+                                 (.preventDefault %)
+                                 (reset! dragging?    true)
                                    (reset! mouse-down-x (.-clientX %))
                                    (reset! drag-x       (.-clientX %))
                                    (reset! last-drag-x       (.-clientX %)))
@@ -88,7 +90,7 @@
                                                     :path     path}))
                                       (reset! last-drag-x x)))
                 :style         {:position  "fixed"
-                                :z-index   99999
+                                :z-index   3
                                 :width     "100%"
                                 :height    "100%"
                                 :top       0
@@ -137,7 +139,7 @@
                   :grid-row-start    (count path)}}
          (theme/apply {:state {} :part ::column-header-wrapper} theme))
      [u/part column-header props column-header-part]
-     [drag-button {:on-resize on-resize :path path}]]))
+     [resize-button {:on-resize on-resize :path path}]]))
 
 ;; Usage of :component-did-update
 
@@ -169,18 +171,72 @@
        :tooltip         (str "Copy table to clipboard.")
        :on-click on-export])]])
 
-(defn grid [& {:keys [columns rows cell
-                      cell-wrapper column-header-wrapper column-header row-header
-                      show-branch-cells?
-                      max-height column-width column-height row-width row-height]
-               :or   {column-height      30
-                      column-width       60
-                      row-width          100
-                      row-height         30
-                      show-branch-cells? false}}]
+(defn quantize [quanta threshold]
+  (dec (count (take-while #(< % threshold)
+                          (reductions + quanta)))))
+
+(assert (= 1 (quantize [10 10 10] 29)))
+(assert (= 1 (quantize [10 10 10] 30)))
+(assert (= 2 (quantize [10 10 10] 31)))
+
+(defn selection-part [_]
+  (fn [_]
+    (let [!ref       (r/atom nil)
+          reset-ref! (partial reset! !ref)]
+      (fn [{:keys [selecting? grid-columns grid-rows mouse-x mouse-y mouse-down-x mouse-down-y]}]
+        (let []
+          [:<>
+           [:div {:ref   reset-ref!
+                  :style {:grid-column 1
+                          :grid-row    1}}]
+           (when @!ref
+             (let [grid-columns (filter number? grid-columns)
+                   grid-rows    (filter number? grid-rows)
+                   bounds       (.getBoundingClientRect @!ref)
+                   origin-x     (.-x bounds)
+                   origin-y     (.-y bounds)
+                   column-begin  (quantize grid-columns (- @mouse-down-x origin-x))
+                   column-finish (quantize grid-columns (- @mouse-x origin-x))
+                   row-begin     (quantize grid-rows (- @mouse-down-y origin-y))
+                   row-finish    (quantize grid-rows (- @mouse-y origin-y))]
+               [:div {:key   (gensym)
+                      :style {:grid-column-start (+ 2 (min column-begin column-finish))
+                              :grid-column-end   (+ 3 (max column-begin column-finish))
+                              :grid-row-start    (+ 2 (min row-begin row-finish))
+                              :grid-row-end      (+ 3 (max row-begin row-finish))
+                              :z-index           1
+                              :border            "4px solid dodgerblue"
+                              :position "relative"}}
+                [:div {:style {:position "absolute"
+                               :background "white"
+                               :border "2px solid grey"
+                               :height 10
+                               :width 10
+                               :right -6
+                               :bottom -6}}]]))
+           (when @selecting?
+             [:div {:on-mouse-up   #(reset! selecting? false)
+                    :on-mouse-move #(do
+                                      (.preventDefault %)
+                                      (reset! mouse-x (.-clientX %))
+                                      (reset! mouse-y (.-clientY %)))
+                    :style         {:position "fixed"
+                                    :top      0
+                                    :left     0
+                                    :z-index  2
+                                    :height   "100%"
+                                    :width    "100%"}}])])))))
+
+(defn grid [& {:keys [column-width]
+               :or   {column-width       60}}]
   (let [column-state       (r/atom {})
         row-state          (r/atom {})
         hover?             (r/atom false)
+        selecting?         (r/atom false)
+        mouse-down-x       (r/atom 0)
+        mouse-down-y       (r/atom 0)
+        mouse-x            (r/atom 0)
+        mouse-y            (r/atom 0)
         column-header-prop (fn [path k & [default]]
                              (or (some-> @column-state (get path) (get k))
                                  (get (meta (last path)) k)
@@ -231,22 +287,20 @@
             row-heights           (map #(column-header-prop % :height row-height) row-paths)
             max-row-widths        (max-props :row :width row-width row-paths)
             row-depth             (count max-row-widths)
-            grid-template-columns (->> (mapcat
+            grid-columns       (->> (mapcat
                                         (fn [path width]
                                           (cond-> [path]
                                             (or show-branch-cells?
                                                 (leaf-column? path)) (conj width)))
                                         column-paths column-widths)
-                                       (concat max-row-widths)
-                                       grid-template)
-            grid-template-rows    (->> (mapcat
+                                    (concat max-row-widths))
+            grid-rows          (->> (mapcat
                                         (fn [path height]
                                           (cond-> [path]
                                             (or show-branch-cells?
                                                 (leaf-row? path)) (conj height)))
                                         row-paths row-heights)
-                                       (concat max-column-heights)
-                                       grid-template)
+                                    (concat max-column-heights))
             get-header-rows       (fn get-header-rows []
                                     (->> column-paths
                                          (mapcat (fn [path]
@@ -289,6 +343,7 @@
                                          (map u/tsv-line)
                                          str/join
                                          u/clipboard-write!))]
+        [:<>
         [:div {:on-mouse-enter #(reset! hover? true)
                :on-mouse-leave #(reset! hover? false)
                :style          {:width "fit-content"}}
@@ -301,14 +356,24 @@
                                               (when on-export-success (on-export-success header-rows main-rows)))
                                               (catch :default e
                                                 (when on-export-failure (on-export-failure e))))}]
-         [:div {:style {:padding               "0px"
+          [:div {:on-mouse-down  #(do
+                                    (.preventDefault %)
+                                    (reset! mouse-down-y (.-clientY %))
+                                    (reset! mouse-down-x (.-clientX %))
+                                    (reset! mouse-y (.-clientY %))
+                                    (reset! mouse-x (.-clientX %))
+                                    (reset! selecting? true))
+                 :on-mouse-up    #(reset! selecting? false)
+                 :on-mouse-moved nil
+                 :style          {:padding               "0px"
                         :max-height            max-height
                         :display               "grid"
                         :overflow              "auto"
-                        :grid-template-columns grid-template-columns
-                        :grid-template-rows    grid-template-rows
+                                  :grid-template-columns (grid-template grid-columns)
+                                  :grid-template-rows    (grid-template grid-rows)
                         :gap                   "0px"
                         :background-color      "transparent"}}
+           [:div]
           (for [path column-paths
                 :let [props {:path               path
                              :column-paths       column-paths
@@ -334,4 +399,11 @@
                                     :cell        cell}]
                 :when       leaf?]
             ^{:key [::cell (or [column-path row-path] (gensym))]}
-            [u/part cell-wrapper props cell-wrapper-part])]]))))
+             [u/part cell-wrapper props cell-wrapper-part])
+           [selection-part {:selecting?   selecting?
+                            :grid-columns grid-columns
+                            :grid-rows    grid-rows
+                            :mouse-x      mouse-x
+                            :mouse-y      mouse-y
+                            :mouse-down-x mouse-down-x
+                            :mouse-down-y mouse-down-y}]]]]))))
