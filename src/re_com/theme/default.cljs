@@ -175,7 +175,7 @@
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
 
-         ::tree-select/counter
+         ::tree-select/dropdown-counter
          {:style {:margin-left  "10px"
                   :margin-right "10px"
                   :opacity      "50%"}})

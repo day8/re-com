@@ -389,21 +389,18 @@
 
 (defn tree-select-dropdown [{:keys [expanded-groups]
                              :or   {expanded-groups (r/atom nil)}}]
-  (let [showing?      (r/atom false)
-        !anchor-span  (r/atom nil)
-        !anchor-label (r/atom "")]
+  (let [showing? (r/atom false)]
     (fn tree-select-dropdown-render
       [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change
                  label-fn alt-text-fn height model expanded-groups placeholder id-fn alt-text-fn field-label-fn
                  parts style theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
-                 id-fn       :id
                  label-fn    :label}
           :as   args}]
       (let [theme           {:variables theme-vars
                              :base      base-theme
                              :main      main-theme
-                             :user      [theme (theme/parts parts)]}
+                             :user      [theme (theme/parts parts) (theme/args args)]}
             themed          (fn [part props] (theme/apply props
                                                {#_#_:state       state
                                                 :part            part
@@ -417,53 +414,43 @@
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})
-            body            [tree-select
-                             :class (str "rc-tree-select-dropdown-body " (get-in parts [:body :class]))
-                             :style (get-in parts [:body :style])
-                             :attr  (get-in parts [:body :attr])
-                             :choices choices
-                             :group-label-fn group-label-fn
-                             :disabled? disabled?
-                             :min-width min-width
-                             :max-width max-width
-                             :min-height min-height
-                             :max-height max-height
-                             :on-change on-change
-                             :label-fn label-fn
-                             :model model]
-            anchor          (fn []
+            anchor          (fn [{:keys [label placeholder]}]
                               (let [model     (deref-or-value model)
                                     disabled? (deref-or-value disabled?)]
                                 [h-box
-                                 :src       (at)
-                                 :height    height
-                                 :padding   "0px 6px"
-                                 :class     (get-in parts [:anchor :class])
-                                 :style     (merge {:overflow "hidden"
-                                                    :cursor   (if disabled? "default" "pointer")}
-                                                   style
-                                                   (get-in parts [:anchor :style]))
-                                 :attr      (get-in parts [:anchor :attr])
-                                 :children  [(if (empty? model)
-                                               placeholder
-                                               [:span {:ref   #(reset! !anchor-span %)
-                                                       :title (alt-text-fn {:items          labelable-items
-                                                                            :label-fn       label-fn
-                                                                            :group-label-fn group-label-fn})
-                                                       :style {:max-width     max-width
-                                                               :white-space   "nowrap"
-                                                               :overflow      "hidden"
-                                                               :text-overflow "ellipsis"}}
-                                                anchor-label])
-                                             [gap
-                                              :src (at)
-                                              :size "1"]
-                                             (when-let [model (seq model)]
-                                               [box (themed ::counter
-                                                      {:child (str (count model))})])
-                                             (when-not disabled?
-                                               [box (themed ::anchor-expander
-                                                      {:child (if @showing? "▲" "▼")})])]]))]
-        [dd/dropdown {:anchor [anchor]
-                      :body   body
-                      :model  showing?}]))))
+                                 (themed ::dropdown-anchor
+                                   {:src       (at)
+                                    :height    height
+                                    :padding   "0px 6px"
+                                    :style     (merge {:overflow "hidden"
+                                                       :cursor   (if disabled? "default" "pointer")}
+                                                      style)
+                                    :attr      (get-in parts [:anchor :attr])
+                                    :children  [(if-not (empty? model) label placeholder)
+                                                [gap :src (at) :size "1"]
+                                                (when-let [model (seq model)]
+                                                  [box (themed ::dropdown-counter {:child (str (count model))})])
+                                                (when-not disabled?
+                                                  [box (themed ::dropdown-anchor-expander {:child (if @showing? "▲" "▼")})])]})]))]
+        [dd/dropdown {:anchor      anchor
+                      :label       [:span {:title (alt-text-fn {:items          labelable-items
+                                                                :label-fn       label-fn
+                                                                :group-label-fn group-label-fn})
+                                           :style {:max-width     max-width
+                                                   :white-space   "nowrap"
+                                                   :overflow      "hidden"
+                                                   :text-overflow "ellipsis"}}
+                                    anchor-label]
+                      :placeholder placeholder
+                      :body        [tree-select
+                                    (themed ::dropdown-body
+                                      {:choices        choices
+                                       :group-label-fn group-label-fn
+                                       :disabled?      disabled?
+                                       :min-width      min-width
+                                       :max-width      max-width
+                                       :min-height     min-height `:max-height max-height
+                                       :on-change      on-change
+                                       :label-fn       label-fn
+                                       :model          model})]
+                      :model       showing?}]))))
