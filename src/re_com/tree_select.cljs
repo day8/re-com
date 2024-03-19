@@ -6,10 +6,12 @@
    [clojure.string :as str]
    [reagent.core          :as r]
    [re-com.config         :refer [include-args-desc?]]
+   [re-com.dropdown       :as dd]
    [re-com.util           :refer [deref-or-value remove-id-item]]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
-   [re-com.validate       :as validate :refer [css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
+   [re-com.validate       :as validate :refer [css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+   [re-com.theme :as theme]))
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
@@ -387,114 +389,81 @@
 
 (defn tree-select-dropdown [{:keys [expanded-groups]
                              :or   {expanded-groups (r/atom nil)}}]
-  (let [showing?       (r/atom false)
-        !anchor-span   (r/atom nil)
-        !anchor-label  (r/atom "")]
+  (let [showing?      (r/atom false)
+        !anchor-span  (r/atom nil)
+        !anchor-label (r/atom "")]
     (fn tree-select-dropdown-render
       [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change
-                 label-fn alt-text-fn height parts style model expanded-groups placeholder id-fn alt-text-fn field-label-fn]
-          :or   {placeholder      "Select an item..."
-                 id-fn            :id
-                 label-fn         :label}
-          :as args}]
-      (let [label-fn        (or label-fn :label)
+                 label-fn alt-text-fn height model expanded-groups placeholder id-fn alt-text-fn field-label-fn
+                 parts style theme main-theme theme-vars base-theme]
+          :or   {placeholder "Select an item..."
+                 id-fn       :id
+                 label-fn    :label}
+          :as   args}]
+      (let [theme           {:variables theme-vars
+                             :base      base-theme
+                             :main      main-theme
+                             :user      [theme (theme/parts parts)]}
+            themed          (fn [part props] (theme/apply props
+                                                          {#_#_:state       state
+                                                           :part            part
+                                                           #_#_:transition! transition!}
+                                                          theme))
+            label-fn        (or label-fn :label)
             alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn  (or group-label-fn (comp name last :group))
             field-label-fn  (or field-label-fn field-label)
             labelable-items (labelable-items (deref-or-value model) choices)
-            anchor-label    (field-label-fn {:items labelable-items
-                                             :label-fn label-fn
+            anchor-label    (field-label-fn {:items          labelable-items
+                                             :label-fn       label-fn
                                              :group-label-fn group-label-fn})
-            body   [v-box
-                    :src (at)
-                    :height "fit-content"
-                    :class (str "rc-tree-select-dropdown-dropdown-wrapper " (get-in parts [:dropdown-wrapper :class]))
-                    :attr (get-in parts [:dropdown-wrapper :attr])
-                    :style (merge {:position         "absolute"
-                                   :background-color "white"
-                                   :border-radius    "4px"
-                                   :border           "1px solid #ccc"
-                                   :padding          "5px 10px 5px 5px"
-                                   :box-shadow       "0 5px 10px rgba(0, 0, 0, .2)"}
-                                  (get-in parts [:dropdown-wrapper :style]))
-                    :children [[tree-select
-                                :class (str "rc-tree-select-dropdown-body " (get-in parts [:body :class]))
-                                :style (get-in parts [:body :style])
-                                :attr  (get-in parts [:body :attr])
-                                :choices choices
-                                :group-label-fn group-label-fn
-                                :disabled? disabled?
-                                :min-width min-width
-                                :max-width max-width
-                                :min-height min-height
-                                :max-height max-height
-                                :on-change on-change
-                                :label-fn label-fn
-                                :model model]]]
-            anchor (fn []
-                     (let [model     (deref-or-value model)
-                           disabled? (deref-or-value disabled?)]
-                       [h-box
-                        :src       (at)
-                        :height    height
-                        :padding   "0px 6px"
-                        :class     (str "rc-multi-select-dropdown " (get-in parts [:anchor :class]))
-                        :style     (merge {:min-width        min-width
-                                           :max-width        max-width
-                                           :background-color (if disabled? "#EEE" "white")
-                                           :border           "1px solid lightgrey"
-                                           :border-radius    "2px"
-                                           :overflow         "hidden"
-                                           :cursor           (if disabled? "default" "pointer")}
-                                          style
-                                          (get-in parts [:anchor :style]))
-                        :attr      (merge {}
-                                          (when (not disabled?) {:on-click #(swap! showing? not)})
-                                          (get-in parts [:anchor :attr]))
-                        :children  [(if (empty? model)
-                                      placeholder
-                                      (let [selections (filter (comp (set model) id-fn) choices)
-                                            _          (reset! !anchor-label anchor-label)]
-                                        [:span {:ref   #(reset! !anchor-span %)
-                                                :title (alt-text-fn {:items labelable-items
-                                                                     :label-fn label-fn
-                                                                     :group-label-fn group-label-fn})
-                                                :style {:max-width     max-width
-                                                        :white-space   "nowrap"
-                                                        :overflow      "hidden"
-                                                        :text-overflow "ellipsis"}}
-                                         anchor-label]))
-                                    [gap
-                                     :src (at)
-                                     :size "1"]
-                                    (when-let [model (seq model)]
-                                      [box
-                                       :src (at)
-                                       :class (str "rc-tree-select-dropdown-counter " (get-in parts [:counter :class]))
-                                       :style (merge {:margin-left "10px"
-                                                      :margin-right "10px"
-                                                      :opacity "50%"}
-                                                     (get-in parts [:counter :style]))
-                                       :attr  (get-in parts [:counter :attr])
-                                       :child (str (count model))])
-                                    (when-not disabled?
-                                      [box
-                                       :src (at)
-                                       :class (str "rc-tree-select-dropdown-anchor-expander " (get-in parts [:anchor-expander :class]))
-                                       :style (get-in parts [:anchor-expander :style])
-                                       :attr  (get-in parts [:anchor-expander :attr])
-                                       :child
-                                       (if @showing? "▲" "▼")])]]))]
-        [:div (into {:class (str "rc-tree-select-dropdown-wrapper " (get-in parts [:wrapper :class]))
-                     :style (into {:display  "inline-block"
-                                   :maxWidth max-width
-                                   :minWidth min-width}
-                                  (get-in parts [:wrapper :style]))}
-                    (get-in parts [:wrapper :attr]))
-         [anchor]
-         (when @showing?
-           [:div {:class "fade in"
-                  :style {:position "relative"}}
-            [backdrop {:parts parts
-                       :on-click #(reset! showing? false)}]
-            body])]))))
+            body            [tree-select
+                             :class (str "rc-tree-select-dropdown-body " (get-in parts [:body :class]))
+                             :style (get-in parts [:body :style])
+                             :attr  (get-in parts [:body :attr])
+                             :choices choices
+                             :group-label-fn group-label-fn
+                             :disabled? disabled?
+                             :min-width min-width
+                             :max-width max-width
+                             :min-height min-height
+                             :max-height max-height
+                             :on-change on-change
+                             :label-fn label-fn
+                             :model model]
+            anchor          (fn []
+                              (let [model     (deref-or-value model)
+                                    disabled? (deref-or-value disabled?)]
+                                [h-box
+                                 :src       (at)
+                                 :height    height
+                                 :padding   "0px 6px"
+                                 :class     (get-in parts [:anchor :class])
+                                 :style     (merge {:overflow "hidden"
+                                                    :cursor   (if disabled? "default" "pointer")}
+                                                   style
+                                                   (get-in parts [:anchor :style]))
+                                 :attr      (get-in parts [:anchor :attr])
+                                 :children  [(if (empty? model)
+                                               placeholder
+                                               [:span {:ref   #(reset! !anchor-span %)
+                                                       :title (alt-text-fn {:items          labelable-items
+                                                                            :label-fn       label-fn
+                                                                            :group-label-fn group-label-fn})
+                                                       :style {:max-width     max-width
+                                                               :white-space   "nowrap"
+                                                               :overflow      "hidden"
+                                                               :text-overflow "ellipsis"}}
+                                                anchor-label])
+                                             [gap
+                                              :src (at)
+                                              :size "1"]
+                                             (when-let [model (seq model)]
+                                               [box (themed ::counter
+                                                      {:child (str (count model))})])
+                                             (when-not disabled?
+                                               [box (themed ::anchor-expander
+                                                      {:child (if @showing? "▲" "▼")})])]]))]
+        [dd/dropdown {:anchor [anchor]
+                      :body   body
+                      :model  showing?}]))))

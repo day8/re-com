@@ -3,7 +3,8 @@
    [clojure.string :as str]
    [re-com.theme.util :refer [merge-props]]
    [re-com.dropdown :as-alias dropdown]
-   [re-com.pivot :as-alias pivot]))
+   [re-com.pivot :as-alias pivot]
+   [re-com.tree-select :as-alias tree-select]))
 
 (def golden-section-50
   {:sm-1   "1px"
@@ -105,7 +106,7 @@
 
 (defn main [props {:keys                                                               [state part]
                    {:as   $
-                    :keys [sm-1 sm-3 sm-4 sm-6 md-2 dark shadow light-neutral border]} :variables}]
+                    :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2 dark shadow light-neutral border]} :variables}]
   (->> {}
        (case part
 
@@ -117,7 +118,7 @@
                   :border-radius    sm-3
                   :border           (str sm-1 " solid " (:border $))
                   :padding          sm-3
-                  :box-shadow       (str/join " " [sm-4 sm-6 shadow])}}
+                  :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}}
 
          ::dropdown/backdrop
          {:style {:color      "black"
@@ -171,5 +172,10 @@
                   :font-weight      "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
-                  :text-overflow    "ellipsis"}})
+                  :text-overflow    "ellipsis"}}
+
+         ::tree-select/counter
+         {:style {:margin-left  "10px"
+                  :margin-right "10px"
+                  :opacity      "50%"}})
        (merge-props props)))
