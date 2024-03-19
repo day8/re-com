@@ -104,9 +104,10 @@
 
 (defn main-variables [props _] props)
 
-(defn main [props {:keys                                                               [state part]
+(defn main [props {:keys                                      [state part]
                    {:as   $
-                    :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2 dark shadow light-neutral border]} :variables}]
+                    :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
+                           dark shadow light-neutral border]} :variables}]
   (->> {}
        (case part
 

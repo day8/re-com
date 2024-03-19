@@ -71,16 +71,16 @@
         {:keys [id row-label-fn width height align header-label sort-by]} :column}]
     (let [header-label             (or header-label (name id))
           sort-by                  (cond (true? sort-by) {} :else sort-by)
-            default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
-            ps                       (position-for-id id @sort-by-column)
-            {current-order :order}   (item-for-id id @sort-by-column)
-            add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
-            replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
-            on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
-                                        (add-criteria!)
-                                        (replace-criteria!))
-            justify                  (get align->justify (keyword align) :start)
-            multiple-columns-sorted? (> (count @sort-by-column) 1)]
+          default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
+          ps                       (position-for-id id @sort-by-column)
+          {current-order :order}   (item-for-id id @sort-by-column)
+          add-criteria!            #(swap! sort-by-column update-sort-criteria (merge default-sort-by sort-by))
+          replace-criteria!        #(reset! sort-by-column [(merge default-sort-by sort-by)])
+          on-click                 #(if (or (.-shiftKey %) (empty? (remove (clojure.core/comp #{id} :id) @sort-by-column)))
+                                      (add-criteria!)
+                                      (replace-criteria!))
+          justify                  (get align->justify (keyword align) :start)
+          multiple-columns-sorted? (> (count @sort-by-column) 1)]
       [v-box
        :children
        [[h-box
@@ -100,7 +100,7 @@
                       {:cursor "pointer"})
                     (get-in parts [:simple-column-header-item :style]))
          :attr     (merge
-                  (when sort-by {:on-click on-click})
+                    (when sort-by {:on-click on-click})
                     (get-in parts [:simple-column-header-item :attr]))
          :children [header-label
                     (when sort-by
@@ -111,12 +111,12 @@
                        :justify :center
                        :align :center
                        :children
-                     (if-not (or hover? current-order)
-                       []
-                       [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
-                         {:size (or height "16px")
-                          :fill "#777"}]
-                        (when ps
+                       (if-not (or hover? current-order)
+                         []
+                         [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
+                           {:size (or height "16px")
+                            :fill "#777"}]
+                          (when ps
                             [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]]]])))
 
 (defn column-header-renderer
@@ -135,7 +135,6 @@
    :children (into []
                    (for [column columns]
                      [column-header-item {:column-header-height column-header-height :column column :parts parts :sort-by-column sort-by-column :hover? hover?}]))])
-
 
 (defn row-item
   "Render a single row item (column) of a single row"

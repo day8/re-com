@@ -614,7 +614,7 @@
      {:name :error-color   :required false  :default "#d50000"    :type "string"                   :validate-fn string?              :description "default fill color for the error status."}
      {:name :info-color    :required false  :default "#333333"    :type "string"                   :validate-fn string?              :description "default fill color for the info status."}
      {:name :success-color :required false  :default "#13C200"    :type "string"                   :validate-fn string?              :description "default fill color for the success status."}
-     
+
      {:name :class         :required false                        :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
      {:name :style         :required false                        :type "CSS style map"            :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency (applies to popover-anchor-wrapper component)"}
      {:name :attr          :required false                        :type "HTML attr map"            :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}

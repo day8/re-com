@@ -405,10 +405,10 @@
                              :main      main-theme
                              :user      [theme (theme/parts parts)]}
             themed          (fn [part props] (theme/apply props
-                                                          {#_#_:state       state
-                                                           :part            part
-                                                           #_#_:transition! transition!}
-                                                          theme))
+                                               {#_#_:state       state
+                                                :part            part
+                                                #_#_:transition! transition!}
+                                               theme))
             label-fn        (or label-fn :label)
             alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn  (or group-label-fn (comp name last :group))

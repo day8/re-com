@@ -24,7 +24,7 @@
    (or label placeholder "Select an item")])
 
 (defn backdrop-part [{:keys [state transition!]}]
-    (fn [{:keys [dropdown-open? state theme parts]}]
+  (fn [{:keys [dropdown-open? state theme parts]}]
     [:div (theme/props {:transition! transition! :state state :part ::backdrop} theme)]))
 
 (defn nearest [x a b]
@@ -127,10 +127,10 @@
                              :enter  #(js/setTimeout (fn [] (reset! transitionable :in)) 50)
                              :exit   #(js/setTimeout (fn [] (reset! transitionable :out)) 50))))
             themed      (fn [part props] (theme/apply props
-                                                      {:state       state
-                                                       :part        part
-                                                       :transition! transition!}
-                                                      theme))
+                                           {:state       state
+                                            :part        part
+                                            :transition! transition!}
+                                           theme))
             part-props  {:placeholder placeholder
                          :transition! transition!
                          :label       label
@@ -139,25 +139,25 @@
                          :state       state}]
         [v-box
          (themed ::wrapper
-                 {:src   (at)
-                  :style {:height anchor-height}
-                  :children
-                  [(when (= :open (:openable state))
-                     [u/part backdrop part-props backdrop-part])
-                   [box
-                    (themed ::anchor-wrapper
-                            {:src   (at)
-                             :attr  {:ref      anchor-ref!
-                                     :on-click #(swap! model not)}
-                             :child [u/part anchor part-props re-com.dropdown/anchor]})]
-                   (when (= :open (:openable state))
-                     [body-wrapper {:anchor-ref      anchor-ref
-                                    :popover-ref     popover-ref
-                                    :anchor-position anchor-position
-                                    :parts           parts
-                                    :state           state
-                                    :theme           theme}
-                      [u/part body part-props]])]})]))))
+           {:src   (at)
+            :style {:height anchor-height}
+            :children
+            [(when (= :open (:openable state))
+               [u/part backdrop part-props backdrop-part])
+             [box
+              (themed ::anchor-wrapper
+                {:src   (at)
+                 :attr  {:ref      anchor-ref!
+                         :on-click #(swap! model not)}
+                 :child [u/part anchor part-props re-com.dropdown/anchor]})]
+             (when (= :open (:openable state))
+               [body-wrapper {:anchor-ref      anchor-ref
+                              :popover-ref     popover-ref
+                              :anchor-position anchor-position
+                              :parts           parts
+                              :state           state
+                              :theme           theme}
+                [u/part body part-props]])]})]))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
