@@ -1,7 +1,7 @@
 (ns re-com.pivot
   (:require
    [clojure.string :as str]
-   [re-com.util :as u :refer [px]]
+   [re-com.util :as u :refer [px deref-or-value]]
    [reagent.core :as r]
    [re-com.theme :as theme]
    [re-com.box :as box]
@@ -100,16 +100,23 @@
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
 
-(defn grid-template [tokens]
-  (let [rf (fn [s group]
-             (str s " "
-                  (if (number? (first group))
-                    (str/join " " (map px group))
-                    (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
-    (str (->> tokens
-              (partition-by number?)
-              (reduce rf ""))
-         " [end]")))
+(defn grid-template
+  ([tokens & more-tokens]
+   (grid-template (apply concat tokens more-tokens)))
+  ([tokens]
+   (let [rf (fn [s group]
+              (str s " "
+                   (cond (number? (first group))
+                         (str/join " " (map px group))
+                         (string? (first group))
+                         (str/join " " group)
+                         :else
+                         (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
+     (str
+      (->> tokens
+           (partition-by (some-fn number? string?))
+           (reduce rf ""))
+      " [end]"))))
 
 (defn cell-part [{:keys [column-path row-path]}]
   nil)
@@ -163,6 +170,9 @@
 
 (defn controls [{:keys [show-export-button? hover? on-export]}]
   [box/h-box
+   :style {:grid-column-start 1
+           :grid-column-end "end"
+           :grid-row 1}
    :height "20px"
    :width "100%"
    :children
@@ -230,6 +240,14 @@
                                     :height   "100%"
                                     :width    "100%"}}])])))))
 
+(defn scroll-container [{:keys [scroll-top scroll-left width height]} child]
+  [:div {:style {:max-height            height
+                 :max-width             width
+                 :overflow              "hidden"}}
+   [:div {:style {:transform (str "translateX(" (- (deref-or-value scroll-left)) "px) "
+                                  "translateY(" (- (deref-or-value scroll-top)) "px)")}}
+    child]])
+
 (defn grid [& {:keys [column-width]
                :or   {column-width 60}}]
   (let [column-state       (r/atom {})
@@ -240,6 +258,8 @@
         mouse-down-y       (r/atom 0)
         mouse-x            (r/atom 0)
         mouse-y            (r/atom 0)
+        scroll-top         (r/atom 0)
+        scroll-left        (r/atom 0)
         column-header-prop (fn [path k & [default]]
                              (or (some-> @column-state (get path) (get k))
                                  (get (meta (last path)) k)
@@ -291,20 +311,18 @@
             row-heights         (map #(column-header-prop % :height row-height) row-paths)
             max-row-widths      (max-props :row :width row-width row-paths)
             row-depth           (count max-row-widths)
-            grid-columns        (->> (mapcat
-                                      (fn [path width]
-                                        (cond-> [path]
-                                          (or show-branch-cells?
-                                              (leaf-column? path)) (conj width)))
-                                      column-paths column-widths)
-                                     (concat max-row-widths))
-            grid-rows           (->> (mapcat
-                                      (fn [path height]
-                                        (cond-> [path]
-                                          (or show-branch-cells?
-                                              (leaf-row? path)) (conj height)))
-                                      row-paths row-heights)
-                                     (concat max-column-heights))
+            grid-columns        (mapcat (fn [path width]
+                                          (if (or show-branch-cells? (leaf-column? path))
+                                            [path width]
+                                            [path]))
+                                        column-paths
+                                        column-widths)
+            grid-rows           (mapcat (fn [path height]
+                                          (if (or show-branch-cells? (leaf-row? path))
+                                            [path height]
+                                            [path]))
+                                        row-paths
+                                        row-heights)
             get-header-rows     (fn get-header-rows []
                                   (->> column-paths
                                        (mapcat (fn [path]
@@ -347,6 +365,35 @@
                                        (map u/tsv-line)
                                        str/join
                                        u/clipboard-write!))
+            control-panel       [controls {:show-export-button? show-export-button?
+                                           :hover?              hover?
+                                           :on-export           #(try
+                                                                   (let [header-rows (get-header-rows)
+                                                                         main-rows   (get-main-rows)]
+                                                                     ((or on-export default-on-export) header-rows main-rows)
+                                                                     (when on-export-success (on-export-success header-rows main-rows)))
+                                                                   (catch :default e
+                                                                     (when on-export-failure (on-export-failure e))))}]
+            grid-container
+            [:div {:on-scroll      #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                        (reset! scroll-left (.-scrollLeft (.-target %))))
+                   :on-mouse-down  #(do
+                                      (.preventDefault %)
+                                      (reset! mouse-down-y (.-clientY %))
+                                      (reset! mouse-down-x (.-clientX %))
+                                      (reset! mouse-y (.-clientY %))
+                                      (reset! mouse-x (.-clientX %))
+                                      (reset! selecting? true))
+                   :on-mouse-up    #(reset! selecting? false)
+                   :on-mouse-moved nil
+                   :style          {:padding               "0px"
+                                    :max-height            max-height
+                                    :display               "grid"
+                                    :overflow              "auto"
+                                    :grid-template-columns (grid-template grid-columns)
+                                    :grid-template-rows    (grid-template grid-rows)
+                                    :gap                   "0px"
+                                    :background-color      "transparent"}}]
             column-header-cells (for [path column-paths
                                       :let [props {:path               path
                                                    :column-paths       column-paths
@@ -402,36 +449,29 @@
                                   :mouse-down-y mouse-down-y}]]
         [:div {:on-mouse-enter #(reset! hover? true)
                :on-mouse-leave #(reset! hover? false)
-               :style          {:width "fit-content"}}
-         [controls {:show-export-button? show-export-button?
-                    :hover?              hover?
-                    :on-export           #(try
-                                            (let [header-rows (get-header-rows)
-                                                  main-rows   (get-main-rows)]
-                                              ((or on-export default-on-export) header-rows main-rows)
-                                              (when on-export-success (on-export-success header-rows main-rows)))
-                                            (catch :default e
-                                              (when on-export-failure (on-export-failure e))))}]
-         (-> [:div {:on-mouse-down  #(do
-                                       (.preventDefault %)
-                                       (reset! mouse-down-y (.-clientY %))
-                                       (reset! mouse-down-x (.-clientX %))
-                                       (reset! mouse-y (.-clientY %))
-                                       (reset! mouse-x (.-clientX %))
-                                       (reset! selecting? true))
-                    :on-mouse-up    #(reset! selecting? false)
-                    :on-mouse-moved nil
-                    :style          {:padding               "0px"
-                                     :max-height            max-height
-                                     :display               "grid"
-                                     :overflow              "auto"
-                                     :grid-template-columns (grid-template grid-columns)
-                                     :grid-template-rows    (grid-template grid-rows)
-                                     :gap                   "0px"
-                                     :background-color      "transparent"}}]
-             (into column-header-cells)
-             (into row-header-cells)
-             (into header-spacer-cells)
+               :style          {:width                 "500px"
+                                :height                "500px"
+                                :grid-template-columns (grid-template [(px (apply + max-row-widths)) "1280px"])
+                                :grid-template-rows    (grid-template ["20px" (px (apply + max-column-heights)) "400px"])
+                                :display               "grid"}}
+         control-panel
+         [:div {:style {:display               "grid"
+                        :grid-template-columns (grid-template max-row-widths)
+                        :grid-template-rows    (grid-template max-column-heights)}}
+          header-spacer-cells]
+         [scroll-container {:scroll-left scroll-left
+                            :width       "1280px"}
+          [:div {:style {:display               "grid"
+                         :grid-template-columns (grid-template grid-columns)
+                         :grid-template-rows    (grid-template max-column-heights)}}
+           column-header-cells]]
+         [scroll-container {:scroll-top scroll-top
+                            :height     max-height}
+          [:div {:style {:display               "grid"
+                         :grid-template-columns (grid-template max-row-widths)
+                         :grid-template-rows    (grid-template grid-rows)}}
+           row-header-cells]]
+         (-> grid-container
              (into cells)
              (into zebra-stripes)
-             (conj box-selector))]))))
+             #_(conj box-selector))]))))
