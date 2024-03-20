@@ -39,7 +39,7 @@
    :dark                "#212529"
    :neutral             "#555555"
    :foreground          "#777777"
-   :light-neutral       "#aaa"
+   :light-neutral       "#eee"
    :background          "white"
    :background-disabled "#EEE"
    :border              "#ccc"
@@ -107,7 +107,7 @@
 (defn main [props {:keys                                      [state part]
                    {:as   $
                     :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
-                           dark shadow light-neutral border]} :variables}]
+                           dark shadow light light-neutral border]} :variables}]
   (->> {}
        (case part
 
@@ -151,6 +151,14 @@
                    (-> state :enable (= :disabled))
                    (merge {:background-color (:background-disabled $)}))}
 
+         ::pivot/header-spacer
+         {:style {:border           (str sm-1 " solid " border)
+                  :background-color light-neutral}}
+
+         ::pivot/cell-wrapper
+         {:style {:font-size sm-6
+                  :background-color "white"}}
+
          ::pivot/column-header-wrapper
          {:style {:padding          sm-3
                   :border           (str sm-1 " solid " border)
@@ -158,7 +166,7 @@
                   :color            dark
                   :text-align       "center"
                   :font-size        sm-6
-                  :font-weight      "bold"
+                  #_#_:font-weight      "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
@@ -170,11 +178,16 @@
                   :color            dark
                   :text-align       "center"
                   :font-size        sm-6
-                  :font-weight      "bold"
+                  #_#_:font-weight      "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
 
+         ::tree-select/dropdown-anchor
+         {:style {:padding "0px 6px"
+                  :overflow "hidden"
+                  :cursor   (if (-> state :enable (= :disabled))
+                              "default" "pointer")}}
          ::tree-select/dropdown-counter
          {:style {:margin-left  "10px"
                   :margin-right "10px"

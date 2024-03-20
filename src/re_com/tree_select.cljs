@@ -387,25 +387,26 @@
          (remove highest-group-descendants)
          sort-items)))
 
-(defn tree-select-dropdown [{:keys [expanded-groups]
-                             :or   {expanded-groups (r/atom nil)}}]
+(defn tree-select-dropdown [_]
   (let [showing? (r/atom false)]
     (fn tree-select-dropdown-render
-      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change
-                 label-fn alt-text-fn height model expanded-groups placeholder id-fn alt-text-fn field-label-fn
+      [& {:keys [choices  disabled?
+                 width min-width max-width min-height max-height on-change
+                 label-fn alt-text-fn group-label-fn model  placeholder id-fn alt-text-fn field-label-fn
+                 height
                  parts style theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
                  label-fn    :label}
           :as   args}]
-      (let [theme           {:variables theme-vars
-                             :base      base-theme
-                             :main      main-theme
-                             :user      [theme (theme/parts parts) (theme/args args)]}
+      (let [state           {:enable (if-not disabled? :enabled :disabled)}
             themed          (fn [part props] (theme/apply props
-                                               {#_#_:state       state
-                                                :part            part
-                                                #_#_:transition! transition!}
-                                               theme))
+                                               {:state       state
+                                                :part        part
+                                                :transition! #()}
+                                               {:variables theme-vars
+                                                :base      base-theme
+                                                :main      main-theme
+                                                :user      [theme (theme/parts parts) (theme/args args)]}))
             label-fn        (or label-fn :label)
             alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn  (or group-label-fn (comp name last :group))
@@ -415,23 +416,20 @@
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})
             anchor          (fn [{:keys [label placeholder]}]
-                              (let [model     (deref-or-value model)
-                                    disabled? (deref-or-value disabled?)]
+                              (let [model (deref-or-value model)]
                                 [h-box
                                  (themed ::dropdown-anchor
-                                   {:src       (at)
-                                    :height    height
-                                    :padding   "0px 6px"
-                                    :style     (merge {:overflow "hidden"
-                                                       :cursor   (if disabled? "default" "pointer")}
-                                                      style)
-                                    :attr      (get-in parts [:anchor :attr])
-                                    :children  [(if-not (empty? model) label placeholder)
-                                                [gap :src (at) :size "1"]
-                                                (when-let [model (seq model)]
-                                                  [box (themed ::dropdown-counter {:child (str (count model))})])
-                                                (when-not disabled?
-                                                  [box (themed ::dropdown-anchor-expander {:child (if @showing? "▲" "▼")})])]})]))]
+                                   {:style {:height height}
+                                    :children
+                                    [(if-not (empty? model)
+                                       label placeholder)
+                                     [gap :src (at) :size "1"]
+                                     (when-let [model (seq model)]
+                                       [box (themed ::dropdown-counter
+                                              {:child (str (count model))})])
+                                     (when-not (-> state :enable (= :disabled))
+                                       [box (themed ::dropdown-anchor-expander
+                                              {:child (if @showing? "▲" "▼")})])]})]))]
         [dd/dropdown {:anchor      anchor
                       :label       [:span {:title (alt-text-fn {:items          labelable-items
                                                                 :label-fn       label-fn
@@ -442,15 +440,22 @@
                                                    :text-overflow "ellipsis"}}
                                     anchor-label]
                       :placeholder placeholder
-                      :body        [tree-select
-                                    (themed ::dropdown-body
-                                      {:choices        choices
-                                       :group-label-fn group-label-fn
-                                       :disabled?      disabled?
-                                       :min-width      min-width
-                                       :max-width      max-width
-                                       :min-height     min-height `:max-height max-height
-                                       :on-change      on-change
-                                       :label-fn       label-fn
-                                       :model          model})]
-                      :model       showing?}]))))
+
+                      :body  [tree-select
+                              (themed ::dropdown-body
+                                {:choices        choices
+                                 :group-label-fn group-label-fn
+                                 :disabled?      disabled?
+                                 :min-width      min-width
+                                 :max-width      max-width
+                                 :min-height     min-height
+                                 :max-height     max-height
+                                 :on-change      on-change
+                                 :label-fn       label-fn
+                                 :model          model})]
+                      :model showing?
+                      :theme theme
+                      :parts (merge parts
+                                    {:body-wrapper {:style {:width     (or width "212px")
+                                                            :height    "212px"
+                                                            :min-width min-width}}})}]))))
