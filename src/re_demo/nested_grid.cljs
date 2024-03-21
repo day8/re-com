@@ -229,7 +229,23 @@
     [p "Just like " [:code ":cell"] ", the " [:code ":column-header"] " and " [:code ":row-header"] " props "
      "are functions of paths."]
     [p "The difference is, a " [:code ":column-header"] " only has a " [:code ":column-path"]
-     " and a " [:code ":row-header"] " only has a " [:code ":row-path"] "."]]])
+     " and a " [:code ":row-header"] " only has a " [:code ":row-path"] "."]
+    [title3 "Nested-grid + Domain Logic = Pivot Table"]
+    [:i {:style {:max-width "400px"}} "A pivot table is a table of values which are aggregations of groups of individual values from a more extensive table...  within one or more discrete categories. (" [:a {:href "https://en.wikipedia.org/wiki/Pivot_table"} "Wikipedia"] ")"]
+    [:br]
+    [p "The pivot table is our driving use-case. "
+     "By separating UI presentation from data presentation, we hope "
+     [:code "nested-grid"] " makes it simple to build robust and flexible pivot tables."]
+    [p "In particular, your " [:code ":cell"] " function can close over concepts like " [:i "aggregations, groups, categories, dimensions, measures,"] " etc."]
+    [p "In the example above, " [:code "lookup-table"] "demonstrates the concept of "
+     [:i "a more extensive table."]
+     " Your " [:code ":columns"] " and " [:code ":rows"]
+     " can declare the necessary domain concepts, and your " [:code ":cell"] " function can dispatch on each concept, "
+     "accessing various " [:i "aggregations"] " and " [:i "groupings"] " of that table."]
+    [p "We also envision building an interactive, configurable pivot table. "
+     "By changing the value of " [:code ":columns"] " and " [:code ":rows"] ", you can reconfigure the UI presentation, and "
+     "your data presentation can simply follow along. "
+     "This can be done either programmatically or via a dedicated user interface."]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
