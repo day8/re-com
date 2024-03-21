@@ -70,8 +70,13 @@
 (defn color-shade-explainer []
   [rc/v-box
    :children
-   [[p "Here, " [:code ":columns"] " is a vector tree, "
-     "and " [:code ":cell"] " renders a hiccup."]
+   [[p "Since " [:code ":columns"] " is a vector tree with 2 levels of nesting,"
+     " each " [:code ":column-path"] " is 2-long. For instance, "
+     [:code "[:medium :yellow]"] ". "]
+    [p [:code ":cell"] " returns a hiccup."]
+    [p "Calling " [:code "(color-shade-cell {:column-path [:medium :yellow] :row-path [:blue]})"]
+     "should return a " [:span {:style {:color "green"}} "green"] " hiccup."]
+
     [:pre "[pivot/grid
    {:columns [:medium [:red :yellow :blue]
               :light  [:red :yellow :blue]
@@ -88,13 +93,14 @@
         color           (get special-colors color color)]
     [:div {:style {:height           "100%"
                    :width            "100%"
+                   :text-align       "center"
                    :background-color color}}
      [:span {:style {:font-size   "10px"
                      :color       "white"
                      :text-shadow "1px 1px 2px black"}}
       color]]))
 
-(pivot/spec->headers
+(pivot/header-spec->header-paths
  [:medium [:red :yellow :blue]
   :light [:red :yellow :blue]
   :dark [:red :yellow :blue]])
@@ -137,23 +143,75 @@
      " abstraction, using "
      [:a {:href "https://www.w3schools.com/css/css_grid.asp"} "css grid"]
      " for layout."]
-    [title3 "Nested Headers"]
-    [p "You can express headers as a tree of nested values. "
-     "That means each vertical partition you see is not simply a " [:code ":column"]
-     ", but a " [:code ":column-path"] ". "
-     " Rows are also trees."]
-    [p "A " [:code ":column-path"] " is a vector of " [:code "column"] " values. "
-     "Anything can be a " [:code "column"] " value, "
-     [:i "except"] " a list or vector (those express nesting)."]
-    [title3 "Functional Cells"]
-    [p "Each cell is a " [:i "function"] " of its grid position - "
-     [:code ":column-path"] " and " [:code ":row-path"] ". "
-     "This " [:code ":cell"]
-     " function counts as a "
-     [:a {:href "https://github.com/reagent-project/reagent/blob/master/doc/CreatingReagentComponents.md#form-1-a-simple-function"}
-      " reagent component"]
-     ", returning either a string or a hiccup."]
-    [title3 "Features"]]])
+    [title3 "Cells are Functions"]
+    [p "Each cell is a " [:i "function"] " of its grid position."]
+    [pivot/grid
+     :columns [:a :b :c]
+     :rows    [:x :y :z]
+     :column-width 40
+     :column-header-height 25
+     :row-header-width 30
+     :cell    (fn [{:keys [column-path row-path]}] (pr-str (concat column-path row-path)))]
+    [title3 "Headers are Nested"]
+    [p "You can declare a tree of nested header values. "]
+    [pivot/grid
+     :columns [:a [:a1 :a2] :b [:b1 :b2]]
+     :rows    [:x [:x1 :x2] :y [:y1 :y2]]
+     :column-header-height 25
+     :row-header-width 30
+     :column-width 90
+     :cell    (fn [{:keys [column-path row-path]}]
+                (pr-str (list column-path row-path)))]
+    [p [:code ":columns"] " is a tree of " [:code "column"] " values. For instance: "]
+    [:pre ":columns [:a [:a1 :a2] :b [:b1 :b2]]
+:rows    [:x [:x1 :x2] :y [:y1 :y2]]"]
+    [p "That means each vertical partition you see is defined by a " [:code ":column-path"]
+     "(not simply a " [:code "column"] "). "
+     "For instance, " [:code "[:a :a1]"] " is the first " [:code ":column-path"] "."]
+    [p "Same goes for rows. For instance, " [:code "[:y :y2]"] " is the last " [:code ":row-path"] "."]
+    [title3 "Headers can be Richly Declarative"]
+
+    [p "A " [:code ":column-path"] " is a vector of " [:code "column"] " values."]
+
+    [p "Anything can be a " [:code "column"] " value, "
+     [:i "except"] " a " [:code "list"] " or " [:code "vector"] " (those express nesting)."]
+    [pivot/grid
+     :columns [{:operator + :label "Addition"}       [{:left 2 :label "2"}
+                                                      {:left 3 :label "3"}]
+               {:operator * :label "Multiplication"} [{:left 2 :label "2"}
+                                                      {:left 3 :label "3"}]
+               {:operator / :label "Division"}       [{:left 2 :label "2"}
+                                                      {:left 3 :label "3"}]]
+     :rows    [{:right 4 :label "4"}
+               {:right 5 :label "5"}]
+     :row-header (comp :label last :row-path)
+     :column-header (comp :label last :column-path)
+     :column-header-height 25
+     :row-header-width 100
+     :column-width 90
+     :cell    (fn [{:keys [column-path row-path]}]
+                (let [{:keys [operator left right]} (->> (into row-path column-path)
+                                                         (apply merge))]
+                  (operator left right)))]
+    [:pre ":columns       [{:operator + :label \"Addition\"}       [{:left 2 :label \"2\"}
+                                                       {:left 3 :label \"3\"}]
+                {:operator * :label \"Multiplication\"} [{:left 2 :label \"2\"}
+                                                       {:left 3 :label \"3\"}]
+                {:operator / :label \"Division\"}       [{:left 2 :label \"2\"}
+                                                       {:left 3 :label \"3\"}]]
+:rows          [{:right 4 :label \"4\"}
+                {:right 5 :label \"5\"}]
+:column-header (comp :label last :column-path)
+:row-header    (comp :label last :row-path)
+:cell          (fn [{:keys [column-path row-path]}]
+                 (let [{:keys [operator left right]} (->> column-path
+                                                          (into row-path)
+                                                          (apply merge))]
+                   (operator left right)))"]
+    [p "The " [:code ":column-header"] " and " [:code ":row-header"] " props "
+     "work the same way as " [:code ":cell"] "."
+     " (Except, a " [:code ":column-header"] " only has a " [:code ":column-path"]
+     " and a " [:code ":row-header"] " only has a " [:code ":row-path"] ")."]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
@@ -214,4 +272,4 @@
              "for above pivot-grid"
              "src/re_demo/pivot.cljs"]
             [color-shade-explainer]]]]]
-        [parts-table "pivot-grid" pivot-grid-parts-desc]]])))
+        #_[parts-table "pivot-grid" pivot-grid-parts-desc]]])))
