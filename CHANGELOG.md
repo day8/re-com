@@ -2,6 +2,14 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.20.0 (2024-04-23)
+
+#### Added
+
+- `nested-grid` (alpha) - new component for multidimensional tabular data viewing.
+- `dropdown` (alpha) - generic dropdown component.
+- `:theme` (alpha) - a general solution for themeing components.
+
 ## 2.19.0 (2024-03-07)
 
 #### Added
