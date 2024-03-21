@@ -56,7 +56,7 @@
             [re-demo.typeahead             :as    typeahead]
             [re-demo.v-table               :as    v-table]
             [re-demo.simple-v-table        :as    simple-v-table]
-            [re-demo.pivot                 :as    pivot]
+            [re-demo.nested-grid                 :as    nested-grid]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -96,7 +96,7 @@
    {:id :tables                 :level :major :label "Tables"}
    {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
    {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
-   {:id :pivot                  :level :minor :label "Pivot Grid"        :panel pivot/panel}
+   {:id :nested-grid                  :level :minor :label "Nested Grid"        :panel nested-grid/panel}
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}

@@ -3,7 +3,7 @@
    [clojure.string :as str]
    [re-com.theme.util :refer [merge-props]]
    [re-com.dropdown :as-alias dropdown]
-   [re-com.pivot :as-alias pivot]
+   [re-com.nested-grid :as-alias nested-grid]
    [re-com.tree-select :as-alias tree-select]))
 
 (def golden-section-50
@@ -98,7 +98,7 @@
                   :overflow-y "auto"
                   :overflow-x "visible"}}
 
-         ::pivot/column-header-wrapper
+         ::nested-grid/column-header-wrapper
          {:style {:position "relative"}})
        (merge-props props)))
 
@@ -151,15 +151,15 @@
                    (-> state :enable (= :disabled))
                    (merge {:background-color (:background-disabled $)}))}
 
-         ::pivot/header-spacer
+         ::nested-grid/header-spacer
          {:style {:border           (str sm-1 " solid " border)
                   :background-color light-neutral}}
 
-         ::pivot/cell-wrapper
+         ::nested-grid/cell-wrapper
          {:style {:font-size sm-6
                   :background-color "white"}}
 
-         ::pivot/column-header-wrapper
+         ::nested-grid/column-header-wrapper
          {:style {:padding          sm-3
                   :border           (str sm-1 " solid " border)
                   :background-color light-neutral
@@ -171,7 +171,7 @@
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
 
-         ::pivot/row-header-wrapper
+         ::nested-grid/row-header-wrapper
          {:style {:padding          sm-3
                   :border           (str sm-1 " solid " border)
                   :background-color light-neutral

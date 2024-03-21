@@ -1,4 +1,4 @@
-(ns re-com.pivot
+(ns re-com.nested-grid
   (:require
    [clojure.string :as str]
    [re-com.util :as u :refer [px deref-or-value]]
@@ -7,8 +7,8 @@
    [re-com.box :as box]
    [re-com.buttons :as buttons]))
 
-(def pivot-grid-args-desc {})
-(def pivot-grid-parts-desc {})
+(def nested-grid-args-desc {})
+(def nested-grid-parts-desc {})
 
 (defn descendant? [path-a path-b]
   (and (not= path-a path-b)
@@ -152,7 +152,7 @@
                                                     hide? dec))
                   :grid-row-start    (count column-path)}}
          (theme/apply {:state {} :part ::column-header-wrapper} theme))
-     [u/part #p column-header props column-header-part]
+     [u/part column-header props column-header-part]
      [resize-button {:on-resize on-resize :path column-path}]]))
 
 ;; Usage of :component-did-update
@@ -260,8 +260,8 @@
                                   "translateY(" (- (deref-or-value scroll-top)) "px)")}}
     child]])
 
-(defn grid [& {:keys [column-width]
-               :or   {column-width 60}}]
+(defn nested-grid [& {:keys [column-width]
+                      :or   {column-width 60}}]
   (let [column-state       (r/atom {})
         row-state          (r/atom {})
         hover?             (r/atom false)

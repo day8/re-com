@@ -1,7 +1,7 @@
-(ns re-demo.pivot
+(ns re-demo.nested-grid
   (:require [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
             [reagent.core :as r]
-            [re-com.pivot  :as pivot :refer [pivot-grid-args-desc pivot-grid-parts-desc]]
+            [re-com.nested-grid  :as nested-grid :refer [nested-grid nested-grid-args-desc nested-grid-parts-desc]]
             [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
@@ -52,7 +52,7 @@
      " Since there is only one level of nesting, " [:code "column-path"]
      " contains a single " [:code "column"] " value - for instance, "
      [:code "[:red]"] "."]
-    [:pre "[pivot/grid
+    [:pre "[nested-grid
  :columns [:red :yellow :blue]
  :rows    [:red :yellow :blue]
  :cell    (fn color-cell [{:keys [column-path row-path]}]
@@ -60,7 +60,7 @@
                          (last row-path)))]"]]])
 
 (defn color-demo []
-  [pivot/grid
+  [nested-grid
    :columns [:red :yellow :blue]
    :rows    [:red :yellow :blue]
    :cell    (fn color-cell [{:keys [row-path column-path]}]
@@ -77,7 +77,7 @@
     [p "Calling " [:code "(color-shade-cell {:column-path [:medium :yellow] :row-path [:blue]})"]
      "should return a " [:span {:style {:color "green"}} "green"] " hiccup."]
 
-    [:pre "[pivot/grid
+    [:pre "[nested-grid
    {:columns [:medium [:red :yellow :blue]
               :light  [:red :yellow :blue]
               :dark   [:red :yellow :blue]]
@@ -100,13 +100,13 @@
                      :text-shadow "1px 1px 2px black"}}
       color]]))
 
-(pivot/header-spec->header-paths
+(nested-grid/header-spec->header-paths
  [:medium [:red :yellow :blue]
   :light [:red :yellow :blue]
   :dark [:red :yellow :blue]])
 
 (defn color-shade-demo []
-  [pivot/grid
+  [nested-grid
    {:columns [:medium [:red :yellow :blue]
               :light [:red :yellow :blue]
               :dark [:red :yellow :blue]]
@@ -116,20 +116,33 @@
 (def fruit {:dimension "fruit"})
 
 (defn fruit-demo []
-  [pivot/grid {:columns [{:id :fruit :hide-cells? true}
-                         [{:id :red}
-                          {:id :white}]]
-               :rows    [[:price
-                          [:foreign
-                           [:kilo
-                            :ton]]
-                          [:domestic
-                           [:kilo
-                            :ton]]]]
-               :cell    (fn fruit-cell [{:keys [row-path column-path]}]
-                          (->> (concat column-path row-path)
-                               (map #(header->icon % (header->icon (get % :id))))
-                               (apply str)))}])
+  [nested-grid {:columns [{:id :fruit :hide-cells? true}
+                          [{:id :red}
+                           {:id :white}]]
+                :rows    [[:price
+                           [:foreign
+                            [:kilo
+                             :ton]]
+                           [:domestic
+                            [:kilo
+                             :ton]]]]
+                :cell    (fn fruit-cell [{:keys [row-path column-path]}]
+                           (->> (concat column-path row-path)
+                                (map #(header->icon % (header->icon (get % :id))))
+                                (apply str)))}])
+
+(def lookup-table [["🚓" "🛵" "🚲" "🛻" "🚚"]
+                   ["🍐" "🍎" "🍌" "🥝" "🍇"]
+                   ["🐈" "🐕" "🐟" "🐎" "🧸"]])
+
+(def add {:operator + :label "Addition"})
+(def multiply {:operator * :label "Multiplication"})
+(def lookup {:operator (fn [l r] (get-in lookup-table [l r]))
+             :label    "Lookup"})
+(def one {:left 1 :label "1"})
+(def two {:left 2 :label "2"})
+(def three {:right 3 :label "3"})
+(def four  {:right 4 :label "4"})
 
 (defn notes-column []
   [v-box
@@ -137,15 +150,13 @@
    [[title2 "Notes"]
     [status-text "alpha" {:color "red"}]
     [new-in-version "v2.20.0"]
-    [p [:code "pivot-grid"]
-     "provides a lean "
-     [:a {:href "https://en.wikipedia.org/wiki/Pivot_table"} "pivot table"]
-     " abstraction, using "
+    [p [:code "nested-grid"] " provides a lean abstraction for viewing multidimensional "
+     "tabular data, using "
      [:a {:href "https://www.w3schools.com/css/css_grid.asp"} "css grid"]
      " for layout."]
     [title3 "Cells are Functions"]
     [p "Each cell is a " [:i "function"] " of its grid position."]
-    [pivot/grid
+    [nested-grid
      :columns [:a :b :c]
      :rows    [:x :y :z]
      :column-width 40
@@ -154,7 +165,7 @@
      :cell    (fn [{:keys [column-path row-path]}] (pr-str (concat column-path row-path)))]
     [title3 "Headers are Nested"]
     [p "You can declare a tree of nested header values. "]
-    [pivot/grid
+    [nested-grid
      :columns [:a [:a1 :a2] :b [:b1 :b2]]
      :rows    [:x [:x1 :x2] :y [:y1 :y2]]
      :column-header-height 25
@@ -162,7 +173,7 @@
      :column-width 90
      :cell    (fn [{:keys [column-path row-path]}]
                 (pr-str (list column-path row-path)))]
-    [p [:code ":columns"] " is a tree of " [:code "column"] " values. For instance: "]
+    [p [:code ":columns"] " is a tree of nested " [:code "column"] " values. For instance: "]
     [:pre ":columns [:a [:a1 :a2] :b [:b1 :b2]]
 :rows    [:x [:x1 :x2] :y [:y1 :y2]]"]
     [p "That means each vertical partition you see is defined by a " [:code ":column-path"]
@@ -175,15 +186,12 @@
 
     [p "Anything can be a " [:code "column"] " value, "
      [:i "except"] " a " [:code "list"] " or " [:code "vector"] " (those express nesting)."]
-    [pivot/grid
-     :columns [{:operator + :label "Addition"}       [{:left 2 :label "2"}
-                                                      {:left 3 :label "3"}]
-               {:operator * :label "Multiplication"} [{:left 2 :label "2"}
-                                                      {:left 3 :label "3"}]
-               {:operator / :label "Division"}       [{:left 2 :label "2"}
-                                                      {:left 3 :label "3"}]]
-     :rows    [{:right 4 :label "4"}
-               {:right 5 :label "5"}]
+
+    [nested-grid
+     :columns [add      [one two]
+               multiply [one two]
+               lookup   [one two]]
+     :rows    [three four]
      :row-header (comp :label last :row-path)
      :column-header (comp :label last :column-path)
      :column-header-height 25
@@ -193,25 +201,35 @@
                 (let [{:keys [operator left right]} (->> (into row-path column-path)
                                                          (apply merge))]
                   (operator left right)))]
-    [:pre ":columns       [{:operator + :label \"Addition\"}       [{:left 2 :label \"2\"}
-                                                       {:left 3 :label \"3\"}]
-                {:operator * :label \"Multiplication\"} [{:left 2 :label \"2\"}
-                                                       {:left 3 :label \"3\"}]
-                {:operator / :label \"Division\"}       [{:left 2 :label \"2\"}
-                                                       {:left 3 :label \"3\"}]]
-:rows          [{:right 4 :label \"4\"}
-                {:right 5 :label \"5\"}]
-:column-header (comp :label last :column-path)
-:row-header    (comp :label last :row-path)
-:cell          (fn [{:keys [column-path row-path]}]
-                 (let [{:keys [operator left right]} (->> column-path
-                                                          (into row-path)
-                                                          (apply merge))]
-                   (operator left right)))"]
-    [p "The " [:code ":column-header"] " and " [:code ":row-header"] " props "
-     "work the same way as " [:code ":cell"] "."
-     " (Except, a " [:code ":column-header"] " only has a " [:code ":column-path"]
-     " and a " [:code ":row-header"] " only has a " [:code ":row-path"] ")."]]])
+    [:pre "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
+                   [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
+                   [\"🐈\" \"🐕\" \"🐟\" \"🐎\" \"🧸\"]])
+(def add      {:operator + :label \"Addition\"})
+(def multiply {:operator * :label \"Multiplication\"})
+(def lookup   {:operator (fn [l r] (get-in lookup-table [l r]))
+               :label    \"Lookup\"})
+(def one      {:left 1 :label \"1\"})
+(def two      {:left 2 :label \"2\"})
+(def three    {:right 3 :label \" 3 \"})
+(def four     {:right 4 :label \" 4 \"})
+
+[nested-grid
+ :columns       [add      [one two]
+                 multiply [one two]
+                 lookup   [one two]]
+ :rows          [three four]
+ :column-header (comp :label last :column-path)
+ :row-header    (comp :label last :row-path)
+ :cell          (fn [{:keys [column-path row-path]}]
+                  (let [{:keys [operator left right]} (->> column-path
+                                                           (into row-path)
+                                                           (apply merge))]
+                    (operator left right)))]"]
+    [title3 "Header Cells are Functions"]
+    [p "Just like " [:code ":cell"] ", the " [:code ":column-header"] " and " [:code ":row-header"] " props "
+     "are functions of paths."]
+    [p "The difference is, a " [:code ":column-header"] " only has a " [:code ":column-path"]
+     " and a " [:code ":row-header"] " only has a " [:code ":row-path"] "."]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
@@ -225,9 +243,9 @@
        :size     "auto"
        :gap      "10px"
        :children
-       [[panel-title "[pivot-grid ... ]"
-         "src/re_com/pivot.cljs"
-         "src/re_demo/pivot.cljs"]
+       [[panel-title "[nested-grid ... ]"
+         "src/re_com/nested-grid.cljs"
+         "src/re_demo/nested-grid.cljs"]
         [h-box
          :src      (at)
          :gap      "50px"
@@ -244,7 +262,7 @@
             (case @selected-tab-id
               :note       [notes-column]
               :parameters [args-table
-                           pivot-grid-args-desc
+                           nested-grid-args-desc
                            {:total-width       "550px"
                             :name-column-width "180px"}])]]
           [v-box
@@ -256,8 +274,8 @@
              :size "15px"]
             [color-demo]
             [source-reference
-             "for above pivot-grid"
-             "src/re_demo/pivot.cljs"]
+             "for above nested-grid"
+             "src/re_demo/nested-grid.cljs"]
             [color-explainer]
             [gap
              :src      (at)
@@ -269,7 +287,7 @@
              :size "15px"]
             [color-shade-demo]
             [source-reference
-             "for above pivot-grid"
-             "src/re_demo/pivot.cljs"]
+             "for above nested-grid"
+             "src/re_demo/nested-grid.cljs"]
             [color-shade-explainer]]]]]
-        #_[parts-table "pivot-grid" pivot-grid-parts-desc]]])))
+        #_[parts-table "nested-grid" nested-grid-grid-parts-desc]]])))
