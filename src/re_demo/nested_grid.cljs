@@ -194,9 +194,10 @@
      :rows    [three four]
      :row-header (comp :label last :row-path)
      :column-header (comp :label last :column-path)
+     :row-header 20
      :column-header-height 25
      :row-header-width 100
-     :column-width 90
+     :parts {:cell-wrapper {:style {:text-align "center"}}}
      :cell    (fn [{:keys [column-path row-path]}]
                 (let [{:keys [operator left right]} (->> (into row-path column-path)
                                                          (apply merge))]
@@ -260,8 +261,8 @@
        :gap      "10px"
        :children
        [[panel-title "[nested-grid ... ]"
-         "src/re_com/nested-grid.cljs"
-         "src/re_demo/nested-grid.cljs"]
+         "src/re_com/nested_grid.cljs"
+         "src/re_demo/nested_grid.cljs"]
         [h-box
          :src      (at)
          :gap      "50px"
@@ -291,7 +292,7 @@
             [color-demo]
             [source-reference
              "for above nested-grid"
-             "src/re_demo/nested-grid.cljs"]
+             "src/re_demo/nested_grid.cljs"]
             [color-explainer]
             [gap
              :src      (at)
@@ -304,6 +305,6 @@
             [color-shade-demo]
             [source-reference
              "for above nested-grid"
-             "src/re_demo/nested-grid.cljs"]
+             "src/re_demo/nested_grid.cljs"]
             [color-shade-explainer]]]]]
         #_[parts-table "nested-grid" nested-grid-grid-parts-desc]]])))
