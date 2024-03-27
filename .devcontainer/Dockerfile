@@ -18,14 +18,17 @@ ARG LEININGEN_VERSION="stable"
 # [Optional] POLYLITH version
 ARG POLYLITH_VERSION="0.2.13-alpha"
 
-# [Option] Install Clojure CLI tool
-ARG INSTALL_CLOJURE_CLI="${templateOption:installClojureCli}"
+ARG INSTALL_CLOJURE_CLI="true"
+# # [Option] Install Clojure CLI tool
+# ARG INSTALL_CLOJURE_CLI="${templateOption:installClojureCli}"
 
-# [Option] Install Leiningen
-ARG INSTALL_LEININGEN="${templateOption:installLeiningen}"
+ARG INSTALL_LEININGEN="true"
+# # [Option] Install Leiningen
+# ARG INSTALL_LEININGEN="${templateOption:installLeiningen}"
 
-# [Option] Install Polylith
-ARG INSTALL_POLYLITH="${templateOption:installPolylith}"
+ARG INSTALL_POLYLITH="true"
+# # [Option] Install Polylith
+# ARG INSTALL_POLYLITH="${templateOption:installPolylith}"
 
 RUN if [ "${INSTALL_CLOJURE_CLI}" = "true" ]; then \
     apt-get update \
@@ -58,7 +61,8 @@ RUN if [ "${INSTALL_POLYLITH}" = "true" ]; then \
     && /usr/local/sbin/poly version; fi
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="${templateOption:nodeVersion}"
+#ARG NODE_VERSION="${templateOption:nodeVersion}"
+ARG NODE_VERSION="16"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 # [Optional] Uncomment this section to install additional OS packages.
