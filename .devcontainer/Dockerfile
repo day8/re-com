@@ -18,17 +18,8 @@ ARG LEININGEN_VERSION="stable"
 # [Optional] POLYLITH version
 ARG POLYLITH_VERSION="0.2.13-alpha"
 
-# [Optional] Boot version
-ENV BOOT_VERSION=2.8.3
-
-# [Optional] Clojure version used by Boot
-ENV BOOT_CLOJURE_VERSION=${CLOJURE_VERSION}
-
 # [Option] Install Clojure CLI tool
 ARG INSTALL_CLOJURE_CLI="${templateOption:installClojureCli}"
-
-# [Option] Install Boot
-ARG INSTALL_BOOT="${templateOption:installBoot}"
 
 # [Option] Install Leiningen
 ARG INSTALL_LEININGEN="${templateOption:installLeiningen}"
@@ -45,11 +36,6 @@ RUN if [ "${INSTALL_CLOJURE_CLI}" = "true" ]; then \
     && rm /linux-install-${CLOJURE_CLI_VERSION}.sh \
     && su vscode -c "clj --version"; fi
 
-RUN if [ "${INSTALL_BOOT}" = "true" ]; then \
-    curl -OL "https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh" \
-    && chmod +x boot.sh \
-    && mv boot.sh /usr/local/sbin/boot \
-    && su vscode -c "boot -u"; fi
 
 RUN if [ "${INSTALL_LEININGEN}" = "true" ]; then \
     curl -OL "https://raw.githubusercontent.com/technomancy/leiningen/${LEININGEN_VERSION}/bin/lein" \
