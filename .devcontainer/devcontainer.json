@@ -1,0 +1,36 @@
+{
+	"name": "re-com Development",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			// Options
+			"CLOJURE_VERSION": "1.10.3"
+		}
+	},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": { 
+			},
+			
+			// Add the IDs of extensions you want to be installed when the container is created.
+			"extensions": [
+				"vscjava.vscode-java-pack",
+				"borkdude.clj-kondo",
+				"betterthantomorrow.calva"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "java -version",
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode"
+}
