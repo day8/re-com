@@ -1,6 +1,10 @@
 # [Choice] Java version (use -bullseye variants on local arm64/Apple Silicon): 11, 17, 11-bullseye, 17-bullseye, 11-buster, 17-buster
-ARG VARIANT=${templateOption:imageVariant}
-FROM mcr.microsoft.com/devcontainers/java:${VARIANT}
+
+# MT: removed this ARG stuff and went with hardcoded version instead  because it was giving errors. 
+# ARG VARIANT=${templateOption:imageVariant}
+# FROM mcr.microsoft.com/devcontainers/java:${VARIANT}    
+
+FROM mcr.microsoft.com/devcontainers/java:21
 
 # [Optional] Clojure version
 ARG CLOJURE_VERSION=1.10.3
