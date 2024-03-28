@@ -211,7 +211,9 @@
   (fn [_]
     (let [!ref       (r/atom nil)
           reset-ref! (partial reset! !ref)]
-      (fn [{:keys [selecting? grid-columns grid-rows mouse-x mouse-y mouse-down-x mouse-down-y]}]
+      (fn [{:keys [dragging-selection? selection?
+                   grid-columns grid-rows
+                   mouse-x mouse-y mouse-down-x mouse-down-y]}]
         (let []
           [:<>
            [:div {:ref   reset-ref!
@@ -233,18 +235,21 @@
                               :grid-row-start    (+ 2 (min row-begin row-finish))
                               :grid-row-end      (+ 3 (max row-begin row-finish))
                               :z-index           1
-                              :border            "4px solid dodgerblue"
-                              :position "relative"}}
-                [:div {:style {:position "absolute"
+                              :border            "2px solid dodgerblue"
+                              :background        "rgba(127,127,255,.1)"
+                              :position          "relative"}}
+                [:div {:style {:position   "absolute"
                                :background "white"
-                               :border "2px solid grey"
-                               :height 10
-                               :width 10
-                               :right -6
-                               :bottom -6}}]]))
-           (when @selecting?
-             [:div {:on-mouse-up   #(reset! selecting? false)
+                               :border     "2px solid grey"
+                               :height     10
+                               :width      10
+                               :right      -6
+                               :bottom     -6}}]]))
+           (when @dragging-selection?
+             [:div {:on-mouse-up   #(reset! dragging-selection? false)
                     :on-mouse-move #(do
+                                      (reset! dragging-selection? true)
+                                      (reset! selection? true)
                                       (.preventDefault %)
                                       (reset! mouse-x (.-clientX %))
                                       (reset! mouse-y (.-clientY %)))
@@ -265,54 +270,56 @@
 
 (defn nested-grid [& {:keys [column-width]
                       :or   {column-width 60}}]
-  (let [column-state       (r/atom {})
-        row-state          (r/atom {})
-        hover?             (r/atom false)
-        selecting?         (r/atom false)
-        mouse-down-x       (r/atom 0)
-        mouse-down-y       (r/atom 0)
-        mouse-x            (r/atom 0)
-        mouse-y            (r/atom 0)
-        scroll-top         (r/atom 0)
-        scroll-left        (r/atom 0)
-        column-header-prop (fn [path k & [default]]
-                             (or (some-> @column-state (get path) (get k))
-                                 (get (meta (last path)) k)
-                                 (get (last path) k)
-                                 default))
-        header-prop        (fn [path k dimension & [default]]
-                             (or (some-> (case dimension :row @row-state :column @column-state)
-                                         (get path)
-                                         (get k))
-                                 (get (meta (last path)) k)
-                                 (get (last path) k)
-                                 default))
-        row-header-prop    (fn [path k & [default]]
-                             (or (some-> @row-state (get path) (get k))
-                                 (get (meta (last path)) k)
-                                 (get (last path) k)
-                                 default))
-        max-props          (fn [k dimension default paths]
-                             (->> paths
-                                  (group-by level)
-                                  (sort-by key)
-                                  (map val)
-                                  (map (fn [paths] (apply max (map #(header-prop % k :row default) paths))))))
-        on-resize-cell     (fn [{:keys [distance path]}]
-                             (swap! column-state update-in [path :width]
-                                    #(+ distance (or % (column-header-prop path :width column-width)))))]
+  (let [column-state        (r/atom {})
+        row-state           (r/atom {})
+        hover?              (r/atom false)
+        dragging-selection? (r/atom false)
+        selection?          (r/atom nil)
+        mouse-down-x        (r/atom 0)
+        mouse-down-y        (r/atom 0)
+        mouse-x             (r/atom 0)
+        mouse-y             (r/atom 0)
+        scroll-top          (r/atom 0)
+        scroll-left         (r/atom 0)
+        column-header-prop  (fn [path k & [default]]
+                              (or (some-> @column-state (get path) (get k))
+                                  (get (meta (last path)) k)
+                                  (get (last path) k)
+                                  default))
+        header-prop         (fn [path k dimension & [default]]
+                              (or (some-> (case dimension :row @row-state :column @column-state)
+                                          (get path)
+                                          (get k))
+                                  (get (meta (last path)) k)
+                                  (get (last path) k)
+                                  default))
+        row-header-prop     (fn [path k & [default]]
+                              (or (some-> @row-state (get path) (get k))
+                                  (get (meta (last path)) k)
+                                  (get (last path) k)
+                                  default))
+        max-props           (fn [k dimension default paths]
+                              (->> paths
+                                   (group-by level)
+                                   (sort-by key)
+                                   (map val)
+                                   (map (fn [paths] (apply max (map #(header-prop % k :row default) paths))))))
+        on-resize-cell      (fn [{:keys [distance path]}]
+                              (swap! column-state update-in [path :width]
+                                     #(+ distance (or % (column-header-prop path :width column-width)))))]
     (fn [& {:keys [columns rows cell
                    cell-wrapper column-header-wrapper column-header row-header row-header-wrapper
                    show-branch-cells?
                    max-height column-width column-header-height row-header-width row-height
                    show-export-button? on-export on-export-success on-export-failure
                    on-export-cell on-export-column-header on-export-row-header]
-            :or   {column-header-height 30
-                   column-width         60
-                   row-header-width     100
-                   row-height           30
-                   show-export-button?  true
-                   show-branch-cells?   false}}]
+            :or   {column-header-height    30
+                   column-width            60
+                   row-header-width        100
+                   row-height              30
+                   show-export-button?     true
+                   show-branch-cells?      false
+                   on-export-column-header pr-str}}]
       (let [themed                 (fn [part props] (theme/apply props {:part part} {}))
             column-paths           (spec->headers* columns)
             column-leaf-paths      (reduce (fn [paths p] (remove (partial ancestor? p) paths)) column-paths column-paths)
@@ -328,6 +335,12 @@
             row-leaf-heights       (map #(column-header-prop % :height row-height) row-leaf-paths)
             max-row-widths         (max-props :row :width row-header-width row-paths)
             row-depth              (count max-row-widths)
+            default-on-export-column-header
+            (comp pr-str last)
+            default-on-export-row-header
+            (comp pr-str last)
+            default-on-export-cell
+            (comp pr-str cell)
             get-header-rows        (fn get-header-rows []
                                      (->> column-paths
                                           (mapcat (fn [path]
@@ -338,7 +351,8 @@
                                           (group-by count)
                                           (into (sorted-map))
                                           vals
-                                          (map #(map on-export-column-header %))
+                                          (map (partial map (or on-export-column-header
+                                                                default-on-export-column-header)))
                                           (map #(concat (repeat row-depth nil) %))))
             get-main-rows          (fn get-main-rows []
                                      (let [ancestors
@@ -350,13 +364,15 @@
                                            (fn [[paths padding]]
                                              (->> column-leaf-paths
                                                   (map
-                                                   #(on-export-cell
+                                                   #((or on-export-cell default-on-export-cell)
                                                      {:column-path %
                                                       :row-path    (last paths)}))
                                                   (conj [paths padding])))
                                            render-row-headers
                                            (fn [[paths padding cells]]
-                                             (concat (map on-export-row-header paths)
+                                             (concat (map (or on-export-row-header
+                                                              default-on-export-row-header)
+                                                          paths)
                                                      padding
                                                      cells))]
                                        (->> row-leaf-paths
@@ -384,68 +400,73 @@
                                            row-heights)
             control-panel          [controls {:show-export-button? show-export-button?
                                               :hover?              hover?
-                                              :on-export           #(try
-                                                                      (let [header-rows (get-header-rows)
-                                                                            main-rows   (get-main-rows)]
-                                                                        ((or on-export default-on-export) header-rows main-rows)
-                                                                        (when on-export-success (on-export-success header-rows main-rows)))
-                                                                      (catch :default e
-                                                                        (when on-export-failure (on-export-failure e))))}]
+                                              :on-export
+                                              (fn [_] (let [header-rows (->> (get-header-rows)
+                                                                             (map vec)
+                                                                             (map #(subvec % 0 2)))
+                                                            main-rows   (get-main-rows)]
+                                                        ((or on-export default-on-export) header-rows main-rows)
+                                                        (when on-export-success (on-export-success header-rows main-rows))))}]
             grid-container
-            [:div {:on-scroll      #(do (reset! scroll-top (.-scrollTop (.-target %)))
-                                        (reset! scroll-left (.-scrollLeft (.-target %))))
-                   :on-mouse-down  #(do
-                                      (.preventDefault %)
-                                      (reset! mouse-down-y (.-clientY %))
-                                      (reset! mouse-down-x (.-clientX %))
-                                      (reset! mouse-y (.-clientY %))
-                                      (reset! mouse-x (.-clientX %))
-                                      (reset! selecting? true))
-                   :on-mouse-up    #(reset! selecting? false)
-                   :on-mouse-moved nil
-                   :style          {:padding               "0px"
-                                    :max-height            max-height
-                                    :display               "grid"
-                                    :overflow              "auto"
-                                    :scrollbar-width       "thin"
-                                    :grid-template-columns (grid-template cell-grid-columns)
-                                    :grid-template-rows    (grid-template cell-grid-rows)
-                                    :gap                   "0px"
-                                    :background-color      "transparent"}}]
-            column-header-cells    (for [path column-paths
-                                         :let [props {:column-path        path
-                                                      :column-paths       column-paths
-                                                      :on-resize          on-resize-cell
-                                                      :column-header      column-header
-                                                      :show-branch-cells? show-branch-cells?
-                                                      :leaf?              (leaf-column? path)}]]
-                                     ^{:key [::column (or path (gensym))]}
-                                     [u/part column-header-wrapper props column-header-wrapper-part])
-            row-header-cells       (for [path row-paths
-                                         :let [props {:row-path           path
-                                                      :row-header         row-header
-                                                      :row-paths          row-paths
-                                                      :show-branch-cells? show-branch-cells?
-                                                      :leaf?              (leaf-row? path)}]]
-                                     ^{:key [::row (or path (gensym))]}
-                                     [u/part row-header-wrapper props row-header-wrapper-part])
-            header-spacer-cells    (for [y (range column-depth)
-                                         x (range row-depth)]
-                                     ^{:key [::header-spacer x y]}
-                                     [:div (themed ::header-spacer
-                                             {:style
-                                              {:grid-column (inc x)
-                                               :grid-row    (inc y)}})])
-            cells                  (for [column-path column-paths
-                                         row-path    row-paths
-                                         :let        [leaf? (and (leaf-column? column-path)
-                                                                 (leaf-row? row-path))
-                                                      props {:column-path column-path
-                                                             :row-path    row-path
-                                                             :cell        cell}]
-                                         :when       leaf?]
-                                     ^{:key [::cell (or [column-path row-path] (gensym))]}
-                                     [u/part cell-wrapper props cell-wrapper-part])
+            [:div {:on-scroll     #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                       (reset! scroll-left (.-scrollLeft (.-target %))))
+                   :on-mouse-down #(do
+                                     (if-not @selection?
+                                       (do (reset! selection? true)
+                                           (reset! dragging-selection? true)
+                                           (reset! mouse-down-y (.-clientY %))
+                                           (reset! mouse-down-x (.-clientX %))
+                                           (reset! mouse-y (.-clientY %))
+                                           (reset! mouse-x (.-clientX %)))
+                                       (reset! selection? false)))
+                   :style         {:padding               "0px"
+                                   :cursor                "crosshair"
+                                   :max-height            max-height
+                                   :display               "grid"
+                                   :overflow              "auto"
+                                   :scrollbar-width       "thin"
+                                   :grid-template-columns (grid-template cell-grid-columns)
+                                   :grid-template-rows    (grid-template cell-grid-rows)
+                                   :gap                   "0px"
+                                   :background-color      "transparent"}}]
+            column-header-cells    (doall
+                                    (for [path column-paths
+                                          :let [props {:column-path        path
+                                                       :column-paths       column-paths
+                                                       :on-resize          on-resize-cell
+                                                       :column-header      column-header
+                                                       :show-branch-cells? show-branch-cells?
+                                                       :leaf?              (leaf-column? path)}]]
+                                      ^{:key [::column (or path (gensym))]}
+                                      [u/part column-header-wrapper props column-header-wrapper-part]))
+            row-header-cells       (doall
+                                    (for [path row-paths
+                                          :let [props {:row-path           path
+                                                       :row-header         row-header
+                                                       :row-paths          row-paths
+                                                       :show-branch-cells? show-branch-cells?
+                                                       :leaf?              (leaf-row? path)}]]
+                                      ^{:key [::row (or path (gensym))]}
+                                      [u/part row-header-wrapper props row-header-wrapper-part]))
+            header-spacer-cells    (doall
+                                    (for [y (range column-depth)
+                                          x (range row-depth)]
+                                      ^{:key [::header-spacer x y]}
+                                      [:div (themed ::header-spacer
+                                              {:style
+                                               {:grid-column (inc x)
+                                                :grid-row    (inc y)}})]))
+            cells                  (doall
+                                    (for [column-path column-paths
+                                          row-path    row-paths
+                                          :let        [leaf? (and (leaf-column? column-path)
+                                                                  (leaf-row? row-path))
+                                                       props {:column-path column-path
+                                                              :row-path    row-path
+                                                              :cell        cell}]
+                                          :when       leaf?]
+                                      ^{:key [::cell (or [column-path row-path] (gensym))]}
+                                      [u/part cell-wrapper props cell-wrapper-part]))
             zebra-stripes          (for [i (filter even? (range (count row-paths)))]
                                      ^{:key [::zebra-stripe i]}
                                      [:div
@@ -458,13 +479,14 @@
                                           :opacity           0.05
                                           :z-index           2}})])
             box-selector           [selection-part
-                                    {:selecting?   selecting?
-                                     :grid-columns cell-grid-columns
-                                     :grid-rows    cell-grid-rows
-                                     :mouse-x      mouse-x
-                                     :mouse-y      mouse-y
-                                     :mouse-down-x mouse-down-x
-                                     :mouse-down-y mouse-down-y}]
+                                    {:dragging-selection? dragging-selection?
+                                     :grid-columns        cell-grid-columns
+                                     :grid-rows           cell-grid-rows
+                                     :selection?          selection?
+                                     :mouse-x             mouse-x
+                                     :mouse-y             mouse-y
+                                     :mouse-down-x        mouse-down-x
+                                     :mouse-down-y        mouse-down-y}]
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
             native-scrollbar-width 10]
@@ -496,4 +518,4 @@
          (-> grid-container
              (into cells)
              (into zebra-stripes)
-             #_(conj box-selector))]))))
+             (conj (when @selection? box-selector)))]))))

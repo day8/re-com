@@ -58,17 +58,17 @@
        (case part
 
          ::dropdown/wrapper
-         {:attr  {:on-focus  #(do (transition! :focus)
-                                  (transition! :enter))
-                  :on-blur   #(do (transition! :blur)
-                                  (transition! :exit))}
+         {:attr  {:on-focus #(do (transition! :focus)
+                                 (transition! :enter))
+                  :on-blur  #(do (transition! :blur)
+                                 (transition! :exit))}
           :style {:display  "inline-block"
                   :position "relative"}}
 
          ::dropdown/anchor-wrapper
-         {:attr {:tab-index (or (:tab-index state) 0)
-                 :on-blur   #(do (transition! :blur)
-                                 (transition! :exit))}
+         {:attr  {:tab-index (or (:tab-index state) 0)
+                  :on-blur   #(do (transition! :blur)
+                                  (transition! :exit))}
           :style {:outline        (when (and (= :focused (:focusable state))
                                              (not= :open (:openable state)))
                                     (str sm-2 " auto #ddd"))
@@ -84,22 +84,28 @@
          {:class    "noselect"
           :on-click #(do (transition! :close)
                          (transition! :blur))
-          :style    {:position       "fixed"
-                     :left           "0px"
-                     :top            "0px"
-                     :width          "100%"
-                     :height         "100%"
+          :style    {:position           "fixed"
+                     :left               "0px"
+                     :top                "0px"
+                     :width              "100%"
+                     :height             "100%"
                      #_#_:pointer-events "none"
-                     :z-index        (case (:openable state)
-                                       :open 99998 nil)}}
+                     :z-index            (case (:openable state)
+                                           :open 99998 nil)}}
 
          ::dropdown/body-wrapper
          {:style {:position   "absolute"
                   :overflow-y "auto"
                   :overflow-x "visible"}}
 
+         ::nested-grid/cell-wrapper
+         {:style {:pointer-events "none"
+                  :user-select "none"}}
+
          ::nested-grid/column-header-wrapper
-         {:style {:position "relative"}})
+         {:style {:position       "relative"
+                  :pointer-events "none"
+                  :user-select    "none"}})
        (merge-props props)))
 
 (defn main-variables [props _] props)
