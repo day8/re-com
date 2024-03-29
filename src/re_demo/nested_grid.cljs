@@ -24,16 +24,16 @@
                    :white    "⚪"})
 
 (defn fruit-demo []
-  [nested-grid {:columns [{:id :fruit :hide-cells? true}
-                          [{:id :red}
-                           {:id :white}]]
-                :rows    [[:price
-                           [:foreign
-                            [:kilo
-                             :ton]]
-                           [:domestic
-                            [:kilo
-                             :ton]]]]
+  [nested-grid {:column-tree [{:id :fruit :hide-cells? true}
+                              [{:id :red}
+                               {:id :white}]]
+                :row-tree    [[:price
+                               [:foreign
+                                [:kilo
+                                 :ton]]
+                               [:domestic
+                                [:kilo
+                                 :ton]]]]
                 :cell    (fn fruit-cell [{:keys [row-path column-path]}]
                            (->> (concat column-path row-path)
                                 (map #(header->icon % (header->icon (get % :id))))
@@ -68,11 +68,24 @@
        [:li "In practice, a " [:code ":column-tree"] " is a vector (or list) of "
         [:code ":column-spec"] "values."]
        [:li "The most basic case is a flat tree: " [:code "[:a :b :c]"] "."]
-       [:li "A nested tree looks like: " [:code "[:a [1 2] :b [3 4]]"] "."]]]
+       [:li "A nested tree looks like: " [:code "[:a [1 2] :b [3 4]]"] "."]
+       [:li "In that case: "
+        [:ul
+         [:li [:code ":a"] " and " [:code ":b"] " are siblings, each with two children."]
+         [:li [:code "1"] " and " [:code "2"] " are siblings, both children of " [:code ":a"]]]
+        [nested-grid
+         :column-tree ["Tree" "Paths"]
+         :row-tree    [{:label "Basic" :tree [:a :b :c]}
+                       {:label "Nested"}]
+         :cell (fn [{:keys [column-path] {:keys [tree]} :row-path}]
+                 (case (last column-path)
+                   "Tree" (str tree)
+                   "paths" (str (nested-grid/header-spec->header-paths tree))))]]]]
      [:br]
      [:li "A " [:code ":column-path"] " describes a distinct location within a "
       [:code ":column-tree"] "."
       [:ul
+       [:li ""]
        [:li "Given a " [:code ":column-tree"] ", " [:code ":nested-grid"]
         " derives all the " [:code ":column-path"] "s it contains, mapping the "
         [:code ":cell"] " function over all of them."]]]
@@ -151,8 +164,8 @@
   [rc/v-box
    :children
    [[nested-grid
-     :columns ["red" "yellow" "blue"]
-     :rows    ["red" "yellow" "blue"]
+     :column-tree ["red" "yellow" "blue"]
+     :row-tree    ["red" "yellow" "blue"]
      :cell    (fn color-cell [{:keys [row-path column-path]}]
                 (mix-colors (last row-path)
                             (last column-path)))]
@@ -166,8 +179,8 @@
      " contains a single " [:i "header value"] " - for instance, "
      [:code "[:red]"] "."]
     [:pre "[nested-grid
- :columns [\"red\" \"yellow\" \"blue\"]
- :rows    [\"red\" \"yellow\" \"blue\"]
+ :column-tree [\"red\" \"yellow\" \"blue\"]
+ :row-tree    [\"red\" \"yellow\" \"blue\"]
  :cell    (fn color-cell [{:keys [column-path row-path]}]
              (mix-colors (last column-path)
                          (last row-path)))]"]]])
@@ -192,17 +205,17 @@
   [v-box
    :children
    [[nested-grid
-     {:columns [:medium [:red :yellow :blue]
-                :light [:red :yellow :blue]
-                :dark [:red :yellow :blue]]
-      :rows    [:red :yellow :blue]
+     {:column-tree [:medium [:red :yellow :blue]
+                    :light [:red :yellow :blue]
+                    :dark [:red :yellow :blue]]
+      :row-tree    [:red :yellow :blue]
       :cell    color-shade-cell}]
     [source-reference
      "for above nested-grid"
      "src/re_demo/nested_grid.cljs"]
     [rc/v-box
      :children
-     [[p "Here, " [:code ":columns"] "is a nested " [:i "configuration"] " of " [:i "header values."]]
+     [[p "Here, " [:code ":column-tree"] "is a nested " [:i "configuration"] " of " [:i "header values."]]
       [p "Since the " [:i "configuration"] " has 2 levels of nesting,"
        " each " [:code ":column-path"] " is 2-long. For instance, "
        [:code "[:medium :yellow]"] ". "]
@@ -210,10 +223,10 @@
       [p "Calling " [:code "(color-shade-cell {:column-path [:medium :yellow] :row-path [:blue]})"]
        "should return a " [:span {:style {:color "green"}} "green"] " hiccup."]
       [:pre "[nested-grid
- :columns [:medium [:red :yellow :blue]
+ :column-tree [:medium [:red :yellow :blue]
            :light  [:red :yellow :blue]
            :dark   [:red :yellow :blue]]
- :rows    [:red :yellow :blue]
+ :row-tree    [:red :yellow :blue]
  :cell    color-shade-cell]"]]]]])
 
 (def lookup-table [["🚓" "🛵" "🚲" "🛻" "🚚"]
@@ -233,10 +246,10 @@
   [v-box
    :children
    [[nested-grid
-     :columns [add      [one two]
-               multiply [one two]
-               lookup   [one two]]
-     :rows    [three four]
+     :column-tree [add      [one two]
+                   multiply [one two]
+                   lookup   [one two]]
+     :row-tree    [three four]
      :row-header (comp :label last :row-path)
      :column-header (comp :label last :column-path)
      :row-header 20
@@ -265,10 +278,10 @@
 (def four     {:label \"4\" :right 4})
 
 [nested-grid
- :columns       [add      [one two]
+ :column-tree       [add      [one two]
                  multiply [one two]
                  lookup   [one two]]
- :rows          [three four]
+ :row-tree          [three four]
  :column-header (comp :label last :column-path)
  :row-header    (comp :label last :row-path)
  :cell          (fn [{:keys [column-path row-path]}]
@@ -284,34 +297,34 @@
      :justify :between
      :children
      [[nested-grid
-       :columns [:a :b :c]
+       :column-tree [:a :b :c]
        :show-branch-cells? true
-       :rows    [1 2 3]
+       :row-tree    [1 2 3]
        :column-width 40
        :column-header-height 25
        :row-header-width 30
        :cell (fn [{:keys [column-path row-path]}]
                (str column-path row-path))]
       [:pre {:style {:margin-top 19}} "[nested-grid
- :columns [:a :b :c]
- :rows    [1  2  3]
+ :column-tree [:a :b :c]
+ :row-tree    [1  2  3]
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
     [h-box
      :justify :between
      :children
      [[nested-grid
-       :columns [:a :b :c]
-       :rows    [[1 [:x :y]]
-                 [2 [:x :y]]]
+       :column-tree [:a :b :c]
+       :row-tree    [[1 [:x :y]]
+                     [2 [:x :y]]]
        :column-width 55
        :column-header-height 25
        :row-header-width 30
        :cell    (fn [{:keys [column-path row-path]}]
                   (str column-path row-path))]
       [:pre {:style {:margin-top 19}} "[nested-grid
- :columns [:a :b :c]
- :rows    [1 [:x :y]
+ :column-tree [:a :b :c]
+ :row-tree    [1 [:x :y]
            2 [:x :y]]
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
@@ -319,8 +332,8 @@
      :justify :between
      :children
      [[nested-grid
-       :columns [:a [1 2] :b [3 4]]
-       :rows    [:x [5 6] :y [7 8]]
+       :column-tree [:a [1 2] :b [3 4]]
+       :row-tree    [:x [5 6] :y [7 8]]
        :column-header-height 25
        :row-header-width 30
        :column-width 65
@@ -329,8 +342,8 @@
                 (str column-path row-path)])]
       [:pre {:style {:margin-top 19}}
        "[nested-grid
- :columns [:a [1 2] :b [3 4]]
- :rows    [:x [5 6] :y [7 8]]
+ :column-tree [:a [1 2] :b [3 4]]
+ :row-tree    [:x [5 6] :y [7 8]]
  :cell (fn [{:keys [column-path row-path]}]
          [:i {:style {:color \"grey\"}}
           (str column-path row-path)])]"]]]]])
@@ -397,7 +410,7 @@
     [nested-grid
      :column-header-height 20
      :row-height 60
-     :columns    [:plant [:fruit [:apple :banana] :vegetable [:potato]]]
+     :column-tree    [:plant [:fruit [:apple :banana] :vegetable [:potato]]]
      :cell       (comp str :column-path)]
     [:br]
     [p "However: if you pass an optional " [:code ":show-branch-paths?"]
@@ -406,7 +419,7 @@
      :column-header-height 20
      :row-height 60
      :show-branch-paths? true
-     :columns    [:plant [:fruit [:apple :banana] :vegetable [:potato]]]
+     :column-tree    [:plant [:fruit [:apple :banana] :vegetable [:potato]]]
      :cell       (fn [{:keys [column-path]}]
                    [:div
                     (if (= 3 (count column-path))
@@ -414,7 +427,7 @@
                                      :color "green"}} "leaf!"]
                       [:div {:style {:font-size 10
                                      :color "brown"}} "branch!"])
-                    (str (last column-path))])]
+                    (str column-path)])]
     [title3 "Special keys"]
     [p "If your " [:code ":column-spec"] " or " [:code ":row-spec"] " is a map, you can include a few special keys. "
      "These will cause " [:code "nested-grid"] " to handle your column or row with special behavior."
@@ -426,9 +439,10 @@
      [:pre "[:plant [{:id :fruit :show? true :width 200} [:apple :banana] :vegetable [:potato]]]"]]
     [nested-grid
      :column-header-height 20
-     :columns    [:plant [{:id :fruit :show? true :width 200} [:apple :banana] :vegetable [:potato]]]]
+     :column-tree    [:plant [{:id :fruit :show? true :width 200} [:apple :banana] :vegetable [:potato]]]]
     [:br]
-    [p "If you prefer to separate concerns, you can instead include these keys in the metadata of your column- or row-spec."]
+    [p "If you prefer to separate concerns, you can instead include these keys in the metadata of your column- or row-spec:"
+     [:pre "[:plant [^{:show? true :width 200} {:id :fruit} [:apple :banana] :vegetable [:potato]]]"]]
     [title3 "Paths have state"]
     [p "Within an atom, " [:code "nested-grid"] " stores a map for each "
      [:code ":column-path"] " and each " [:code ":row-path"] "."]

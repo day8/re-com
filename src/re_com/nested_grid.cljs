@@ -308,7 +308,7 @@
         on-resize-cell      (fn [{:keys [distance path]}]
                               (swap! column-state update-in [path :width]
                                      #(+ distance (or % (column-header-prop path :width column-width)))))]
-    (fn [& {:keys [columns rows cell
+    (fn [& {:keys [column-tree row-tree cell
                    cell-wrapper column-header-wrapper column-header row-header row-header-wrapper
                    show-branch-paths?
                    max-height column-width column-header-height row-header-width row-height
@@ -322,10 +322,10 @@
                    show-branch-paths?      false
                    on-export-column-header pr-str}}]
       (let [themed                 (fn [part props] (theme/apply props {:part part} {}))
-            column-paths           (spec->headers* columns)
+            column-paths           (spec->headers* column-tree)
             column-leaf-paths      (reduce (fn [paths p] (remove (partial ancestor? p) paths)) column-paths column-paths)
             leaf-column?           (set column-leaf-paths)
-            row-paths              (spec->headers* rows)
+            row-paths              (spec->headers* row-tree)
             leaf-row?              (set (reduce (fn [paths p] (remove #(descendant? % p) paths)) row-paths row-paths))
             leaf?                  (fn [path dimension]
                                      (case dimension
