@@ -23,13 +23,6 @@
                    :red      "🔴"
                    :white    "⚪"})
 
-(nested-grid/header-spec->header-paths
- [:medium [:red :yellow :blue]
-  :light [:red :yellow :blue]
-  :dark [:red :yellow :blue]])
-
-(def fruit {:dimension "fruit"})
-
 (defn fruit-demo []
   [nested-grid {:columns [{:id :fruit :hide-cells? true}
                           [{:id :red}
@@ -46,81 +39,92 @@
                                 (map #(header->icon % (header->icon (get % :id))))
                                 (apply str)))}])
 
-(def lookup-table [["🚓" "🛵" "🚲" "🛻" "🚚"]
-                   ["🍐" "🍎" "🍌" "🥝" "🍇"]
-                   ["🐕" "🐎" "🧸" "🐈" "🐟"]])
-
-(def add {:operator + :label "Addition"})
-(def multiply {:operator * :label "Multiplication"})
-(def lookup {:operator (fn [l r] (get-in lookup-table [l r]))
-             :label    "Lookup"})
-(def one {:left 1 :label "1"})
-(def two {:left 2 :label "2"})
-(def three {:right 3 :label "3"})
-(def four  {:right 4 :label "4"})
-
-(defn notes-column []
+(defn concepts-column []
   [v-box
    :children
-   [[title2 "Notes"]
+   [[title2 "Concepts"]
+    [p "To use " [:code "nested-grid"]
+     ", you’ll need to understand some key concepts - "
+     [:code ":column-tree"] ","
+     [:code ":column-spec"] ","
+     [:code ":column-path"] ", etc..."]
+    [:ul {:style {:width 400}}
+     [:li [p "A " [:code ":column-spec"] " describes a single column."]
+      [:ul
+       [:li "For instance, the " [:strong "Basic Demo"] " uses "
+        [:code ":a"] " as a " [:code ":column-spec"] "."]
+       [:li "Besides keywords, you can use " [:i "almost any"] " type of value."]
+       [:li "You " [:i "can't"] " use vectors or lists (these are reserved for the "
+        [:code ":column-tree"] ")."]
+       [:li "At Day8, we tend to use maps. For instance, "
+        [:pre "{:id :a
+ :column-label \"A\"
+ :special-business-logic ::xyz}"]]]]
+     [:br]
+     [:li "A " [:code ":column-tree"] "describes a nested arrangement of columns."
+      [:ul
+       [:li "There are parent columns, and they can have child columns, "
+        "which can have their own child columns, etc..."]
+       [:li "In practice, a " [:code ":column-tree"] " is a vector (or list) of "
+        [:code ":column-spec"] "values."]
+       [:li "The most basic case is a flat tree: " [:code "[:a :b :c]"] "."]
+       [:li "A nested tree looks like: " [:code "[:a [1 2] :b [3 4]]"] "."]]]
+     [:br]
+     [:li "A " [:code ":column-path"] " describes a distinct location within a "
+      [:code ":column-tree"] "."
+      [:ul
+       [:li "Given a " [:code ":column-tree"] ", " [:code ":nested-grid"]
+        " derives all the " [:code ":column-path"] "s it contains, mapping the "
+        [:code ":cell"] " function over all of them."]]]
+     [:br]
+     [:li [:code ":row-spec"] ", " [:code ":row-tree"] " and " [:code ":row-paths"]
+      " have all the same properties as their column equivalents."]
+     [:br]
+     [:li "A " [:i "position"] " combines one " [:code ":row-path"]
+      " with one " [:code ":column-path"] "."
+      [:ul
+       [:li "Rendering one cell means evaluating the " [:code ":cell"] "function, "
+        "by passing in keyword arguments "
+        [:code ":row-path"] " and " [:code ":column-path"]
+        " (i.e., the " [:i "position"] ")."]]]]]])
+
+(defn intro-column []
+  [v-box
+   :children
+   [[title2 "Introduction"]
     [status-text "alpha" {:color "red"}]
     [new-in-version "v2.20.0"]
-    [p [:code "nested-grid"] " provides a lean abstraction for viewing multidimensional "
-     "tabular data, using "
-     [:a {:href "https://www.w3schools.com/css/css_grid.asp"} "css grid"]
-     " for layout."]
-    [title3 "Cells are Functions"]
-    [p "Each cell is a " [:i "function"] " of its grid position."]
-
-    [title3 "Headers are Nested"]
-    [p "You can declare headers as a nested " [:i "configuration."]]
-
-    [p "Each vertical partition you see is defined by a " [:code ":column-path"] "."
-     "For instance, " [:code "[:a :a1]"] " is the first " [:code ":column-path"] "."]
-    [p "Same goes for rows. For instance, " [:code "[:y :y2]"] " is the last " [:code ":row-path"] "."]
-    [title3 "Cells are Views of Header Paths"]
-    [p "Each cell is a function of its location."]
-    [p "Specifically, the " [:code ":cell"] " prop accepts a function "
-     "of two keyword arguments: " [:code ":column-path"] " and " [:code ":row-path"] "."]
-    [p "The function counts as a "
-     [:a {:href "https://github.com/reagent-project/reagent/blob/master/doc/CreatingReagentComponents.md"}
-      "reagent component"] ", returning either a string or a hiccup."]
-    [title3 "Header Cells are Views, Too"]
-    [p "Just like " [:code ":cell"] ", the " [:code ":column-header"] " and " [:code ":row-header"] " props "
-     "are functions of their location."]
-    [p "The difference is, a " [:code ":column-header"] " only has a " [:code ":column-path"]
-     " and a " [:code ":row-header"] " only has a " [:code ":row-path"] "."]
-    [title3 "Headers are Richly Declarative"]
-    [p "A " [:code ":column-path"] " is a vector of " [:i "header values."]]
-    [p "Anything can be a " [:i "header value"] ", "
-     [:i "except"] " a " [:code "list"] " or " [:code "vector"] " (those express " [:i "configuration"] ")."]
-    [p "So far, we've looked at simple " [:i "header values"] ", like " [:code ":a"] " or " [:code "\"blue\""] "."]
-    [p "Another common use-case is a map, like " [:code "{:id :a :label \"A\" :type :letter}"] "."
-     "We consider a value like this to be a " [:i "header spec"] "."]
-    [title3 "Nested-grid + Domain Logic = Pivot Table"]
-    [:i {:style {:max-width "400px"}}
-     "A pivot table is a table of values which are aggregations of groups of individual values from a more extensive table..."
-     "within one or more discrete categories. (" [:a {:href "https://en.wikipedia.org/wiki/Pivot_table"} "Wikipedia"] ")"]
-    [:br]
-    [p "The pivot table is our driving use-case. "
-     "By separating UI presentation from data presentation, we hope "
-     [:code "nested-grid"] " makes it simple to build robust and flexible pivot tables."]
-    [p "In " [:strong "Demo #3: Header Specifications"] ", " [:code "lookup-table"] "declares "
-     [:i "\"a more extensive table,\""]
-     " and the " [:code "lookup"] [:i "column spec"] " declares how to use that table."]
-    [p
-     "More generally:" [:br]
+    [p [:code "nested-grid"]
+     " " "provides a table with nested, hierarchical columns and rows."
+     " " "The archetypical use-case would be to display a "
+     [:a {:href "https://en.wikipedia.org/wiki/Pivot_table"} "pivot table"] "."
+     " " "However, " [:code "nested-grid"] " provides a lean abstraction that could"
+     " " "suit a variety of problems."]
+    [p "Essentially, each cell has a unique" " " [:i "position"]
+     " " "within the hierarchy." " " "The value of each cell is a"
+     " " [:i "function"] " " "of its" " " [:i "position."]]
+    [title2 "Characteristics"]
+    [p "Unlike" " " [:code "v-table"] ", "
+     [:code "nested-grid"] ":"
+     [:ul {:style {:width 400}}
+      [:li "Uses" " " [:a {:href "https://www.w3schools.com/css/css_grid.asp"} "css grid"]
+       " " "for layout."]
+      [:li "Has adjustible column & row widths."]
+      [:li "Is optimized for tens or hundreds of rows, not millions."]
+      [:li "Does not virtualize rows (" [:span {:style {:color "red"}} "...yet"] ")."
+       " It renders everything in a single pass."]
+      [:li "Does not re-render when you scroll or click. Even if that first render is expensive, "
+       "the UI should be snappy once it completes."]]]
+    [title2 "Quick Start"]
+    [p "To use" [:code "nested-grid"] ", at a minimum, you must declare:"
      [:ul
-      [:li "Your " [:code ":columns"] " and " [:code ":rows"]
-       " declare the necessary domain concepts, such as "
-       [:i "\"aggregations\""] " and " [:i "\"groups.\""]]
-      [:li "Your " [:code ":cell"] " function dispatches on each concept, "
-       "deriving these " [:i "\"aggregations\""] " and " [:i "\"groups\""] " from "
-       [:i "\"a more extensive table.\""]]]]
-    [p "We also envision building an interactive, configurable pivot table. "
-     "By changing " [:code ":columns"] " and " [:code ":rows"] ", you could reconfigure the UI presentation, and "
-     "your data presentation would simply follow along. "
-     "This could be done either programmatically or via a dedicated user interface."]]])
+      [:li [:code ":column-tree"] ": a vector describing the column structure."]
+      [:li [:code ":row-tree"] ": a vector describing the row structure."]
+      [:li [:code ":cell"] ": a function which, given a "
+       [:code ":column-path"] " and a " [:code ":row-path"]
+       ", renders one cell, either as a string or a hiccup."]]
+     "See the " [:strong "Basic Demo"] " for examples,"
+     " and the " [:strong "Concepts"] " section for in-depth explanations."]]])
 
 (def color-mixer
   {:red    {:red    :red
@@ -212,6 +216,19 @@
  :rows    [:red :yellow :blue]
  :cell    color-shade-cell]"]]]]])
 
+(def lookup-table [["🚓" "🛵" "🚲" "🛻" "🚚"]
+                   ["🍐" "🍎" "🍌" "🥝" "🍇"]
+                   ["🐕" "🐎" "🧸" "🐈" "🐟"]])
+
+(def add {:operator + :label "Addition"})
+(def multiply {:operator * :label "Multiplication"})
+(def lookup {:operator (fn [l r] (get-in lookup-table [l r]))
+             :label    "Lookup"})
+(def one {:left 1 :label "1"})
+(def two {:left 2 :label "2"})
+(def three {:right 3 :label "3"})
+(def four  {:right 4 :label "4"})
+
 (defn header-spec-demo []
   [v-box
    :children
@@ -268,6 +285,7 @@
      :children
      [[nested-grid
        :columns [:a :b :c]
+       :show-branch-cells? true
        :rows    [1 2 3]
        :column-width 40
        :column-header-height 25
@@ -284,8 +302,8 @@
      :children
      [[nested-grid
        :columns [:a :b :c]
-       :rows    [1 [:x :y]
-                 2 [:x :y]]
+       :rows    [[1 [:x :y]]
+                 [2 [:x :y]]]
        :column-width 55
        :column-header-height 25
        :row-header-width 30
@@ -317,10 +335,14 @@
          [:i {:style {:color \"grey\"}}
           (str column-path row-path)])]"]]]]])
 
+(defn header-demo []
+  [:hi])
+
 (defn demos []
-  (let [tabs [{:id :basic :label "Basic" :view basic-demo}
+  (let [tabs [{:id :basic :label "Basic Demo" :view basic-demo}
               {:id :color :label "Color" :view color-demo}
               {:id :shade :label "Shade" :view color-shade-demo}
+              {:id :header :label "Headers" :view header-demo}
               {:id :spec  :label "Spec"  :view header-spec-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
@@ -334,15 +356,96 @@
            :tabs      tabs
            :style     {:margin-top "12px"}
            :on-change #(reset! !tab-id %)]
-          [title2 (str label " Demo")]
+          [title2 label]
           [view]]]))))
+
+(defn args-column []
+  [args-table
+   nested-grid-args-desc
+   {:total-width       "550px"
+    :name-column-width "180px"}])
+
+(defn algorithm-column []
+  [v-box
+   :children
+   []])
+
+(defn more-column []
+  [v-box
+   :children
+   [[title2 "More"]
+    [title3 "Rendering Header Cells"]
+    [p "Just like " [:code ":cell"] ", the "
+     [:code ":column-header"] " and " [:code ":row-header"] " props "
+     "are functions of their location."]
+    [p "The difference is, they can only expect to be passed a single path. "
+     [:code ":column-header"] " only expects a " [:code ":column-path"]
+     ", and "
+     [:code ":row-header"] " only expects a " [:code ":row-path"] "."]
+    [p "If you don't pass any " [:code ":column-header"] " prop,"
+     " then it's handled by this default behavior:"
+     [:ul
+      [:li "take the last " [:code ":column-spec"] " in the " [:code ":column-path"] "."]
+      [:li "if it's a map, get the " [:code ":label"] " key, or the  " [:code ":id"] " key."]
+      [:li "if that doesn't work, stringify the whole item."]]]
+
+    [title3 "Branch paths can have cells, too"]
+    [p "Consider this " [:code ":column-tree"] ":"
+     [:pre "[:plant [:fruit [:apple :banana] :vegetable [:potato]]]"]]
+    [p "Normally, " [:code "nested-column"] " would derive 3 " [:code ":column-path"] "s. "
+     "More specifically, these are the 3 " [:i "leaf paths"] ":"]
+    [nested-grid
+     :column-header-height 20
+     :row-height 60
+     :columns    [:plant [:fruit [:apple :banana] :vegetable [:potato]]]
+     :cell       (comp str :column-path)]
+    [:br]
+    [p "However: if you pass an optional " [:code ":show-branch-paths?"]
+     " key, then 6 paths will be derived - 3 " [:i "leaf paths"] " and 3 " [:i "branch paths"] ":"]
+    [nested-grid
+     :column-header-height 20
+     :row-height 60
+     :show-branch-paths? true
+     :columns    [:plant [:fruit [:apple :banana] :vegetable [:potato]]]
+     :cell       (fn [{:keys [column-path]}]
+                   [:div
+                    (if (= 3 (count column-path))
+                      [:div {:style {:font-size 10
+                                     :color "green"}} "leaf!"]
+                      [:div {:style {:font-size 10
+                                     :color "brown"}} "branch!"])
+                    (str (last column-path))])]
+    [title3 "Special keys"]
+    [p "If your " [:code ":column-spec"] " or " [:code ":row-spec"] " is a map, you can include a few special keys. "
+     "These will cause " [:code "nested-grid"] " to handle your column or row with special behavior."
+     [:ul
+      [:li [:code ":width"]  ": sets the initial width."]
+      [:li [:code ":height"] ": sets the initial height."]
+      [:li [:code ":show?"]  ": show (" [:code "true"] ") or hide (" [:code "false"] ") cells, overriding any other context, settings, or branch/leaf position."]]]
+    [p "Here's the first table, but instead of the column-spec " [:code ":fruit"] ", we use a map with special keys. This lets us show a single branch path, while the others remain hidden:"
+     [:pre "[:plant [{:id :fruit :show? true :width 200} [:apple :banana] :vegetable [:potato]]]"]]
+    [nested-grid
+     :column-header-height 20
+     :columns    [:plant [{:id :fruit :show? true :width 200} [:apple :banana] :vegetable [:potato]]]]
+    [:br]
+    [p "If you prefer to separate concerns, you can instead include these keys in the metadata of your column- or row-spec."]
+    [title3 "Paths have state"]
+    [p "Within an atom, " [:code "nested-grid"] " stores a map for each "
+     [:code ":column-path"] " and each " [:code ":row-path"] "."]
+    [p "Keys in this map will override any settings, whether declared in the props, or in a column- or row-spec."]
+    [p "So far (" [:span {:style {:color :red}} "alpha"]
+     "), we only store a " [:code ":width"] " key. "
+     "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
   []
-  (let [tab-defs        [{:id :note       :label "Notes"}
-                         {:id :parameters :label "Parameters"}]
-        selected-tab-id (r/atom (:id (first tab-defs)))]
+  (let [tabs    [{:id :intro      :label "Introduction" :view intro-column}
+                 {:id :concepts   :label "Concepts"     :view concepts-column}
+                 {:id :more       :label "More"         :view more-column}
+                 {:id :parameters :label "Parameters"   :view args-column}]
+        !tab-id (r/atom (:id (first tabs)))
+        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
       [v-box
        :src      (at)
@@ -361,15 +464,10 @@
            :children
            [[rc/horizontal-tabs
              :src       (at)
-             :model     selected-tab-id
-             :tabs      tab-defs
+             :model     !tab-id
+             :tabs      tabs
              :style     {:margin-top "12px"}
-             :on-change #(reset! selected-tab-id %)]
-            (case @selected-tab-id
-              :note       [notes-column]
-              :parameters [args-table
-                           nested-grid-args-desc
-                           {:total-width       "550px"
-                            :name-column-width "180px"}])]]
+             :on-change #(reset! !tab-id %)]
+            [(:view @!tab)]]]
           [demos]]]
         #_[parts-table "nested-grid" nested-grid-grid-parts-desc]]])))

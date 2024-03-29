@@ -104,7 +104,7 @@
 
          ::nested-grid/column-header-wrapper
          {:style {:position       "relative"
-                  :pointer-events "none"
+                  #_#_:pointer-events "none"
                   :user-select    "none"}})
        (merge-props props)))
 
