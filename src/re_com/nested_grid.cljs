@@ -33,6 +33,9 @@
        next-acc
        (recur next-path next-acc remainder)))))
 
+(defn leaf-paths [paths]
+  (reduce (fn [paths p] (remove (partial ancestor? p) paths)) paths paths))
+
 (def spec->headers* (memoize header-spec->header-paths))
 
 (assert (= (header-spec->header-paths [:a :b :c])
@@ -323,7 +326,7 @@
                    on-export-column-header pr-str}}]
       (let [themed                 (fn [part props] (theme/apply props {:part part} {}))
             column-paths           (spec->headers* column-tree)
-            column-leaf-paths      (reduce (fn [paths p] (remove (partial ancestor? p) paths)) column-paths column-paths)
+            column-leaf-paths      (leaf-paths column-paths)
             leaf-column?           (set column-leaf-paths)
             row-paths              (spec->headers* row-tree)
             leaf-row?              (set (reduce (fn [paths p] (remove #(descendant? % p) paths)) row-paths row-paths))

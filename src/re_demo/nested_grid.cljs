@@ -72,15 +72,7 @@
        [:li "In that case: "
         [:ul
          [:li [:code ":a"] " and " [:code ":b"] " are siblings, each with two children."]
-         [:li [:code "1"] " and " [:code "2"] " are siblings, both children of " [:code ":a"]]]
-        [nested-grid
-         :column-tree ["Tree" "Paths"]
-         :row-tree    [{:label "Basic" :tree [:a :b :c]}
-                       {:label "Nested"}]
-         :cell (fn [{:keys [column-path] {:keys [tree]} :row-path}]
-                 (case (last column-path)
-                   "Tree" (str tree)
-                   "paths" (str (nested-grid/header-spec->header-paths tree))))]]]]
+         [:li [:code "1"] " and " [:code "2"] " are siblings, both children of " [:code ":a"]]]]]]
      [:br]
      [:li "A " [:code ":column-path"] " describes a distinct location within a "
       [:code ":column-tree"] "."
@@ -129,7 +121,7 @@
       [:li "Does not re-render when you scroll or click. Even if that first render is expensive, "
        "the UI should be snappy once it completes."]]]
     [title2 "Quick Start"]
-    [p "To use" [:code "nested-grid"] ", at a minimum, you must declare:"
+    [p "To use " [:code "nested-grid"] ", at a minimum, you must declare:"
      [:ul
       [:li [:code ":column-tree"] ": a vector describing the column structure."]
       [:li [:code ":row-tree"] ": a vector describing the row structure."]
@@ -351,11 +343,32 @@
 (defn header-demo []
   [:hi])
 
+(defn internals-demo []
+  [v-box
+   :children
+   [[p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] ":"]
+    [nested-grid
+     :column-tree [{:id "Tree" :width 130}
+                   {:id "Leaf Paths" :width 155}
+                   {:id "All Paths" :width 180}]
+     :row-tree    [{:label "Basic" :tree [:a :b :c]}
+                   {:label "Nested" :tree [:a [:b :c]]}
+                   {:label "Branching" :tree [:a [:b] :c [:d]]}
+                   {:label "Explicit" :tree [[:a [:b :c]]
+                                             [:d [:e :f]]]}
+                   {:label "Typed" :tree [:kw 42 "str" {:k :map}]}]
+     :cell (fn [{:keys [column-path] [{:keys [tree]}] :row-path}]
+             (case (:id (last column-path))
+               "Tree" (str tree)
+               "Leaf Paths" (str (vec (nested-grid/leaf-paths
+                                       (nested-grid/header-spec->header-paths tree))))
+               "All Paths" (str (nested-grid/header-spec->header-paths tree))))]]])
+
 (defn demos []
   (let [tabs [{:id :basic :label "Basic Demo" :view basic-demo}
               {:id :color :label "Color" :view color-demo}
               {:id :shade :label "Shade" :view color-shade-demo}
-              {:id :header :label "Headers" :view header-demo}
+              {:id :internals  :label "Internals"    :view internals-demo}
               {:id :spec  :label "Spec"  :view header-spec-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
