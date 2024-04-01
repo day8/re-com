@@ -263,6 +263,16 @@
                                     :height   "100%"
                                     :width    "100%"}}])])))))
 
+(defn header-spacer-part [_] "")
+
+(defn header-spacer-wrapper-part [{:keys [theme x y header-spacer]}]
+  (let [props (-> {:style
+                   {:grid-column (inc x)
+                    :grid-row    (inc y)}}
+                  (theme/apply {:part ::header-spacer} theme))]
+    [:div props
+     [u/part header-spacer props header-spacer-part]]))
+
 (defn scroll-container [{:keys [scroll-top scroll-left width height]} child]
   [:div {:style {:max-height            height
                  :max-width             width
@@ -312,7 +322,7 @@
                               (swap! column-state update-in [path :width]
                                      #(+ distance (or % (column-header-prop path :width column-width)))))]
     (fn [& {:keys [column-tree row-tree cell
-                   cell-wrapper column-header-wrapper column-header row-header row-header-wrapper
+                   cell-wrapper column-header-wrapper column-header row-header row-header-wrapper header-spacer-wrapper header-spacer
                    show-branch-paths?
                    max-height column-width column-header-height row-header-width row-height
                    show-export-button? on-export on-export-success on-export-failure
@@ -324,7 +334,8 @@
                    show-export-button?     true
                    show-branch-paths?      false
                    on-export-column-header pr-str}}]
-      (let [themed                 (fn [part props] (theme/apply props {:part part} {}))
+      (let [theme {}
+            themed                 (fn [part props] (theme/apply props {:part part} theme))
             column-paths           (spec->headers* column-tree)
             column-leaf-paths      (leaf-paths column-paths)
             leaf-column?           (set column-leaf-paths)
@@ -460,14 +471,12 @@
                                                        :show?              (show? path :row)}]]
                                       ^{:key [::row (or path (gensym))]}
                                       [u/part row-header-wrapper props row-header-wrapper-part]))
-            header-spacer-cells    (doall
-                                    (for [y (range column-depth)
-                                          x (range row-depth)]
-                                      ^{:key [::header-spacer x y]}
-                                      [:div (themed ::header-spacer
-                                              {:style
-                                               {:grid-column (inc x)
-                                                :grid-row    (inc y)}})]))
+            header-spacer-cells    (for [y (range column-depth)
+                                         x (range row-depth)]
+                                     ^{:key [::header-spacer x y]}
+                                     [u/part header-spacer-wrapper
+                                      {:theme theme :x x :y y :header-spacer header-spacer}
+                                      header-spacer-wrapper-part])
             cells                  (doall
                                     (for [column-path showing-column-paths
                                           row-path    showing-row-paths

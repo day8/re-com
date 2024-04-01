@@ -48,50 +48,53 @@
      [:code ":column-tree"] ","
      [:code ":column-spec"] ","
      [:code ":column-path"] ", etc..."]
-    [:ul {:style {:width 400}}
-     [:li [p "A " [:code ":column-spec"] " describes a single column."]
-      [:ul
-       [:li "For instance, the " [:strong "Basic Demo"] " uses "
-        [:code ":a"] " as a " [:code ":column-spec"] "."]
-       [:li "Besides keywords, you can use " [:i "almost any"] " type of value."]
-       [:li "You " [:i "can't"] " use vectors or lists (these are reserved for the "
-        [:code ":column-tree"] ")."]
-       [:li "At Day8, we tend to use maps. For instance, "
-        [:pre "{:id :a
+    [title2 "Column Spec"]
+    [p "A " [:code ":column-spec"] " describes a single column."]
+    [:ul
+     [:li "For instance, the " [:strong "Basic Demo"] " uses "
+      [:code ":a"] " as a " [:code ":column-spec"] "."]
+     [:li "You can use " [:i "almost any"] " type of value (not just keywords)."]
+     [:li "You " [:i "can't"] " use vectors or lists (these are reserved for the "
+      [:code ":column-tree"] ")."]
+     [:li "At Day8, we tend to use maps. For instance, "
+      [:pre {:style {:width 400}} "{:id :a
  :column-label \"A\"
- :special-business-logic ::xyz}"]]]]
-     [:br]
-     [:li "A " [:code ":column-tree"] "describes a nested arrangement of columns."
-      [:ul
-       [:li "There are parent columns, and they can have child columns, "
-        "which can have their own child columns, etc..."]
-       [:li "In practice, a " [:code ":column-tree"] " is a vector (or list) of "
-        [:code ":column-spec"] "values."]
-       [:li "The most basic case is a flat tree: " [:code "[:a :b :c]"] "."]
-       [:li "A nested tree looks like: " [:code "[:a [1 2] :b [3 4]]"] "."]
-       [:li "In that case: "
-        [:ul
-         [:li [:code ":a"] " and " [:code ":b"] " are siblings, each with two children."]
-         [:li [:code "1"] " and " [:code "2"] " are siblings, both children of " [:code ":a"]]]]]]
-     [:br]
-     [:li "A " [:code ":column-path"] " describes a distinct location within a "
-      [:code ":column-tree"] "."
-      [:ul
-       [:li ""]
-       [:li "Given a " [:code ":column-tree"] ", " [:code ":nested-grid"]
-        " derives all the " [:code ":column-path"] "s it contains, mapping the "
-        [:code ":cell"] " function over all of them."]]]
-     [:br]
-     [:li [:code ":row-spec"] ", " [:code ":row-tree"] " and " [:code ":row-paths"]
-      " have all the same properties as their column equivalents."]
-     [:br]
-     [:li "A " [:i "position"] " combines one " [:code ":row-path"]
-      " with one " [:code ":column-path"] "."
-      [:ul
-       [:li "Rendering one cell means evaluating the " [:code ":cell"] "function, "
-        "by passing in keyword arguments "
-        [:code ":row-path"] " and " [:code ":column-path"]
-        " (i.e., the " [:i "position"] ")."]]]]]])
+ :special-business-logic ::xyz}"]]]
+    [title2 "Column Tree"]
+    [p "A " [:code ":column-tree"] "describes a nested arrangement of columns."
+     [:ul
+      [:li "In practice, a " [:code ":column-tree"] " is a vector (or list) of "
+       [:code ":column-spec"] "values."]
+      [:li "There are parent columns, and they can have child columns, "
+       "which can have their own child columns, etc..."]
+      [:li "The most basic case is a flat tree: " [:code "[:a :b :c]"] "."]
+      [:li "A nested tree looks like: " [:code "[:a [1 2] :b [3 4]]"] "."]
+      [:li "In that case: "
+       [:ul
+        [:li [:code ":a"] " and " [:code ":b"] " are siblings, each with two children."]
+        [:li [:code "1"] " and " [:code "2"] " are siblings, both children of " [:code ":a"]]]]]]
+    [title2 "Column Path"]
+    [p "A " [:code ":column-path"] " describes a distinct ancestry within a "
+     [:code ":column-tree"] "."
+     [:ul
+      [:li "For the " [:code ":column-tree"] " above, " [:code "[:a [1 2] :b [3 4]]"] ", its " [:code ":column-path"] "s are: "
+       [:pre "[[:a] [:a 1] [:a 2] [:b] [:b 1] [:b 2]]"]]]]
+    [title2 "Row"]
+    [p "Everything described above applies to rows, as well. " [:code ":row-spec"] ", " [:code ":row-tree"] " and " [:code ":row-path"]
+     " have all the same properties as their column equivalents."]
+    [title2 "Cell & Header Functions"]
+    [p [:code "nested-grid"] " accepts " [:code ":column-header"] ", " [:code ":row-header"] ", " [:code ":header-spacer"] " and " [:code ":cell"] " props. Each is a function." [:code "nested-grid"] " calls each function to render the following locations:"
+     [nested-grid
+      :header-spacer (constantly [:div {:style {:color "grey"}} ":header-spacer"])
+      :column-width 100
+      :column-tree [":column-header" [{:id (gensym) :label ":column-header"}
+                                      {:id (gensym) :label ":column-header"}]]
+      :row-tree [":row-header" [{:id (gensym) :label ":row-header"}
+                                {:id (gensym) :label "row-header"}]]
+      :cell        (constantly ":cell")]
+     [p "Each prop has a reasonable default, except for " [:code ":cell"] "."
+      "Your " [:code ":cell"] " function will be passed two keyword arguments, "
+      [:code ":column-path"] " and " [:code ":row-path"] ". It can return either a string or a hiccup."]]]])
 
 (defn intro-column []
   [v-box
@@ -256,7 +259,8 @@
      "for above nested-grid"
      "src/re_demo/nested_grid.cljs"]
     [p "Here, we use " [:i "header specs"] " like " [:code "multiply"]
-     " and " [:code "lookup"] " to build a multi-modal view of the source data."]
+     " and " [:code "lookup"] " to build a multi-modal view of the source data."
+     " In other words, the combined " [:code ":column-path"] " and " [:code ":row-path"] " express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
     [:pre "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
                    [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
                    [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])
@@ -282,10 +286,30 @@
                                                            (apply merge))]
                     (operator left right)))]"]]])
 
-(defn basic-demo []
+(defn header-demo []
+  [:hi])
+
+(defn internals-demo []
   [v-box
    :children
-   [[h-box
+   [[nested-grid
+     :column-tree [{:id "Tree" :width 130}
+                   {:id "Leaf Paths" :width 155}
+                   {:id "All Paths" :width 180}]
+     :row-tree    [{:label "Basic" :tree [:a :b :c]}
+                   {:label "Nested" :tree [:a [:b :c]]}
+                   {:label "Branching" :tree [:a [:b] :c [:d]]}
+                   {:label "Explicit" :tree [[:a [:b :c]]
+                                             [:d [:e :f]]]}
+                   {:label "Typed" :tree [:kw 42 "str" {:k :map}]}]
+     :cell (fn [{:keys [column-path] [{:keys [tree]}] :row-path}]
+             (case (:id (last column-path))
+               "Tree" (str tree)
+               "Leaf Paths" (str (vec (nested-grid/leaf-paths
+                                       (nested-grid/header-spec->header-paths tree))))
+               "All Paths" (str (nested-grid/header-spec->header-paths tree))))]
+    [p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] "."]
+    [h-box
      :justify :between
      :children
      [[nested-grid
@@ -302,6 +326,7 @@
  :row-tree    [1  2  3]
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
+    [p "Here, the " [:code ":cell"] " function simply prints the " [:code ":column-path"] " and " [:code ":row-path"] " it gets passed."]
     [h-box
      :justify :between
      :children
@@ -320,6 +345,7 @@
            2 [:x :y]]
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
+    [p "Same " [:code ":cell"] " function, but with a nested " [:code ":row-tree"] "."]
     [h-box
      :justify :between
      :children
@@ -338,38 +364,82 @@
  :row-tree    [:x [5 6] :y [7 8]]
  :cell (fn [{:keys [column-path row-path]}]
          [:i {:style {:color \"grey\"}}
-          (str column-path row-path)])]"]]]]])
+          (str column-path row-path)])]"]]]
+    [p "This " [:code ":cell"] " function returns a hiccup, not just a string."]
+    [h-box
+     :justify :between
+     :children
+     [[nested-grid
+       :column-tree [:a :b :c]
+       :row-tree    [[1 [:x :y]]
+                     [2 [:x :y]]]
+       :column-width 55
+       :column-header-height 25
+       :row-header-width 30
+       :show-branch-paths? true
+       :cell    (fn [{:keys [column-path row-path]}]
+                  (str column-path row-path))]
+      [:pre {:style {:margin-top 19}} "[nested-grid
+ :show-branch-paths? true
+ :column-tree [:a :b :c]
+ :row-tree    [1 [:x :y]
+           2 [:x :y]]
+ :cell (fn [{:keys [column-path row-path]}]
+         (str column-path row-path))]"]]]
+    [p "When passed " [:code ":show-branch-paths? true"]
+     ", more cells get rendered. " [:code "[1]"] " and " [:code "[2]"] " count as "
+     "branch paths, since they have children in the " [:code ":row-tree"] ". By default, these are not shown by default."]]])
 
-(defn header-demo []
-  [:hi])
-
-(defn internals-demo []
+(defn basic-demo []
   [v-box
    :children
-   [[p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] ":"]
-    [nested-grid
-     :column-tree [{:id "Tree" :width 130}
-                   {:id "Leaf Paths" :width 155}
-                   {:id "All Paths" :width 180}]
-     :row-tree    [{:label "Basic" :tree [:a :b :c]}
-                   {:label "Nested" :tree [:a [:b :c]]}
-                   {:label "Branching" :tree [:a [:b] :c [:d]]}
-                   {:label "Explicit" :tree [[:a [:b :c]]
-                                             [:d [:e :f]]]}
-                   {:label "Typed" :tree [:kw 42 "str" {:k :map}]}]
-     :cell (fn [{:keys [column-path] [{:keys [tree]}] :row-path}]
-             (case (:id (last column-path))
-               "Tree" (str tree)
-               "Leaf Paths" (str (vec (nested-grid/leaf-paths
-                                       (nested-grid/header-spec->header-paths tree))))
-               "All Paths" (str (nested-grid/header-spec->header-paths tree))))]]])
+   [[h-box
+     :justify :between
+     :children
+     [[nested-grid
+       :column-tree [2 4 6]
+       :row-tree    [1 3 5]
+       :cell (fn [{:keys [column-path row-path]}]
+               (* (last column-path) (last row-path)))]
+      [:pre {:style {:margin-top "19px"}} "[nested-grid
+ :column-tree [2 4 6]
+ :row-tree    [1 3 5]
+ :cell (fn [{:keys [column-path row-path]}]
+          (* (last column-path)
+             (last row-path)))]"]]]
+    [p "A simple times table. the " [:code ":cell"] " function receives "
+     [:code ":column-path"] " and " [:code ":row-path"]
+     ". In this case, each path is a vector of one number, for instance, "
+     [:code "[5]"] "."]
+    [h-box
+     :justify :between
+     :children
+     [[nested-grid
+       :column-tree [0 1 2]
+       :row-tree    [2 3 4]
+       :cell (fn [{:keys [column-path row-path]}]
+               (get-in lookup-table [(last column-path)
+                                     (last row-path)]))]
+      [:pre {:style {:margin-top "19px"}} "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
+                   [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
+                   [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])
+[nested-grid
+ :column-tree [0 1 2]
+ :row-tree    [2 3 4]
+ :cell (fn [{:keys [column-path row-path]}]
+         (get-in lookup-table [(last column-path)
+                               (last row-path)]))]"]]]
+    [p "Here, instead of multiplying the path values, we use them to access an "
+     "external lookup table. This is a common use-case: prepare a data frame independently from "
+     [:code "nested-grid"] ", but with the intention of using "
+     [:code "nested-grid"] " as a simple display layer."]]])
 
 (defn demos []
   (let [tabs [{:id :basic :label "Basic Demo" :view basic-demo}
-              {:id :color :label "Color" :view color-demo}
-              {:id :shade :label "Shade" :view color-shade-demo}
+              #_#_{:id :color :label "Color" :view color-demo}
+                {:id :shade :label "Shade" :view color-shade-demo}
               {:id :internals  :label "Internals"    :view internals-demo}
-              {:id :spec  :label "Spec"  :view header-spec-demo}]
+              {:id :spec  :label "Multimodal"  :view header-spec-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
@@ -467,10 +537,10 @@
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
   []
-  (let [tabs    [{:id :intro      :label "Introduction" :view intro-column}
-                 {:id :concepts   :label "Concepts"     :view concepts-column}
-                 {:id :more       :label "More"         :view more-column}
-                 {:id :parameters :label "Parameters"   :view args-column}]
+  (let [tabs [{:id :intro :label "Introduction" :view intro-column}
+              {:id :concepts :label "Concepts" :view concepts-column}
+              {:id :more :label "More" :view more-column}
+              {:id :parameters :label "Parameters" :view args-column}]
         !tab-id (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
