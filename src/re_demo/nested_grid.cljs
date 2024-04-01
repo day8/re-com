@@ -118,7 +118,7 @@
       [:li "Uses" " " [:a {:href "https://www.w3schools.com/css/css_grid.asp"} "css grid"]
        " " "for layout."]
       [:li "Has adjustible column & row widths."]
-      [:li "Is optimized for tens or hundreds of rows, not millions."]
+      [:li "Is optimized for hundreds of cells, not millions."]
       [:li "Does not virtualize rows (" [:span {:style {:color "red"}} "...yet"] ")."
        " It renders everything in a single pass."]
       [:li "Does not re-render when you scroll or click. Even if that first render is expensive, "
@@ -534,7 +534,6 @@
      "), we only store a " [:code ":width"] " key. "
      "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
-;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
   []
   (let [tabs [{:id :intro :label "Introduction" :view intro-column}

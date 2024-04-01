@@ -485,6 +485,13 @@
   [arg]
   (or (nil? arg) (ifn? arg)))
 
+(def hiccup? vector?)
+
+(defn part?
+  "Returns true if the passed argument is a part, otherwise false/error"
+  [arg]
+  (or (string-or-hiccup? arg) (ifn-or-nil? arg)))
+
 ;; Test for atoms containing specific data types
 ;; NOTE: These "test for atom" validation functions use the 2-arity option where the validation mechanism passes the value
 ;;       of the arg as with the 1-arity version (derefed with peek) but also a boolean (arg-is-atom?) showing whether

@@ -3,12 +3,185 @@
    [clojure.string :as str]
    [re-com.util :as u :refer [px deref-or-value]]
    [reagent.core :as r]
+   [re-com.config      :refer [debug? include-args-desc?]]
+   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part?]]
    [re-com.theme :as theme]
    [re-com.box :as box]
    [re-com.buttons :as buttons]))
 
-(def nested-grid-args-desc {})
 (def nested-grid-parts-desc {})
+
+(def nested-grid-parts
+  (when include-args-desc?
+    (-> (map :name nested-grid-parts-desc) set)))
+
+(def nested-grid-args-desc
+  (when include-args-desc?
+    [{:name :cell
+      :default "constantly nil"
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "String, hiccup or function. When a function, acceps keyword args "
+       [:code ":column-path"] " and " [:code ":row-path"]
+       ". Returns either a string or hiccup, which will appear within a single grid cell."]}
+     {:name :column-tree
+      :default "[]"
+      :type "vector or seq of column-specs or column-trees"
+      :validate-fn seq?
+      :description
+      [:span "Describes a nested arrangement of " [:code ":column-spec"] "s. "
+       "A spec's path derives from its depth within the hierarchy of vectors or seqs. "
+       " When a non-vector A precedes a vector B, then the items of B are children of A."
+       " When a non-vector C follows B, then C is a sibling of A."
+       " This nesting can be arbitrarily deep."]}
+     {:name :row-tree
+      :default "[]"
+      :type "vector or seq of row-specs or row-trees"
+      :validate-fn seq?
+      :description
+      [:span "Describes a nested arrangement of " [:code ":row-spec"] "s. "
+       "A spec's path derives from its depth within the hierarchy of vectors or seqs. "
+       " When a non-vector A precedes a vector B, then the items of B are children of A."
+       " When a non-vector C follows B, then C is a sibling of A."
+       " This nesting can be arbitrarily deep."]}
+     {:name :column-header
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A string, hiccup, or function of " [:code "{:keys [column-path]}"] "."
+       " By default, returns the " [:code ":label"] ", " [:code ":id"]
+       ", or else a string of the entire value of the last item in "
+       [:code ":column-path"] "."]}
+     {:name :row-header
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A string, hiccup, or function of " [:code "{:keys [row-path]}"] "."
+       " By default, returns the " [:code ":label"] ", " [:code ":id"]
+       ", or else a string of the entire value of the last item in "
+       [:code ":row-path"] "."]}
+     {:name :cell-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper div, responsible for positioning one " [:code ":cell"]
+       " within the css grid."]}
+     {:name :column-header-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper div, responsible for positioning one " [:code ":column-header"]
+       " within the css grid."]}
+     {:name :row-header-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper div, responsible for positioning one " [:code ":row-header"]
+       " within the css grid."]}
+     {:name :header-spacer-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper responsible for positioning one " [:code ":header-spacer"]
+       " within the css grid."]}
+     {:name :show-branch-paths?
+      :type "boolean"
+      :default "false"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "true"] ", displays cells and headers for all "
+       [:code ":column-paths"] " and " [:code ":row-paths"] ", not just the leaf paths."]}
+     {:name :max-height
+      :required false
+      :type "string"
+      :validate-fn string?
+      :description "standard CSS max-height setting of the entire grid. Literally constrains the grid to the given width so that if the grid is taller than this it will add scrollbars. Ignored if value is larger than the combined width of all the rendered grid rows."}
+     {:name :max-width
+      :required false
+      :type "string"
+      :validate-fn string?
+      :description
+      [:span "standard CSS max-width setting of the entire grid. "
+       "Literally constrains the grid to the given width so that "
+       "if the grid is wider than this it will add scrollbars."
+       " Ignored if value is larger than the combined width of all the rendered grid columns."]}
+     {:name :column-header-height
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default height that a column-header will use. "
+       "Can be overridden by a " [:code ":height"] "key in the "
+       [:code ":column-spec"] ", or by component-local state."]}
+     {:name :column-width
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default width that a column of grid cells will use. "
+       "Can be overridden by a " [:code ":height"] "key in the "
+       [:code ":column-spec"] ", or by component-local state."]}
+     {:name :row-header-width
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default width that a row-header will use. "
+       "Can be overridden by a " [:code ":width"] "key in the "
+       [:code ":row-spec"] ", or by component-local state."]}
+     {:name :row-width
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default width that a row of grid cells will use. "
+       "Can be overridden by a " [:code ":width"]
+       "key in the " [:code ":row-spec"] ", or by component-local state."]}
+     {:name :show-export-button?
+      :required false
+      :default false
+      :type "boolean"
+      :description
+      [:span "When non-nil, adds a hiccup of " [:code ":export-button-render"]
+       " to the component tree."]}
+     {:name :on-export
+      :required false
+      :type "function"
+      :validate-fn ifn?
+      :description
+      [:span "Called whenever the export button is clicked."
+       " Expects keyword arguments "
+       [:code ":header-rows"] " and " [:code ":main-rows"] "."]}
+     {:name :on-export-cell
+      :required false
+      :type "{:keys [row-path column-path]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":cell"] ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-cell"] "over any cells marked for export, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":main-rows"] " prop."]}
+     {:name :on-export-row-header
+      :required false
+      :type "{:keys [row-path]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":row-header"]
+       ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-row-header"] "over any row headers marked for export, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":main-rows"] " prop."]}
+     {:name :on-export-column-header
+      :required false
+      :type "{:keys [column-path]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":column-header"]
+       ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-column-header"] "over any cells marked for export, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}]))
 
 (defn descendant? [path-a path-b]
   (and (not= path-a path-b)
@@ -321,8 +494,9 @@
         on-resize-cell      (fn [{:keys [distance path]}]
                               (swap! column-state update-in [path :width]
                                      #(+ distance (or % (column-header-prop path :width column-width)))))]
-    (fn [& {:keys [column-tree row-tree cell
-                   cell-wrapper column-header-wrapper column-header row-header row-header-wrapper header-spacer-wrapper header-spacer
+    (fn [& {:keys [column-tree row-tree
+                   cell column-header row-header header-spacer
+                   cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
                    show-branch-paths?
                    max-height column-width column-header-height row-header-width row-height
                    show-export-button? on-export on-export-success on-export-failure
@@ -408,7 +582,7 @@
                                             (map add-padding)
                                             (map add-cell-values)
                                             (map render-row-headers))))
-            default-on-export      (fn default-on-export [header-rows main-rows]
+            default-on-export      (fn default-on-export [{:keys [header-rows main-rows]}]
                                      (->> (concat header-rows main-rows)
                                           (map u/tsv-line)
                                           str/join
@@ -430,7 +604,9 @@
                                               :on-export
                                               (fn [_] (let [header-rows (get-header-rows)
                                                             main-rows   (get-main-rows)]
-                                                        ((or on-export default-on-export) header-rows main-rows)
+                                                        ((or on-export default-on-export)
+                                                         {:header-rows header-rows
+                                                          :main-rows main-rows})
                                                         (when on-export-success (on-export-success header-rows main-rows))))}]
             grid-container
             [:div {:on-scroll     #(do (reset! scroll-top (.-scrollTop (.-target %)))
