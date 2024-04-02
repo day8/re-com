@@ -108,9 +108,9 @@
      [:a {:href "https://en.wikipedia.org/wiki/Pivot_table"} "pivot table"] "."
      " " "However, " [:code "nested-grid"] " provides a lean abstraction that could"
      " " "suit a variety of problems."]
-    [p "Essentially, each cell has a unique" " " [:i "position"]
+    [p "Essentially, each cell has a unique pair of" " " [:i "paths"]
      " " "within the hierarchy." " " "The value of each cell is a"
-     " " [:i "function"] " " "of its" " " [:i "position."]]
+     " " [:i "function"] " " "of its" " " [:i "paths"] "."]
     [title2 "Characteristics"]
     [p "Unlike" " " [:code "v-table"] ", "
      [:code "nested-grid"] ":"
@@ -258,9 +258,9 @@
     [source-reference
      "for above nested-grid"
      "src/re_demo/nested_grid.cljs"]
-    [p "Here, we use " [:i "header specs"] " like " [:code "multiply"]
+    [p "Here, we use " [:i "specs"] " like " [:code "multiply"]
      " and " [:code "lookup"] " to build a multi-modal view of the source data."
-     " In other words, the combined " [:code ":column-path"] " and " [:code ":row-path"] " express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
+     " In other words, a " [:code ":column-spec"] " or " [:code ":row-spec"] " can express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
     [:pre "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
                    [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
                    [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])
@@ -274,10 +274,10 @@
 (def four     {:label \"4\" :right 4})
 
 [nested-grid
- :column-tree       [add      [one two]
+ :column-tree   [add      [one two]
                  multiply [one two]
                  lookup   [one two]]
- :row-tree          [three four]
+ :row-tree      [three four]
  :column-header (comp :label last :column-path)
  :row-header    (comp :label last :row-path)
  :cell          (fn [{:keys [column-path row-path]}]
@@ -342,7 +342,7 @@
       [:pre {:style {:margin-top 19}} "[nested-grid
  :column-tree [:a :b :c]
  :row-tree    [1 [:x :y]
-           2 [:x :y]]
+               2 [:x :y]]
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
     [p "Same " [:code ":cell"] " function, but with a nested " [:code ":row-tree"] "."]
@@ -383,12 +383,12 @@
  :show-branch-paths? true
  :column-tree [:a :b :c]
  :row-tree    [1 [:x :y]
-           2 [:x :y]]
+               2 [:x :y]]
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
     [p "When passed " [:code ":show-branch-paths? true"]
      ", more cells get rendered. " [:code "[1]"] " and " [:code "[2]"] " count as "
-     "branch paths, since they have children in the " [:code ":row-tree"] ". By default, these are not shown by default."]]])
+     "branch paths, since they have children in the " [:code ":row-tree"] ". By default, these are not shown."]]])
 
 (defn basic-demo []
   [v-box
@@ -473,7 +473,7 @@
     [title3 "Rendering Header Cells"]
     [p "Just like " [:code ":cell"] ", the "
      [:code ":column-header"] " and " [:code ":row-header"] " props "
-     "are functions of their location."]
+     "are functions of their paths."]
     [p "The difference is, they can only expect to be passed a single path. "
      [:code ":column-header"] " only expects a " [:code ":column-path"]
      ", and "
