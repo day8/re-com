@@ -99,8 +99,9 @@
                   :overflow-x "visible"}}
 
          ::nested-grid/cell-wrapper
-         {:style {:pointer-events "none"
-                  :user-select "none"}}
+         {:style {#_#_:pointer-events "none"
+                  :user-select "none"
+                  :overflow "hidden"}}
 
          ::nested-grid/column-header-wrapper
          {:style {:position       "relative"

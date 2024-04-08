@@ -387,15 +387,31 @@
   (fn [_]
     (let [!ref       (r/atom nil)
           reset-ref! (partial reset! !ref)]
-      (fn [{:keys [dragging-selection? selection?
+      (fn [{:keys [dragging? selection?
                    grid-columns grid-rows
                    mouse-x mouse-y mouse-down-x mouse-down-y]}]
         (let []
           [:<>
+           [:div {:style {:position         "absolute"
+                          :height           "100%"
+                          :width            "100%"
+                          :top              0
+                          :left             0}
+                  :on-mouse-up #(reset! dragging? false)
+                  :on-mouse-down #(do
+                                    (if-not @selection?
+                                      (do (reset! dragging? true)
+                                          (reset! selection? true)
+                                          (reset! mouse-down-y (.-clientY %))
+                                          (reset! mouse-down-x (.-clientX %))
+                                          (reset! mouse-y (.-clientY %))
+                                          (reset! mouse-x (.-clientX %)))
+                                      (do (reset! selection? false)
+                                          (reset! dragging? false))))}]
            [:div {:ref   reset-ref!
                   :style {:grid-column 1
                           :grid-row    1}}]
-           (when @!ref
+           (when (and @!ref @selection?)
              (let [grid-columns  (filter number? grid-columns)
                    grid-rows     (filter number? grid-rows)
                    bounds        (.getBoundingClientRect @!ref)
@@ -410,10 +426,11 @@
                               :grid-column-end   (+ 3 (max column-begin column-finish))
                               :grid-row-start    (+ 2 (min row-begin row-finish))
                               :grid-row-end      (+ 3 (max row-begin row-finish))
-                              :z-index           1
+                              #_#_:z-index           1
                               :border            "2px solid dodgerblue"
                               :background        "rgba(127,127,255,.1)"
-                              :position          "relative"}}
+                              :position          "relative"
+                              :pointer-events "none"}}
                 [:div {:style {:position   "absolute"
                                :background "white"
                                :border     "2px solid grey"
@@ -421,10 +438,9 @@
                                :width      10
                                :right      -6
                                :bottom     -6}}]]))
-           (when @dragging-selection?
-             [:div {:on-mouse-up   #(reset! dragging-selection? false)
+           (when @dragging?
+             [:div {:on-mouse-up   #(reset! dragging? false)
                     :on-mouse-move #(do
-                                      (reset! dragging-selection? true)
                                       (reset! selection? true)
                                       (.preventDefault %)
                                       (reset! mouse-x (.-clientX %))
@@ -474,7 +490,7 @@
                                   default))
         header-prop         (fn [path k dimension & [default]]
                               (let [state (-> (case dimension
-                                                :row @row-state
+                                                :row    @row-state
                                                 :column @column-state)
                                               (get path))]
                                 (first
@@ -499,16 +515,18 @@
                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
                    show-branch-paths?
                    max-height column-width column-header-height row-header-width row-height
-                   show-export-button? on-export on-export-success on-export-failure
-                   on-export-cell on-export-column-header on-export-row-header]
+                   show-export-button? on-export
+                   on-export-cell on-export-column-header on-export-row-header
+                   show-selection-box?]
             :or   {column-header-height    30
                    column-width            60
                    row-header-width        100
                    row-height              30
                    show-export-button?     true
                    show-branch-paths?      false
-                   on-export-column-header pr-str}}]
-      (let [theme {}
+                   on-export-column-header pr-str
+                   show-selection-box?     true}}]
+      (let [theme                  {}
             themed                 (fn [part props] (theme/apply props {:part part} theme))
             column-paths           (spec->headers* column-tree)
             column-leaf-paths      (leaf-paths column-paths)
@@ -521,10 +539,10 @@
                                        :row    (leaf-row? path)))
             show?                  (fn [path dimension]
                                      (let [show-prop (header-prop path :show? dimension)
-                                           result (and (not (false? show-prop))
-                                                       (or (true? show-prop)
-                                                           show-branch-paths?
-                                                           (leaf? path dimension)))]
+                                           result    (and (not (false? show-prop))
+                                                          (or (true? show-prop)
+                                                              show-branch-paths?
+                                                              (leaf? path dimension)))]
                                        result))
             showing-column-paths   (filter #(show? % :column) column-paths)
             showing-row-paths      (filter #(show? % :row) row-paths)
@@ -606,45 +624,36 @@
                                                             main-rows   (get-main-rows)]
                                                         ((or on-export default-on-export)
                                                          {:header-rows header-rows
-                                                          :main-rows main-rows})
-                                                        (when on-export-success (on-export-success header-rows main-rows))))}]
-            grid-container
-            [:div {:on-scroll     #(do (reset! scroll-top (.-scrollTop (.-target %)))
-                                       (reset! scroll-left (.-scrollLeft (.-target %))))
-                   :on-mouse-down #(do
-                                     (if-not @selection?
-                                       (do (reset! selection? true)
-                                           (reset! dragging-selection? true)
-                                           (reset! mouse-down-y (.-clientY %))
-                                           (reset! mouse-down-x (.-clientX %))
-                                           (reset! mouse-y (.-clientY %))
-                                           (reset! mouse-x (.-clientX %)))
-                                       (reset! selection? false)))
-                   :style         {:padding               "0px"
-                                   :cursor                "crosshair"
-                                   :max-height            max-height
-                                   :display               "grid"
-                                   :overflow              "auto"
-                                   :scrollbar-width       "thin"
-                                   :grid-template-columns (grid-template cell-grid-columns)
-                                   :grid-template-rows    (grid-template cell-grid-rows)
-                                   :gap                   "0px"
-                                   :background-color      "transparent"}}]
+                                                          :main-rows   main-rows})))}]
+            cell-grid-continer
+            [:div {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                   (reset! scroll-left (.-scrollLeft (.-target %))))
+                   :style     {:position              "relative"
+                               :padding               "0px"
+                               :cursor                "crosshair"
+                               :max-height            max-height
+                               :display               "grid"
+                               :overflow              "auto"
+                               :scrollbar-width       "thin"
+                               :grid-template-columns (grid-template cell-grid-columns)
+                               :grid-template-rows    (grid-template cell-grid-rows)
+                               :gap                   "0px"
+                               :background-color      "transparent"}}]
             column-header-cells    (doall
                                     (for [path column-paths
-                                          :let [props {:column-path        path
-                                                       :column-paths       column-paths
-                                                       :on-resize          on-resize-cell
-                                                       :column-header      column-header
-                                                       :show?              (show? path :column)}]]
+                                          :let [props {:column-path   path
+                                                       :column-paths  column-paths
+                                                       :on-resize     on-resize-cell
+                                                       :column-header column-header
+                                                       :show?         (show? path :column)}]]
                                       ^{:key [::column (or path (gensym))]}
                                       [u/part column-header-wrapper props column-header-wrapper-part]))
             row-header-cells       (doall
                                     (for [path row-paths
-                                          :let [props {:row-path           path
-                                                       :row-header         row-header
-                                                       :row-paths          row-paths
-                                                       :show?              (show? path :row)}]]
+                                          :let [props {:row-path   path
+                                                       :row-header row-header
+                                                       :row-paths  row-paths
+                                                       :show?      (show? path :row)}]]
                                       ^{:key [::row (or path (gensym))]}
                                       [u/part row-header-wrapper props row-header-wrapper-part]))
             header-spacer-cells    (for [y (range column-depth)
@@ -671,16 +680,17 @@
                                           :grid-row          i
                                           :background-color  "cornflowerblue"
                                           :opacity           0.05
-                                          :z-index           2}})])
+                                          :z-index           2
+                                          :pointer-events    "none"}})])
             box-selector           [selection-part
-                                    {:dragging-selection? dragging-selection?
-                                     :grid-columns        cell-grid-columns
-                                     :grid-rows           cell-grid-rows
-                                     :selection?          selection?
-                                     :mouse-x             mouse-x
-                                     :mouse-y             mouse-y
-                                     :mouse-down-x        mouse-down-x
-                                     :mouse-down-y        mouse-down-y}]
+                                    {:dragging?    dragging-selection?
+                                     :grid-columns cell-grid-columns
+                                     :grid-rows    cell-grid-rows
+                                     :selection?   selection?
+                                     :mouse-x      mouse-x
+                                     :mouse-y      mouse-y
+                                     :mouse-down-x mouse-down-x
+                                     :mouse-down-y mouse-down-y}]
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
             native-scrollbar-width 10]
@@ -710,7 +720,7 @@
                          :grid-template-columns (grid-template max-row-widths)
                          :grid-template-rows    (grid-template cell-grid-rows)}}
            row-header-cells]]
-         (-> grid-container
+         (-> cell-grid-continer
              (into cells)
              (into zebra-stripes)
-             (conj (when @selection? box-selector)))]))))
+             (conj (when show-selection-box? box-selector)))]))))

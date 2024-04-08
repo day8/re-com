@@ -237,8 +237,9 @@
 (def three {:right 3 :label "3"})
 (def four  {:right 4 :label "4"})
 
-(defn header-spec-demo []
+(defn multimodal-demo []
   [v-box
+   :gap "12px"
    :children
    [[nested-grid
      :column-tree [add      [one two]
@@ -286,19 +287,18 @@
                                                            (apply merge))]
                     (operator left right)))]"]]])
 
-(defn header-demo []
-  [:hi])
-
 (defn internals-demo []
   [v-box
+   :gap "12px"
    :children
    [[nested-grid
      :column-tree [{:id "Tree" :width 130}
-                   {:id "Leaf Paths" :width 155}
-                   {:id "All Paths" :width 180}]
+                   {:id "Leaf Paths" :width 150}
+                   {:id "All Paths" :width 200}]
      :row-tree    [{:label "Basic" :tree [:a :b :c]}
                    {:label "Nested" :tree [:a [:b :c]]}
                    {:label "Branching" :tree [:a [:b] :c [:d]]}
+                   {:label "Deep" :tree [1 [2 [3 [4 [5]]]]]}
                    {:label "Explicit" :tree [[:a [:b :c]]
                                              [:d [:e :f]]]}
                    {:label "Typed" :tree [:kw 42 "str" {:k :map}]}]
@@ -309,6 +309,7 @@
                                        (nested-grid/header-spec->header-paths tree))))
                "All Paths" (str (nested-grid/header-spec->header-paths tree))))]
     [p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] "."]
+    [line]
     [h-box
      :justify :between
      :children
@@ -327,6 +328,7 @@
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
     [p "Here, the " [:code ":cell"] " function simply prints the " [:code ":column-path"] " and " [:code ":row-path"] " it gets passed."]
+    [line]
     [h-box
      :justify :between
      :children
@@ -346,6 +348,7 @@
  :cell (fn [{:keys [column-path row-path]}]
          (str column-path row-path))]"]]]
     [p "Same " [:code ":cell"] " function, but with a nested " [:code ":row-tree"] "."]
+    [line]
     [h-box
      :justify :between
      :children
@@ -354,18 +357,22 @@
        :row-tree    [:x [5 6] :y [7 8]]
        :column-header-height 25
        :row-header-width 30
-       :column-width 65
+       :column-width 50
        :cell (fn [{:keys [column-path row-path]}]
-               [:i {:style {:color "grey"}}
+               [:i {:style {:color "grey"
+                            :font-size 10}}
                 (str column-path row-path)])]
       [:pre {:style {:margin-top 19}}
        "[nested-grid
  :column-tree [:a [1 2] :b [3 4]]
  :row-tree    [:x [5 6] :y [7 8]]
- :cell (fn [{:keys [column-path row-path]}]
-         [:i {:style {:color \"grey\"}}
-          (str column-path row-path)])]"]]]
+ :cell
+ (fn [{:keys [column-path row-path]}]
+   [:i {:style {:color \"grey\"
+                :font-size 10}}
+    (str column-path row-path)])]"]]]
     [p "This " [:code ":cell"] " function returns a hiccup, not just a string."]
+    [line]
     [h-box
      :justify :between
      :children
@@ -392,6 +399,7 @@
 
 (defn basic-demo []
   [v-box
+   :gap "12px"
    :children
    [[h-box
      :justify :between
@@ -409,8 +417,9 @@
              (last row-path)))]"]]]
     [p "A simple times table. the " [:code ":cell"] " function receives "
      [:code ":column-path"] " and " [:code ":row-path"]
-     ". In this case, each path is a vector of one number, for instance, "
-     [:code "[5]"] "."]
+     ". In this case, each path is a vector of one number. For instance, "
+     "the bottom cells each have a " [:code ":row-path"] " of " [:code "[5]"] "."]
+    [line]
     [h-box
      :justify :between
      :children
@@ -434,13 +443,126 @@
      [:code "nested-grid"] ", but with the intention of using "
      [:code "nested-grid"] " as a simple display layer."]]])
 
+(defn make-source-data []
+  [[(rand) (rand) (rand) (rand)]
+   [(rand) (rand) (rand) (rand)]
+   [(rand) (rand) (rand) (rand)]
+   [(rand) (rand) (rand) (rand)]])
+
+(def source-data (r/atom (make-source-data)))
+
+(defn lerp-red-green [val & [lower-bound upper-bound]]
+  (let [lerp (fn [a b t] (+ a (* (- b a) t)))
+        lower-bound (or lower-bound 0)
+        upper-bound (or upper-bound 1)
+        mid-point (/ (+ lower-bound upper-bound) 2)]
+    (if (<= val mid-point)
+      (let [t (/ (- val lower-bound)
+                 (- mid-point lower-bound))]
+        [1 (lerp 0 1 t) 0])
+      (let [t (/ (- val mid-point)
+                 (- upper-bound mid-point))]
+        [(lerp 1 0 t) 1 0]))))
+
+(def round #(.toFixed % 2))
+
+(defmulti multimodal-cell (comp :mode first :row-path))
+
+(defmethod multimodal-cell :heatmap
+  [{:keys [column-path row-path]}]
+  (let [summary (get-in @source-data [(last column-path)
+                                      (last row-path)])]
+    [:div {:style {:text-align "center"
+                   :background-color
+                   (->> (lerp-red-green summary)
+                        (map (partial * 255))
+                        (str/join ", ")
+                        (#(str "rgb(" % ")")))}}
+     (round summary)]))
+
+(defmethod multimodal-cell :bar-line
+  [{:keys [column-path row-path]}]
+  (let [summary (get-in @source-data [(last column-path)
+                                      (last row-path)])]
+    [h-box
+     :children
+     [[:div {:style {:position "absolute"}} (round summary)]
+      [box
+       :size (str (* 100 summary) "%")
+       :style {:background-color "cyan"
+               :overflow-x "visible"}
+       :child " "]
+      [box
+       :size "auto"
+       :style {:background-color "lightgrey"}
+       :child ""]]]))
+
+(defn sparkline [data]
+  (let [max-val (apply max data)
+        min-val (apply min data)
+        scale-x (fn [index] (* index (quot 100 (dec (count data)))))
+        scale-y (fn [val] (- 100 (* (/ (- val min-val) (- max-val min-val)) 100)))]
+    [:svg {:viewBox             "0 0 110 110"
+           :preserveAspectRatio "none"
+           :width               "100%"
+           :height              "100%"}
+     [:polyline {:points          (str/join " "
+                                            (map (fn [index]
+                                                   (str (scale-x index)
+                                                        ","
+                                                        (scale-y (nth data index))))
+                                                 (range (count data))))
+                 :stroke          "black"
+                 :stroke-width    2
+                 :stroke-linejoin "round"
+                 :stroke-linecap  "round"
+                 :vector-effect   "non-scaling-stroke"
+                 :fill            "none"}]]))
+
+(defmethod multimodal-cell :spark-line
+  [{:keys [column-path row-path]}]
+  [sparkline (get @source-data (last column-path))])
+
+(defmethod multimodal-cell :button
+  [{:keys [column-path row-path]}]
+  [:button {:style {:z-index 99}
+            :on-click #(swap! source-data assoc (last column-path)
+                              [(rand) (rand) (rand) (rand)])}
+   "Refresh"])
+
+(defn app-demo []
+  [v-box
+   :gap "12px"
+   :children
+   [[nested-grid
+     :show-selection-box? false
+     :row-header-width 85
+     :column-tree [1 2 3]
+     :row-tree    [{:mode :button :label "Button"}
+                   {:mode :heatmap :label "Heat Map"} [1 2 3]
+                   {:mode :bar-line :label "Bar Line"} [1 2 3]
+                   {:mode :spark-line :label "Spark Line"}]
+     :cell multimodal-cell]
+    [source-reference "for above nested-grid" "src/re_demo/nested_grid.cljs"]
+    [p "Unlike many spreadsheet libraries, " [:code "nested-grid"] " has no concept"
+     " of a \"heat map\" or \"spark line\". "
+     "There's less for you to use, but also less you need to learn."]
+    [p
+     " As long as you understand the concepts behind "
+     [:code ":column-tree"] " and " [:code ":cell"]
+     ", then the full power of reagent is at your disposal."
+     " Your cell can:"
+     [:ul
+      [:li "render complex graphics and UI"]
+      [:li "efficiently update (by dereferencing a reagent atom)"]
+      [:li "flexibly serialize its value with " [:code ":on-export-cell"]]]]]])
+
 (defn demos []
-  (let [tabs [{:id :basic :label "Basic Demo" :view basic-demo}
-              #_#_{:id :color :label "Color" :view color-demo}
-                {:id :shade :label "Shade" :view color-shade-demo}
-              {:id :internals  :label "Internals"    :view internals-demo}
-              {:id :spec  :label "Multimodal"  :view header-spec-demo}]
-        !tab-id  (r/atom (:id (first tabs)))
+  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
+              {:id :internals  :label "Internals"  :view internals-demo}
+              {:id :multimodal :label "Multimodal" :view multimodal-demo}
+              {:id :app        :label "Applications" :view app-demo}]
+        !tab-id  (r/atom (:id (last tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
       (let [{:keys [view label]} @!tab]
