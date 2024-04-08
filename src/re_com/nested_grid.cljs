@@ -181,7 +181,16 @@
        ", but it should return a string value only."
        " After the export button is clicked, " [:code "nested-grid"] " maps "
        [:code ":on-export-column-header"] "over any cells marked for export, passing the "
-       "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}]))
+       "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}
+     {:name :show-selection-box?
+      :default true
+      :type "boolean"
+      :validate-fn boolean?
+      :description
+      [:span "when true, dragging the mouse causes an excel-style "
+       "selection box to appear. When there is a selection box, any export behavior "
+       "takes the bounds of that box into account. For instance, if 2 cells are "
+       "selected, then only 2 cells are exported."]}]))
 
 (defn descendant? [path-a path-b]
   (and (not= path-a path-b)
