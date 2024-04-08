@@ -324,11 +324,14 @@
        (theme/apply {:state {} :part ::cell-wrapper} theme))
    [u/part cell args cell-part]])
 
+(defn header-label [path]
+  (let [header (last path)]
+    (str (or (:label header)
+             (:id header)
+             header))))
+
 (defn column-header-part [{:keys [column-path]}]
-  (let [column (last column-path)]
-    (str (or (:label column)
-             (:id column)
-             column))))
+  (header-label column-path))
 
 (theme/apply {} {:part ::column-header-wrapper} [])
 
@@ -347,10 +350,7 @@
 ;; Usage of :component-did-update
 
 (defn row-header-part [{:keys [row-path]}]
-  (let [column (last row-path)]
-    (str (or (:label column)
-             (:id column)
-             column))))
+  (header-label row-path))
 
 (defn row-header-wrapper-part [{:keys [row-path row-paths row-header theme show?] :as props}]
   [:div
@@ -533,7 +533,6 @@
                    row-height              30
                    show-export-button?     true
                    show-branch-paths?      false
-                   on-export-column-header pr-str
                    show-selection-box?     true}}]
       (let [theme                  {}
             themed                 (fn [part props] (theme/apply props {:part part} theme))
@@ -563,10 +562,6 @@
             max-row-widths         (max-props :width :row row-header-width row-paths)
             column-depth           (count max-column-heights)
             row-depth              (count max-row-widths)
-            default-on-export-column-header
-            (comp pr-str last)
-            default-on-export-row-header
-            (comp pr-str last)
             default-on-export-cell
             (comp pr-str cell)
             get-header-rows        (fn get-header-rows []
@@ -579,8 +574,7 @@
                                           (group-by count)
                                           (into (sorted-map))
                                           vals
-                                          (map (partial map (or on-export-column-header
-                                                                default-on-export-column-header)))
+                                          (map (partial map (or on-export-column-header header-label)))
                                           (map #(concat (repeat row-depth nil) %))))
             get-main-rows          (fn get-main-rows []
                                      (let [ancestors
@@ -598,8 +592,7 @@
                                                   (conj [paths padding])))
                                            render-row-headers
                                            (fn [[paths padding cells]]
-                                             (concat (map (or on-export-row-header
-                                                              default-on-export-row-header)
+                                             (concat (map (or on-export-row-header header-label)
                                                           paths)
                                                      padding
                                                      cells))]
