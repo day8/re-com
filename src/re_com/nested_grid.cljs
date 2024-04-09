@@ -96,7 +96,11 @@
       :required false
       :type "string"
       :validate-fn string?
-      :description "standard CSS max-height setting of the entire grid. Literally constrains the grid to the given width so that if the grid is taller than this it will add scrollbars. Ignored if value is larger than the combined width of all the rendered grid rows."}
+      :description [:span "standard CSS max-height setting of the entire grid. "
+                    "Literally constrains the grid to the given width so that "
+                    "if the grid is taller than this it will add scrollbars. "
+                    "Ignored if value is larger than the combined width of "
+                    "all the rendered grid rows."]}
      {:name :max-width
       :required false
       :type "string"
@@ -335,7 +339,8 @@
 
 (theme/apply {} {:part ::column-header-wrapper} [])
 
-(defn column-header-wrapper-part [{:keys [column-header column-path column-paths on-resize theme show?] :as props}]
+(defn column-header-wrapper-part [{:keys [column-header column-path column-paths on-resize theme show?]
+                                   :as props}]
   [:div
    (-> {:style {:grid-column-start (path->grid-line-name column-path)
                 :grid-column-end   (str "span " (cond-> column-path
@@ -533,7 +538,9 @@
                    row-height              30
                    show-export-button?     true
                    show-branch-paths?      false
-                   show-selection-box?     true}}]
+                   show-selection-box?     true
+                   on-export-column-header header-label
+                   on-export-row-header    header-label}}]
       (let [theme                  {}
             themed                 (fn [part props] (theme/apply props {:part part} theme))
             column-paths           (spec->headers* column-tree)
@@ -562,51 +569,10 @@
             max-row-widths         (max-props :width :row row-header-width row-paths)
             column-depth           (count max-column-heights)
             row-depth              (count max-row-widths)
-            default-on-export-cell
-            (comp pr-str cell)
-            get-header-rows        (fn get-header-rows []
-                                     (->> column-paths
-                                          (mapcat (fn [path]
-                                                    (if (leaf-column? path)
-                                                      [path]
-                                                      (repeat (dec (header-cross-span path column-paths))
-                                                              path))))
-                                          (group-by count)
-                                          (into (sorted-map))
-                                          vals
-                                          (map (partial map (or on-export-column-header header-label)))
-                                          (map #(concat (repeat row-depth nil) %))))
-            get-main-rows          (fn get-main-rows []
-                                     (let [ancestors
-                                           #(->> % (iterate pop) (take-while seq) reverse)
-                                           add-padding
-                                           (fn [[paths :as coll]]
-                                             (conj coll (repeat (- row-depth (count paths)) nil)))
-                                           add-cell-values
-                                           (fn [[paths padding]]
-                                             (->> showing-column-paths
-                                                  (map
-                                                   #((or on-export-cell default-on-export-cell)
-                                                     {:column-path %
-                                                      :row-path    (last paths)}))
-                                                  (conj [paths padding])))
-                                           render-row-headers
-                                           (fn [[paths padding cells]]
-                                             (concat (map (or on-export-row-header header-label)
-                                                          paths)
-                                                     padding
-                                                     cells))]
-                                       (->> showing-row-paths
-                                            (map ancestors)
-                                            (map vector)
-                                            (map add-padding)
-                                            (map add-cell-values)
-                                            (map render-row-headers))))
-            default-on-export      (fn default-on-export [{:keys [header-rows main-rows]}]
-                                     (->> (concat header-rows main-rows)
-                                          (map u/tsv-line)
-                                          str/join
-                                          u/clipboard-write!))
+            on-export-cell         (or on-export-cell (comp pr-str cell))
+            on-export              (or on-export
+                                       (fn on-export [{:keys [rows]}]
+                                         (->> rows (map u/tsv-line) str/join u/clipboard-write!)))
             cell-grid-columns      (->> column-paths
                                         (mapcat (fn [path]
                                                   (let [width (header-prop path :width :column column-width)]
@@ -619,28 +585,73 @@
                                                     (if (show? path :row)
                                                       [path height]
                                                       [path])))))
+            spacer?                number?
+            export-column-headers  #(let [y-size column-depth
+                                          x-size (count (filter spacer? cell-grid-columns))
+                                          result (vec (repeat y-size (vec (repeat x-size nil))))
+                                          ->y    (comp dec count)
+                                          ->x    (reduce
+                                                  (fn [m item]
+                                                    (if (spacer? item)
+                                                      (update m ::count inc)
+                                                      (assoc m item (or (::count m) 0))))
+                                                  {}
+                                                  cell-grid-columns)
+                                          insert (fn [result path]
+                                                   (assoc-in result [(->y path) (->x path)] (on-export-column-header path)))]
+                                      (reduce insert result column-paths))
+            export-row-headers     #(let [y-size (count (filter spacer? cell-grid-rows))
+                                          x-size row-depth
+                                          result (vec (repeat y-size (vec (repeat x-size nil))))
+                                          ->y    (reduce
+                                                  (fn [m item]
+                                                    (if (spacer? item)
+                                                      (update m ::count inc)
+                                                      (assoc m item (or (::count m) 0))))
+                                                  {}
+                                                  cell-grid-rows)
+                                          ->x    (comp dec count)
+                                          insert (fn [result path]
+                                                   (assoc-in result [(->y path) (->x path)] (on-export-row-header path)))]
+                                      (reduce insert result row-paths))
+            export-cells           #(->> showing-row-paths
+                                         (mapv (fn [row-path]
+                                                 (mapv (fn [column-path]
+                                                         (on-export-cell {:row-path    row-path
+                                                                          :column-path column-path}))
+                                                       showing-column-paths))))
+            export-spacers         #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel          [controls {:show-export-button? show-export-button?
                                               :hover?              hover?
                                               :on-export
-                                              (fn [_] (let [header-rows (get-header-rows)
-                                                            main-rows   (get-main-rows)]
-                                                        ((or on-export default-on-export)
-                                                         {:header-rows header-rows
-                                                          :main-rows   main-rows})))}]
-            cell-grid-continer
-            [:div {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
-                                   (reset! scroll-left (.-scrollLeft (.-target %))))
-                   :style     {:position              "relative"
-                               :padding               "0px"
-                               :cursor                "crosshair"
-                               :max-height            max-height
-                               :display               "grid"
-                               :overflow              "auto"
-                               :scrollbar-width       "thin"
-                               :grid-template-columns (grid-template cell-grid-columns)
-                               :grid-template-rows    (grid-template cell-grid-rows)
-                               :gap                   "0px"
-                               :background-color      "transparent"}}]
+                                              #(let [column-headers (export-column-headers)
+                                                     row-headers    (export-row-headers)
+                                                     spacers        (export-spacers)
+                                                     cells          (export-cells)
+                                                     header-rows    (mapv into spacers column-headers)
+                                                     main-rows      (mapv into row-headers cells)
+                                                     rows           (concat header-rows main-rows)]
+                                                 (on-export
+                                                  {:column-headers column-headers
+                                                   :row-headers    row-headers
+                                                   :spacers        spacers
+                                                   :cells          cells
+                                                   :header-rows    header-rows
+                                                   :main-rows      main-rows
+                                                   :rows           rows}))}]
+            cell-grid-container    [:div {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                                          (reset! scroll-left (.-scrollLeft (.-target %))))
+                                          :style     {:position              "relative"
+                                                      :padding               "0px"
+                                                      :cursor                "crosshair"
+                                                      :max-height            max-height
+                                                      :display               "grid"
+                                                      :overflow              "auto"
+                                                      :scrollbar-width       "thin"
+                                                      :grid-template-columns (grid-template cell-grid-columns)
+                                                      :grid-template-rows    (grid-template cell-grid-rows)
+                                                      :gap                   "0px"
+                                                      :background-color      "transparent"}}]
             column-header-cells    (doall
                                     (for [path column-paths
                                           :let [props {:column-path   path
@@ -722,7 +733,7 @@
                          :grid-template-columns (grid-template max-row-widths)
                          :grid-template-rows    (grid-template cell-grid-rows)}}
            row-header-cells]]
-         (-> cell-grid-continer
+         (-> cell-grid-container
              (into cells)
              (into zebra-stripes)
              (conj (when show-selection-box? box-selector)))]))))

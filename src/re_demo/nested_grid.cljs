@@ -464,7 +464,7 @@
                  (- upper-bound mid-point))]
         [(lerp 1 0 t) 1 0]))))
 
-(def round #(.toFixed % 2))
+(def round #(cond-> % (number? %) (.toFixed % 2)))
 
 (defmulti multimodal-cell (comp :mode first :row-path))
 
@@ -562,7 +562,7 @@
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
               {:id :app        :label "Applications" :view app-demo}]
-        !tab-id  (r/atom (:id (last tabs)))
+        !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
       (let [{:keys [view label]} @!tab]

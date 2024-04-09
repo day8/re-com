@@ -234,3 +234,5 @@
     (ifn? x)     [x props]
     default     (part default props)
     :else       nil))
+
+(def reduce-> #(reduce %2 %1 %3))
