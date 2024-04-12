@@ -187,7 +187,7 @@
        [:code ":on-export-column-header"] "over any cells marked for export, passing the "
        "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}
      {:name :show-selection-box?
-      :default true
+      :default false
       :type "boolean"
       :validate-fn boolean?
       :description
@@ -538,7 +538,7 @@
                    row-height              30
                    show-export-button?     true
                    show-branch-paths?      false
-                   show-selection-box?     true
+                   show-selection-box?     false
                    on-export-column-header header-label
                    on-export-row-header    header-label}}]
       (let [theme                  {}
@@ -570,9 +570,9 @@
             column-depth           (count max-column-heights)
             row-depth              (count max-row-widths)
             on-export-cell         (or on-export-cell (comp pr-str cell))
-            on-export              (or on-export
-                                       (fn on-export [{:keys [rows]}]
-                                         (->> rows (map u/tsv-line) str/join u/clipboard-write!)))
+            default-on-export      (fn on-export [{:keys [rows]}]
+                                     (->> rows (map u/tsv-line) str/join u/clipboard-write!))
+            on-export              (or on-export default-on-export)
             cell-grid-columns      (->> column-paths
                                         (mapcat (fn [path]
                                                   (let [width (header-prop path :width :column column-width)]
@@ -638,7 +638,8 @@
                                                    :cells          cells
                                                    :header-rows    header-rows
                                                    :main-rows      main-rows
-                                                   :rows           rows}))}]
+                                                   :rows           rows
+                                                   :default        default-on-export}))}]
             cell-grid-container    [:div {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
                                                           (reset! scroll-left (.-scrollLeft (.-target %))))
                                           :style     {:position              "relative"
