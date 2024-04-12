@@ -100,13 +100,14 @@
 
          ::nested-grid/cell-wrapper
          {:style {#_#_:pointer-events "none"
-                  :user-select "none"
-                  :overflow "hidden"}}
+                  :user-select        "none"
+                  :overflow           "hidden"}}
 
          ::nested-grid/column-header-wrapper
-         {:style {:position       "relative"
+         {:style {:position           "relative"
                   #_#_:pointer-events "none"
-                  :user-select    "none"}})
+                  :user-select        "none"
+                  :height             "100%"}})
        (merge-props props)))
 
 (defn main-variables [props _] props)

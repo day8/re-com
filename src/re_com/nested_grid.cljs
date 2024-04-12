@@ -249,47 +249,54 @@
 (defn header-main-span [path all-paths]
   (->> all-paths (map count) (apply max) (+ (- (count path))) inc))
 
-(defn resize-button [& {:as args}]
-  (let [dragging?    (r/atom false)
-        mouse-down-x (r/atom 0)
-        last-drag-x  (r/atom 0)
-        drag-x       (r/atom 0)
-        hovering?    (r/atom nil)]
-    (fn [& {:keys [on-resize column-index path]}]
-      [:<>
-       [:div {:on-mouse-enter #(reset! hovering? true)
-              :on-mouse-leave #(reset! hovering? false)
-              :on-mouse-down  #(do
-                                 (.preventDefault %)
-                                 (reset! dragging?    true)
-                                 (reset! mouse-down-x (.-clientX %))
-                                 (reset! drag-x       (.-clientX %))
-                                 (reset! last-drag-x       (.-clientX %)))
-              :style          {:position         "absolute"
-                               :opacity          (if (or @hovering? @dragging?) 1 0)
-                               :top              0
-                               :right            0
-                               :cursor           "col-resize"
-                               :height           "100%"
-                               :width            "25px"
-                               :background-color "rgba(0,0,0,0.2)"}}]
-       (when @dragging?
-         [:div {:on-mouse-up   #(do (reset! dragging? false)
-                                    (reset! hovering? false))
-                :on-mouse-move #(do (.preventDefault %)
-                                    (let [x (.-clientX %)]
-                                      (reset! drag-x x)
-                                      (when on-resize
-                                        (on-resize {:distance (- x @last-drag-x)
-                                                    :path     path}))
-                                      (reset! last-drag-x x)))
-                :style         {:position  "fixed"
-                                :z-index   3
-                                :width     "100%"
-                                :height    "100%"
-                                :top       0
-                                :left      0
-                                :font-size 100}}])])))
+(defn resize-overlay [{:keys [drag mouse-x on-resize last-mouse-x]}]
+  [:div {:on-mouse-up   #(do (reset! drag false)
+                             #_(reset! hovering? false))
+         :on-mouse-move (if-let [on-resize @on-resize]
+                          #(do (.preventDefault %)
+                               (let [x (.-clientX %)]
+                                 (reset! mouse-x x)
+                                 (on-resize {:distance (- x @last-mouse-x)})
+                                 (reset! last-mouse-x x)))
+                          #(do (.preventDefault %)
+                               (let [x (.-clientX %)]
+                                 (reset! mouse-x x)
+                                 (reset! last-mouse-x x))))
+         :style         {:position  "fixed"
+                         :z-index   3
+                         :width     "100%"
+                         :height    "100%"
+                         :top       0
+                         :left      0
+                         :font-size 100
+                         :cursor "col-resize"
+                         #_#_:background-color "rgba(0,0,0,0.4"}}])
+
+(defn resize-button [& {:keys [drag]}]
+  (let [dragging? (r/atom false)
+        hovering? (r/atom nil)]
+    (fn [& {:keys [on-resize path mouse-down-x last-mouse-x mouse-x resize-handler selection?]}]
+      [:div {:on-mouse-enter #(reset! hovering? true)
+             :on-mouse-leave #(reset! hovering? false)
+             :on-mouse-down  #(do
+                                (.preventDefault %)
+                                (reset! selection? nil)
+                                (reset! resize-handler
+                                        (fn [props]
+                                          (on-resize (merge {:path path} props))))
+                                (reset! drag    ::column)
+                                (reset! mouse-down-x (.-clientX %))
+                                (reset! mouse-x      (.-clientX %))
+                                (reset! last-mouse-x (.-clientX %)))
+             :style          {:position         "absolute"
+                              :opacity          (if (or @hovering? @dragging?) 1 0)
+                              :top              0
+                              :z-index          9999999
+                              :right            "-10px"
+                              :cursor           "col-resize"
+                              :height           "100%"
+                              :width            "20px"
+                              :background-color "rgba(0,0,0,0.2)"}}])))
 
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
@@ -339,18 +346,20 @@
 
 (theme/apply {} {:part ::column-header-wrapper} [])
 
-(defn column-header-wrapper-part [{:keys [column-header column-path column-paths on-resize theme show?]
-                                   :as props}]
+(defn column-header-wrapper-part
+  [{:keys [column-header column-path column-paths theme show?]
+    :as   props}]
   [:div
-   (-> {:style {:grid-column-start (path->grid-line-name column-path)
-                :grid-column-end   (str "span " (cond-> column-path
-                                                  :do         (header-cross-span column-paths)
-                                                  (not show?) dec))
-                :grid-row-start    (count column-path)
-                :grid-row-end      (str "span " (header-main-span column-path column-paths))}}
-       (theme/apply {:state {} :part ::column-header-wrapper} theme))
-   [u/part column-header props column-header-part]
-   [resize-button {:on-resize on-resize :path column-path}]])
+   {:style {:grid-column-start (path->grid-line-name column-path)
+            :grid-column-end   (str "span " (cond-> column-path
+                                              :do         (header-cross-span column-paths)
+                                              (not show?) dec))
+            :grid-row-start    (count column-path)
+            :grid-row-end      (str "span " (header-main-span column-path column-paths))
+            :position "relative"}}
+   [:div (theme/apply {} {:state {} :part ::column-header-wrapper} theme)
+    [u/part column-header props column-header-part]]
+   [resize-button (merge props {:path column-path})]])
 
 ;; Usage of :component-did-update
 
@@ -397,35 +406,49 @@
 (assert (= 1 (quantize [10 10 10] 30)))
 (assert (= 2 (quantize [10 10 10] 31)))
 
+(defn drag-overlay [{:keys [drag selection? mouse-x mouse-y]}]
+  [:div {:on-mouse-up   #(reset! drag nil)
+         :on-mouse-move #(do
+                           (reset! selection? true)
+                           (.preventDefault %)
+                           (reset! mouse-x (.-clientX %))
+                           (reset! mouse-y (.-clientY %)))
+         :style         {:position             "fixed"
+                         :top                  0
+                         :left                 0
+                         :z-index              2147483647
+                         :height               "100%"
+                         :width                "100%"
+                         #_#_:background-color "rgba(255,0,0,0.4)"}}])
+
 (defn selection-part [_]
   (fn [_]
     (let [!ref       (r/atom nil)
           reset-ref! (partial reset! !ref)]
-      (fn [{:keys [dragging? selection?
+      (fn [{:keys [drag selection?
                    grid-columns grid-rows
-                   mouse-x mouse-y mouse-down-x mouse-down-y]}]
+                   mouse-x mouse-y mouse-down-x mouse-down-y]
+            :as props}]
         (let []
           [:<>
-           [:div {:style {:position         "absolute"
+           [:div {:ref   reset-ref!
+                  :style {:position         "absolute"
                           :height           "100%"
                           :width            "100%"
                           :top              0
                           :left             0}
-                  :on-mouse-up #(reset! dragging? false)
+                  :on-mouse-up #(reset! drag false)
                   :on-mouse-down #(do
                                     (if-not @selection?
-                                      (do (reset! dragging? true)
+                                      (do (reset! drag ::selection)
                                           (reset! selection? true)
                                           (reset! mouse-down-y (.-clientY %))
                                           (reset! mouse-down-x (.-clientX %))
                                           (reset! mouse-y (.-clientY %))
                                           (reset! mouse-x (.-clientX %)))
                                       (do (reset! selection? false)
-                                          (reset! dragging? false))))}]
-           [:div {:ref   reset-ref!
-                  :style {:grid-column 1
-                          :grid-row    1}}]
-           (when (and @!ref @selection?)
+                                          (reset! drag false))))}]
+           (when @selection?
              (let [grid-columns  (filter number? grid-columns)
                    grid-rows     (filter number? grid-rows)
                    bounds        (.getBoundingClientRect @!ref)
@@ -435,12 +458,10 @@
                    column-finish (quantize grid-columns (- @mouse-x origin-x))
                    row-begin     (quantize grid-rows (- @mouse-down-y origin-y))
                    row-finish    (quantize grid-rows (- @mouse-y origin-y))]
-               [:div {:key   (gensym)
-                      :style {:grid-column-start (+ 2 (min column-begin column-finish))
+               [:div {:style {:grid-column-start (+ 2 (min column-begin column-finish))
                               :grid-column-end   (+ 3 (max column-begin column-finish))
                               :grid-row-start    (+ 2 (min row-begin row-finish))
                               :grid-row-end      (+ 3 (max row-begin row-finish))
-                              #_#_:z-index           1
                               :border            "2px solid dodgerblue"
                               :background        "rgba(127,127,255,.1)"
                               :position          "relative"
@@ -451,20 +472,7 @@
                                :height     10
                                :width      10
                                :right      -6
-                               :bottom     -6}}]]))
-           (when @dragging?
-             [:div {:on-mouse-up   #(reset! dragging? false)
-                    :on-mouse-move #(do
-                                      (reset! selection? true)
-                                      (.preventDefault %)
-                                      (reset! mouse-x (.-clientX %))
-                                      (reset! mouse-y (.-clientY %)))
-                    :style         {:position "fixed"
-                                    :top      0
-                                    :left     0
-                                    :z-index  2
-                                    :height   "100%"
-                                    :width    "100%"}}])])))))
+                               :bottom     -6}}]]))])))))
 
 (defn header-spacer-part [_] "")
 
@@ -486,44 +494,49 @@
 
 (defn nested-grid [& {:keys [column-width]
                       :or   {column-width 60}}]
-  (let [column-state        (r/atom {})
-        row-state           (r/atom {})
-        hover?              (r/atom false)
-        dragging-selection? (r/atom false)
-        selection?          (r/atom nil)
-        mouse-down-x        (r/atom 0)
-        mouse-down-y        (r/atom 0)
-        mouse-x             (r/atom 0)
-        mouse-y             (r/atom 0)
-        scroll-top          (r/atom 0)
-        scroll-left         (r/atom 0)
-        column-header-prop  (fn [path k & [default]]
-                              (or (some-> @column-state (get path) (get k))
-                                  (get (meta (last path)) k)
-                                  (get (last path) k)
-                                  default))
-        header-prop         (fn [path k dimension & [default]]
-                              (let [state (-> (case dimension
-                                                :row    @row-state
-                                                :column @column-state)
-                                              (get path))]
-                                (first
-                                 (remove nil? [(get state k)
-                                               (get (meta (last path)) k)
-                                               (get (last path) k)
-                                               default]))))
-        max-props           (fn [k dimension default paths]
-                              (->> paths
-                                   (group-by level)
-                                   (sort-by key)
-                                   (map val)
-                                   (map (fn [path-group]
-                                          (apply max
-                                                 (map #(header-prop % k dimension default)
-                                                      path-group))))))
-        on-resize-cell      (fn [{:keys [distance path]}]
-                              (swap! column-state update-in [path :width]
-                                     #(+ distance (or % (column-header-prop path :width column-width)))))]
+  (let [column-state       (r/atom {})
+        row-state          (r/atom {})
+        hover?             (r/atom false)
+        drag               (r/atom nil)
+        selection?         (r/atom nil)
+        mouse-down-x       (r/atom 0)
+        mouse-down-y       (r/atom 0)
+        last-mouse-x       (r/atom 0)
+        mouse-x            (r/atom 0)
+        mouse-y            (r/atom 0)
+        scroll-top         (r/atom 0)
+        scroll-left        (r/atom 0)
+        column-header-prop (fn [path k & [default]]
+                             (or (some-> @column-state (get path) (get k))
+                                 (get (meta (last path)) k)
+                                 (get (last path) k)
+                                 default))
+        header-prop        (fn [path k dimension & [default]]
+                             (let [state (-> (case dimension
+                                               :row    @row-state
+                                               :column @column-state)
+                                             (get path))]
+                               (first
+                                (remove nil? [(get state k)
+                                              (get (meta (last path)) k)
+                                              (get (last path) k)
+                                              default]))))
+        max-props          (fn [k dimension default paths]
+                             (->> paths
+                                  (group-by level)
+                                  (sort-by key)
+                                  (map val)
+                                  (map (fn [path-group]
+                                         (apply max
+                                                (map #(header-prop % k dimension default)
+                                                     path-group))))))
+        resize-column!     (fn [{:keys [distance path]}]
+                             (swap! column-state update-in [path :width]
+                                    #(-> (or %
+                                             (column-header-prop path :width column-width))
+                                         (+ distance)
+                                         (max 0))))
+        resize-handler     (r/atom #())]
     (fn [& {:keys [column-tree row-tree
                    cell column-header row-header header-spacer
                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
@@ -655,11 +668,17 @@
                                                       :background-color      "transparent"}}]
             column-header-cells    (doall
                                     (for [path column-paths
-                                          :let [props {:column-path   path
-                                                       :column-paths  column-paths
-                                                       :on-resize     on-resize-cell
-                                                       :column-header column-header
-                                                       :show?         (show? path :column)}]]
+                                          :let [props {:column-path    path
+                                                       :column-paths   column-paths
+                                                       :on-resize      resize-column!
+                                                       :column-header  column-header
+                                                       :mouse-down-x   mouse-down-x
+                                                       :last-mouse-x   last-mouse-x
+                                                       :mouse-x        mouse-x
+                                                       :resize-handler resize-handler
+                                                       :drag           drag
+                                                       :show?          (show? path :column)
+                                                       :selection?     selection?}]]
                                       ^{:key [::column (or path (gensym))]}
                                       [u/part column-header-wrapper props column-header-wrapper-part]))
             row-header-cells       (doall
@@ -697,7 +716,7 @@
                                           :z-index           2
                                           :pointer-events    "none"}})])
             box-selector           [selection-part
-                                    {:dragging?    dragging-selection?
+                                    {:drag         drag
                                      :grid-columns cell-grid-columns
                                      :grid-rows    cell-grid-rows
                                      :selection?   selection?
@@ -708,33 +727,48 @@
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
             native-scrollbar-width 10]
-        [:div {:on-mouse-enter #(reset! hover? true)
-               :on-mouse-leave #(reset! hover? false)
-               :style
-               {:display               "grid"
-                :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                       (px (+ native-scrollbar-width
-                                                              (apply + showing-column-widths)))])
-                :grid-template-rows    (grid-template ["20px" showing-column-widths
-                                                       (px (apply + max-column-heights))
-                                                       (px (apply + showing-row-heights))])}}
-         control-panel
-         [:div {:style {:display               "grid"
-                        :grid-template-columns (grid-template max-row-widths)
-                        :grid-template-rows    (grid-template max-column-heights)}}
-          header-spacer-cells]
-         [scroll-container {:scroll-left scroll-left}
-          [:div {:style {:display               "grid"
-                         :grid-template-columns (grid-template cell-grid-columns)
-                         :grid-template-rows    (grid-template max-column-heights)}}
-           column-header-cells]]
-         [scroll-container {:scroll-top scroll-top
-                            :height     max-height}
+        [:<>
+         [:div {:on-mouse-enter #(reset! hover? true)
+                :on-mouse-leave #(reset! hover? false)
+                :style
+                {:display               "grid"
+                 :grid-template-columns (grid-template [(px (apply + max-row-widths))
+                                                        (px (+ native-scrollbar-width
+                                                               (apply + showing-column-widths)))])
+                 :grid-template-rows    (grid-template ["20px" showing-column-widths
+                                                        (px (apply + max-column-heights))
+                                                        (px (apply + showing-row-heights))])}}
+          control-panel
           [:div {:style {:display               "grid"
                          :grid-template-columns (grid-template max-row-widths)
-                         :grid-template-rows    (grid-template cell-grid-rows)}}
-           row-header-cells]]
-         (-> cell-grid-container
-             (into cells)
-             (into zebra-stripes)
-             (conj (when show-selection-box? box-selector)))]))))
+                         :grid-template-rows    (grid-template max-column-heights)}}
+           header-spacer-cells]
+          [scroll-container {:scroll-left scroll-left}
+           [:div {:style {:display               "grid"
+                          :grid-template-columns (grid-template cell-grid-columns)
+                          :grid-template-rows    (grid-template max-column-heights)}}
+            column-header-cells]]
+          [scroll-container {:scroll-top scroll-top
+                             :height     max-height}
+           [:div {:style {:display               "grid"
+                          :grid-template-columns (grid-template max-row-widths)
+                          :grid-template-rows    (grid-template cell-grid-rows)}}
+            row-header-cells]]
+          (-> cell-grid-container
+              (into cells)
+              (into zebra-stripes)
+              (conj (when show-selection-box? box-selector)))]
+         (when (= ::selection @drag)
+           [drag-overlay {:drag         drag
+                          :grid-columns cell-grid-columns
+                          :grid-rows    cell-grid-rows
+                          :selection?   selection?
+                          :mouse-x      mouse-x
+                          :mouse-y      mouse-y
+                          :mouse-down-x mouse-down-x
+                          :mouse-down-y mouse-down-y}])
+         (when (= ::column @drag)
+           [resize-overlay {:drag         drag
+                            :mouse-x      mouse-x
+                            :on-resize    resize-handler
+                            :last-mouse-x last-mouse-x}])]))))
