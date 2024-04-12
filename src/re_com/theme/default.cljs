@@ -107,6 +107,12 @@
          {:style {:position           "relative"
                   #_#_:pointer-events "none"
                   :user-select        "none"
+                  :height             "100%"}}
+
+         ::nested-grid/row-header-wrapper
+         {:style {:position           "relative"
+                  #_#_:pointer-events "none"
+                  :user-select        "none"
                   :height             "100%"}})
        (merge-props props)))
 

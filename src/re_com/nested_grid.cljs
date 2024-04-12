@@ -249,54 +249,86 @@
 (defn header-main-span [path all-paths]
   (->> all-paths (map count) (apply max) (+ (- (count path))) inc))
 
-(defn resize-overlay [{:keys [drag mouse-x on-resize last-mouse-x]}]
+(defn resize-overlay [{:keys [drag mouse-x on-resize last-mouse-x mouse-y last-mouse-y]}]
   [:div {:on-mouse-up   #(do (reset! drag false)
                              #_(reset! hovering? false))
          :on-mouse-move (if-let [on-resize @on-resize]
                           #(do (.preventDefault %)
-                               (let [x (.-clientX %)]
+                               (let [x (.-clientX %)
+                                     y (.-clientY %)]
                                  (reset! mouse-x x)
-                                 (on-resize {:distance (- x @last-mouse-x)})
-                                 (reset! last-mouse-x x)))
+                                 (reset! mouse-y y)
+                                 (on-resize {:x-distance (- x @last-mouse-x)
+                                             :y-distance (- y @last-mouse-y)})
+                                 (reset! last-mouse-x x)
+                                 (reset! last-mouse-y y)))
                           #(do (.preventDefault %)
-                               (let [x (.-clientX %)]
+                               (let [x (.-clientX %)
+                                     y (.-clientY %)]
                                  (reset! mouse-x x)
-                                 (reset! last-mouse-x x))))
-         :style         {:position  "fixed"
-                         :z-index   3
-                         :width     "100%"
-                         :height    "100%"
-                         :top       0
-                         :left      0
-                         :font-size 100
-                         :cursor "col-resize"
+                                 (reset! last-mouse-x x)
+                                 (reset! last-mouse-y y))))
+         :style         {:position             "fixed"
+                         :z-index              3
+                         :width                "100%"
+                         :height               "100%"
+                         :top                  0
+                         :left                 0
+                         :font-size            100
+                         :cursor               (case @drag
+                                                 ::column "col-resize"
+                                                 ::row    "row-resize"
+                                                 nil)
                          #_#_:background-color "rgba(0,0,0,0.4"}}])
 
 (defn resize-button [& {:keys [drag]}]
   (let [dragging? (r/atom false)
         hovering? (r/atom nil)]
-    (fn [& {:keys [on-resize path mouse-down-x last-mouse-x mouse-x resize-handler selection?]}]
+    (fn [& {:keys [dimension on-resize path resize-handler selection?
+                   mouse-down-x last-mouse-x mouse-x
+                   mouse-down-y last-mouse-y mouse-y]}]
       [:div {:on-mouse-enter #(reset! hovering? true)
              :on-mouse-leave #(reset! hovering? false)
-             :on-mouse-down  #(do
-                                (.preventDefault %)
-                                (reset! selection? nil)
-                                (reset! resize-handler
-                                        (fn [props]
-                                          (on-resize (merge {:path path} props))))
-                                (reset! drag    ::column)
-                                (reset! mouse-down-x (.-clientX %))
-                                (reset! mouse-x      (.-clientX %))
-                                (reset! last-mouse-x (.-clientX %)))
-             :style          {:position         "absolute"
-                              :opacity          (if (or @hovering? @dragging?) 1 0)
-                              :top              0
-                              :z-index          9999999
-                              :right            "-10px"
-                              :cursor           "col-resize"
-                              :height           "100%"
-                              :width            "20px"
-                              :background-color "rgba(0,0,0,0.2)"}}])))
+             :on-mouse-down  (case dimension
+                               :column
+                               #(do
+                                  (.preventDefault %)
+                                  (reset! selection? nil)
+                                  (reset! resize-handler
+                                          (fn [props]
+                                            (on-resize (merge {:path path} props))))
+                                  (reset! drag    ::column)
+                                  (reset! mouse-down-x (.-clientX %))
+                                  (reset! mouse-x      (.-clientX %))
+                                  (reset! last-mouse-x (.-clientX %)))
+                               :row
+                               #(do
+                                  (.preventDefault %)
+                                  (reset! selection? nil)
+                                  (reset! resize-handler
+                                          (fn [props]
+                                            (on-resize (merge {:path path} props))))
+                                  (reset! drag    ::row)
+                                  (reset! mouse-down-y (.-clientY %))
+                                  (reset! mouse-y      (.-clientY %))
+                                  (reset! last-mouse-y (.-clientY %))))
+
+             :style (merge {:position         "absolute"
+                            :opacity          (if (or @hovering? @dragging?) 1 0)
+                            :z-index          9999999
+                            :background-color "rgba(0,0,0,0.2)"}
+                           (when (= :column dimension)
+                             {:top    0
+                              :cursor "col-resize"
+                              :height "100%"
+                              :width  "20px"
+                              :right  "-10px"})
+                           (when (= :row dimension)
+                             {:left   0
+                              :cursor "row-resize"
+                              :height "20px"
+                              :width  "100%"
+                              :bottom "-10px"}))}])))
 
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
@@ -356,27 +388,28 @@
                                               (not show?) dec))
             :grid-row-start    (count column-path)
             :grid-row-end      (str "span " (header-main-span column-path column-paths))
-            :position "relative"}}
+            :position          "relative"}}
    [:div (theme/apply {} {:state {} :part ::column-header-wrapper} theme)
     [u/part column-header props column-header-part]]
-   [resize-button (merge props {:path column-path})]])
-
-;; Usage of :component-did-update
+   [resize-button (merge props {:dimension :column
+                                :path      column-path})]])
 
 (defn row-header-part [{:keys [row-path]}]
   (header-label row-path))
 
 (defn row-header-wrapper-part [{:keys [row-path row-paths row-header theme show?] :as props}]
   [:div
-   (-> {:style {:grid-row-start    (path->grid-line-name row-path)
-                :grid-row-end      (str "span" (cond-> row-path
-                                                 :do (header-cross-span row-paths)))
-                :grid-column-start (count row-path)
-                :grid-column-end   (str "span " (cond-> row-path
-                                                  :do         (header-main-span row-paths)
-                                                  (not show?) dec))}}
-       (theme/apply {:state {} :part ::row-header-wrapper} theme))
-   [u/part row-header props row-header-part]])
+   {:style {:grid-row-start    (path->grid-line-name row-path)
+            :grid-row-end      (str "span " (header-cross-span row-path row-paths))
+            :grid-column-start (count row-path)
+            :grid-column-end   (str "span " (cond-> row-path
+                                              :do         (header-main-span row-paths)
+                                              (not show?) dec))
+            :position          "relative"}}
+   [:div (theme/apply {} {:state {} :part ::row-header-wrapper} theme)
+    [u/part row-header props row-header-part]]
+   [resize-button (merge props {:dimension :row
+                                :path      row-path})]])
 
 (def level count)
 
@@ -492,8 +525,9 @@
                                   "translateY(" (- (deref-or-value scroll-top)) "px)")}}
     child]])
 
-(defn nested-grid [& {:keys [column-width]
-                      :or   {column-width 60}}]
+(defn nested-grid [& {:keys [column-width row-height]
+                      :or   {column-width 60
+                             row-height   30}}]
   (let [column-state       (r/atom {})
         row-state          (r/atom {})
         hover?             (r/atom false)
@@ -502,6 +536,7 @@
         mouse-down-x       (r/atom 0)
         mouse-down-y       (r/atom 0)
         last-mouse-x       (r/atom 0)
+        last-mouse-y       (r/atom 0)
         mouse-x            (r/atom 0)
         mouse-y            (r/atom 0)
         scroll-top         (r/atom 0)
@@ -530,11 +565,17 @@
                                          (apply max
                                                 (map #(header-prop % k dimension default)
                                                      path-group))))))
-        resize-column!     (fn [{:keys [distance path]}]
+        resize-column!     (fn [{:keys [x-distance path]}]
                              (swap! column-state update-in [path :width]
                                     #(-> (or %
                                              (column-header-prop path :width column-width))
-                                         (+ distance)
+                                         (+ x-distance)
+                                         (max 0))))
+        resize-row!        (fn [{:keys [y-distance path]}]
+                             (swap! row-state update-in [path :height]
+                                    #(-> (or %
+                                             (header-prop path :height :row row-height))
+                                         (+ y-distance)
                                          (max 0))))
         resize-handler     (r/atom #())]
     (fn [& {:keys [column-tree row-tree
@@ -669,24 +710,31 @@
             column-header-cells    (doall
                                     (for [path column-paths
                                           :let [props {:column-path    path
-                                                       :column-paths   column-paths
-                                                       :on-resize      resize-column!
                                                        :column-header  column-header
+                                                       :column-paths   column-paths
+                                                       :show?          (show? path :column)
+                                                       :on-resize      resize-column!
                                                        :mouse-down-x   mouse-down-x
                                                        :last-mouse-x   last-mouse-x
                                                        :mouse-x        mouse-x
                                                        :resize-handler resize-handler
                                                        :drag           drag
-                                                       :show?          (show? path :column)
                                                        :selection?     selection?}]]
                                       ^{:key [::column (or path (gensym))]}
                                       [u/part column-header-wrapper props column-header-wrapper-part]))
             row-header-cells       (doall
                                     (for [path row-paths
-                                          :let [props {:row-path   path
-                                                       :row-header row-header
-                                                       :row-paths  row-paths
-                                                       :show?      (show? path :row)}]]
+                                          :let [props {:row-path       path
+                                                       :row-header     row-header
+                                                       :row-paths      row-paths
+                                                       :show?          (show? path :row)
+                                                       :on-resize      resize-row!
+                                                       :mouse-down-y   mouse-down-y
+                                                       :last-mouse-y   last-mouse-y
+                                                       :mouse-y        mouse-y
+                                                       :resize-handler resize-handler
+                                                       :drag           drag
+                                                       :selection?     selection?}]]
                                       ^{:key [::row (or path (gensym))]}
                                       [u/part row-header-wrapper props row-header-wrapper-part]))
             header-spacer-cells    (for [y (range column-depth)
@@ -767,8 +815,10 @@
                           :mouse-y      mouse-y
                           :mouse-down-x mouse-down-x
                           :mouse-down-y mouse-down-y}])
-         (when (= ::column @drag)
+         (when (#{::column ::row} @drag)
            [resize-overlay {:drag         drag
                             :mouse-x      mouse-x
-                            :on-resize    resize-handler
-                            :last-mouse-x last-mouse-x}])]))))
+                            :mouse-y      mouse-y
+                            :last-mouse-x last-mouse-x
+                            :last-mouse-y last-mouse-y
+                            :on-resize    resize-handler}])]))))
