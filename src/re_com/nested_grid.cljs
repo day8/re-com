@@ -393,8 +393,9 @@
             :position          "relative"}}
    [:div (theme/apply {} {:state {} :part ::column-header-wrapper} theme)
     [u/part column-header props column-header-part]]
-   [resize-button (merge props {:dimension :column
-                                :path      column-path})]])
+   (when show?
+     [resize-button (merge props {:dimension :column
+                                  :path      column-path})])])
 
 (defn row-header-part [{:keys [row-path]}]
   (header-label row-path))
@@ -412,8 +413,9 @@
             :position          "relative"}}
    [:div (theme/apply {} {:state {} :part ::row-header-wrapper} theme)
     [u/part row-header props row-header-part]]
-   [resize-button (merge props {:dimension :row
-                                :path      row-path})]])
+   (when show?
+     [resize-button (merge props {:dimension :row
+                                  :path      row-path})])])
 
 (def level count)
 
