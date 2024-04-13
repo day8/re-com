@@ -387,7 +387,9 @@
                                               :do         (header-cross-span column-paths)
                                               (not show?) dec))
             :grid-row-start    (count column-path)
-            :grid-row-end      (str "span " (header-main-span column-path column-paths))
+            :grid-row-end      (str "span " (cond-> column-path
+                                              :do         (header-main-span column-paths)
+                                              (not show?) dec))
             :position          "relative"}}
    [:div (theme/apply {} {:state {} :part ::column-header-wrapper} theme)
     [u/part column-header props column-header-part]]
@@ -400,7 +402,9 @@
 (defn row-header-wrapper-part [{:keys [row-path row-paths row-header theme show?] :as props}]
   [:div
    {:style {:grid-row-start    (path->grid-line-name row-path)
-            :grid-row-end      (str "span " (header-cross-span row-path row-paths))
+            :grid-row-end      (str "span " (cond-> row-path
+                                              :do (header-cross-span row-paths)
+                                              (not show?) dec))
             :grid-column-start (count row-path)
             :grid-column-end   (str "span " (cond-> row-path
                                               :do         (header-main-span row-paths)
