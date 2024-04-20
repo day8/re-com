@@ -365,7 +365,7 @@
                 :border "0.5px solid #ccc"
                 :position "relative"}}
        (theme/apply {:state {} :part ::cell-wrapper} theme))
-   [u/part cell args cell-part]])
+   [u/part cell (dissoc args :cell) cell-part]])
 
 (defn header-label [path]
   (let [header (last path)]
