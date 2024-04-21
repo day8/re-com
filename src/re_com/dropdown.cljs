@@ -19,7 +19,7 @@
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
-(defn anchor [{:keys [label placeholder state theme]}]
+(defn anchor-part [{:keys [label placeholder state theme]}]
   [:a (theme/props {:state state :part ::anchor} theme)
    (or label placeholder "Select an item")])
 
@@ -149,7 +149,7 @@
                 {:src   (at)
                  :attr  {:ref      anchor-ref!
                          :on-click #(swap! model not)}
-                 :child [u/part anchor part-props re-com.dropdown/anchor]})]
+                 :child [u/part anchor part-props anchor-part]})]
              (when (= :open (:openable state))
                [body-wrapper {:anchor-ref      anchor-ref
                               :popover-ref     popover-ref

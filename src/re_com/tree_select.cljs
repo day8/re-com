@@ -419,7 +419,8 @@
                               (let [model (deref-or-value model)]
                                 [h-box
                                  (themed ::dropdown-anchor
-                                   {:style {:height height}
+                                   {:width width
+                                    :style {:height height}
                                     :children
                                     [(if-not (empty? model)
                                        label placeholder)

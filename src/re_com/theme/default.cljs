@@ -159,9 +159,12 @@
                     :text-decoration  "none"
                     :white-space      "nowrap"
                     :transition       "border 0.2s box-shadow 0.2s"}})
-
+         
          ::dropdown/anchor
-         {:style (cond-> {:color (:foreground $)}
+         {:style (cond-> {:color (:foreground $)
+                          :overflow "hidden"
+                          :text-overflow "ellipsis"
+                          :white-space "nowrap"}
                    (-> state :enable (= :disabled))
                    (merge {:background-color (:background-disabled $)}))}
 
