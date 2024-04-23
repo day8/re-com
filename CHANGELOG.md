@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.0 (2024-04-24)
+
+#### Added
+
+- New tooling, using `bb.edn` and `deps.edn`.
+
+
 ## 2.20.0 (2024-04-23)
 
 #### Added

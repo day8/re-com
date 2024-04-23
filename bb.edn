@@ -1,0 +1,27 @@
+{:min-bb-version "0.4.0"
+ :tasks
+ {:requires       ([babashka.fs :as fs])
+  clean           (let [clean-targets ["node_modules"
+                                       "run/resources/public/compiled_dev "
+                                       "run/resources/public/compiled_prod"
+                                       "run/resources/public/compiled_test"]]
+                    (doseq [target clean-targets]
+                      (println "bb clean: deleting" target)
+                      (fs/delete-tree target)))
+  install         (shell "npm install")
+  test            {:depends [clean install]
+                   :task    (do (shell "npx shadow-cljs compile karma-test")
+                                (shell "npx karma start --single-run --reporters junit,dots"))}
+  release         {:task (shell "lein release")}
+  release-demo    {:depends [clean install]
+                   :task    (shell "npx shadow-cljs release demo")}
+  prod-once       {:depends [release-demo]}
+  ci              {:depends [clean install test
+                             clean install release-demo]}
+  build-report-ci {:depends [clean install]
+                   :task    (shell
+                             "npx shadow-cljs clj-run shadow.cljs.build-report demo target/build-report.html")}
+  watch           {:depends [clean install]
+                   :task    (shell "npx shadow-cljs watch demo browser-test karma-test")}
+  deploy-aws      {:depends [ci]
+                   :task    (shell "aws s3 sync run/resources/public s3://re-demo/ --acl public-read --cache-control max-age=2592000,public")}}}
