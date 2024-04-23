@@ -7,34 +7,30 @@ on:
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-20.04
-    container:
-      # Source: https://github.com/day8/dockerfiles-for-dev-ci-images
-      image: ghcr.io/day8/chrome-56:2
+    runs-on: ubuntu-22.04
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
       CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Maven cache
-        id: maven-cache
-        uses: actions/cache@v1
+      - uses: actions/checkout@v4
+
+      - name: Cache clojure dependencies
+        uses: actions/cache@v3
         with:
-          path: /root/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: npm cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('project.clj') }}-${{ hashFiles('**/deps.cljs') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-      - name: Run lein deploy-aws
-        if: steps.maven-cache.outputs.cache-hit != 'true'
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+            ~/.npm
+            .shadow-cljs
+          key: cljdeps-${{ hashFiles('deps.edn') }}-${{ hashFiles ('package.json') }}-${{ hashFiles ('package-lock.json') }}
+          restore-keys: cljdeps-
+
+      - run: bb deploy-aws
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -43,20 +39,7 @@ jobs:
           GITHUB_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_EC2_METADATA_DISABLED: true
-        run: |
-           lein deploy-aws
-      - name: Run lein -o deploy-aws
-        if: steps.maven-cache.outputs.cache-hit == 'true'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
-          CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
-          GITHUB_USERNAME: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AWS_EC2_METADATA_DISABLED: true
-        run: |
-          lein -o deploy-aws
+
       - name: Invalidate CloudFront Distribution
         uses: chetan/invalidate-cloudfront-action@master
         env:
@@ -65,6 +48,7 @@ jobs:
           AWS_REGION: 'us-east-1'
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: always()

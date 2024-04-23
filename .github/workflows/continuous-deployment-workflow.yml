@@ -7,45 +7,13 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-20.04
-    container:
-      # Source: https://github.com/day8/dockerfiles-for-dev-ci-images
-      image: ghcr.io/day8/chrome-56:2
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-22.04
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Maven cache
-        id: maven-cache
-        uses: actions/cache@v1
-        with:
-          path: /root/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj', '.github/workflows/**') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: npm cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('project.clj') }}-${{ hashFiles('**/deps.cljs') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-      - name: shadow-cljs compiler cache
-        uses: actions/cache@v1
-        with:
-          path: .shadow-cljs
-          key: ${{ runner.os }}-shadow-cljs-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-shadow-cljs-
-      - if: steps.maven-cache.outputs.cache-hit != 'true'
-        run: |
-          lein ci
-          lein prod-once
-      - if: steps.maven-cache.outputs.cache-hit == 'true'
-        run: |
-          lein -o ci
-          lein -o prod-once
+      - uses: actions/checkout@v4
+
+      - run: bb prod-once
+
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: failure() || cancelled()
@@ -56,33 +24,34 @@ jobs:
           url: ${{ secrets.SLACK_WEBHOOK }}
           commit: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
   release:
     name: Release
     needs: test
-    runs-on: ubuntu-20.04
-    container:
-      # Source: https://github.com/day8/dockerfiles-for-dev-ci-images
-      image: ghcr.io/day8/chrome-56:2
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-22.04
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
       CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Maven cache
-        id: maven-cache
-        uses: actions/cache@v1
+      - uses: actions/checkout@v4
+
+      - name: Cache clojure dependencies
+        uses: actions/cache@v3
         with:
-          path: /root/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj', '.github/workflows/**') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Run lein release
-        if: steps.maven-cache.outputs.cache-hit != 'true'
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+            ~/.npm
+            .shadow-cljs
+          key: cljdeps-${{ hashFiles('deps.edn') }}-${{ hashFiles ('package.json') }}-${{ hashFiles ('package-lock.json') }}
+          restore-keys: cljdeps-
+
+      - run: bb release
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -90,19 +59,7 @@ jobs:
           CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
           GITHUB_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-           lein release
-      - name: Run lein -o release
-        if: steps.maven-cache.outputs.cache-hit == 'true'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
-          CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
-          GITHUB_USERNAME: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          lein -o release
+
       # This creates a 'GitHub Release' from the tag and includes link to CHANGELOG.md at the current
       # git ref. We do not use draft or prerelease features as we always want
       # the latest release to show in the right hand column of the project page regardless
@@ -118,6 +75,7 @@ jobs:
             [Changelog](https://github.com/day8/re-com/blob/master/CHANGELOG.md)
           draft: false
           prerelease: false
+
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: always()

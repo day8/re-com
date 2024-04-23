@@ -2,51 +2,52 @@ name: ci
 on: [push]
 
 jobs:
+
   test:
+
     name: Test
-    runs-on: ubuntu-20.04
-    container:
-      # Source: https://github.com/day8/dockerfiles-for-dev-ci-images
-      image: ghcr.io/day8/chrome-56:2
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+
+    runs-on: ubuntu-22.04
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Maven cache
-        uses: actions/cache@v1
-        id: maven-cache
+      - uses: actions/checkout@v4
+
+      - name: Setup java
+        uses: actions/setup-java@v3
         with:
-          path: /root/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('project.clj', 'deps.edn', '.github/workflows/**') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: npm cache
-        uses: actions/cache@v1
+          distribution: 'temurin'
+          java-version: '21'
+        
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@12.5
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package.json', 'package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-      - name: shadow-cljs compiler cache
-        uses: actions/cache@v1
+          cli:  'latest'
+          bb:   'latest'
+
+      - name: Cache clojure dependencies
+        uses: actions/cache@v3
         with:
-          path: .shadow-cljs
-          key: ${{ runner.os }}-shadow-cljs-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-shadow-cljs-
-      - if: steps.maven-cache.outputs.cache-hit != 'true'
-        run: |
-          lein ci
-          lein build-report-ci
-      - if: steps.maven-cache.outputs.cache-hit == 'true'
-        run: |
-          lein -o ci
-          lein -o build-report-ci
-      - uses: actions/upload-artifact@v2
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+            ~/.npm
+            .shadow-cljs
+          key: cljdeps-${{ hashFiles('deps.edn') }}-${{ hashFiles ('package.json') }}-${{ hashFiles ('package-lock.json') }}
+          restore-keys: cljdeps-
+
+      - name: Fix git dubious directory ownership error
+        run: git config --global --add safe.directory /__w/re-com/re-com
+
+      - run: bb ci
+
+      - run: bb build-report-ci
+
+      - uses: actions/upload-artifact@v4
         with:
           name: build-report
           path: target/build-report.html
+
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: failure() || cancelled()
