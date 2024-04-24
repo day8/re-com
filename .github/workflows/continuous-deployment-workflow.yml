@@ -103,17 +103,17 @@ jobs:
       # git ref. We do not use draft or prerelease features as we always want
       # the latest release to show in the right hand column of the project page regardless
       # of if it is a stable release.
-      # - name: Create GitHub Release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: ${{ github.ref }}
-      #     body: |
-      #       [Changelog](https://github.com/day8/re-com/blob/master/CHANGELOG.md)
-      #     draft: false
-      #     prerelease: false
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            [Changelog](https://github.com/day8/re-com/blob/master/CHANGELOG.md)
+          draft: false
+          prerelease: false
 
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
