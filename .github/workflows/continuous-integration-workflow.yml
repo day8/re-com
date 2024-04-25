@@ -36,25 +36,73 @@ jobs:
           key: cljdeps-${{ hashFiles('deps.edn') }}-${{ hashFiles ('package.json') }}-${{ hashFiles ('package-lock.json') }}
           restore-keys: cljdeps-
 
+      - name: Install chrome dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: |
+            libgconf-2-4
+            fonts-liberation
+            libasound2
+            libatk-bridge2.0-0
+            libatk1.0-0
+            libatspi2.0-0
+            libcairo2
+            libgbm-dev
+            libgbm1
+            libgdk-pixbuf2.0-0
+            libgtk-3-0
+            libgtk-3-0
+            libnss3-dev
+            libpango-1.0-0
+            libxdamage1
+            libxkbcommon0
+            libxss-dev
+            xdg-utils
+
+      - uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+        with:
+          chrome-version: 812859
+
+      #- run: export CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}
+      - run: export CHROME_BIN=chromium
+      # TODO: https://github.com/browser-actions/setup-chrome/issues/527
+      - name: setup chromedriver
+        run: |
+          export CHROMEDRIVER_VERSION="87.0.4280.0"
+          export CHROMEDRIVER_SHA256SUM="1412212c24d7e24a0bb3969aac125e576729cbbe5321413af16e2eb2be4b5db3"
+          export CHROMEDRIVER_PACKAGE_URL="https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F812859%2Fchromedriver_linux64.zip?generation=1601581780133920&alt=media"
+          wget -q -O chromedriver_linux64.zip $CHROMEDRIVER_PACKAGE_URL
+          sha256sum chromedriver_linux64.zip
+          echo "$CHROMEDRIVER_SHA256SUM *chromedriver_linux64.zip" | sha256sum -c -
+          unzip -q chromedriver_linux64.zip
+          rm -f chromedriver_linux64.zip
+          mv chromedriver_linux64/chromedriver /usr/local/bin/chromedriver
+          chmod +x /usr/local/bin/chromedriver
+          
       - name: Fix git dubious directory ownership error
         run: git config --global --add safe.directory /__w/re-com/re-com
+      - run: echo $CHROME_BIN
+      - run: echo ${{ steps.setup-chrome.outputs.chrome-path }}
 
-      - run: bb ci
-
+      - run: id && bb ci
+        env:
+          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
+      
       - run: bb build-report-ci
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: build-report
-          path: target/build-report.html
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build-report
+      #     path: target/build-report.html
 
-      - name: Slack notification
-        uses: homoluctus/slatify@v2.0.1
-        if: failure() || cancelled()
-        with:
-          type: ${{ job.status  }}
-          job_name: re-com Tests
-          channel: '#oss-robots'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          commit: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Slack notification
+      #   uses: homoluctus/slatify@v2.0.1
+      #   if: failure() || cancelled()
+      #   with:
+      #     type: ${{ job.status  }}
+      #     job_name: re-com Tests
+      #     channel: '#oss-robots'
+      #     url: ${{ secrets.SLACK_WEBHOOK }}
+      #     commit: true
+      #     token: ${{ secrets.GITHUB_TOKEN }}
