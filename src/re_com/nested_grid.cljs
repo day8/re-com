@@ -757,7 +757,7 @@
                                                               :cell        cell}]]
                                       ^{:key [::cell (or [column-path row-path] (gensym))]}
                                       [u/part cell-wrapper props cell-wrapper-part]))
-            zebra-stripes          (for [i (filter even? (range (count row-paths)))]
+            zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
                                      ^{:key [::zebra-stripe i]}
                                      [:div
                                       (themed ::zebra-stripe
