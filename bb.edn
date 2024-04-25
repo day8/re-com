@@ -12,7 +12,8 @@
   test            {:depends [clean install]
                    :task    (do (shell "npx shadow-cljs compile karma-test")
                                 (shell "npx karma start --single-run --reporters junit,dots"))}
-  release         {:task (shell "lein release")}
+  jar             {:depends [clean install prod-once]
+                   :task    (shell "clj -T:build jar")}
   release-demo    {:depends [clean install]
                    :task    (shell "npx shadow-cljs release demo")}
   prod-once       {:depends [release-demo]}
