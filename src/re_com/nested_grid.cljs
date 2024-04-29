@@ -716,6 +716,7 @@
             column-header-cells    (doall
                                     (for [path column-paths
                                           :let [props {:column-path    path
+                                                       :path           path
                                                        :column-header  column-header
                                                        :column-paths   column-paths
                                                        :show?          (show? path :column)
@@ -731,6 +732,7 @@
             row-header-cells       (doall
                                     (for [path row-paths
                                           :let [props {:row-path       path
+                                                       :path           path
                                                        :row-header     row-header
                                                        :row-paths      row-paths
                                                        :show?          (show? path :row)
