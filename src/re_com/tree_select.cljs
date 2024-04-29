@@ -7,7 +7,7 @@
    [reagent.core          :as r]
    [re-com.config         :refer [include-args-desc?]]
    [re-com.dropdown       :as dd]
-   [re-com.util           :refer [deref-or-value remove-id-item]]
+   [re-com.util           :refer [deref-or-value remove-id-item ->v]]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
    [re-com.validate       :as validate :refer [css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
@@ -241,15 +241,13 @@
 
 (def group? (comp #{:group} :type))
 
-(defn as-v [x] (when (some? x) (if (vector? x) x [x])))
-
 (defn ancestor-paths [path]
-  (some->> path as-v (iterate butlast) (take-while identity) (map vec)))
+  (some->> path ->v (iterate butlast) (take-while identity) (map vec)))
 
 (defn infer-groups [items]
   (into #{} (comp
              (keep :group)
-             (map as-v)
+             (map ->v)
              (mapcat ancestor-paths)
              (map #(do {:type :group :group %}))
              (distinct))
@@ -263,14 +261,14 @@
     ((fnil conj #{}) s k)))
 
 (defn descendant? [group-v item]
-  (= group-v (vec (take (count group-v) (as-v (:group item))))))
+  (= group-v (vec (take (count group-v) (->v (:group item))))))
 
 (defn filter-descendants [group-v choices]
   (filter (partial descendant? group-v) choices))
 
 (def filter-descendants* (memoize filter-descendants))
 
-(defn sort-items [items] (->> items (sort-by (juxt (comp #(apply str (as-v %)) :group)
+(defn sort-items [items] (->> items (sort-by (juxt (comp #(apply str (->v %)) :group)
                                                    (complement group?)))))
 
 (def group-label (comp str/capitalize name last :group))
@@ -283,7 +281,7 @@
   (let [current-choices           (current-choices model choices)
         current-groups            (current-groups current-choices)
         full? (fn [{:keys [group]}]
-                (let [group-v        (as-v group)
+                (let [group-v        (->v group)
                       descendant-ids (map :id (filter-descendants* group-v choices))]
                   (every? model descendant-ids)))]
     (into #{} (filter full? current-groups))))
@@ -313,7 +311,7 @@
              group-label-fn (or group-label-fn group-label)
              items          (->> choices infer-groups* (into choices) sort-items)
              item           (fn [item-props]
-                              (let [{:keys [id group] :as item-props} (update item-props :group as-v)]
+                              (let [{:keys [id group] :as item-props} (update item-props :group ->v)]
                                 (if (group? item-props)
                                   (let [descendants (filter-descendants* group choices)
                                         descendant-ids (map :id descendants)
@@ -370,7 +368,7 @@
   (let [current-choices           (into #{} (filter (comp model :id) choices))
         current-groups            (infer-groups* current-choices)
         full?                     (fn [{:keys [group]}]
-                                    (let [group-v        (as-v group)
+                                    (let [group-v        (->v group)
                                           descendant-ids (map :id (filter-descendants* group-v choices))]
                                       (every? model descendant-ids)))
         full-groups               (into #{} (filter full? current-groups))
@@ -378,7 +376,7 @@
                                          acc                 []]
                                     (if-not group
                                       acc
-                                      (let [group-v (as-v (:group group))]
+                                      (let [group-v (->v (:group group))]
                                         (recur (remove (partial descendant? group-v) remainder)
                                                (conj acc group)))))
         highest-group-descendants (into #{} (mapcat #(filter-descendants* (:group %) current-choices) highest-groups))]
