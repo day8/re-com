@@ -95,6 +95,11 @@
       :default     false
       :type        "boolean"
       :description "if true, no user selection is allowed"}
+     {:name        :groups-first?
+      :required    false
+      :default     false
+      :type        "boolean"
+      :description "If true, puts groups at the top of the list. Ungrouped items will appear last."}
      {:name        :choice-disabled-fn
       :required    false
       :default     nil
@@ -268,8 +273,14 @@
 
 (def filter-descendants* (memoize filter-descendants))
 
-(defn sort-items [items] (->> items (sort-by (juxt (comp #(apply str (->v %)) :group)
-                                                   (complement group?)))))
+(defn sort-items [items & {:keys [groups-first?]}]
+  (let [groupless?          (comp nil? :group)
+        lexicographic-group (comp #(apply str (->v %)) :group)
+        leaf?               (complement group?)]
+    (->> items (sort-by (apply juxt (cond->> [lexicographic-group
+                                              leaf?]
+                                      groups-first?
+                                      (into [groupless?])))))))
 
 (def group-label (comp str/capitalize name last :group))
 
@@ -301,7 +312,7 @@
                                               choices)
                                 initial-expanded-groups)))
     (fn tree-select-render
-      [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr] :as args}]
+      [& {:keys [choices group-label-fn disabled? groups-first? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr] :as args}]
       (or
        (validate-args-macro tree-select-args-desc args)
        (let [choices        (deref-or-value choices)
@@ -309,7 +320,8 @@
              model          (deref-or-value model)
              label-fn       (or label-fn :label)
              group-label-fn (or group-label-fn group-label)
-             items          (->> choices infer-groups* (into choices) sort-items)
+             items          (sort-items (into choices (infer-groups* choices))
+                                        :groups-first? groups-first?)
              item           (fn [item-props]
                               (let [{:keys [id group] :as item-props} (update item-props :group ->v)]
                                 (if (group? item-props)
@@ -390,8 +402,9 @@
     (fn tree-select-dropdown-render
       [& {:keys [choices  disabled?
                  width min-width max-width min-height max-height on-change
-                 label-fn alt-text-fn group-label-fn model  placeholder id-fn alt-text-fn field-label-fn
+                 label-fn alt-text-fn group-label-fn model  placeholder id-fn field-label-fn
                  height
+                 groups-first?
                  parts style theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
                  label-fn    :label}
@@ -450,6 +463,7 @@
                                  :min-height     min-height
                                  :max-height     max-height
                                  :on-change      on-change
+                                 :groups-first?  groups-first?
                                  :label-fn       label-fn
                                  :model          model})]
                       :model showing?
