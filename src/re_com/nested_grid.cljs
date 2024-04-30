@@ -316,19 +316,19 @@
              :style (merge {:position         "absolute"
                             :opacity          (if (or @hovering? @dragging?) 1 0)
                             :z-index          9999999
-                            :background-color "rgba(0,0,0,0.2)"}
+                            :background-color "rgba(0,0,0,0.1)"}
                            (when (= :column dimension)
                              {:top    0
                               :cursor "col-resize"
                               :height "100%"
-                              :width  "20px"
-                              :right  "-10px"})
+                              :width  "10px"
+                              :right  "-5px"})
                            (when (= :row dimension)
                              {:left   0
                               :cursor "row-resize"
-                              :height "20px"
+                              :height "10px"
                               :width  "100%"
-                              :bottom "-10px"}))}])))
+                              :bottom "-5px"}))}])))
 
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
