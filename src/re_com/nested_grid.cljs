@@ -358,12 +358,7 @@
                           :as args}]
   [:div
    (-> {:style {:grid-column (path->grid-line-name column-path)
-                :grid-row (path->grid-line-name row-path)
-                :background-color "#fff"
-                :padding "3px"
-                :text-align "right"
-                :border "0.5px solid #ccc"
-                :position "relative"}}
+                :grid-row (path->grid-line-name row-path)}}
        (theme/apply {:state {} :part ::cell-wrapper} theme))
    [u/part cell (dissoc args :cell) cell-part]])
 

@@ -101,7 +101,8 @@
          ::nested-grid/cell-wrapper
          {:style {#_#_:pointer-events "none"
                   :user-select        "none"
-                  :overflow           "hidden"}}
+                  :overflow           "hidden"
+                  :position           "relative"}}
 
          ::nested-grid/column-header-wrapper
          {:style {:position           "relative"
@@ -118,7 +119,7 @@
 
 (defn main-variables [props _] props)
 
-(defn main [props {:keys                                      [state part]
+(defn main [props {:keys                                            [state part]
                    {:as   $
                     :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
                            dark shadow light light-neutral border]} :variables}]
@@ -173,8 +174,11 @@
                   :background-color light-neutral}}
 
          ::nested-grid/cell-wrapper
-         {:style {:font-size sm-6
-                  :background-color "white"}}
+         {:style {:font-size        sm-6
+                  :background-color "white"
+                  :padding          sm-3
+                  :text-align       "right"
+                  :border           "0.5px solid #ccc"}}
 
          ::nested-grid/column-header-wrapper
          {:style {:padding          sm-3
@@ -183,25 +187,25 @@
                   :color            dark
                   :text-align       "center"
                   :font-size        sm-6
-                  #_#_:font-weight      "bold"
+                  #_#_:font-weight  "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
 
          ::nested-grid/row-header-wrapper
-         {:style {:padding          sm-3
+         {:style {:padding          (str sm-4 " " sm-3)
                   :border           (str sm-1 " solid " border)
                   :background-color light-neutral
                   :color            dark
                   :text-align       "center"
                   :font-size        sm-6
-                  #_#_:font-weight      "bold"
+                  #_#_:font-weight  "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
 
          ::tree-select/dropdown-anchor
-         {:style {:padding "0px 6px"
+         {:style {:padding  "0px 6px"
                   :overflow "hidden"
                   :cursor   (if (-> state :enable (= :disabled))
                               "default" "pointer")}}
