@@ -176,12 +176,12 @@
          ::nested-grid/cell-wrapper
          {:style {:font-size        sm-6
                   :background-color "white"
-                  :padding          sm-3
+                  :padding          (str sm-4 " " sm-3)
                   :text-align       "right"
                   :border           "0.5px solid #ccc"}}
 
          ::nested-grid/column-header-wrapper
-         {:style {:padding          sm-3
+         {:style {:padding          (str sm-4 " " sm-3)
                   :border           (str sm-1 " solid " border)
                   :background-color light-neutral
                   :color            dark
