@@ -461,17 +461,18 @@
           reset-ref! (partial reset! !ref)]
       (fn [{:keys [drag selection?
                    grid-columns grid-rows
-                   mouse-x mouse-y mouse-down-x mouse-down-y]
-            :as props}]
+                   mouse-x mouse-y mouse-down-x mouse-down-y
+                   selection-grid-spec]
+            :as   props}]
         (let []
           [:<>
-           [:div {:ref   reset-ref!
-                  :style {:position         "absolute"
-                          :height           "100%"
-                          :width            "100%"
-                          :top              0
-                          :left             0}
-                  :on-mouse-up #(reset! drag false)
+           [:div {:ref           reset-ref!
+                  :style         {:position "absolute"
+                                  :height   "100%"
+                                  :width    "100%"
+                                  :top      0
+                                  :left     0}
+                  :on-mouse-up   #(reset! drag false)
                   :on-mouse-down #(do
                                     (if-not @selection?
                                       (do (reset! drag ::selection)
@@ -481,7 +482,8 @@
                                           (reset! mouse-y (.-clientY %))
                                           (reset! mouse-x (.-clientX %)))
                                       (do (reset! selection? false)
-                                          (reset! drag false))))}]
+                                          (reset! drag false)
+                                          (reset! selection-grid-spec {}))))}]
            (when @selection?
              (let [grid-columns  (filter number? grid-columns)
                    grid-rows     (filter number? grid-rows)
@@ -491,15 +493,17 @@
                    column-begin  (quantize grid-columns (- @mouse-down-x origin-x))
                    column-finish (quantize grid-columns (- @mouse-x origin-x))
                    row-begin     (quantize grid-rows (- @mouse-down-y origin-y))
-                   row-finish    (quantize grid-rows (- @mouse-y origin-y))]
-               [:div {:style {:grid-column-start (+ 2 (min column-begin column-finish))
-                              :grid-column-end   (+ 3 (max column-begin column-finish))
-                              :grid-row-start    (+ 2 (min row-begin row-finish))
-                              :grid-row-end      (+ 3 (max row-begin row-finish))
-                              :border            "2px solid dodgerblue"
-                              :background        "rgba(127,127,255,.1)"
-                              :position          "relative"
-                              :pointer-events "none"}}
+                   row-finish    (quantize grid-rows (- @mouse-y origin-y))
+                   grid-spec     {:grid-column-start (+ 2 (min column-begin column-finish))
+                                  :grid-column-end   (+ 3 (max column-begin column-finish))
+                                  :grid-row-start    (+ 2 (min row-begin row-finish))
+                                  :grid-row-end      (+ 3 (max row-begin row-finish))}
+                   _             (reset! selection-grid-spec grid-spec)]
+               [:div {:style (merge @selection-grid-spec
+                                    {:border         "2px solid dodgerblue"
+                                     :background     "rgba(127,127,255,.1)"
+                                     :position       "relative"
+                                     :pointer-events "none"})}
                 [:div {:style {:position   "absolute"
                                :background "white"
                                :border     "2px solid grey"
@@ -529,56 +533,57 @@
 (defn nested-grid [& {:keys [column-width row-height]
                       :or   {column-width 60
                              row-height   30}}]
-  (let [column-state       (r/atom {})
-        row-state          (r/atom {})
-        hover?             (r/atom false)
-        drag               (r/atom nil)
-        selection?         (r/atom nil)
-        mouse-down-x       (r/atom 0)
-        mouse-down-y       (r/atom 0)
-        last-mouse-x       (r/atom 0)
-        last-mouse-y       (r/atom 0)
-        mouse-x            (r/atom 0)
-        mouse-y            (r/atom 0)
-        scroll-top         (r/atom 0)
-        scroll-left        (r/atom 0)
-        column-header-prop (fn [path k & [default]]
-                             (or (some-> @column-state (get path) (get k))
-                                 (get (meta (last path)) k)
-                                 (get (last path) k)
-                                 default))
-        header-prop        (fn [path k dimension & [default]]
-                             (let [state (-> (case dimension
-                                               :row    @row-state
-                                               :column @column-state)
-                                             (get path))]
-                               (first
-                                (remove nil? [(get state k)
-                                              (get (meta (last path)) k)
-                                              (get (last path) k)
-                                              default]))))
-        max-props          (fn [k dimension default paths]
-                             (->> paths
-                                  (group-by level)
-                                  (sort-by key)
-                                  (map val)
-                                  (map (fn [path-group]
-                                         (apply max
-                                                (map #(header-prop % k dimension default)
-                                                     path-group))))))
-        resize-column!     (fn [{:keys [x-distance path]}]
-                             (swap! column-state update-in [path :width]
-                                    #(-> (or %
-                                             (column-header-prop path :width column-width))
-                                         (+ x-distance)
-                                         (max 0))))
-        resize-row!        (fn [{:keys [y-distance path]}]
-                             (swap! row-state update-in [path :height]
-                                    #(-> (or %
-                                             (header-prop path :height :row row-height))
-                                         (+ y-distance)
-                                         (max 0))))
-        resize-handler     (r/atom #())]
+  (let [column-state        (r/atom {})
+        row-state           (r/atom {})
+        hover?              (r/atom false)
+        drag                (r/atom nil)
+        selection?          (r/atom nil)
+        mouse-down-x        (r/atom 0)
+        mouse-down-y        (r/atom 0)
+        last-mouse-x        (r/atom 0)
+        last-mouse-y        (r/atom 0)
+        mouse-x             (r/atom 0)
+        mouse-y             (r/atom 0)
+        scroll-top          (r/atom 0)
+        scroll-left         (r/atom 0)
+        selection-grid-spec (r/atom {})
+        column-header-prop  (fn [path k & [default]]
+                              (or (some-> @column-state (get path) (get k))
+                                  (get (meta (last path)) k)
+                                  (get (last path) k)
+                                  default))
+        header-prop         (fn [path k dimension & [default]]
+                              (let [state (-> (case dimension
+                                                :row    @row-state
+                                                :column @column-state)
+                                              (get path))]
+                                (first
+                                 (remove nil? [(get state k)
+                                               (get (meta (last path)) k)
+                                               (get (last path) k)
+                                               default]))))
+        max-props           (fn [k dimension default paths]
+                              (->> paths
+                                   (group-by level)
+                                   (sort-by key)
+                                   (map val)
+                                   (map (fn [path-group]
+                                          (apply max
+                                                 (map #(header-prop % k dimension default)
+                                                      path-group))))))
+        resize-column!      (fn [{:keys [x-distance path]}]
+                              (swap! column-state update-in [path :width]
+                                     #(-> (or %
+                                              (column-header-prop path :width column-width))
+                                          (+ x-distance)
+                                          (max 0))))
+        resize-row!         (fn [{:keys [y-distance path]}]
+                              (swap! row-state update-in [path :height]
+                                     #(-> (or %
+                                              (header-prop path :height :row row-height))
+                                          (+ y-distance)
+                                          (max 0))))
+        resize-handler      (r/atom #())]
     (fn [& {:keys [column-tree row-tree
                    cell column-header row-header header-spacer
                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
@@ -641,40 +646,86 @@
                                                       [path height]
                                                       [path])))))
             spacer?                number?
-            export-column-headers  #(let [y-size column-depth
-                                          x-size (count (filter spacer? cell-grid-columns))
-                                          result (vec (repeat y-size (vec (repeat x-size nil))))
-                                          ->y    (comp dec count)
-                                          ->x    (reduce
-                                                  (fn [m item]
-                                                    (if (spacer? item)
-                                                      (update m ::count inc)
-                                                      (assoc m item (or (::count m) 0))))
-                                                  {}
-                                                  cell-grid-columns)
-                                          insert (fn [result path]
-                                                   (assoc-in result [(->y path) (->x path)] (on-export-column-header path)))]
-                                      (reduce insert result column-paths))
-            export-row-headers     #(let [y-size (count (filter spacer? cell-grid-rows))
-                                          x-size row-depth
-                                          result (vec (repeat y-size (vec (repeat x-size nil))))
-                                          ->y    (reduce
-                                                  (fn [m item]
-                                                    (if (spacer? item)
-                                                      (update m ::count inc)
-                                                      (assoc m item (or (::count m) 0))))
-                                                  {}
-                                                  cell-grid-rows)
-                                          ->x    (comp dec count)
-                                          insert (fn [result path]
-                                                   (assoc-in result [(->y path) (->x path)] (on-export-row-header path)))]
-                                      (reduce insert result row-paths))
-            export-cells           #(->> showing-row-paths
-                                         (mapv (fn [row-path]
-                                                 (mapv (fn [column-path]
-                                                         (on-export-cell {:row-path    row-path
-                                                                          :column-path column-path}))
-                                                       showing-column-paths))))
+            export-column-headers  #(let [{:keys [grid-column-start
+                                                  grid-column-end]}
+                                          @selection-grid-spec
+                                          selection? (and grid-column-start grid-column-end)
+                                          crop       (fn [row]
+                                                       (let [raw-row     (subvec row
+                                                                                 (dec grid-column-start)
+                                                                                 (dec grid-column-end))
+                                                             last-header (some identity
+                                                                               (reverse
+                                                                                (take grid-column-start row)))]
+                                                         (into [last-header] (rest raw-row))))
+                                          y-size     column-depth
+                                          x-size     (count (filter spacer? cell-grid-columns))
+                                          result     (vec (repeat y-size (vec (repeat x-size nil))))
+                                          ->y        (comp dec count)
+                                          ->x        (reduce
+                                                      (fn [m item]
+                                                        (if (spacer? item)
+                                                          (update m ::count inc)
+                                                          (assoc m item (or (::count m) 0))))
+                                                      {}
+                                                      cell-grid-columns)
+                                          insert     (fn [result path]
+                                                       (assoc-in result
+                                                                 [(->y path) (->x path)]
+                                                                 (on-export-column-header path)))]
+                                      (cond->> column-paths
+                                        :do        (reduce insert result)
+                                        selection? (mapv crop)))
+            export-row-headers     #(let [{:keys [grid-row-start
+                                                  grid-row-end]}
+                                          @selection-grid-spec
+                                          selection? (and grid-row-start grid-row-end)
+                                          crop       (fn [row]
+                                                       (let [raw-row     (subvec row
+                                                                                 (dec grid-row-start)
+                                                                                 (dec grid-row-end))
+                                                             last-header (some identity
+                                                                               (reverse
+                                                                                (take grid-row-start row)))]
+                                                         (into [last-header] (rest raw-row))))
+                                          transpose  (partial apply mapv vector)
+                                          y-size     (count (filter spacer? cell-grid-rows))
+                                          x-size     row-depth
+                                          result     (vec (repeat y-size (vec (repeat x-size nil))))
+                                          ->y        (reduce
+                                                      (fn [m item]
+                                                        (if (spacer? item)
+                                                          (update m ::count inc)
+                                                          (assoc m item (or (::count m) 0))))
+                                                      {}
+                                                      cell-grid-rows)
+                                          ->x        (comp dec count)
+                                          insert     (fn [result path]
+                                                       (assoc-in result
+                                                                 [(->y path) (->x path)]
+                                                                 (on-export-row-header path)))
+                                          all        (reduce insert result row-paths)]
+                                      (if-not selection?
+                                        all
+                                        (transpose (mapv crop (transpose all)))))
+            export-cells           #(let [{:keys [grid-row-start grid-row-end grid-column-start grid-column-end]
+                                           :as   selection-grid-spec}
+                                          @selection-grid-spec
+                                          selection?   (seq selection-grid-spec)
+                                          row-paths    (cond-> showing-row-paths
+                                                         :do        vec
+                                                         selection? (subvec (dec grid-row-start)
+                                                                            (dec grid-row-end)))
+                                          column-paths (cond-> showing-column-paths
+                                                         :do        vec
+                                                         selection? (subvec (dec grid-column-start)
+                                                                            (dec grid-column-end)))]
+                                      (->> row-paths
+                                           (mapv (fn [row-path]
+                                                   (mapv (fn [column-path]
+                                                           (on-export-cell {:row-path    row-path
+                                                                            :column-path column-path}))
+                                                         column-paths)))))
             export-spacers         #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel          [controls {:show-export-button? show-export-button?
                                               :hover?              hover?
@@ -767,14 +818,15 @@
                                           :z-index           2
                                           :pointer-events    "none"}})])
             box-selector           [selection-part
-                                    {:drag         drag
-                                     :grid-columns cell-grid-columns
-                                     :grid-rows    cell-grid-rows
-                                     :selection?   selection?
-                                     :mouse-x      mouse-x
-                                     :mouse-y      mouse-y
-                                     :mouse-down-x mouse-down-x
-                                     :mouse-down-y mouse-down-y}]
+                                    {:drag                drag
+                                     :grid-columns        cell-grid-columns
+                                     :grid-rows           cell-grid-rows
+                                     :selection?          selection?
+                                     :mouse-x             mouse-x
+                                     :mouse-y             mouse-y
+                                     :mouse-down-x        mouse-down-x
+                                     :mouse-down-y        mouse-down-y
+                                     :selection-grid-spec selection-grid-spec}]
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
             native-scrollbar-width 10]
