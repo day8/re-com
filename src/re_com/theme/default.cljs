@@ -185,7 +185,7 @@
                   :background-color "white"
                   :padding          (str sm-4 " " sm-3)
                   :text-align       "right"
-                  :border           "0.5px solid #ccc"}}
+                  :border           (str sm-1 " solid" border)}}
 
          ::nested-grid/cell-grid-container
          {:style {:padding          "0px"
