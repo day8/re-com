@@ -98,6 +98,13 @@
                   :overflow-y "auto"
                   :overflow-x "visible"}}
 
+         ::nested-grid/cell-grid-container
+         {:style {:position        "relative"
+                  :cursor          "crosshair"
+                  :overflow        "auto"
+                  :scrollbar-width "thin"
+                  :gap             "0px"}}
+
          ::nested-grid/cell-wrapper
          {:style {#_#_:pointer-events "none"
                   :user-select        "none"
@@ -160,7 +167,7 @@
                     :text-decoration  "none"
                     :white-space      "nowrap"
                     :transition       "border 0.2s box-shadow 0.2s"}})
-         
+
          ::dropdown/anchor
          {:style (cond-> {:color (:foreground $)
                           :overflow "hidden"
@@ -179,6 +186,10 @@
                   :padding          (str sm-4 " " sm-3)
                   :text-align       "right"
                   :border           "0.5px solid #ccc"}}
+
+         ::nested-grid/cell-grid-container
+         {:style {:padding          "0px"
+                  :background-color "transparent"}}
 
          ::nested-grid/column-header-wrapper
          {:style {:padding          (str sm-4 " " sm-3)
