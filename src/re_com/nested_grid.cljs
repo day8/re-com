@@ -414,13 +414,12 @@
 
 (def level count)
 
-(defn clipboard-export-button [{:keys [on-export]}])
-
-(defn controls [{:keys [show-export-button? hover? on-export]}]
+(defn controls [{:keys [show-export-button? hover? on-export style]}]
   [box/h-box
-   :style {:grid-column-start 1
-           :grid-column-end "end"
-           :grid-row 1}
+   :style (merge {:grid-column-start 1
+                  :grid-column-end   "end"
+                  :grid-row          1}
+                 style)
    :height "20px"
    :width "100%"
    :children
@@ -588,7 +587,8 @@
                    cell column-header row-header header-spacer
                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
                    show-branch-paths?
-                   max-height column-width column-header-height row-header-width row-height
+                   max-height max-width
+                   column-width column-header-height row-header-width row-height
                    show-export-button? on-export
                    on-export-cell on-export-column-header on-export-row-header
                    show-selection-box?]
@@ -729,6 +729,7 @@
             export-spacers        #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel         [controls {:show-export-button? show-export-button?
                                              :hover?              hover?
+                                             :style               {:max-width (+ max-width (first max-row-widths))}
                                              :on-export
                                              #(let [column-headers (export-column-headers)
                                                     row-headers    (export-row-headers)
@@ -751,6 +752,7 @@
                                      {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
                                                       (reset! scroll-left (.-scrollLeft (.-target %))))
                                       :style     {:max-height max-height
+                                                  :max-width  max-width
                                                   :display    "grid"
 
                                                   :grid-template-columns (grid-template cell-grid-columns)
@@ -832,8 +834,14 @@
                 :style
                 {:display               "grid"
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                        (px (+ native-scrollbar-width
-                                                               (apply + showing-column-widths)))])
+                                                        (px (cond-> (+ native-scrollbar-width
+                                                                       (apply + showing-column-widths))
+                                                              max-width
+                                                              (min
+                                                               (parse-long
+                                                                (str/replace max-width
+                                                                             "px"
+                                                                             "")))))])
                  :grid-template-rows    (grid-template ["20px" showing-column-widths
                                                         (px (apply + max-column-heights))
                                                         (px (apply + showing-row-heights))])}}
@@ -842,7 +850,8 @@
                          :grid-template-columns (grid-template max-row-widths)
                          :grid-template-rows    (grid-template max-column-heights)}}
            header-spacer-cells]
-          [scroll-container {:scroll-left scroll-left}
+          [scroll-container {:scroll-left scroll-left
+                             :width       max-width}
            [:div {:style {:display               "grid"
                           :grid-template-columns (grid-template cell-grid-columns)
                           :grid-template-rows    (grid-template max-column-heights)}}
