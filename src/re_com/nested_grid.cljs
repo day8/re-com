@@ -834,8 +834,10 @@
                 :style
                 {:display               "grid"
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                        (px (cond-> (+ native-scrollbar-width
-                                                                       (apply + showing-column-widths))
+                                                        (px (cond->
+                                                             (apply +
+                                                                    native-scrollbar-width
+                                                                    showing-column-widths)
                                                               max-width
                                                               (min
                                                                (parse-long
@@ -844,7 +846,10 @@
                                                                              "")))))])
                  :grid-template-rows    (grid-template ["20px" showing-column-widths
                                                         (px (apply + max-column-heights))
-                                                        (px (apply + showing-row-heights))])}}
+                                                        (px (apply +
+                                                                   4
+                                                                   native-scrollbar-width
+                                                                   showing-row-heights))])}}
           control-panel
           [:div {:style {:display               "grid"
                          :grid-template-columns (grid-template max-row-widths)
