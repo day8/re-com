@@ -278,8 +278,8 @@
   [& {:keys [src] :as static-args}]
   (or
    (validate-args-macro simple-v-table-args-desc static-args)
-   (let [sort-by-column         (reagent/atom nil)
-         header-hover?          (reagent/atom nil)]
+   (let [sort-by-column (reagent/atom nil)
+         header-hover?  (reagent/atom nil)]
      (fn simple-v-table-render
        [& {:as dynamic-args}]
        (or
@@ -309,10 +309,10 @@
            :debug-as (or debug-as (reflect-current-component))
            :class    (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
            :style    (merge {;; :flex setting
-                               ;; When max-rows is being used:
-                               ;;  - "0 1 auto" allows shrinking within parent but not growing (to prevent vertical spill)
-                               ;; Otherwise:
-                               ;;  - "100%" used instead of 1 to resolve conflicts when simple-v-table is the anchor of a popover (e.g. the periodic table demo)
+                             ;; When max-rows is being used:
+                             ;;  - "0 1 auto" allows shrinking within parent but not growing (to prevent vertical spill)
+                             ;; Otherwise:
+                             ;;  - "100%" used instead of 1 to resolve conflicts when simple-v-table is the anchor of a popover (e.g. the periodic table demo)
                              :flex             (if max-rows "0 1 auto" "100%")
                              :background-color "white" ;; DEBUG "salmon"
                              :padding          (px table-padding)
@@ -348,8 +348,8 @@
                                                     [export-button-renderer {:rows      rows
                                                                              :columns   columns
                                                                              :on-export (fn [_] (on-export {:columns columns
-                                                                                                            :rows    (cond->> rows
-                                                                                                                       sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
+                                                                                                           :rows    (cond->> rows
+                                                                                                                      sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
                       ;; ===== Styling
                       :class                   class
                       :parts                   (cond-> {:wrapper {:style {:font-size "13px"
