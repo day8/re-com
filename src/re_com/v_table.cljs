@@ -1037,7 +1037,6 @@
          :component-did-update
          (fn v-table-component-did-update
            [this [_ & {old-sort-keyfn :sort-keyfn old-sort-comp :sort-comp :as old-args}]]
-           (println "Component!")
            (let [[_ & {new-sort-keyfn :sort-keyfn new-sort-comp :sort-comp :as new-args}] (reagent/argv this)]
              (when (or (not= old-sort-keyfn new-sort-keyfn) (not= new-sort-comp old-sort-comp))
                (cond

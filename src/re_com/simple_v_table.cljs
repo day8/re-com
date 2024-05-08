@@ -105,10 +105,9 @@
          :children [header-label
                     (when sort-by
                       [h-box
-                       :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
                        :min-width "35px"
-                       :style (when current-order {:opacity 0.3})
                        :justify :center
+                       :style {:opacity 0.5}
                        :align :center
                        :children
                        (if-not (or @hover? current-order)

@@ -1423,15 +1423,3 @@ code {
 .rc-typeahead-suggestion.active {
     background-color: #ddd;
 }
-
-/*----------------------------------------------------------------------------------------
-  simple-v-table
-----------------------------------------------------------------------------------------*/
-
-.rc-v-table-column-headers .rc-simple-v-table-column-header-sort-label {
-    opacity: 0;
-}
-dts
-.rc-v-table-column-headers:hover .rc-simple-v-table-column-header-sort-label {
-    opacity: 0.25;
-}
