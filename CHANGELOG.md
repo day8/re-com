@@ -2,6 +2,15 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+
+
+## 2.21.2 (2024-05-09)
+
+#### Fixed
+
+- Invisible icons & broken execution in simple-v-table headers (#339)
+
+
 ## 2.21.0 (2024-04-24)
 
 #### Added
