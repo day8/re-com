@@ -111,7 +111,7 @@
                        :justify :center
                        :align :center
                        :children
-                       (if-not (or hover? current-order)
+                       (if-not (or @hover? current-order)
                          []
                          [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
                            {:size (or height "16px")
@@ -128,8 +128,8 @@
                      :overflow    "hidden"
                      :white-space "nowrap"}
                     (get-in parts [:simple-column-header :style]))
-   :attr     (merge {:on-mouse-enter #(do  (reset! hover? true))
-                     :on-mouse-leave #(do  (reset! hover? false))
+   :attr     (merge {:on-mouse-enter (when hover? (handler-fn (reset! hover? true)))
+                     :on-mouse-leave (when hover? (handler-fn (reset! hover? false)))
                      :on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}
                     (get-in parts [:simple-column-header :attr]))
    :children (into []
@@ -327,7 +327,7 @@
                       :model                   model
                       :sort-comp               (multi-comparator (->v @sort-by-column))
                         ;; ===== Column header (section 4)
-                      :column-header-renderer  #(do [column-header-renderer (into args {:columns content-cols :hover? @header-hover? :sort-by-column sort-by-column})])
+                      :column-header-renderer  #(do [column-header-renderer (into args {:columns content-cols :hover? header-hover? :sort-by-column sort-by-column})])
                       :column-header-height    column-header-height
                         ;; ===== Row header (section 2)
                       :row-header-renderer     #(fn [i row] [row-renderer (into args {:columns fixed-cols :row row :row-index i})])
