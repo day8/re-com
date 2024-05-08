@@ -3,6 +3,11 @@
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
 
+## 2.21.3 (2024-05-09)
+
+#### Fixed
+
+- Crash when declaring :sort-by for simple-v-table headers in top-left section
 
 ## 2.21.2 (2024-05-09)
 

@@ -338,8 +338,9 @@
                       ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
                         ;; ===== Corners (section 1, 3)
                       :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
-                                                                                    :parts          parts
-                                                                                    :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
+                                                                                   :hover?         header-hover?
+                                                                                   :parts          parts
+                                                                                   :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
                       :top-right-renderer      (when show-export-button?
                                                  #(let [rows           (deref-or-value model)
                                                         columns        (deref-or-value columns)
