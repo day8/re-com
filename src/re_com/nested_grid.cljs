@@ -424,7 +424,7 @@
    :width "100%"
    :children
    [[box/gap :size "1"]
-    (when (and show-export-button? @hover?)
+    (when (and show-export-button? #_@hover?)
       [buttons/row-button
        :md-icon-name    "zmdi zmdi-copy"
        :mouse-over-row? true
