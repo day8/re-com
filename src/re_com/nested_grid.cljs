@@ -414,12 +414,11 @@
 
 (def level count)
 
-(defn controls [{:keys [show-export-button? hover? on-export style]}]
+(defn controls [{:keys [show-export-button? hover? on-export]}]
   [box/h-box
-   :style (merge {:grid-column-start 1
-                  :grid-column-end   "end"
-                  :grid-row          1}
-                 style)
+   :style {:grid-column-start 1
+           :grid-column-end   "end"
+           :grid-row          1}
    :height "20px"
    :width "100%"
    :children
@@ -429,7 +428,8 @@
        :md-icon-name    "zmdi zmdi-copy"
        :mouse-over-row? true
        :tooltip         (str "Copy table to clipboard.")
-       :on-click        on-export])]])
+       :on-click        on-export])
+    [box/gap :size "10px"]]])
 
 (defn quantize [quanta threshold]
   (dec (count (take-while #(< % threshold)
@@ -729,7 +729,6 @@
             export-spacers        #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel         [controls {:show-export-button? show-export-button?
                                              :hover?              hover?
-                                             :style               {:max-width (+ max-width (first max-row-widths))}
                                              :on-export
                                              #(let [column-headers (export-column-headers)
                                                     row-headers    (export-row-headers)
