@@ -69,8 +69,7 @@
   [& _]
   (fn [{:keys [parts sort-by-column hover? column-header-height]
         {:keys [id row-label-fn width height align header-label sort-by]} :column}]
-    (let [header-label             (or header-label (name id))
-          sort-by                  (cond (true? sort-by) {} :else sort-by)
+    (let [sort-by                  (cond (true? sort-by) {} :else sort-by)
           default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
           ps                       (position-for-id id @sort-by-column)
           {current-order :order}   (item-for-id id @sort-by-column)

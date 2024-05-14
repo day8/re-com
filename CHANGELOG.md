@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.4 (2024-05-14)
+
+#### Fixed
+
+- `simple-v-table` - Removed default header-labels, since they show up badly in existing apps. (#340)
+
 
 ## 2.21.3 (2024-05-09)
 
