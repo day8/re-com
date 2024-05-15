@@ -833,16 +833,18 @@
                 :style
                 {:display               "grid"
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                        (px (cond->
-                                                             (apply +
-                                                                    native-scrollbar-width
-                                                                    showing-column-widths)
-                                                              max-width
-                                                              (min
-                                                               (parse-long
-                                                                (str/replace max-width
-                                                                             "px"
-                                                                             "")))))])
+                                                        (if-not max-width
+                                                          "1fr"
+                                                          (px (cond->
+                                                               (apply +
+                                                                      native-scrollbar-width
+                                                                      showing-column-widths)
+                                                                max-width
+                                                                (min
+                                                                 (parse-long
+                                                                  (str/replace max-width
+                                                                               "px"
+                                                                               ""))))))])
                  :grid-template-rows    (grid-template ["20px" showing-column-widths
                                                         (px (apply + max-column-heights))
                                                         (px (apply +
