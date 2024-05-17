@@ -414,23 +414,6 @@
 
 (def level count)
 
-(defn controls [{:keys [show-export-button? hover? on-export]}]
-  [box/h-box
-   :style {:grid-column-start 1
-           :grid-column-end   "end"
-           :grid-row          1}
-   :height "20px"
-   :width "100%"
-   :children
-   [[box/gap :size "1"]
-    (when (and show-export-button? #_@hover?)
-      [buttons/row-button
-       :md-icon-name    "zmdi zmdi-copy"
-       :mouse-over-row? true
-       :tooltip         (str "Copy table to clipboard.")
-       :on-click        on-export])
-    [box/gap :size "10px"]]])
-
 (defn quantize [quanta threshold]
   (dec (count (take-while #(< % threshold)
                           (reductions + quanta)))))
@@ -727,35 +710,44 @@
                                                                            :column-path column-path}))
                                                         column-paths)))))
             export-spacers        #(vec (repeat column-depth (vec (repeat row-depth nil))))
-            control-panel         [controls {:show-export-button? show-export-button?
-                                             :hover?              hover?
-                                             :on-export
-                                             #(let [column-headers (export-column-headers)
-                                                    row-headers    (export-row-headers)
-                                                    spacers        (export-spacers)
-                                                    cells          (export-cells)
-                                                    header-rows    (mapv into spacers column-headers)
-                                                    main-rows      (mapv into row-headers cells)
-                                                    rows           (concat header-rows main-rows)]
-                                                (on-export
-                                                 {:column-headers column-headers
-                                                  :row-headers    row-headers
-                                                  :spacers        spacers
-                                                  :cells          cells
-                                                  :header-rows    header-rows
-                                                  :main-rows      main-rows
-                                                  :rows           rows
-                                                  :default        default-on-export}))}]
-            cell-grid-container   [:div
-                                   (themed ::cell-grid-container
-                                     {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
-                                                      (reset! scroll-left (.-scrollLeft (.-target %))))
-                                      :style     {:max-height max-height
-                                                  :max-width  max-width
-                                                  :display    "grid"
+            control-panel         [:div {:style {:position :relative
+                                                 :width    (if max-width
+                                                             max-width
+                                                             (px (apply + showing-column-widths)))}}
+                                   [:div {:style {:position :absolute
+                                                  :right    0}}
+                                    (when show-export-button?
+                                      [buttons/row-button
+                                       :md-icon-name    "zmdi zmdi-copy"
+                                       :mouse-over-row? true
+                                       :tooltip         (str "Copy table to clipboard.")
+                                       :on-click        #(let [column-headers (export-column-headers)
+                                                               row-headers    (export-row-headers)
+                                                               spacers        (export-spacers)
+                                                               cells          (export-cells)
+                                                               header-rows    (mapv into spacers column-headers)
+                                                               main-rows      (mapv into row-headers cells)
+                                                               rows           (concat header-rows main-rows)]
+                                                           (on-export
+                                                            {:column-headers column-headers
+                                                             :row-headers    row-headers
+                                                             :spacers        spacers
+                                                             :cells          cells
+                                                             :header-rows    header-rows
+                                                             :main-rows      main-rows
+                                                             :rows           rows
+                                                             :default        default-on-export}))])]]
 
-                                                  :grid-template-columns (grid-template cell-grid-columns)
-                                                  :grid-template-rows    (grid-template cell-grid-rows)}})]
+            cell-grid-container    [:div
+                                    (themed ::cell-grid-container
+                                      {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                                       (reset! scroll-left (.-scrollLeft (.-target %))))
+                                       :style     {:max-height            max-height
+                                                   :max-width             max-width
+                                                   :width                 :fit-content
+                                                   :display               "grid"
+                                                   :grid-template-columns (grid-template cell-grid-columns)
+                                                   :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells    (doall
                                     (for [path column-paths
                                           :let [props {:column-path    path
@@ -831,7 +823,9 @@
          [:div {:on-mouse-enter #(reset! hover? true)
                 :on-mouse-leave #(reset! hover? false)
                 :style
-                {:display               "grid"
+                {:max-width             max-width
+                 :overflow              :hidden
+                 :display               "grid"
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
                                                         (if-not max-width
                                                           "1fr"
@@ -851,6 +845,7 @@
                                                                    4
                                                                    native-scrollbar-width
                                                                    showing-row-heights))])}}
+          [:div]
           control-panel
           [:div {:style {:display               "grid"
                          :grid-template-columns (grid-template max-row-widths)
@@ -859,6 +854,7 @@
           [scroll-container {:scroll-left scroll-left
                              :width       max-width}
            [:div {:style {:display               "grid"
+                          :width                 :fit-content
                           :grid-template-columns (grid-template cell-grid-columns)
                           :grid-template-rows    (grid-template max-column-heights)}}
             column-header-cells]]
