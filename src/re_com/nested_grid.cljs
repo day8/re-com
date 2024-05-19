@@ -574,6 +574,7 @@
                    column-width column-header-height row-header-width row-height
                    show-export-button? on-export
                    on-export-cell on-export-column-header on-export-row-header
+                   theme parts
                    show-selection-box?]
             :or   {column-header-height    30
                    column-width            60
@@ -584,7 +585,7 @@
                    show-selection-box?     false
                    on-export-column-header header-label
                    on-export-row-header    header-label}}]
-      (let [theme                 {}
+      (let [theme                 {:user [theme (theme/parts parts)]}
             themed                (fn [part props] (theme/apply props {:part part} theme))
             column-paths          (spec->headers* column-tree)
             column-leaf-paths     (leaf-paths column-paths)
@@ -791,7 +792,8 @@
                                           row-path    showing-row-paths
                                           :let        [props {:column-path column-path
                                                               :row-path    row-path
-                                                              :cell        cell}]]
+                                                              :cell        cell
+                                                              :theme       theme}]]
                                       ^{:key [::cell (or [column-path row-path] (gensym))]}
                                       [u/part cell-wrapper props cell-wrapper-part]))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
