@@ -512,7 +512,7 @@
                                   "translateY(" (- (deref-or-value scroll-top)) "px)")}}
     child]])
 
-(defn nested-grid [& {:keys [column-width row-height]
+(defn nested-grid [& {:keys [column-width row-height theme parts]
                       :or   {column-width 60
                              row-height   30}}]
   (let [column-state        (r/atom {})
@@ -565,7 +565,8 @@
                                               (header-prop path :height :row row-height))
                                           (+ y-distance)
                                           (max 0))))
-        resize-handler      (r/atom #())]
+        resize-handler      (r/atom #())
+        theme               {:user [theme (theme/parts parts)]}]
     (fn [& {:keys [column-tree row-tree
                    cell column-header row-header header-spacer
                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
@@ -574,7 +575,6 @@
                    column-width column-header-height row-header-width row-height
                    show-export-button? on-export
                    on-export-cell on-export-column-header on-export-row-header
-                   theme parts
                    show-selection-box?]
             :or   {column-header-height    30
                    column-width            60
@@ -585,8 +585,7 @@
                    show-selection-box?     false
                    on-export-column-header header-label
                    on-export-row-header    header-label}}]
-      (let [theme                 {:user [theme (theme/parts parts)]}
-            themed                (fn [part props] (theme/apply props {:part part} theme))
+      (let [themed                (fn [part props] (theme/apply props {:part part} theme))
             column-paths          (spec->headers* column-tree)
             column-leaf-paths     (leaf-paths column-paths)
             leaf-column?          (set column-leaf-paths)
