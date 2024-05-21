@@ -25,6 +25,14 @@
       [:span "String, hiccup or function. When a function, acceps keyword args "
        [:code ":column-path"] " and " [:code ":row-path"]
        ". Returns either a string or hiccup, which will appear within a single grid cell."]}
+     {:name :cell-value
+      :type "function"
+      :required false
+      :validate-fn ifn?
+      :description
+      [:span "Before calling " [:code ":cell"] ", " [:code "nested-grid"] " evaluates "
+       [:code ":cell-value"] "with the same arguments. It then passes the return value to "
+       [:code ":cell"] ", via a " [:code ":value"] " prop."]}
      {:name :column-tree
       :default "[]"
       :type "vector or seq of column-specs or column-trees"
@@ -354,13 +362,16 @@
 (defn cell-part [{:keys [column-path row-path]}]
   nil)
 
-(defn cell-wrapper-part [{:keys [column-path row-path cell theme]
-                          :as args}]
-  [:div
-   (-> {:style {:grid-column (path->grid-line-name column-path)
-                :grid-row (path->grid-line-name row-path)}}
-       (theme/apply {:state {} :part ::cell-wrapper} theme))
-   [u/part cell (dissoc args :cell) cell-part]])
+(defn cell-wrapper-part [{:keys [column-path row-path cell theme cell-value]
+                          :as   props}]
+  (let [props (cond-> props
+                :do        (dissoc :cell)
+                cell-value (assoc :value (cell-value props)))]
+    [:div
+     (-> {:style {:grid-column (path->grid-line-name column-path)
+                  :grid-row    (path->grid-line-name row-path)}}
+         (theme/apply {:state {} :part ::cell-wrapper} theme))
+     [u/part cell props cell-part]]))
 
 (defn header-label [path]
   (let [header (last path)]
@@ -568,7 +579,7 @@
         resize-handler      (r/atom #())
         theme               {:user [theme (theme/parts parts)]}]
     (fn [& {:keys [column-tree row-tree
-                   cell column-header row-header header-spacer
+                   cell cell-value column-header row-header header-spacer
                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
                    show-branch-paths?
                    max-height max-width
@@ -789,11 +800,13 @@
             cells                  (doall
                                     (for [column-path showing-column-paths
                                           row-path    showing-row-paths
-                                          :let        [props {:column-path column-path
-                                                              :row-path    row-path
-                                                              :cell        cell
-                                                              :theme       theme}]]
-                                      ^{:key [::cell (or [column-path row-path] (gensym))]}
+                                          :let        [props (merge {:column-path column-path
+                                                                     :row-path    row-path
+                                                                     :cell        cell
+                                                                     :theme       theme}
+                                                                    (when cell-value
+                                                                      {:cell-value cell-value}))]]
+                                      ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}
                                       [u/part cell-wrapper props cell-wrapper-part]))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
                                      ^{:key [::zebra-stripe i]}

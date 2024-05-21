@@ -78,7 +78,7 @@
      [:code ":column-tree"] "."
      [:ul
       [:li "For the " [:code ":column-tree"] " above, " [:code "[:a [1 2] :b [3 4]]"] ", its " [:code ":column-path"] "s are: "
-       [:pre "[[:a] [:a 1] [:a 2] [:b] [:b 1] [:b 2]]"]]]]
+       [:pre "[[:a] [:a 1] [:a 2] [:b] [:b 3] [:b 4]]"]]]]
     [title2 "Row"]
     [p "Everything described above applies to rows, as well. " [:code ":row-spec"] ", " [:code ":row-tree"] " and " [:code ":row-path"]
      " have all the same properties as their column equivalents."]
@@ -287,6 +287,12 @@
                                                            (apply merge))]
                     (operator left right)))]"]]])
 
+(def lorem-ipsum ["Lorem" "ipsum" "dolor" "sit" "amet" " consectetur" "adipiscing" "elit" " sed"
+                  "do" "eiusmod" "tempor" "incididunt" "ut" "labore" "et" "dolore" "magna"
+                  "aliqua."])
+
+(defn rand-color [] (str "rgb(" (* 255 (rand)) "," (* 255 (rand)) "," (* 255 (rand)) ")"))
+
 (defn internals-demo []
   [v-box
    :gap "12px"
@@ -304,10 +310,10 @@
                    {:label "Typed" :tree [:kw 42 "str" {:k :map}]}]
      :cell (fn [{:keys [column-path] [{:keys [tree]}] :row-path}]
              (case (:id (last column-path))
-               "Tree" (str tree)
+               "Tree"       (str tree)
                "Leaf Paths" (str (vec (nested-grid/leaf-paths
                                        (nested-grid/header-spec->header-paths tree))))
-               "All Paths" (str (nested-grid/header-spec->header-paths tree))))]
+               "All Paths"  (str (nested-grid/header-spec->header-paths tree))))]
     [p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] "."]
     [line]
     [h-box
@@ -359,7 +365,7 @@
        :row-header-width 30
        :column-width 50
        :cell (fn [{:keys [column-path row-path]}]
-               [:i {:style {:color "grey"
+               [:i {:style {:color     "grey"
                             :font-size 10}}
                 (str column-path row-path)])]
       [:pre {:style {:margin-top 19}}
@@ -555,7 +561,54 @@
      [:ul
       [:li "render complex graphics and UI"]
       [:li "efficiently update (by dereferencing a reagent atom)"]
-      [:li "flexibly serialize its value with " [:code ":on-export-cell"]]]]]])
+      [:li "flexibly serialize its value with " [:code ":on-export-cell"]]]]
+    [line]
+    [nested-grid
+     {:column-tree        ["Longest" "Shortest" "Median" "Random"]
+      :show-branch-cells? true
+      :column-width       85
+      :row-tree           ["Capitalize" "Emphasize" "Colorize"]
+      :cell               (fn [{:keys [row-path value]}]
+                            (case (last row-path)
+                              "Capitalize" [:span {:style {:text-transform "capitalize"}}
+                                            value]
+                              "Emphasize"  [:i [:strong value]]
+                              "Colorize"   [:span {:style {:color (rand-color)}}
+                                            value]))
+      :cell-value         (fn [{:keys [column-path]}]
+                            (case (last column-path)
+                              "Longest"  (last (sort-by count lorem-ipsum))
+                              "Shortest" (first (sort-by count lorem-ipsum))
+                              "Median"   (nth (vec (sort-by count lorem-ipsum))
+                                              (/ (count lorem-ipsum) 2))
+                              "Random"   (rand-nth lorem-ipsum)))}]
+    [:pre {:style {:margin-top 19}} "[nested-grid
+  :column-tree [\"Longest\" \"Shortest\" \"Median\" \"Random\"]
+  :row-tree    [\"Capitalize\" \"Emphasize\" \"Colorize\"]
+  :cell        (fn [{:keys [row-path value]}]
+                 (case (last row-path)
+                   \"Capitalize\" [:span {:style {:text-transform
+                                                \"capitalize\"}}
+                                 value]
+                   \"Emphasize\"  [:i [:strong value]]
+                   \"Colorize\"   [:span {:style {:color (rand-color)}}
+                                 value]))
+  :cell-value  (fn [{:keys [column-path]}]
+                 (case (last column-path)
+                   \"Longest\"  (last (sort-by count lorem-ipsum))
+                   \"Shortest\" (first (sort-by count lorem-ipsum))
+                   \"Median\"   (nth (vec (sort-by count lorem-ipsum))
+                                   (/ (count lorem-ipsum) 2))
+                   \"Random\"   (rand-nth lorem-ipsum)))]"]
+    [p "The " [:code ":cell-value"] " prop offers a semantic separation of data processing from rendering. "
+     [:code ":cell-value"] " should be a function, with the same signature as " [:code ":cell"] ". "
+     "When " [:code ":cell-value"] " is provided, " [:code "nested-grid"]
+     " passes its return value to " [:code ":cell"]
+     " via a " [:code ":value"] " prop."]
+    [p
+     "In this case, " [:code ":cell-value"]
+     " is responsible for choosing an item of the source data, and "
+     [:code ":cell"] " is responsible for styling the resulting " [:code ":value."]]]])
 
 (defn demos []
   (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
