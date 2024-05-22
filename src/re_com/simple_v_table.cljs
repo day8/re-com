@@ -207,30 +207,171 @@
 
 (def simple-v-table-args-desc
   (when include-args-desc?
-    [{:name :model                     :required true                     :type "r/atom containing vec of maps"    :validate-fn vector-atom?                   :description "one element for each row in the table."}
-     {:name :columns                   :required true                     :type "vector of maps"                   :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"] " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be " [:code "true"] " or a map optionally containing " [:code ":key-fn"] " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}
-     {:name :fixed-column-count        :required false :default 0         :type "integer"                          :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
-     {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                           :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
-     {:name :column-header-height      :required false :default 31        :type "integer"                          :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
-     {:name :column-header-renderer    :required false                    :type "cols parts sort-by-col -> hiccup" :validate-fn ifn?                           :description [:span "You can provide a renderer function to override the inbuilt renderer for the columns headings"]}
-     {:name :show-export-button?       :required false :default false     :type "boolean" :description [:span "When non-nil, adds a hiccup of " [:code ":export-button-render"] " to the component tree."]}
-     {:name :on-export                 :required false                    :type "columns, sorted-rows -> nil"             :validate-fn ifn?                           :description "Called whenever the export button is clicked."}
-     {:name :export-button-renderer    :required false                    :type "{:keys [columns rows on-export]} -> hiccup" :validate-fn ifn?                 :description [:span "Pass a component function to override the built-in export button. Declares a hiccup of your component in the " [:code ":top-right-renderer"] "position of the underlying " [:code "v-table"] "."]}
-     {:name :max-width                 :required false                    :type "string"                           :validate-fn string?                        :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
-     {:name :max-rows                  :required false                    :type "integer"                          :validate-fn number?                        :description "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
-     {:name :row-height                :required false :default 31        :type "integer"                          :validate-fn number?                        :description "px height of each row."}
-     {:name :table-padding             :required false :default 19        :type "integer"                          :validate-fn number?                        :description "Padding in pixels for the entire table."}
-     {:name :table-row-line-color      :required false :default "#EAEEF1" :type "string"                           :validate-fn string?                        :description "The CSS color of the lines between rows."}
-     {:name :on-click-row              :required false                    :type "function"                         :validate-fn ifn?                           :description "This function is called when the user clicks a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
-     {:name :on-enter-row              :required false                    :type "function"                         :validate-fn ifn?                           :description "This function is called when the user's mouse pointer enters a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
-     {:name :on-leave-row              :required false                    :type "function"                         :validate-fn ifn?                           :description "This function is called when the user's mouse pointer leaves a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
-     {:name :striped?                  :required false :default false     :type "boolean"                                                                      :description "when true, adds zebra-striping to the table's rows."}
-     {:name :row-style                 :required false                    :type "map | function"                   :validate-fn #(or (fn? %) (map? %))         :description "Style each row container either statically by passing a CSS map or dynamically by passing a function which receives the data for that row."}
-     {:name :cell-style                :required false                    :type "map | function"                   :validate-fn #(or (fn? %) (map? %))         :description "Style each cell in a row either statically by passing a CSS map or dynamically by passing a function which receives the data for that row and the cell definition from the columns arg."}
-     {:name :class                     :required false                    :type "string"                           :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)."}
-     {:name :parts                     :required false                    :type "map"                              :validate-fn (parts? simple-v-table-parts)  :description "See Parts section below."}
-     {:name :src                       :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as                  :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    [{:name :model,
+      :required true,
+      :type "r/atom containing vec of maps",
+      :validate-fn vector-atom?,
+      :description "one element for each row in the table."}
+     {:name :columns,
+      :required true,
+      :type "vector of maps",
+      :validate-fn vector-of-maps?,
+      :description
+      [:span "one element for each column in the table. Must contain "
+       [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"]
+       "," [:code ":width"] ", and " [:code ":height"]
+       ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"]
+       " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be "
+       [:code "true"] " or a map optionally containing " [:code ":key-fn"]
+       " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}
+     {:name :fixed-column-count,
+      :required false,
+      :default 0,
+      :type "integer",
+      :validate-fn number?,
+      :description "the number of fixed (non-scrolling) columns on the left."}
+     {:name :fixed-column-border-color,
+      :required false,
+      :default "#BBBEC0",
+      :type "string",
+      :validate-fn string?,
+      :description
+      [:span
+       "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. "
+       [:code ":fixed-column-count"] " must be > 0 to be visible."]}
+     {:name :column-header-height,
+      :required false,
+      :default 31,
+      :type "integer",
+      :validate-fn number?,
+      :description [:span
+                    "px height of the column header section. Typically, equals "
+                    [:code ":row-height"] " * number-of-column-header-rows."]}
+     {:name :column-header-renderer,
+      :required false,
+      :type "map -> hiccup",
+      :validate-fn ifn?,
+      :description
+      [:span
+       "You can pass in a renderer function to override the default renderer for column headings."
+       "This function should accept a single map of keyword arguments. These include: "
+       [:code ":columns"] " (vector of maps), "
+       [:code ":hover?"] " (boolean ratom), "
+       [:code ":parts"] " (map)"
+       [:code ":sort-by-column"] "(map ratom)"
+       [:code ":column-header-height"] "int"]}
+     {:name :show-export-button?,
+      :required false,
+      :default false,
+      :type "boolean",
+      :description [:span "When non-nil, adds a hiccup of "
+                    [:code ":export-button-render"] " to the component tree."]}
+     {:name :on-export,
+      :required false,
+      :type "columns, sorted-rows -> nil",
+      :validate-fn ifn?,
+      :description "Called whenever the export button is clicked."}
+     {:name :export-button-renderer,
+      :required false,
+      :type "{:keys [columns rows on-export]} -> hiccup",
+      :validate-fn ifn?,
+      :description
+      [:span
+       "Pass a component function to override the built-in export button. Declares a hiccup of your component in the "
+       [:code ":top-right-renderer"] "position of the underlying "
+       [:code "v-table"] "."]}
+     {:name :max-width,
+      :required false,
+      :type "string",
+      :validate-fn string?,
+      :description
+      "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
+     {:name :max-rows,
+      :required false,
+      :type "integer",
+      :validate-fn number?,
+      :description
+      "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
+     {:name :row-height,
+      :required false,
+      :default 31,
+      :type "integer",
+      :validate-fn number?,
+      :description "px height of each row."}
+     {:name :table-padding,
+      :required false,
+      :default 19,
+      :type "integer",
+      :validate-fn number?,
+      :description "Padding in pixels for the entire table."}
+     {:name :table-row-line-color,
+      :required false,
+      :default "#EAEEF1",
+      :type "string",
+      :validate-fn string?,
+      :description "The CSS color of the lines between rows."}
+     {:name :on-click-row,
+      :required false,
+      :type "function",
+      :validate-fn ifn?,
+      :description
+      "This function is called when the user clicks a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :on-enter-row,
+      :required false,
+      :type "function",
+      :validate-fn ifn?,
+      :description
+      "This function is called when the user's mouse pointer enters a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :on-leave-row,
+      :required false,
+      :type "function",
+      :validate-fn ifn?,
+      :description
+      "This function is called when the user's mouse pointer leaves a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :striped?,
+      :required false,
+      :default false,
+      :type "boolean",
+      :description "when true, adds zebra-striping to the table's rows."}
+     {:name :row-style,
+      :required false,
+      :type "map | function",
+      :validate-fn #(or (fn? %) (map? %)),
+      :description
+      "Style each row container either statically by passing a CSS map or dynamically by passing a function which receives the data for that row."}
+     {:name :cell-style,
+      :required false,
+      :type "map | function",
+      :validate-fn #(or (fn? %) (map? %)),
+      :description
+      "Style each cell in a row either statically by passing a CSS map or dynamically by passing a function which receives the data for that row and the cell definition from the columns arg."}
+     {:name :class,
+      :required false,
+      :type "string",
+      :validate-fn string?,
+      :description
+      "CSS class names, space separated (applies to the outer container)."}
+     {:name :parts,
+      :required false,
+      :type "map",
+      :validate-fn (parts? simple-v-table-parts),
+      :description "See Parts section below."}
+     {:name :src,
+      :required false,
+      :type "map",
+      :validate-fn map?,
+      :description
+      [:span
+       "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
+       [:code ":file"] "and" [:code ":line"] ". See 'Debugging'."]}
+     {:name :debug-as,
+      :required false,
+      :type "map",
+      :validate-fn map?,
+      :description
+      [:span
+       "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys"
+       [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn criteria-compare [a b {:keys [key-fn comp-fn order]
                              :or {key-fn :label order :asc comp-fn compare}}]
@@ -337,9 +478,9 @@
                       ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
                         ;; ===== Corners (section 1, 3)
                       :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
-                                                                                   :hover?         header-hover?
-                                                                                   :parts          parts
-                                                                                   :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
+                                                                                    :hover?         header-hover?
+                                                                                    :parts          parts
+                                                                                    :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
                       :top-right-renderer      (when show-export-button?
                                                  #(let [rows           (deref-or-value model)
                                                         columns        (deref-or-value columns)
@@ -347,8 +488,8 @@
                                                     [export-button-renderer {:rows      rows
                                                                              :columns   columns
                                                                              :on-export (fn [_] (on-export {:columns columns
-                                                                                                           :rows    (cond->> rows
-                                                                                                                      sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
+                                                                                                            :rows    (cond->> rows
+                                                                                                                       sort-by-column (sort (multi-comparator (->v sort-by-column))))}))}]))
                       ;; ===== Styling
                       :class                   class
                       :parts                   (cond-> {:wrapper {:style {:font-size "13px"
@@ -434,14 +575,6 @@
        :children
        (for [[path state] descendants]
          [nested-columns (merge args {:ancestry path})])]]]))
-
-#_(into []
-        (for [column columns]
-          [nested-column {:column-header-height column-header-height
-                          :column column
-                          :parts parts
-                          :sort-by-column sort-by-column
-                          :hover? @hover?}]))
 
 (defn tree-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
