@@ -100,7 +100,6 @@
 
          ::nested-grid/cell-grid-container
          {:style {:position        "relative"
-                  :cursor          "crosshair"
                   :overflow        "auto"
                   :scrollbar-width "thin"
                   :gap             "0px"}}
