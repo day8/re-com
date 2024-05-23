@@ -176,39 +176,64 @@
                    (merge {:background-color (:background-disabled $)}))}
 
          ::nested-grid/header-spacer
-         {:style {:border           (str sm-1 " solid " border)
+         {:style {:border-left      (if ((:edge state) :left)
+                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border))
+                  :border-top       (when (get (:edge state) :top) "2px solid #ccc")
+                  :border-right     (str "thin" " solid " border)
                   :background-color light-neutral}}
 
          ::nested-grid/cell-wrapper
-         {:style {:font-size        sm-6
+         {:style {:font-size        "14px"
                   :background-color "white"
+                  :color            "#777"
                   :padding          (str sm-4 " " sm-3)
                   :text-align       "right"
-                  :border           (str sm-1 " solid" border)}}
+                  :border-right     (if (get (:edge state) :right)
+                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border))
+                  :border-bottom    (if ((:edge state) :bottom)
+                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border))}}
 
          ::nested-grid/cell-grid-container
          {:style {:padding          "0px"
                   :background-color "transparent"}}
 
          ::nested-grid/column-header-wrapper
-         {:style {:padding          (str sm-4 " " sm-3)
-                  :border           (str sm-1 " solid " border)
+         {:style {:padding-top      sm-4
+                  :padding-right    sm-4
+                  :padding-left     sm-4
+                  :border-bottom    (str "thin" " solid" border)
                   :background-color light-neutral
-                  :color            dark
+                  :color            "#666"
                   :text-align       "center"
-                  :font-size        sm-6
+                  :font-size        "15px"
+                  :border-top       (when (get (:edge state) :top) "2px solid #ccc")
+                  :border-right     (if (get (:edge state) :right)
+                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border))
                   #_#_:font-weight  "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
                   :text-overflow    "ellipsis"}}
 
          ::nested-grid/row-header-wrapper
-         {:style {:padding          (str sm-4 " " sm-3)
-                  :border           (str sm-1 " solid " border)
+         {:style {:padding-top      sm-4
+                  :padding-right    sm-3
+                  :padding-left     sm-6
+                  :border-top       (when ((:edge state) :top) "thin solid #ccc")
+                  :border-left      (if ((:edge state) :left)
+                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border))
+                  :border-bottom    (if ((:edge state) :bottom)
+                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border))
+                  :border-right     (str "thin" " solid" border)
                   :background-color light-neutral
-                  :color            dark
-                  :text-align       "center"
-                  :font-size        sm-6
+                  :color            "#666"
+                  :text-align       "left"
+                  :font-size        "15px"
                   #_#_:font-weight  "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
