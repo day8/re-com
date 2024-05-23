@@ -373,14 +373,14 @@
          (theme/apply {:state {} :part ::cell-wrapper} theme))
      [u/part cell props cell-part]]))
 
-(defn header-label [path]
+(defn header-label [{:keys [path]}]
   (let [header (last path)]
     (str (or (:label header)
              (:id header)
              header))))
 
 (defn column-header-part [{:keys [column-path]}]
-  (header-label column-path))
+  (header-label {:path column-path}))
 
 (theme/apply {} {:part ::column-header-wrapper} [])
 
@@ -404,7 +404,7 @@
                                   :path      column-path})])])
 
 (defn row-header-part [{:keys [row-path]}]
-  (header-label row-path))
+  (header-label {:path row-path}))
 
 (defn row-header-wrapper-part [{:keys [row-path row-paths row-header theme show?] :as props}]
   [:div
@@ -666,7 +666,7 @@
                                          insert     (fn [result path]
                                                       (assoc-in result
                                                                 [(->y path) (->x path)]
-                                                                (on-export-column-header path)))]
+                                                                (on-export-column-header {:path path})))]
                                      (cond->> column-paths
                                        :do        (reduce insert result)
                                        selection? (mapv crop)))
@@ -697,7 +697,7 @@
                                          insert     (fn [result path]
                                                       (assoc-in result
                                                                 [(->y path) (->x path)]
-                                                                (on-export-row-header path)))
+                                                                (on-export-row-header {:path path})))
                                          all        (reduce insert result row-paths)]
                                      (if-not selection?
                                        all
