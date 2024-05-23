@@ -100,6 +100,18 @@
       :description
       [:span "When " [:code "true"] ", displays cells and headers for all "
        [:code ":column-paths"] " and " [:code ":row-paths"] ", not just the leaf paths."]}
+     {:name :resize-columns?
+      :type "boolean"
+      :default "true"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "true"] ", display a draggable resize button on column-header grid lines."]}
+     {:name :resize-rows?
+      :type "boolean"
+      :default "false"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "true"] ", display a draggable resize button on row-header grid lines."]}
      {:name :max-height
       :required false
       :type "string"
@@ -415,7 +427,7 @@
 (theme/apply {} {:part ::column-header-wrapper} [])
 
 (defn column-header-wrapper-part
-  [{:keys [column-header column-path column-paths theme show? edge]
+  [{:keys [column-header column-path column-paths theme show? edge resize-columns?]
     :as   props}]
   [:div
    {:style {:grid-column-start (path->grid-line-name column-path)
@@ -430,14 +442,16 @@
    [:div (theme/apply {} {:state {:edge edge} :part ::column-header-wrapper}
            theme)
     [u/part column-header props column-header-part]]
-   (when show?
+   (when (and resize-columns? show?)
      [resize-button (merge props {:dimension :column
                                   :path      column-path})])])
 
 (defn row-header-part [{:keys [row-path]}]
   (header-label {:path row-path}))
 
-(defn row-header-wrapper-part [{:keys [row-path row-paths row-header theme show? edge] :as props}]
+(defn row-header-wrapper-part
+  [{:keys [row-path row-paths row-header theme show? edge resize-rows?]
+    :as props}]
   [:div
    {:style {:grid-row-start    (path->grid-line-name row-path)
             :grid-row-end      (str "span " (cond-> row-path
@@ -452,7 +466,7 @@
            {:state {:edge edge} :part ::row-header-wrapper}
            theme)
     [u/part row-header props row-header-part]]
-   (when show?
+   (when (and resize-rows? show?)
      [resize-button (merge props {:dimension :row
                                   :path      row-path})])])
 
@@ -620,7 +634,7 @@
                    column-width column-header-height row-header-width row-height
                    show-export-button? on-export
                    on-export-cell on-export-column-header on-export-row-header
-                   show-selection-box?]
+                   show-selection-box? resize-columns? resize-rows?]
             :or   {column-header-height    30
                    column-width            60
                    row-header-width        100
@@ -629,7 +643,9 @@
                    show-branch-paths?      false
                    show-selection-box?     false
                    on-export-column-header header-label
-                   on-export-row-header    header-label}}]
+                   on-export-row-header    header-label
+                   resize-columns?         true
+                   resize-rows?            false}}]
       (let [themed                (fn [part props] (theme/apply props {:part part} theme))
             column-paths          (spec->headers* column-tree)
             column-leaf-paths     (leaf-paths column-paths)
@@ -796,23 +812,24 @@
                                                    :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells    (doall
                                     (for [path column-paths
-                                          :let [props {:column-path    path
-                                                       :path           path
-                                                       :column-header  column-header
-                                                       :column-paths   column-paths
-                                                       :show?          (show? path :column)
-                                                       :on-resize      resize-column!
-                                                       :mouse-down-x   mouse-down-x
-                                                       :last-mouse-x   last-mouse-x
-                                                       :mouse-x        mouse-x
-                                                       :resize-handler resize-handler
-                                                       :drag           drag
-                                                       :selection?     selection?
-                                                       :edge           (cond-> #{}
-                                                                         (start-branch? path column-paths) (conj :left)
-                                                                         (end-branch? path column-paths)   (conj :right)
-                                                                         (root-level? path column-paths)   (conj :top)
-                                                                         (leaf-level? path column-paths)   (conj :bottom))}]]
+                                          :let [props {:column-path     path
+                                                       :path            path
+                                                       :column-header   column-header
+                                                       :column-paths    column-paths
+                                                       :show?           (show? path :column)
+                                                       :on-resize       resize-column!
+                                                       :mouse-down-x    mouse-down-x
+                                                       :last-mouse-x    last-mouse-x
+                                                       :mouse-x         mouse-x
+                                                       :resize-handler  resize-handler
+                                                       :resize-columns? resize-columns?
+                                                       :drag            drag
+                                                       :selection?      selection?
+                                                       :edge            (cond-> #{}
+                                                                          (start-branch? path column-paths) (conj :left)
+                                                                          (end-branch? path column-paths)   (conj :right)
+                                                                          (root-level? path column-paths)   (conj :top)
+                                                                          (leaf-level? path column-paths)   (conj :bottom))}]]
                                       ^{:key [::column (or path (gensym))]}
                                       [u/part column-header-wrapper props column-header-wrapper-part]))
             row-header-cells       (doall
@@ -827,6 +844,7 @@
                                                        :last-mouse-y   last-mouse-y
                                                        :mouse-y        mouse-y
                                                        :resize-handler resize-handler
+                                                       :resize-rows?   resize-rows?
                                                        :drag           drag
                                                        :selection?     selection?
                                                        :edge           (cond-> #{}
