@@ -779,10 +779,14 @@
                                    [:div {:style {:position :absolute
                                                   :right    0}}
                                     (when show-export-button?
-                                      [buttons/row-button
+                                      [buttons/md-icon-button
                                        :md-icon-name    "zmdi zmdi-copy"
-                                       :mouse-over-row? true
+                                       :style {:height      "20px"
+                                               :font-size   "20px"
+                                               :line-height "20px"
+                                               :padding-bottom 0}
                                        :tooltip         (str "Copy table to clipboard.")
+                                       :tooltip-position :left-center
                                        :on-click        #(let [column-headers (export-column-headers)
                                                                row-headers    (export-row-headers)
                                                                spacers        (export-spacers)
@@ -928,14 +932,15 @@
                                                                   (str/replace max-width
                                                                                "px"
                                                                                ""))))))])
-                 :grid-template-rows    (grid-template ["20px" showing-column-widths
-                                                        (px (apply + max-column-heights))
-                                                        (px (apply +
-                                                                   4
-                                                                   native-scrollbar-width
-                                                                   showing-row-heights))])}}
-          [:div]
-          control-panel
+                 :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] [])
+                                                             [showing-column-widths
+                                                              (px (apply + max-column-heights))
+                                                              (px (apply +
+                                                                         4
+                                                                         native-scrollbar-width
+                                                                         showing-row-heights))]))}}
+          (when show-export-button? [:div])
+          (when show-export-button? control-panel)
           [:div {:style {:display               "grid"
                          :box-sizing            "border-box"
                          #_#_:border-left       "medium solid #ccc"
