@@ -43,6 +43,7 @@
    :background          "white"
    :background-disabled "#EEE"
    :border              "#ccc"
+   :border-dark         "#aaa"
    :shadow              "rgba(0, 0, 0, 0.2)"})
 
 (def static-variables (merge colors golden-section-50))
@@ -125,10 +126,10 @@
 
 (defn main-variables [props _] props)
 
-(defn main [props {:keys                                            [state part]
+(defn main [props {:keys                                                        [state part]
                    {:as   $
                     :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
-                           dark shadow light light-neutral border]} :variables}]
+                           dark shadow light light-neutral border border-dark]} :variables}]
   (->> {}
        (case part
 
@@ -177,9 +178,10 @@
 
          ::nested-grid/header-spacer
          {:style {:border-left      (if ((:edge state) :left)
-                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
-                  :border-top       (when (get (:edge state) :top) "2px solid #ccc")
+                  :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
+                  :border-bottom    (when (get (:edge state) :bottom) (str "thin solid " border))
                   :border-right     (str "thin" " solid " border)
                   :background-color light-neutral}}
 
@@ -190,10 +192,10 @@
                   :padding          (str sm-4 " " sm-3)
                   :text-align       "right"
                   :border-right     (if (get (:edge state) :right)
-                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-bottom    (if ((:edge state) :bottom)
-                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))}}
 
          ::nested-grid/cell-grid-container
@@ -209,9 +211,9 @@
                   :color            "#666"
                   :text-align       "center"
                   :font-size        "15px"
-                  :border-top       (when (get (:edge state) :top) "2px solid #ccc")
+                  :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
                   :border-right     (if (get (:edge state) :right)
-                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   #_#_:font-weight  "bold"
                   :overflow         "hidden"
@@ -222,12 +224,11 @@
          {:style {:padding-top      sm-4
                   :padding-right    sm-3
                   :padding-left     sm-6
-                  :border-top       (when ((:edge state) :top) "thin solid #ccc")
                   :border-left      (if ((:edge state) :left)
-                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-bottom    (if ((:edge state) :bottom)
-                                      (str "2px" " solid " border)
+                                      (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-right     (str "thin" " solid" border)
                   :background-color light-neutral
