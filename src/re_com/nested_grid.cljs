@@ -671,6 +671,14 @@
                                        showing-row-paths)
             max-column-heights    (max-props :height :column column-header-height column-paths)
             max-row-widths        (max-props :width :row row-header-width row-paths)
+            all-sections          (->> (vals (group-by first column-paths))
+                                       (mapcat #(vals (group-by level %))))
+            section-left?         (set (map first all-sections))
+            section-right?        (set (map last all-sections))
+            cell-sections         (->> (vals (group-by first showing-column-paths))
+                                       (mapcat #(vals (group-by level %))))
+            cell-section-left?    (set (map first cell-sections))
+            cell-section-right?   (set (map last cell-sections))
             column-depth          (count max-column-heights)
             row-depth             (count max-row-widths)
             on-export-cell        (or on-export-cell (comp pr-str cell))
@@ -781,9 +789,9 @@
                                     (when show-export-button?
                                       [buttons/md-icon-button
                                        :md-icon-name    "zmdi zmdi-copy"
-                                       :style {:height      "20px"
-                                               :font-size   "20px"
-                                               :line-height "20px"
+                                       :style {:height         "20px"
+                                               :font-size      "20px"
+                                               :line-height    "20px"
                                                :padding-bottom 0}
                                        :tooltip         (str "Copy table to clipboard.")
                                        :tooltip-position :left-center
@@ -833,7 +841,9 @@
                                                                           (start-branch? path column-paths) (conj :left)
                                                                           (end-branch? path column-paths)   (conj :right)
                                                                           (root-level? path column-paths)   (conj :top)
-                                                                          (leaf-level? path column-paths)   (conj :bottom))}]]
+                                                                          (leaf-level? path column-paths)   (conj :bottom)
+                                                                          (section-left? path)              (conj :column-section-left)
+                                                                          (section-right? path)             (conj :column-section-right))}]]
                                       ^{:key [::column (or path (gensym))]}
                                       [u/part column-header-wrapper props column-header-wrapper-part]))
             row-header-cells       (doall
@@ -882,7 +892,9 @@
                                                                                     (= column-path (first showing-column-paths)) (conj :left)
                                                                                     (= column-path (last showing-column-paths))  (conj :right)
                                                                                     (= row-path (first showing-row-paths))       (conj :top)
-                                                                                    (= row-path (last showing-row-paths))        (conj :bottom))}
+                                                                                    (= row-path (last showing-row-paths))        (conj :bottom)
+                                                                                    (cell-section-left? column-path)             (conj :column-section-left)
+                                                                                    (cell-section-right? column-path)            (conj :column-section-right))}
                                                                     (when cell-value
                                                                       {:cell-value cell-value}))]]
                                       ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}

@@ -180,8 +180,10 @@
          {:style {:border-left      (if ((:edge state) :left)
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
-                  :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
-                  :border-bottom    (when (get (:edge state) :bottom) (str "thin solid " border))
+                  :border-top       (when (get (:edge state) :top)
+                                      (str "thin solid " border-dark))
+                  :border-bottom    (when (get (:edge state) :bottom)
+                                      (str "thin solid " border))
                   :border-right     (str "thin" " solid " border)
                   :background-color light-neutral}}
 
@@ -191,7 +193,10 @@
                   :color            "#777"
                   :padding          (str sm-4 " " sm-3)
                   :text-align       "right"
-                  :border-right     (if (get (:edge state) :right)
+                  :border-right     (condp #(get %2 %1) (:edge state)
+                                      :column-section-right
+                                      (str "thin" " solid " border-dark)
+                                      :right
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-bottom    (if ((:edge state) :bottom)
@@ -212,7 +217,10 @@
                   :text-align       "center"
                   :font-size        "15px"
                   :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
-                  :border-right     (if (get (:edge state) :right)
+                  :border-right     (condp #(get %2 %1) (:edge state)
+                                      :column-section-right
+                                      (str "thin" " solid " border-dark)
+                                      :right
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   #_#_:font-weight  "bold"
