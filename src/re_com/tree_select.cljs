@@ -108,6 +108,12 @@
       :description [:span "Predicate on the set of maps given by "
                     [:code "choices"] ". Disables the subset of choices for which "
                     [:code "choice-disabled?"] " returns " [:code "true"] "."]}
+     {:name :id-fn
+      :required false
+      :default :id
+      :type "map -> anything"
+      :validate-fn ifn?
+      :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name        :label-fn
       :required    false
       :default     ":label"
@@ -153,7 +159,7 @@
 (def tree-select-dropdown-args-desc
   (when include-args-desc?
     (into
-     (remove-id-item :parts tree-select-args-desc {:id-fn :name})
+     tree-select-args-desc
      [{:name :placeholder
        :required false
        :type "string"
@@ -284,23 +290,25 @@
 
 (def group-label (comp str/capitalize name last :group))
 
-(defn current-choices [model choices] (into #{} (filter (comp model :id) choices)))
+(defn current-choices [model choices & {:keys [id-fn] :or {id-fn :id}}]
+  (into #{} (filter (comp model id-fn) choices)))
 
-(defn current-groups [current-choices] (infer-groups* current-choices))
+(defn current-groups [current-choices]
+  (infer-groups* current-choices))
 
-(defn full-groups [model choices]
-  (let [current-choices           (current-choices model choices)
+(defn full-groups [model choices & {:keys [id-fn] :as opts :or {id-fn :id}}]
+  (let [current-choices           (current-choices model choices opts)
         current-groups            (current-groups current-choices)
         full? (fn [{:keys [group]}]
                 (let [group-v        (->v group)
-                      descendant-ids (map :id (filter-descendants* group-v choices))]
+                      descendant-ids (map id-fn (filter-descendants* group-v choices))]
                   (every? model descendant-ids)))]
     (into #{} (filter full? current-groups))))
 
 (defn tree-select
   [& {:keys [model choices initial-expanded-groups id-fn]
-      :or   {id-fn            :id}}]
-  (let [expanded-groups           (r/atom nil)]
+      :or   {id-fn :id}}]
+  (let [expanded-groups (r/atom nil)]
     (when-some [initial-expanded-groups (deref-or-value initial-expanded-groups)]
       (reset! expanded-groups (case initial-expanded-groups
                                 :all    (set (map :group (infer-groups choices)))
@@ -323,18 +331,18 @@
              items          (sort-items (into choices (infer-groups* choices))
                                         :groups-first? groups-first?)
              item           (fn [item-props]
-                              (let [{:keys [id group] :as item-props} (update item-props :group ->v)]
+                              (let [{:keys [group] :as item-props} (update item-props :group ->v)]
                                 (if (group? item-props)
-                                  (let [descendants (filter-descendants* group choices)
-                                        descendant-ids (map :id descendants)
+                                  (let [descendants    (filter-descendants* group choices)
+                                        descendant-ids (map id-fn descendants)
                                         checked?       (cond
                                                          (every? model descendant-ids) :all
                                                          (some   model descendant-ids) :some)
-                                        new-model (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
-                                                       (map :id)
-                                                       ((if (= :all checked?) set/difference set/union) model)
-                                                       set)
-                                        new-groups (into #{} (map :group) (full-groups new-model choices))]
+                                        new-model      (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
+                                                            (map id-fn)
+                                                            ((if (= :all checked?) set/difference set/union) model)
+                                                            set)
+                                        new-groups     (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
                                     [group-item
                                      :group      item-props
                                      :label      (group-label-fn item-props)
@@ -356,10 +364,10 @@
                                                 true
                                                 (every? (set @expanded-groups) (ancestor-paths group)))
                                    :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
-                                   :toggle!   (handler-fn (let [new-model (toggle model id)
-                                                                new-groups (into #{} (map :group) (full-groups new-model choices))]
+                                   :toggle!   (handler-fn (let [new-model  (toggle model (id-fn item-props))
+                                                                new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
                                                             (on-change new-model new-groups)))
-                                   :checked?  (get model id)
+                                   :checked?  (get model (id-fn item-props))
                                    :level     (inc (count group))])))]
          [v-box
           :src (at)
@@ -376,12 +384,12 @@
   (let [item-label-fn             #((if (group? %) group-label-fn label-fn) %)]
     (str/join ", " (map item-label-fn items))))
 
-(defn labelable-items [model choices]
-  (let [current-choices           (into #{} (filter (comp model :id) choices))
+(defn labelable-items [model choices & {:keys [id-fn] :or {id-fn :id}}]
+  (let [current-choices           (into #{} (filter (comp model id-fn) choices))
         current-groups            (infer-groups* current-choices)
         full?                     (fn [{:keys [group]}]
                                     (let [group-v        (->v group)
-                                          descendant-ids (map :id (filter-descendants* group-v choices))]
+                                          descendant-ids (map id-fn (filter-descendants* group-v choices))]
                                       (every? model descendant-ids)))
         full-groups               (into #{} (filter full? current-groups))
         highest-groups            (loop [[group & remainder] (sort-by (comp count :group) full-groups)
@@ -402,12 +410,13 @@
     (fn tree-select-dropdown-render
       [& {:keys [choices  disabled?
                  width min-width max-width min-height max-height on-change
-                 label-fn alt-text-fn group-label-fn model  placeholder id-fn field-label-fn
+                 label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  height
-                 groups-first?
+                 groups-first? initial-expanded-groups
                  parts style theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
-                 label-fn    :label}
+                 label-fn    :label
+                 id-fn       :id}
           :as   args}]
       (let [state           {:enable (if-not disabled? :enabled :disabled)}
             themed          (fn [part props] (theme/apply props
@@ -422,7 +431,7 @@
             alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn  (or group-label-fn (comp name last :group))
             field-label-fn  (or field-label-fn field-label)
-            labelable-items (labelable-items (deref-or-value model) choices)
+            labelable-items (labelable-items (deref-or-value model) choices {:id-fn id-fn})
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})
@@ -455,17 +464,19 @@
 
                       :body  [tree-select
                               (themed ::dropdown-body
-                                {:choices        choices
-                                 :group-label-fn group-label-fn
-                                 :disabled?      disabled?
-                                 :min-width      min-width
-                                 :max-width      max-width
-                                 :min-height     min-height
-                                 :max-height     max-height
-                                 :on-change      on-change
-                                 :groups-first?  groups-first?
-                                 :label-fn       label-fn
-                                 :model          model})]
+                                {:choices                 choices
+                                 :group-label-fn          group-label-fn
+                                 :disabled?               disabled?
+                                 :min-width               min-width
+                                 :max-width               max-width
+                                 :min-height              min-height
+                                 :max-height              max-height
+                                 :on-change               on-change
+                                 :groups-first?           groups-first?
+                                 :initial-expanded-groups initial-expanded-groups
+                                 :id-fn                   id-fn
+                                 :label-fn                label-fn
+                                 :model                   model})]
                       :model showing?
                       :theme theme
                       :parts (merge parts
