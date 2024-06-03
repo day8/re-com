@@ -783,7 +783,8 @@
                                                  :background-color "white"
                                                  :width            (if max-width
                                                                      max-width
-                                                                     (px (apply + showing-column-widths)))}}
+                                                                     "1fr"
+                                                                     #_(px (apply + showing-column-widths)))}}
                                    [:div {:style {:position :absolute
                                                   :right    0}}
                                     (when show-export-button?
@@ -817,7 +818,6 @@
                                                        (reset! scroll-left (.-scrollLeft (.-target %))))
                                        :style     {:max-height            max-height
                                                    :max-width             max-width
-                                                   :width                 "fit-content"
                                                    :display               "grid"
                                                    :grid-template-columns (grid-template cell-grid-columns)
                                                    :grid-template-rows    (grid-template cell-grid-rows)}})]
