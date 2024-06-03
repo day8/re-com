@@ -635,10 +635,10 @@
                    show-export-button? on-export
                    on-export-cell on-export-column-header on-export-row-header
                    show-selection-box? resize-columns? resize-rows?]
-            :or   {column-header-height    30
-                   column-width            60
-                   row-header-width        100
-                   row-height              30
+            :or   {column-header-height    25
+                   column-width            55
+                   row-header-width        80
+                   row-height              25
                    show-export-button?     true
                    show-branch-paths?      false
                    show-selection-box?     false

@@ -179,6 +179,10 @@
                    (-> state :enable (= :disabled))
                    (merge {:background-color (:background-disabled $)}))}
 
+         ::nested-grid/cell-grid-container
+         {:style {:padding          "0px"
+                  :background-color "transparent"}}
+
          ::nested-grid/header-spacer
          {:style {:border-left      (if ((:edge state) :left)
                                       (str "thin" " solid " border-dark)
@@ -191,10 +195,11 @@
                   :background-color light-neutral}}
 
          ::nested-grid/cell-wrapper
-         {:style {:font-size        "14px"
+         {:style {:font-size        "12px"
                   :background-color "white"
                   :color            "#777"
-                  :padding          (str sm-4 " " sm-3)
+                  :padding-top      sm-3
+                  :pading-right     sm-3
                   :text-align       "right"
                   :border-right     (condp #(get %2 %1) (:edge state)
                                       :column-section-right
@@ -206,19 +211,15 @@
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))}}
 
-         ::nested-grid/cell-grid-container
-         {:style {:padding          "0px"
-                  :background-color "transparent"}}
-
          ::nested-grid/column-header-wrapper
-         {:style {:padding-top      sm-4
+         {:style {:padding-top      sm-3
                   :padding-right    sm-4
                   :padding-left     sm-4
                   :border-bottom    (str "thin" " solid" border)
                   :background-color light-neutral
                   :color            "#666"
                   :text-align       "center"
-                  :font-size        "15px"
+                  :font-size        "13px"
                   :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
                   :border-right     (condp #(get %2 %1) (:edge state)
                                       :column-section-right
@@ -232,7 +233,7 @@
                   :text-overflow    "ellipsis"}}
 
          ::nested-grid/row-header-wrapper
-         {:style {:padding-top      sm-4
+         {:style {:padding-top      sm-3
                   :padding-right    sm-3
                   :padding-left     sm-6
                   :border-left      (if ((:edge state) :left)
@@ -245,7 +246,7 @@
                   :background-color light-neutral
                   :color            "#666"
                   :text-align       "left"
-                  :font-size        "15px"
+                  :font-size        "13px"
                   #_#_:font-weight  "bold"
                   :overflow         "hidden"
                   :white-space      "nowrap"
