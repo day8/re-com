@@ -789,12 +789,11 @@
                                     (when show-export-button?
                                       [buttons/md-icon-button
                                        :md-icon-name    "zmdi zmdi-copy"
-                                       :style {:height         "20px"
-                                               :font-size      "20px"
-                                               :line-height    "20px"
+                                       :style {:height         "18px"
+                                               :font-size      "18px"
+                                               :line-height    "18px"
                                                :padding-bottom 0}
                                        :tooltip         (str "Copy table to clipboard.")
-                                       :tooltip-position :left-center
                                        :on-click        #(let [column-headers (export-column-headers)
                                                                row-headers    (export-row-headers)
                                                                spacers        (export-spacers)
