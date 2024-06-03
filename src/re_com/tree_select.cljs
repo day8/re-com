@@ -439,7 +439,7 @@
                               (let [model (deref-or-value model)]
                                 [h-box
                                  (themed ::dropdown-anchor
-                                   {:width width
+                                   {:width "100%"
                                     :style {:height height}
                                     :children
                                     [(if-not (empty? model)
@@ -450,7 +450,10 @@
                                               {:child (str (count model))})])
                                      (when-not (-> state :enable (= :disabled))
                                        [box (themed ::dropdown-anchor-expander
-                                              {:child (if @showing? "▲" "▼")})])]})]))]
+                                              {:style {:font-size "10px"
+                                                       :transform "scaleX(1.2)"
+                                                       :color     "#888"}
+                                               :child (if @showing? "▲" "▼")})])]})]))]
         [dd/dropdown {:anchor      anchor
                       :label       [:span {:title (alt-text-fn {:items          labelable-items
                                                                 :label-fn       label-fn
@@ -461,7 +464,7 @@
                                                    :text-overflow "ellipsis"}}
                                     anchor-label]
                       :placeholder placeholder
-
+                      :width width
                       :body  [tree-select
                               (themed ::dropdown-body
                                 {:choices                 choices
@@ -480,6 +483,6 @@
                       :model showing?
                       :theme theme
                       :parts (merge parts
-                                    {:body-wrapper {:style {:width     (or width "212px")
+                                    {:body-wrapper {:style {:width     (or width "221px")
                                                             :height    "212px"
                                                             :min-width min-width}}})}]))))

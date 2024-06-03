@@ -147,6 +147,8 @@
              [box
               (themed ::anchor-wrapper
                 {:src   (at)
+                 :style {:padding "unset"
+                         :width "100%"}
                  :attr  {:ref      anchor-ref!
                          :on-click #(swap! model not)}
                  :child [u/part anchor part-props anchor-part]})]

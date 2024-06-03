@@ -38,7 +38,7 @@
    :light               "#f8f9fa"
    :dark                "#212529"
    :neutral             "#555555"
-   :foreground          "#777777"
+   :foreground          "#767a7c"
    :light-neutral       "#eee"
    :background          "white"
    :background-disabled "#EEE"
@@ -78,6 +78,7 @@
                   :display        "block"
                   :overflow       "hidden"
                   :user-select    "none"
+                  :width          "100%"
                   :z-index        (case (:openable state)
                                     :open 99999 nil)}}
 
@@ -129,7 +130,9 @@
 (defn main [props {:keys                                                        [state part]
                    {:as   $
                     :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
-                           dark shadow light light-neutral border border-dark]} :variables}]
+                           dark shadow light light-neutral
+                           border border-dark
+                           foreground]} :variables}]
   (->> {}
        (case part
 
@@ -249,10 +252,12 @@
                   :text-overflow    "ellipsis"}}
 
          ::tree-select/dropdown-anchor
-         {:style {:padding  "0px 6px"
+         {:style {:padding  "0 8px 0 0"
                   :overflow "hidden"
+                  :color    foreground
                   :cursor   (if (-> state :enable (= :disabled))
                               "default" "pointer")}}
+
          ::tree-select/dropdown-counter
          {:style {:margin-left  "10px"
                   :margin-right "10px"
