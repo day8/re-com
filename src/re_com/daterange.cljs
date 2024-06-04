@@ -32,7 +32,6 @@
          str)
     (unparse (formatter "MMMM") date)))
 
-
 ;;button icon svg's
 (defn- prev-month-icon
   [parts]
@@ -75,7 +74,6 @@
     {:transform "translate(-1.5)"}
     [:path {:d "m 8.5882353,6 -1.41,1.41 4.5799997,4.59 -4.5799997,4.59 1.41,1.41 5.9999997,-6 z"}]
     [:path {:d "m 14.547353,5.9623529 -1.41,1.41 4.58,4.5900001 -4.58,4.59 1.41,1.41 6,-6 z"}]]])
-
 
 ;;boxes containing icons, attr's should be added at this level
 (defn- prev-year-nav [current-month-atom parts]
@@ -320,9 +318,8 @@
                               (empty-days-count first-day-val)
                               (repeat "")
                               (cons days)
-                              flatten)
+                              flatten)]
 
-        ]
     (partition-all 7 with-lead-emptys))) ;; split into lists of 7 to be passed to create-week-tr
 
 (def days-vec [[:td "M"] [:td "Tu"] [:td "W"] [:td "Th"] [:td "F"] [:td "Sa"] [:td "Su"]]) ;for cycling and display depending on start-of-week
@@ -363,7 +360,7 @@
         (cljs-time/equal? (:start old) (:start latest))
         (cljs-time/equal? (:end old) (:end latest)))))
 
-(defn model? 
+(defn model?
   "useless"
   [{:keys [start end]}]
   (and (date-like? start) (date-like? end))
@@ -372,30 +369,119 @@
 ;for validation and demo
 (def daterange-parts-desc
   (when include-args-desc?
-    [{:name :wrapper               :level 0  :class "rc-daterange-wrapper"       :impl "[date-range]"  :notes "Outer wrapper of the date-range picker."} ;seems this isn't a used accessor, even in datepicker?
-     {:name :border                :level 1  :class "rc-daterange-border"        :impl "[border]"      :notes "The border."}
-     {:type :legacy                :level 2  :class "rc-daterange"               :impl "[:div]"        :notes "The daterange container."       :name-label "-"}
-     {:type :legacy                :level 3                                      :impl "[h-box]"       :notes "To display hozitonally." :name-label "-"}
-
-     {:type :legacy                :level 4                                      :impl "[v-box]"       :notes "To contain the left side of the display." :name-label "-"}
-     {:name :prev-nav              :level 5  :class "rc-daterange-prev-nav"      :impl "[h-box]"       :notes "Contains navigation buttons and month/year."}
-     {:name :prev-year             :level 6  :class "rc-daterange-nav-button"    :impl "[box]"         :notes "Previous year button."}
-     {:name :prev-year-icon        :level 7  :class "rc-daterange-nav-icon"      :impl "[:svg]"        :notes "Previous year icon."}
-     {:name :prev-month            :level 6  :class "rc-daterange-nav-button"    :impl "[box]"         :notes "Previous month button."}
-     {:name :prev-month-icon       :level 7  :class "rc-daterange-nav-icon"      :impl "[:svg]"        :notes "Previous month icon."}
-     {:name :month-title           :level 6  :class "rc-daterange-month-title"   :impl "[box]"         :notes "Month title for both sides."}
-     {:name :year-title            :level 6  :class "rc-daterange-year-title"    :impl "[box]"         :notes "Year title for both sides."}
-     {:name :table                 :level 5  :class "rc-daterange-table"         :impl "[:table]"      :notes "Table."}
-     {:type :legacy                :level 6                                      :impl "[:tr]"         :notes "Row containing day titles." :name-label "-"}
-     {:name :day-title             :level 7  :class "rc-daterange-day-title"     :impl "[:td]"         :notes "Titles for columns, days of the week"}
-     {:name :date                  :level 7  :class "rc-daterange-td-basic"      :impl "[:td]"         :notes "The date tiles populating the table."}
-
-     {:type :legacy                :level 4                                      :impl "[v-box]"       :notes "To contain the right side of the display." :name-label "-"}
-     {:name :next-nav              :level 5  :class "rc-daterange-next-nav"      :impl "[h-box]"       :notes "Contains navigation buttons and month/year."}
-     {:name :next-month            :level 6  :class "rc-daterange-nav-button"    :impl "[box]"         :notes "Next month button."}
-     {:name :next-month-icon       :level 7  :class "rc-daterange-nav-icon"      :impl "[:svg]"        :notes "Next month icon."}
-     {:name :next-year             :level 6  :class "rc-daterange-nav-button"    :impl "[:box]"        :notes "Next year button."}
-     {:name :next-year-icon        :level 7  :class "rc-daterange-nav-icon"      :impl "[:svg]"        :notes "Next year icon."}]))
+    [{:class "rc-daterange-wrapper",
+      :impl "[date-range]",
+      :level 0,
+      :name :wrapper,
+      :notes "Outer wrapper of the date-range picker."} ;seems this isn't a used
+                                        ;accessor, even in
+                                        ;datepicker?
+     {:class "rc-daterange-border",
+      :impl "[border]",
+      :level 1,
+      :name :border,
+      :notes "The border."}
+     {:class "rc-daterange",
+      :impl "[:div]",
+      :level 2,
+      :name-label "-",
+      :notes "The daterange container.",
+      :type :legacy}
+     {:impl "[h-box]",
+      :level 3,
+      :name-label "-",
+      :notes "To display hozitonally.",
+      :type :legacy}
+     {:impl "[v-box]",
+      :level 4,
+      :name-label "-",
+      :notes "To contain the left side of the display.",
+      :type :legacy}
+     {:class "rc-daterange-prev-nav",
+      :impl "[h-box]",
+      :level 5,
+      :name :prev-nav,
+      :notes "Contains navigation buttons and month/year."}
+     {:class "rc-daterange-nav-button",
+      :impl "[box]",
+      :level 6,
+      :name :prev-year,
+      :notes "Previous year button."}
+     {:class "rc-daterange-nav-icon",
+      :impl "[:svg]",
+      :level 7,
+      :name :prev-year-icon,
+      :notes "Previous year icon."}
+     {:class "rc-daterange-nav-button",
+      :impl "[box]",
+      :level 6,
+      :name :prev-month,
+      :notes "Previous month button."}
+     {:class "rc-daterange-nav-icon",
+      :impl "[:svg]",
+      :level 7,
+      :name :prev-month-icon,
+      :notes "Previous month icon."}
+     {:class "rc-daterange-month-title",
+      :impl "[box]",
+      :level 6,
+      :name :month-title,
+      :notes "Month title for both sides."}
+     {:class "rc-daterange-year-title",
+      :impl "[box]",
+      :level 6,
+      :name :year-title,
+      :notes "Year title for both sides."}
+     {:class "rc-daterange-table",
+      :impl "[:table]",
+      :level 5,
+      :name :table,
+      :notes "Table."}
+     {:impl "[:tr]",
+      :level 6,
+      :name-label "-",
+      :notes "Row containing day titles.",
+      :type :legacy}
+     {:class "rc-daterange-day-title",
+      :impl "[:td]",
+      :level 7,
+      :name :day-title,
+      :notes "Titles for columns, days of the week"}
+     {:class "rc-daterange-td-basic",
+      :impl "[:td]",
+      :level 7,
+      :name :date,
+      :notes "The date tiles populating the table."}
+     {:impl "[v-box]",
+      :level 4,
+      :name-label "-",
+      :notes "To contain the right side of the display.",
+      :type :legacy}
+     {:class "rc-daterange-next-nav",
+      :impl "[h-box]",
+      :level 5,
+      :name :next-nav,
+      :notes "Contains navigation buttons and month/year."}
+     {:class "rc-daterange-nav-button",
+      :impl "[box]",
+      :level 6,
+      :name :next-month,
+      :notes "Next month button."}
+     {:class "rc-daterange-nav-icon",
+      :impl "[:svg]",
+      :level 7,
+      :name :next-month-icon,
+      :notes "Next month icon."}
+     {:class "rc-daterange-nav-button",
+      :impl "[:box]",
+      :level 6,
+      :name :next-year,
+      :notes "Next year button."}
+     {:class "rc-daterange-nav-icon",
+      :impl "[:svg]",
+      :level 7,
+      :name :next-year-icon,
+      :notes "Next year icon."}]))
 
 (def daterange-parts
   (when include-args-desc?
@@ -404,25 +490,116 @@
 (def daterange-args-desc
   "used to validate the arguments supplied by the user"
   (when include-args-desc?
-    [{:name :model              :required false                   :type "map with keys :start, :end | r/atom"        :validate-fn model?                       :description "the selected date range. Only updates after a selection has been completed. A closed (inclusive) interval. A map containing :start and :end whose values must both satisfy DateTimeProtocol. Nil is also acceptable if you want to start with nothing selected"}
-     {:name :on-change          :required true                    :type "satisfies DateTimeProtocol -> nil"          :validate-fn fn?                          :description "called when a new complete selection has been made"}
-     {:name :disabled?          :required false  :default false   :type "boolean | atom"                                                                       :description "when true, the user can't select dates but can navigate"}
-     {:name :initial-display    :required false                   :type "satisfies DateTimeProtocol | r/atom"        :validate-fn date-like?                   :description "set the months shown when no model is selected, defaults to the current month"}
-     {:name :selectable-fn      :required false                   :type "function"                                   :validate-fn fn?                          :description "called on each date, if it returns false, that date is not selectable"}
-     {:name :show-today?        :required false  :default false   :type "boolean"                                                                              :description "when true, todays date is highlighted"}
-     {:name :minimum            :required false                   :type "satisfies DateTimeProtocol | r/atom"        :validate-fn date-like?                   :description "no selection before this date"}
-     {:name :maximum            :required false                   :type "satisfies DateTimeProtocol | r/atom"        :validate-fn date-like?                   :description "no selection after this date"}
-     {:name :check-interval?    :required false  :default false   :type "boolean"                                                                              :description "if true, the user cannot select ranges which contain disabled days. If false, ranges spanning deselected or disabled dates are valid"}
-     {:name :start-of-week      :required false  :default 1       :type "int"                                        :validate-fn int?                         :description "choose left most column of the table, 1 = monday ... 7 = sunday"}
-     {:name :show-weeks?        :required false  :default false   :type "boolean"                                                                              :description "when true, week numbers are shown to the left"}
-     {:name :hide-border?       :required false                   :type "boolean"                                                                              :description "when true, the border is not displayed"}
-     {:name :i18n               :required false                   :type "map"                                        :validate-fn map?                         :description "internationalization map with optional keys :days and :months (both vectors of strings)"}
-     {:name :class              :required false                   :type "string"                                     :validate-fn string?                      :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
-     {:name :style              :required false                   :type "CSS style map"                              :validate-fn css-style?                   :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
-     {:name :attr               :required false                   :type "HTML attribute map"                         :validate-fn html-attr?                   :description "HTML attributes, like :on-mouse-move, No :class or :style allowed (applies to the outer border div, not the wrapping div)"}
-     {:name :parts              :required false                   :type "map"                                        :validate-fn (parts? daterange-parts)     :description "See Parts section below."}
-     {:name :src                :required false                   :type "map"                                        :validate-fn map?                         :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as           :required false                   :type "map"                                        :validate-fn map?                         :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    [{:name :model,
+      :required false,
+      :type "map with keys :start, :end | r/atom",
+      :validate-fn model?,
+      :description
+      "the selected date range. Only updates after a selection has been completed. A closed (inclusive) interval. A map containing :start and :end whose values must both satisfy DateTimeProtocol. Nil is also acceptable if you want to start with nothing selected"}
+     {:name :on-change,
+      :required true,
+      :type "satisfies DateTimeProtocol -> nil",
+      :validate-fn fn?,
+      :description "called when a new complete selection has been made"}
+     {:name :disabled?,
+      :required false,
+      :default false,
+      :type "boolean | atom",
+      :description "when true, the user can't select dates but can navigate"}
+     {:name :initial-display,
+      :required false,
+      :type "satisfies DateTimeProtocol | r/atom",
+      :validate-fn date-like?,
+      :description
+      "set the months shown when no model is selected, defaults to the current month"}
+     {:name :selectable-fn,
+      :required false,
+      :type "function",
+      :validate-fn fn?,
+      :description
+      "called on each date, if it returns false, that date is not selectable"}
+     {:name :show-today?,
+      :required false,
+      :default false,
+      :type "boolean",
+      :description "when true, todays date is highlighted"}
+     {:name :minimum,
+      :required false,
+      :type "satisfies DateTimeProtocol | r/atom",
+      :validate-fn date-like?,
+      :description "no selection before this date"}
+     {:name :maximum,
+      :required false,
+      :type "satisfies DateTimeProtocol | r/atom",
+      :validate-fn date-like?,
+      :description "no selection after this date"}
+     {:name :check-interval?,
+      :required false,
+      :default false,
+      :type "boolean",
+      :description
+      "if true, the user cannot select ranges which contain disabled days. If false, ranges spanning deselected or disabled dates are valid"}
+     {:name :start-of-week,
+      :required false,
+      :default 1,
+      :type "int",
+      :validate-fn int?,
+      :description
+      "choose left most column of the table, 1 = monday ... 7 = sunday"}
+     {:name :show-weeks?,
+      :required false,
+      :default false,
+      :type "boolean",
+      :description "when true, week numbers are shown to the left"}
+     {:name :hide-border?,
+      :required false,
+      :type "boolean",
+      :description "when true, the border is not displayed"}
+     {:name :i18n,
+      :required false,
+      :type "map",
+      :validate-fn map?,
+      :description
+      "internationalization map with optional keys :days and :months (both vectors of strings)"}
+     {:name :class,
+      :required false,
+      :type "string",
+      :validate-fn string?,
+      :description
+      "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
+     {:name :style,
+      :required false,
+      :type "CSS style map",
+      :validate-fn css-style?,
+      :description
+      "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
+     {:name :attr,
+      :required false,
+      :type "HTML attribute map",
+      :validate-fn html-attr?,
+      :description
+      "HTML attributes, like :on-mouse-move, No :class or :style allowed (applies to the outer border div, not the wrapping div)"}
+     {:name :parts,
+      :required false,
+      :type "map",
+      :validate-fn (parts? daterange-parts),
+      :description "See Parts section below."}
+     {:name :src,
+      :required false,
+      :type "map",
+      :validate-fn map?,
+      :description
+      [:span
+       "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
+       [:code ":file"] "and" [:code ":line"] ". See 'Debugging'."]}
+     {:name :debug-as,
+      :required false,
+      :type "map",
+      :validate-fn map?,
+      :description
+      [:span
+       "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys"
+       [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn daterange
   "Tracks the external model, but takes inputs into an internal model. The given on-change function is only called after a full selection has been made"
@@ -477,7 +654,7 @@
       :children  [[box
                    :size "auto"
                    :class (str "form-control dropdown-button" (when (deref-or-value disabled?) " dropdown-button-disabled"))
-                   :style {:font-weight 600 :border-radius "5px 0px 0px 5px"}
+                   :style {#_#_:font-weight 600 :border-radius "5px 0px 0px 5px" :padding "3px 8px 0 8px"}
                    :child (cond
                             (not (date-like? (:start (deref-or-value model)))) (do
                                                                                  (prn (:start (deref-or-value model)))
@@ -516,7 +693,7 @@
          cancel-popover #(reset! shown? false)
          position       :below-left]
      (fn render-fn
-       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
+       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as initial-display]
            :or {no-clip? true, position-offset 0}
            :as passthrough-args}]
        (or
@@ -548,8 +725,3 @@
                       :padding         "0px"
                       :on-cancel       cancel-popover
                       :body            (into [daterange] passthrough-args)]]))))))
-
-
-
-
-
