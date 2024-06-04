@@ -199,7 +199,7 @@
                   :background-color "white"
                   :color            "#777"
                   :padding-top      sm-3
-                  :pading-right     sm-3
+                  :padding-right     sm-3
                   :text-align       "right"
                   :border-right     (condp #(get %2 %1) (:edge state)
                                       :column-section-right
