@@ -781,10 +781,7 @@
             export-spacers        #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel         [:div {:style {:position         :relative
                                                  :background-color "white"
-                                                 :width            (if max-width
-                                                                     max-width
-                                                                     "1fr"
-                                                                     #_(px (apply + showing-column-widths)))}}
+                                                 :width            (or max-width "1fr")}}
                                    [:div {:style {:position :absolute
                                                   :right    0}}
                                     (when show-export-button?
@@ -922,7 +919,13 @@
                                      :selection-grid-spec selection-grid-spec}]
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
-            native-scrollbar-width 10]
+            native-scrollbar-width 10
+            native-width           (apply +
+                                          native-scrollbar-width
+                                          showing-column-widths)
+            native-height          (apply +
+                                          native-scrollbar-width
+                                          showing-row-heights)]
         [:div
          [:div {:on-mouse-enter #(reset! hover? true)
                 :on-mouse-leave #(reset! hover? false)
@@ -932,11 +935,8 @@
                  :display               "grid"
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
                                                         (if-not max-width
-                                                          "1fr"
-                                                          (px (cond->
-                                                               (apply +
-                                                                      native-scrollbar-width
-                                                                      showing-column-widths)
+                                                          (str "minmax(0, " (+ 2 native-width) "px)")
+                                                          (px (cond-> native-width
                                                                 max-width
                                                                 (min
                                                                  (parse-long
@@ -946,10 +946,7 @@
                  :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] [])
                                                              [showing-column-widths
                                                               (px (apply + max-column-heights))
-                                                              (px (apply +
-                                                                         4
-                                                                         native-scrollbar-width
-                                                                         showing-row-heights))]))}}
+                                                              (px (+ native-height 4))]))}}
           (when show-export-button? [:div])
           (when show-export-button? control-panel)
           [:div {:style {:display               "grid"
