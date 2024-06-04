@@ -88,8 +88,8 @@
                                            (str " is "
                                                 (if @model-atom ;; TODO [GR-REMOVE] Easier to read when formatted on multiple lines
                                                   (str
-                                                    (unparse (formatter "dd MMM, yyyy") (:start @model-atom)) " ... "
-                                                    (unparse (formatter "dd MMM, yyyy") (:end @model-atom)))
+                                                   (unparse (formatter "dd MMM, yyyy") (:start @model-atom)) " ... "
+                                                   (unparse (formatter "dd MMM, yyyy") (:end @model-atom)))
                                                   "nil"))]
 
                                           [v-box
@@ -163,7 +163,6 @@
                                                        :on-change       #(reset! model-atom %)
                                                        :placeholder     "Select a range of dates"]]]]]]]
                   [parts-table "daterange" daterange-parts-desc]]])))
-
 
 (defn panel
   []
