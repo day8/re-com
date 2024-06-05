@@ -878,9 +878,10 @@
                                      ^{:key [::header-spacer x y]}
                                      [u/part header-spacer-wrapper props header-spacer-wrapper-part])
             cells                  (doall
-                                    (for [column-path showing-column-paths
-                                          row-path    showing-row-paths
-                                          :let        [props (merge {:column-path column-path
+                                    (for [row-path showing-row-paths]
+                                      (doall
+                                       (for [column-path showing-column-paths
+                                             :let     [props (merge {:column-path column-path
                                                                      :row-path    row-path
                                                                      :cell        cell
                                                                      :theme       theme
@@ -893,8 +894,8 @@
                                                                                     (cell-section-right? column-path)            (conj :column-section-right))}
                                                                     (when cell-value
                                                                       {:cell-value cell-value}))]]
-                                      ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}
-                                      [u/part cell-wrapper props cell-wrapper-part]))
+                                         ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}
+                                         [u/part cell-wrapper props cell-wrapper-part]))))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
                                      ^{:key [::zebra-stripe i]}
                                      [:div
