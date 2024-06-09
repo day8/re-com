@@ -142,6 +142,12 @@
   [id v & {:keys [id-fn] :or {id-fn :id}}]
   (filterv #(not= (id-fn %) id) v))
 
+(defn zip-id
+  "Takes a vector of maps 'v', each of which has an id-fn (default :id) key.
+   Returns a map of id->m for each map 'm' with id 'id' in 'v'."
+  ([v] (zip-id :id v))
+  ([id-fn v] (zipmap (map id-fn v) v)))
+
 ;; ----------------------------------------------------------------------------
 ;; Other functions
 ;; ----------------------------------------------------------------------------
