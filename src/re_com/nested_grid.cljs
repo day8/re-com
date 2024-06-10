@@ -634,6 +634,7 @@
                    column-width column-header-height row-header-width row-height
                    show-export-button? on-export
                    on-export-cell on-export-column-header on-export-row-header
+                   show-zebra-stripes?
                    show-selection-box? resize-columns? resize-rows?]
             :or   {column-header-height    25
                    column-width            55
@@ -642,6 +643,7 @@
                    show-export-button?     true
                    show-branch-paths?      false
                    show-selection-box?     false
+                   show-zebra-stripes?     true
                    on-export-column-header header-label
                    on-export-row-header    header-label
                    resize-columns?         true
@@ -881,19 +883,19 @@
                                     (for [row-path showing-row-paths]
                                       (doall
                                        (for [column-path showing-column-paths
-                                             :let     [props (merge {:column-path column-path
-                                                                     :row-path    row-path
-                                                                     :cell        cell
-                                                                     :theme       theme
-                                                                     :edge        (cond-> #{}
-                                                                                    (= column-path (first showing-column-paths)) (conj :left)
-                                                                                    (= column-path (last showing-column-paths))  (conj :right)
-                                                                                    (= row-path (first showing-row-paths))       (conj :top)
-                                                                                    (= row-path (last showing-row-paths))        (conj :bottom)
-                                                                                    (cell-section-left? column-path)             (conj :column-section-left)
-                                                                                    (cell-section-right? column-path)            (conj :column-section-right))}
-                                                                    (when cell-value
-                                                                      {:cell-value cell-value}))]]
+                                             :let        [props (merge {:column-path column-path
+                                                                        :row-path    row-path
+                                                                        :cell        cell
+                                                                        :theme       theme
+                                                                        :edge        (cond-> #{}
+                                                                                       (= column-path (first showing-column-paths)) (conj :left)
+                                                                                       (= column-path (last showing-column-paths))  (conj :right)
+                                                                                       (= row-path (first showing-row-paths))       (conj :top)
+                                                                                       (= row-path (last showing-row-paths))        (conj :bottom)
+                                                                                       (cell-section-left? column-path)             (conj :column-section-left)
+                                                                                       (cell-section-right? column-path)            (conj :column-section-right))}
+                                                                       (when cell-value
+                                                                         {:cell-value cell-value}))]]
                                          ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}
                                          [u/part cell-wrapper props cell-wrapper-part]))))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
@@ -974,7 +976,9 @@
             row-header-cells]]
           (-> cell-grid-container
               (into cells)
-              (into zebra-stripes)
+              (into (if (and show-zebra-stripes? (> (count showing-row-paths) 3))
+                      zebra-stripes
+                      []))
               (conj (when show-selection-box? box-selector)))]
          (when (= ::selection @drag)
            [drag-overlay {:drag         drag
