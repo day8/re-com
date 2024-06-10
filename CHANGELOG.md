@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.5 (2024-06-10)
+
+#### Fixed
+
+- `tree-select` - Fixed non-responsive behavior when passing `:model` as value, (not a reagent/atom).
+
+
 ## 2.21.4 (2024-05-14)
 
 #### Fixed

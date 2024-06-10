@@ -320,7 +320,7 @@
                                               choices)
                                 initial-expanded-groups)))
     (fn tree-select-render
-      [& {:keys [choices group-label-fn disabled? groups-first? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr] :as args}]
+      [& {:keys [model choices group-label-fn disabled? groups-first? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr] :as args}]
       (or
        (validate-args-macro tree-select-args-desc args)
        (let [choices        (deref-or-value choices)
