@@ -777,8 +777,10 @@
                                      (->> row-paths
                                           (mapv (fn [row-path]
                                                   (mapv (fn [column-path]
-                                                          (on-export-cell {:row-path    row-path
-                                                                           :column-path column-path}))
+                                                          (let [props {:row-path    row-path
+                                                                       :column-path column-path}
+                                                                props (cond-> props cell-value (merge {:value (cell-value props)}))]
+                                                            (on-export-cell props)))
                                                         column-paths)))))
             export-spacers        #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel         [:div {:style {:position         :relative
