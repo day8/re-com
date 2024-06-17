@@ -1,6 +1,7 @@
 (ns re-com.theme.default
   (:require
    [clojure.string :as str]
+   [re-com.util :as ru :refer [px]]
    [re-com.theme.util :refer [merge-props]]
    [re-com.dropdown :as-alias dropdown]
    [re-com.nested-grid :as-alias nested-grid]
@@ -68,6 +69,7 @@
 
          ::dropdown/anchor-wrapper
          {:attr  {:tab-index (or (:tab-index state) 0)
+                  :on-click  #(transition! :toggle)
                   :on-blur   #(do (transition! :blur)
                                   (transition! :exit))}
           :style {:outline        (when (and (= :focused (:focusable state))
@@ -96,9 +98,13 @@
                                            :open 99998 nil)}}
 
          ::dropdown/body-wrapper
-         {:style {:position   "absolute"
+         {:ref   (:ref state)
+          :style {:position   "absolute"
+                  :top        (px (:top state))
+                  :left       (px (:left state))
                   :overflow-y "auto"
-                  :overflow-x "visible"}}
+                  :overflow-x "visible"
+                  :z-index    99999}}
 
          ::nested-grid/cell-grid-container
          {:style {:position        "relative"
@@ -166,7 +172,7 @@
                     :color            (:neutral $)
                     :height           md-2
                     :line-height      md-2
-                    :padding          "0 0 0 8px"
+                    :padding          "0 8px 0 8px"
                     :text-decoration  "none"
                     :white-space      "nowrap"
                     :transition       "border 0.2s box-shadow 0.2s"}})
@@ -253,7 +259,7 @@
                   :text-overflow    "ellipsis"}}
 
          ::tree-select/dropdown-anchor
-         {:style {:padding  "0 8px 0 0"
+         {:style {:padding  "0 0 0 0"
                   :overflow "hidden"
                   :color    foreground
                   :cursor   (if (-> state :enable (= :disabled))

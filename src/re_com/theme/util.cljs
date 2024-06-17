@@ -11,12 +11,15 @@
       (every? vector? ms) (reduce into ms)
       :else (last ms))))
 
+(merge-props {:class "a" :style {:b 1}}
+             {:class "x" :style {:width 2} :width 200 :ref :REF})
+
 (defn parts [part->props]
-      (fn [props {:keys [part]}]
-          (if-let [v (or (get part->props part)
-                         (get part->props (keyword (name part))))]
-                  (merge-props props v)
-                  props)))
+  (fn [props {:keys [part]}]
+    (if-let [v (or (get part->props part)
+                   (get part->props (keyword (name part))))]
+      (merge-props props v)
+      props)))
 
 (defn args [{:keys [attr class style]}]
   (fn [props _]

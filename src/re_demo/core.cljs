@@ -32,6 +32,7 @@
             [re-demo.hyperlink             :as    hyperlink]
             [re-demo.hyperlink-href        :as    hyperlink-href]
             [re-demo.dropdowns             :as    dropdowns]
+            [re-demo.dropdown              :as    dropdown]
             [re-demo.alert-box             :as    alert-box]
             [re-demo.alert-list            :as    alert-list]
             [re-demo.tabs                  :as    tabs]
@@ -85,13 +86,14 @@
    {:id :time                   :level :minor :label "Input Time"         :panel input-time/panel}
 
    {:id :selection              :level :major :label "Selection"}
-   {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
+   {:id :single-dropdown        :level :minor :label "Dropdown"           :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
    {:id :multi-select           :level :minor :label "Multi-select List"  :panel multi-select/panel}
    {:id :tag-dropdown           :level :minor :label "Tag Dropdown"       :panel tag-dropdown/panel}
    {:id :tree-select            :level :minor :label "Tree-select"        :panel tree-select/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
+   {:id :generic-dropdown        :level :minor :label "Generic Dropdown"   :panel dropdown/panel}
 
    {:id :tables                 :level :major :label "Tables"}
    {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
