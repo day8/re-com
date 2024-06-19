@@ -227,7 +227,8 @@
   [day [fsm start-date end-date] on-change check-interval? disabled-data]
   (if
    (and (= @fsm "pick-end")                                                                   ;if we're picking and end date
-        (cljs-time/before? @start-date day)
+        (or (cljs-time/before? @start-date day)
+            (cljs-time/equal?  @start-date day))
         (if check-interval? ;; TODO [GR-REMOVE] Multi-line formatting more readable, especially when else clause is insignificant compared to if clause
           (interval-valid? start-date day disabled-data)
           true))
@@ -243,8 +244,12 @@
 
 (defn- class-for-td
   "Given a date, and the values in the internal model, determine which css class the :td should have"
-  [day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?]
+  [fsm day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?]
   (cond
+    (and @start-date
+         (not= @fsm "pick-end")
+         (cljs-time/equal? day @start-date)
+         (cljs-time/equal? day @end-date)) "daterange-start-end-td"
     (and @start-date (cljs-time/equal? day @start-date)) "daterange-start-td"
     (and @start-date (cljs-time/equal? day @end-date)) "daterange-end-td"
     (and @start-date (not= day "") (cljs-time/before? day @end-date) (cljs-time/after? day @start-date)) "daterange-interval-td"
@@ -262,7 +267,7 @@
   (let [disabled-data (vector minimum maximum disabled? selectable-fn)]
     (if (= day "") ;; TODO [GR-REMOVE] Formatting
       [:td ""]
-      (let [correct-class (class-for-td day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?)
+      (let [correct-class (class-for-td fsm day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?)
             clickable?    (not (date-disabled? day disabled-data))]
         (into [:td]
               (vector (merge {:class          (str "rc-daterange-td-basic " correct-class (get-in parts [:date :class]))
@@ -610,7 +615,7 @@
          fsm           (r/atom "pick-start")
          start-date    (r/atom (:start (deref-or-value model)))
          end-date      (r/atom (:end (deref-or-value model)))
-         temp-end      (r/atom (now->utc))]                 ;for :on-hover css functionality
+         temp-end      (r/atom (or @end-date (now->utc)))]                 ;for :on-hover css functionality
      (fn render-fn
        [& {:keys [model hide-border? i18n class style attr parts src debug-as] :as args}]
        (or

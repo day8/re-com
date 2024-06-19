@@ -792,7 +792,13 @@ fieldset[disabled] .btn {
   border-radius: 0px 5px 5px 0px;
 }
 
-.daterange-start-td:hover, .daterange-end-td:hover {
+.daterange-start-end-td {
+  cursor: pointer;
+  background-color: #3ab0ffbd;
+  border-radius: 5px 5px 5px 5px;
+}
+
+.daterange-start-td:hover, .daterange-end-td:hover, .daterange-start-end-td:hover {
   cursor: pointer;
   color: white;
   background-color: #357ebd;
