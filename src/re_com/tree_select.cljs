@@ -156,6 +156,14 @@
       :validate-fn ifn?
       :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in "
                     [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}
+     {:name        :empty-means-full?
+      :required    false
+      :default     false
+      :type        "boolean"
+      :validate-fn boolean?
+      :description [:span "By default, an empty model (i.e. #{}) means that no checkboxes are checked. When "
+                    [:code ":empty-means-full?"]
+                    " is true, all checkboxes appear checked when the model is empty."]}
      {:name :class
       :required false
       :type "string"
@@ -348,7 +356,12 @@
                                               choices)
                                 initial-expanded-groups)))
     (fn tree-select-render
-      [& {:keys [model choices group-label-fn disabled? groups-first? min-width max-width min-height max-height on-change choice-disabled-fn label-fn parts class style attr] :as args}]
+      [& {:keys [model choices group-label-fn disabled? groups-first?
+                 min-width max-width min-height max-height
+                 on-change choice-disabled-fn label-fn
+                 empty-means-full?
+                 parts class style attr]
+          :as   args}]
       (or
        (validate-args-macro tree-select-args-desc args)
        (let [choices        (deref-or-value choices)
@@ -356,6 +369,10 @@
              model          (deref-or-value model)
              label-fn       (or label-fn :label)
              group-label-fn (or group-label-fn group-label)
+
+             full?          (or (when empty-means-full? (empty? model))
+                                (every? model (map id-fn choices)))
+
              items          (sort-items (into choices (infer-groups* choices))
                                         :groups-first? groups-first?)
              item           (fn [item-props]
@@ -364,6 +381,7 @@
                                   (let [descendants    (filter-descendants* group choices)
                                         descendant-ids (map id-fn descendants)
                                         checked?       (cond
+                                                         full?                         :all
                                                          (every? model descendant-ids) :all
                                                          (some   model descendant-ids) :some)
                                         new-model      (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
@@ -395,7 +413,7 @@
                                    :toggle!   (handler-fn (let [new-model  (toggle model (id-fn item-props))
                                                                 new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
                                                             (on-change new-model new-groups)))
-                                   :checked?  (get model (id-fn item-props))
+                                   :checked?  (or full? (get model (id-fn item-props)))
                                    :level     (inc (count group))])))]
          [v-box
           :src (at)
@@ -409,8 +427,9 @@
           :children (mapv item items)])))))
 
 (defn field-label [{:keys [items group-label-fn label-fn]}]
-  (let [item-label-fn             #((if (group? %) group-label-fn label-fn) %)]
-    (str/join ", " (map item-label-fn items))))
+  (when (seq items)
+    (let [item-label-fn #((if (group? %) group-label-fn label-fn) %)]
+      (str/join ", " (map item-label-fn items)))))
 
 (defn labelable-items [model choices & {:keys [id-fn] :or {id-fn :id}}]
   (let [current-choices           (into #{} (filter (comp model id-fn) choices))
@@ -440,6 +459,7 @@
                  width min-width max-width min-height max-height on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
+                 empty-means-full?
                  parts theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
                  label-fn    :label
@@ -462,13 +482,14 @@
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})]
-        [dd/dropdown {:label       [:span {:title (alt-text-fn {:items          labelable-items
-                                                                :label-fn       label-fn
-                                                                :group-label-fn group-label-fn})
-                                           :style {:white-space   "nowrap"
-                                                   :overflow      "hidden"
-                                                   :text-overflow "ellipsis"}}
-                                    anchor-label]
+        [dd/dropdown {:label       (when anchor-label
+                                     [:span {:title (alt-text-fn {:items          labelable-items
+                                                                  :label-fn       label-fn
+                                                                  :group-label-fn group-label-fn})
+                                             :style {:white-space   "nowrap"
+                                                     :overflow      "hidden"
+                                                     :text-overflow "ellipsis"}}
+                                      anchor-label])
                       :placeholder placeholder
                       :indicator   (fn [props]
                                      [h-box
@@ -489,6 +510,7 @@
                                        :on-change               on-change
                                        :groups-first?           groups-first?
                                        :initial-expanded-groups initial-expanded-groups
+                                       :empty-means-full?       empty-means-full?
                                        :id-fn                   id-fn
                                        :label-fn                label-fn
                                        :model                   model})]
