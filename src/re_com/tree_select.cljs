@@ -15,14 +15,42 @@
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
-    [{:type :legacy           :level 0 :class "rc-dropdown"                              :impl "[tree-select-dropdown]"}
-     {:name :wrapper          :level 1 :class "rc-tree-select-dropdown-wrapper"          :impl "[:div]"}
-     {:name :anchor           :level 2 :class "rc-tree-select-dropdown-anchor"           :impl "[h-box]"}
-     {:name :counter          :level 3 :class "rc-tree-select-dropdown-counter"          :impl "[box]"}
-     {:name :anchor-expander  :level 3 :class "rc-tree-select-dropdown-anchor-expander"  :impl "[box]"}
-     {:name :backdrop         :level 2 :class "rc-tree-select-dropdown-backdrop"         :impl "[:div]"}
-     {:name :dropdown-wrapper :level 2 :class "rc-tree-select-dropdown-dropdown-wrapper" :impl "[v-box]"}
-     {:name :body             :level 3 :class "rc-tree-select-dropdown-body"             :impl "[tree-select]"}]))
+    [{:class "rc-dropdown"
+      :impl "[tree-select-dropdown]"
+      :level 0
+      :type :legacy}
+     {:class "rc-tree-select-dropdown-wrapper"
+      :impl  "[:div]"
+      :level 1
+      :name  :wrapper}
+     {:class "rc-tree-select-dropdown-anchor"
+      :impl  "[h-box]"
+      :level 2
+      :name  :anchor}
+     {:class "rc-tree-select-dropdown-counter"
+      :impl  "[box]"
+      :level 3
+      :name  :counter}
+     {:class "rc-tree-select-dropdown-anchor-expander"
+      :impl  "[box]"
+      :level 3
+      :name  :anchor-expander}
+     {:class "rc-tree-select-dropdown-backdrop"
+      :impl  "[:div]"
+      :level 2
+      :name  :backdrop}
+     {:class "rc-tree-select-dropdown-dropdown-wrapper"
+      :impl  "[v-box]"
+      :level 2
+      :name  :dropdown-wrapper}
+     {:class "rc-tree-select-dropdown-dropdown-indicator"
+      :impl  "[v-box]"
+      :level 3
+      :name  :dropdown-indicator}
+     {:class "rc-tree-select-dropdown-body"
+      :impl  "[tree-select]"
+      :level 3
+      :name  :body}]))
 
 (def tree-select-dropdown-parts
   (when include-args-desc?
@@ -411,9 +439,8 @@
       [& {:keys [choices  disabled?
                  width min-width max-width min-height max-height on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
-                 height
                  groups-first? initial-expanded-groups
-                 parts style theme main-theme theme-vars base-theme]
+                 parts theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
                  label-fn    :label
                  id-fn       :id}
@@ -434,55 +461,40 @@
             labelable-items (labelable-items (deref-or-value model) choices {:id-fn id-fn})
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
-                                             :group-label-fn group-label-fn})
-            anchor          (fn [{:keys [label placeholder]}]
-                              (let [model (deref-or-value model)]
-                                [h-box
-                                 (themed ::dropdown-anchor
-                                   {:width "100%"
-                                    :style {:height height}
-                                    :children
-                                    [(if-not (empty? model)
-                                       label placeholder)
-                                     [gap :src (at) :size "1"]
-                                     (when-let [model (seq model)]
-                                       [box (themed ::dropdown-counter
-                                              {:child (str (count model))})])
-                                     (when-not (-> state :enable (= :disabled))
-                                       [box (themed ::dropdown-anchor-expander
-                                              {:style {:font-size "10px"
-                                                       :transform "scaleX(1.2)"
-                                                       :color     "#888"}
-                                               :child (if @showing? "▲" "▼")})])]})]))]
-        [dd/dropdown {:anchor      anchor
-                      :label       [:span {:title (alt-text-fn {:items          labelable-items
+                                             :group-label-fn group-label-fn})]
+        [dd/dropdown {:label       [:span {:title (alt-text-fn {:items          labelable-items
                                                                 :label-fn       label-fn
                                                                 :group-label-fn group-label-fn})
-                                           :style {:max-width     max-width
-                                                   :white-space   "nowrap"
+                                           :style {:white-space   "nowrap"
                                                    :overflow      "hidden"
                                                    :text-overflow "ellipsis"}}
                                     anchor-label]
                       :placeholder placeholder
-                      :width width
-                      :body  [tree-select
-                              (themed ::dropdown-body
-                                {:choices                 choices
-                                 :group-label-fn          group-label-fn
-                                 :disabled?               disabled?
-                                 :min-width               min-width
-                                 :max-width               max-width
-                                 :min-height              min-height
-                                 :max-height              max-height
-                                 :on-change               on-change
-                                 :groups-first?           groups-first?
-                                 :initial-expanded-groups initial-expanded-groups
-                                 :id-fn                   id-fn
-                                 :label-fn                label-fn
-                                 :model                   model})]
-                      :model showing?
-                      :theme theme
-                      :parts (merge parts
-                                    {:body-wrapper {:style {:width     (or width "221px")
-                                                            :height    "212px"
-                                                            :min-width min-width}}})}]))))
+                      :indicator   (fn [props]
+                                     [h-box
+                                      :children
+                                      [[box (themed ::dropdown-counter
+                                              {:child (str (count (deref-or-value model)))})]
+                                       [dd/indicator (themed ::dropdown-indicator props)]]])
+                      :width       width
+                      :body        [tree-select
+                                    (themed ::dropdown-body
+                                      {:choices                 choices
+                                       :group-label-fn          group-label-fn
+                                       :disabled?               disabled?
+                                       :min-width               min-width
+                                       :max-width               max-width
+                                       :min-height              min-height
+                                       :max-height              max-height
+                                       :on-change               on-change
+                                       :groups-first?           groups-first?
+                                       :initial-expanded-groups initial-expanded-groups
+                                       :id-fn                   id-fn
+                                       :label-fn                label-fn
+                                       :model                   model})]
+                      :model       showing?
+                      :theme       theme
+                      :parts       (merge parts
+                                          {:body-wrapper {:style {:width     (or width "221px")
+                                                                  :height    "212px"
+                                                                  :min-width min-width}}})}]))))

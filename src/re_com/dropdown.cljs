@@ -6,7 +6,7 @@
    [re-com.debug    :refer [->attr]]
    [re-com.theme    :as    theme]
    [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id ->v]]
-   [re-com.box      :refer [align-style flex-child-style v-box h-box box]]
+   [re-com.box      :refer [align-style flex-child-style v-box h-box box gap]]
    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list part?] :refer-macros [validate-args-macro]]
    [re-com.popover  :refer [popover-tooltip]]
@@ -37,6 +37,10 @@
       :impl "user-defined"
       :level 2
       :notes "Displays the :label or :placeholder."}
+     {:name :anchor
+      :impl "user-defined"
+      :level 3
+      :notes "Displays an arrow, indicating whether the dropdown is open."}
      {:name :body-wrapper
       :impl "[box]"
       :level 1
@@ -63,6 +67,7 @@
       :type        "boolean -> nil"
       :validate-fn fn?}
      {:name        :anchor
+      :default     "re-com.dropdown/anchor"
       :type        "part"
       :validate-fn part?
       :required?   false
@@ -76,8 +81,15 @@
        " and "
        [:code ":transition!"]
        ". Returns either a string or hiccup, which shows within the clickable dropdown box."]}
+     {:name        :indicator
+      :required?   false
+      :default     "re-com.dropdown/indicator"
+      :type        "part"
+      :validate-fn part?
+      :description "A triangle, indicating whether the dropdown is open or closed."}
      {:name        :backdrop
       :required?   false
+      :default     "re-com.dropdown/backdrop"
       :type        "part"
       :validate-fn part?
       :description (str "Displays when the dropdown is open. By default, renders a "
@@ -85,7 +97,7 @@
                         "When a function, :backdrop is passed the same keyword arguments "
                         "as :anchor.")}
      {:name        :body
-      :required?   false
+      :required?   true
       :type        "part"
       :validate-fn part?
       :description (str "Displays when the dropdown is open. "
@@ -103,6 +115,11 @@
       :validate-fn number-or-string?}
      {:description "height of the :anchor-wrapper part"
       :name        :anchor-height
+      :required    false
+      :type        "integer | string"
+      :validate-fn number-or-string?}
+     {:description "width of the :anchor-wrapper part"
+      :name        :anchor-width
       :required    false
       :type        "integer | string"
       :validate-fn number-or-string?}
@@ -235,6 +252,19 @@
               theme)]
            children)))})))
 
+(defn triangle [{:keys [width height fill direction]
+                 :or   {width "10px" height "10px" fill "#888"}}]
+  [:svg {:width width :height height :viewBox "0 0 10 6" :xmlns "http://www.w3.org/2000/svg"}
+   [:polygon {:points (case direction
+                        :up   "4,0 8,5 0,5"
+                        :down "4,5 8,0 0,0")
+              :fill   fill}]])
+
+(defn indicator [{:keys [state]}]
+  [box :align :center :justify :center
+   :child
+   [triangle {:direction (case (:openable state) :open :up :closed :down)}]])
+
 (defn dropdown
   "A clickable anchor above an openable, floating body.
   "
@@ -246,10 +276,10 @@
                                                            (if (deref-or-value model) :in :out))]
     (fn dropdown-render
       [& {:keys [disabled? on-change tab-index
-                 anchor-height
+                 anchor-height anchor-width
                  model
                  label placeholder
-                 anchor backdrop body
+                 anchor backdrop body indicator
                  parts theme main-theme theme-vars base-theme
                  width]
           :or   {placeholder "Select an item"
@@ -283,7 +313,8 @@
                              :main      main-theme
                              :user      [theme
                                          (theme/parts parts)
-                                         (theme/<-props (merge args {:height anchor-height})
+                                         (theme/<-props (merge args {:height anchor-height
+                                                                     :width  (or width anchor-width)})
                                            {:part    ::anchor-wrapper
                                             :exclude [:max-height :min-height]})
                                          (theme/<-props args
@@ -301,18 +332,21 @@
                              :label       label
                              :theme       theme
                              :parts       parts
-                             :state       state}]
+                             :state       state
+                             :indicator   indicator}]
             [v-box
              (themed ::wrapper
                {:src (at)
                 :children
                 [(when (= :open (:openable state))
                    [u/part backdrop part-props re-com.dropdown/backdrop])
-                 [box
+                 [h-box
                   (themed ::anchor-wrapper
                     {:src   (at)
                      :attr  {:ref anchor-ref!}
-                     :child [u/part anchor part-props re-com.dropdown/anchor]})]
+                     :children [[u/part anchor part-props re-com.dropdown/anchor]
+                                [gap :size "1"]
+                                [u/part indicator part-props re-com.dropdown/indicator]]})]
                  (when (= :open (:openable state))
                    [body-wrapper {:anchor-ref      anchor-ref
                                   :popover-ref     popover-ref

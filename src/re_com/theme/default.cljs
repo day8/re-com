@@ -77,10 +77,10 @@
                                     (str sm-2 " auto #ddd"))
                   :outline-offset (str "-" sm-2)
                   :position       "relative"
-                  :display        "block"
+                  #_#_:display        "block"
                   :overflow       "hidden"
                   :user-select    "none"
-                  :width          "100%"
+                  #_#_:width          "100%"
                   :z-index        (case (:openable state)
                                     :open 99999 nil)}}
 
