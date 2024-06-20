@@ -102,6 +102,7 @@
           :style {:position   "absolute"
                   :top        (px (:top state))
                   :left       (px (:left state))
+                  :opacity    (when-not (:anchor-top state) 0)
                   :overflow-y "auto"
                   :overflow-x "visible"
                   :z-index    99999}}

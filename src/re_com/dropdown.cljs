@@ -182,22 +182,27 @@
   In other words, the popover slides left & right within the anchor width,
   and blinks up & down, to find the least cut-off position."
   [anchor-el body-el]
-  (let [a-rect      (.getBoundingClientRect anchor-el)
-        a-x         (.-x a-rect)
-        a-y         (.-y a-rect)
-        a-h         (.-height a-rect)
-        a-w         (.-width a-rect)
-        a-bot       (.-bottom a-rect)
-        b-h         (.-offsetHeight body-el)
-        b-w         (.-offsetWidth body-el)
-        v-mid-y     (/ js/window.innerHeight 2)
-        lo-mid-y    (+ a-bot (/ b-w 2))
-        hi-mid-y    (- a-y (/ b-h 2))
-        v-pos       (if (= lo-mid-y (nearest v-mid-y lo-mid-y hi-mid-y)) :low :high)
-        left-bound  (max (- a-x) 0)
-        right-bound (max (- a-w b-w) 0)
-        best-x      (min left-bound right-bound)
-        best-y      (case v-pos :low a-h :high (- b-h))]
+  (let [a-rect       (.getBoundingClientRect anchor-el)
+        a-x          (.-x a-rect)
+        a-y          (.-y a-rect)
+        a-h          (.-height a-rect)
+        a-w          (.-width a-rect)
+        a-bot        (.-bottom a-rect)
+        b-h          (.-offsetHeight body-el)
+        b-w          (.-offsetWidth body-el)
+        v-mid-y      (/ js/window.innerHeight 2)
+        lo-mid-y     (+ a-bot (/ b-w 2))
+        hi-mid-y     (- a-y (/ b-h 2))
+        top-clipped? (neg? (- a-y b-h))
+        top-best?    (= hi-mid-y (nearest v-mid-y lo-mid-y hi-mid-y))
+        v-pos        (cond
+                       top-clipped? :low
+                       top-best?    :high
+                       :else        :low)
+        left-bound   (max (- a-x) 0)
+        right-bound  (max (- a-w b-w) 0)
+        best-x       (min left-bound right-bound)
+        best-y       (case v-pos :low a-h :high (- b-h))]
     [best-x best-y]))
 
 (defn body-wrapper [{:keys [state theme anchor-ref popover-ref anchor-position]} & children]
@@ -209,19 +214,23 @@
                               (js/window.addEventListener "scroll" optimize-position!))
         unmounted!         #(do
                               (js/window.removeEventListener "resize" optimize-position!)
-                              (js/window.removeEventListener "scroll" optimize-position!))]
+                              (js/window.removeEventListener "scroll" optimize-position!)
+                              (reset! anchor-position nil))]
     (reagent/create-class
      {:component-did-mount    mounted!
       :component-will-unmount unmounted!
       :reagent-render
       (fn []
-        (let [[left top] (or @anchor-position [0 0])]
+        (let [[left top] @anchor-position]
           (into
-           [:div#popover
-            (theme/apply {}
-              {:state (merge state {:top  top
-                                    :left left
-                                    :ref  set-popover-ref!})
+           [:div
+            (theme/apply
+              {}
+              {:state (merge state {:anchor-top  top
+                                    :anchor-left left
+                                    :top         top
+                                    :left        left
+                                    :ref         set-popover-ref!})
                :part  ::body-wrapper}
               theme)]
            children)))})))
@@ -230,7 +239,8 @@
   "A clickable anchor above an openable, floating body.
   "
   [& {:keys [model] :or {model (reagent/atom nil)}}]
-  (let [[focused? anchor-ref popover-ref anchor-position] (repeatedly #(reagent/atom nil))
+  (let [default-model                                     model
+        [focused? anchor-ref popover-ref anchor-position] (repeatedly #(reagent/atom nil))
         anchor-ref!                                       #(reset! anchor-ref %)
         transitionable                                    (reagent/atom
                                                            (if (deref-or-value model) :in :out))]
@@ -242,7 +252,8 @@
                  anchor backdrop body
                  parts theme main-theme theme-vars base-theme
                  width]
-          :or {placeholder "Select an item"}
+          :or   {placeholder "Select an item"
+                 model       default-model}
           :as   args}]
       (or (validate-args-macro dropdown-args-desc args)
           (let [state       {:openable       (if (deref-or-value model) :open :closed)
