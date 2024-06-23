@@ -107,6 +107,10 @@
      {:name     :disabled?
       :required false
       :type     "boolean | r/atom"}
+     {:name     :direction
+      :required false
+      :default  :best
+      :type     ":up | :down | :toward-center"}
      {:default     0
       :description "component's tabindex. A value of -1 removes from order"
       :name        :tab-index
@@ -165,17 +169,20 @@
       :required    false
       :type        "string | hiccup"}
      {:description "See Parts section below."
-      :name :parts
-      :required false
-      :type "map"
+      :name        :parts
+      :required    false
+      :type        "map"
       :validate-fn (parts? dropdown-parts)}
-     {:name :theme
+     {:name        :attr
+      :required    false
+      :type        "map"}
+     {:name        :theme
       :description "alpha"}
-     {:name :main-theme
+     {:name        :main-theme
       :description "alpha"}
-     {:name :theme-vars
+     {:name        :theme-vars
       :description "alpha"}
-     {:name :base-theme
+     {:name        :base-theme
       :description "alpha"}]))
 
 (defn anchor [{:keys [label placeholder state theme transition!]}]
@@ -198,7 +205,7 @@
 
   In other words, the popover slides left & right within the anchor width,
   and blinks up & down, to find the least cut-off position."
-  [anchor-el body-el]
+  [anchor-el body-el & {:keys [direction]}]
   (let [a-rect       (.getBoundingClientRect anchor-el)
         a-x          (.-x a-rect)
         a-y          (.-y a-rect)
@@ -218,13 +225,16 @@
                        :else        :low)
         left-bound   (max (- a-x) 0)
         right-bound  (max (- a-w b-w) 0)
+        hi-y         (- b-h)
+        lo-y         a-h
         best-x       (min left-bound right-bound)
-        best-y       (case v-pos :low a-h :high (- b-h))]
-    [best-x best-y]))
+        best-y       (case v-pos :low lo-y :high hi-y)]
+    [best-x (case direction :up hi-y :down lo-y best-y)]))
 
-(defn body-wrapper [{:keys [state theme anchor-ref popover-ref anchor-position]} & children]
+(defn body-wrapper [{:keys [state theme anchor-ref popover-ref anchor-position direction]} & children]
   (let [set-popover-ref!   #(reset! popover-ref %)
-        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @popover-ref))
+        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @popover-ref
+                                                                        {:direction direction}))
         mounted!           #(do
                               (optimize-position!)
                               (js/window.addEventListener "resize" optimize-position!)
@@ -261,9 +271,7 @@
               :fill   fill}]])
 
 (defn indicator [{:keys [state]}]
-  [box :align :center :justify :center
-   :child
-   [triangle {:direction (case (:openable state) :open :up :closed :down)}]])
+  [:span [triangle {:direction (case (:openable state) :open :up :closed :down)}]])
 
 (defn dropdown
   "A clickable anchor above an openable, floating body.
@@ -275,7 +283,7 @@
         transitionable                                    (reagent/atom
                                                            (if (deref-or-value model) :in :out))]
     (fn dropdown-render
-      [& {:keys [disabled? on-change tab-index
+      [& {:keys [disabled? on-change tab-index direction
                  anchor-height anchor-width
                  model
                  label placeholder
@@ -283,7 +291,8 @@
                  parts theme main-theme theme-vars base-theme
                  width]
           :or   {placeholder "Select an item"
-                 model       default-model}
+                 model       default-model
+                 direction   :toward-center}
           :as   args}]
       (or (validate-args-macro dropdown-args-desc args)
           (let [state       {:openable       (if (deref-or-value model) :open :closed)
@@ -351,6 +360,7 @@
                    [body-wrapper {:anchor-ref      anchor-ref
                                   :popover-ref     popover-ref
                                   :anchor-position anchor-position
+                                  :direction       direction
                                   :parts           parts
                                   :state           state
                                   :theme           theme}
