@@ -253,11 +253,11 @@
            children)))})))
 
 (defn triangle [{:keys [width height fill direction]
-                 :or   {width "10px" height "10px" fill "#888"}}]
-  [:svg {:width width :height height :viewBox "0 0 10 6" :xmlns "http://www.w3.org/2000/svg"}
+                 :or   {width "8px" height "8px" fill "#888"}}]
+  [:svg {:width width :height height :viewBox "0 0 8 8" :xmlns "http://www.w3.org/2000/svg"}
    [:polygon {:points (case direction
                         :up   "4,0 8,5 0,5"
-                        :down "4,5 8,0 0,0")
+                        :down "4,8 8,3 0,3")
               :fill   fill}]])
 
 (defn indicator [{:keys [state]}]

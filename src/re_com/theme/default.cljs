@@ -37,13 +37,15 @@
    :warning             "#ffc107"
    :danger              "#dc3545"
    :light               "#f8f9fa"
+   :white               "#ffffff"
    :dark                "#212529"
+   :black               "#000000"
    :neutral             "#555555"
    :foreground          "#767a7c"
    :light-neutral       "#eee"
    :background          "white"
    :background-disabled "#EEE"
-   :border              "#ccc"
+   :border              "#cccccc"
    :border-dark         "#aaa"
    :shadow              "rgba(0, 0, 0, 0.2)"})
 
@@ -148,7 +150,7 @@
 
          ::dropdown/body-wrapper
          {:style {:background-color "white"
-                  :border-radius    sm-3
+                  :border-radius    "4px"
                   :border           (str sm-1 " solid " (:border $))
                   :padding          sm-3
                   :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}}
@@ -161,18 +163,18 @@
          ::dropdown/anchor-wrapper
          (let [open?   (= :open (:openable state))
                closed? (= :closed (:openable state))]
-           {:style {:background-color (:light $)
+           {:style {:background-color (:white $)
                     :background-clip  "padding-box"
                     :border           (str "1px solid "
                                            (cond
-                                             closed? "#cccccc"
+                                             closed? (:border $)
                                              open?   "#66afe9"))
-                    :border-radius    sm-3
-                    :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .2) inset"
+                    :border-radius    "4px"
+                    :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
                                         open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
                     :color            (:neutral $)
-                    :height           md-2
-                    :line-height      md-2
+                    :height           "34px"
+                    :line-height      "34px"
                     :padding          "0 8px 0 8px"
                     :text-decoration  "none"
                     :white-space      "nowrap"
