@@ -270,8 +270,8 @@
                         :down "4,8 8,3 0,3")
               :fill   fill}]])
 
-(defn indicator [{:keys [state]}]
-  [:span [triangle {:direction (case (:openable state) :open :up :closed :down)}]])
+(defn indicator [{:keys [state style]}]
+  [:span {:style style} [triangle {:direction (case (:openable state) :open :up :closed :down)}]])
 
 (defn dropdown
   "A clickable anchor above an openable, floating body.
@@ -536,7 +536,10 @@
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
                    placeholder)]
         [:a.chosen-single.chosen-default
-         {:tab-index     (or tab-index 0)
+         {:style {:display "flex"
+                  :justify-content :space-between
+                  :width "100%"}
+          :tab-index     (or tab-index 0)
           :on-click      (handler-fn
                           (if @ignore-click
                             (reset! ignore-click false)
@@ -552,7 +555,10 @@
                   {:title text})
           text]
          (when (not disabled?)
-           [:div [:b]])])))) ;; This odd bit of markup produces the visual arrow on the right
+           [re-com.dropdown/indicator
+            {:style {:margin-right "7px"
+                     :margin-top "-1px"}
+             :state {:openable (if @drop-showing? :open :closed)}}])])))) ;; This odd bit of markup produces the visual arrow on the right
 
 (defn handle-free-text-insertion
   [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]
