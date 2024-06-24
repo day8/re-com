@@ -263,11 +263,11 @@
            children)))})))
 
 (defn triangle [{:keys [width height fill direction]
-                 :or   {width "8px" height "8px" fill "#888"}}]
-  [:svg {:width width :height height :viewBox "0 0 8 8" :xmlns "http://www.w3.org/2000/svg"}
+                 :or   {width "9px" height "9px" fill "#888"}}]
+  [:svg {:width width :height height :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg"}
    [:polygon {:points (case direction
-                        :up   "4,0 8,5 0,5"
-                        :down "4,8 8,3 0,3")
+                        :up   "4,2 8,7 0,7"
+                        :down "4,7 8,2 0,2")
               :fill   fill}]])
 
 (defn indicator [{:keys [state style]}]
@@ -556,8 +556,8 @@
           text]
          (when (not disabled?)
            [re-com.dropdown/indicator
-            {:style {:margin-right "7px"
-                     :margin-top "-1px"}
+            {:style {:margin-right "8px"
+                     :margin-top "0.5px"}
              :state {:openable (if @drop-showing? :open :closed)}}])])))) ;; This odd bit of markup produces the visual arrow on the right
 
 (defn handle-free-text-insertion

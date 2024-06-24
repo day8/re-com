@@ -8,12 +8,7 @@
   (->> {}
        (case part
 
-         #_#_::dropdown/backdrop
-           {:style {:background-color (:primary $)}}
-
          ::dropdown/anchor-wrapper
-         {:style {:box-shadow       "0 0.5px 0.5px rgba(0, 0, 0, .2) inset"
-                  :background-color "white"
-                  :height           "25px"
-                  :line-height      "25px"}})
+         {:style {:height           "25px"
+                  :line-height      "23px"}})
        (theme/merge-props attr)))

@@ -151,7 +151,7 @@
          ::dropdown/body-wrapper
          {:style {:background-color "white"
                   :border-radius    "4px"
-                  :border           (str sm-1 " solid " (:border $))
+                  :border           (str "thin solid " (:border $))
                   :padding          sm-3
                   :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}}
 
