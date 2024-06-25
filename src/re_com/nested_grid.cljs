@@ -784,6 +784,7 @@
                                                         column-paths)))))
             export-spacers        #(vec (repeat column-depth (vec (repeat row-depth nil))))
             control-panel         [:div {:style {:position         :relative
+                                                 :margin-right     10
                                                  :background-color "white"
                                                  :width            (or max-width "1fr")}}
                                    [:div {:style {:position :absolute
