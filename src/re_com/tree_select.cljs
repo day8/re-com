@@ -7,7 +7,7 @@
    [reagent.core          :as r]
    [re-com.config         :refer [include-args-desc?]]
    [re-com.dropdown       :as dd]
-   [re-com.util           :refer [deref-or-value remove-id-item ->v]]
+   [re-com.util           :refer [deref-or-value remove-id-item ->v] :as u]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
    [re-com.validate       :as validate :refer [css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
@@ -483,15 +483,16 @@
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})]
-        [dd/dropdown {:label       (or label
-                                       (when anchor-label
-                                         [:span {:title (alt-text-fn {:items          labelable-items
-                                                                      :label-fn       label-fn
-                                                                      :group-label-fn group-label-fn})
-                                                 :style {:white-space   "nowrap"
-                                                         :overflow      "hidden"
-                                                         :text-overflow "ellipsis"}}
-                                          anchor-label]))
+        [dd/dropdown {:label       (if label
+                                     [u/part label {}]
+                                     (when anchor-label
+                                       [:span {:title (alt-text-fn {:items          labelable-items
+                                                                    :label-fn       label-fn
+                                                                    :group-label-fn group-label-fn})
+                                               :style {:white-space   "nowrap"
+                                                       :overflow      "hidden"
+                                                       :text-overflow "ellipsis"}}
+                                        anchor-label]))
                       :placeholder placeholder
                       :indicator   (fn [props]
                                      [h-box
