@@ -236,8 +236,9 @@
 
 (defn part [x props & [default]]
   (cond
+    (string? x) x
     (hiccup? x) x
-    (ifn? x)     [x props]
+    (ifn? x)    [x props]
     default     (part default props)
     :else       nil))
 
