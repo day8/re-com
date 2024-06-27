@@ -459,6 +459,7 @@
                  width min-width max-width min-height max-height on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
+                 label
                  empty-means-full?
                  parts theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
@@ -482,14 +483,15 @@
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})]
-        [dd/dropdown {:label       (when anchor-label
-                                     [:span {:title (alt-text-fn {:items          labelable-items
-                                                                  :label-fn       label-fn
-                                                                  :group-label-fn group-label-fn})
-                                             :style {:white-space   "nowrap"
-                                                     :overflow      "hidden"
-                                                     :text-overflow "ellipsis"}}
-                                      anchor-label])
+        [dd/dropdown {:label       (or label
+                                       (when anchor-label
+                                         [:span {:title (alt-text-fn {:items          labelable-items
+                                                                      :label-fn       label-fn
+                                                                      :group-label-fn group-label-fn})
+                                                 :style {:white-space   "nowrap"
+                                                         :overflow      "hidden"
+                                                         :text-overflow "ellipsis"}}
+                                          anchor-label]))
                       :placeholder placeholder
                       :indicator   (fn [props]
                                      [h-box
