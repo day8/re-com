@@ -247,7 +247,7 @@
      {:component-did-mount    mounted!
       :component-will-unmount unmounted!
       :reagent-render
-      (fn []
+      (fn [{:keys [state theme]} & children]
         (let [[left top] @anchor-position]
           (into
            [:div
