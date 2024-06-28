@@ -796,7 +796,7 @@
                                                :font-size      "18px"
                                                :line-height    "18px"
                                                :padding-bottom 0}
-                                       :tooltip         (str "Copy table to clipboard.")
+                                       :attr {:title "Copy to Clipboard"}
                                        :on-click        #(let [column-headers (export-column-headers)
                                                                row-headers    (export-row-headers)
                                                                spacers        (export-spacers)
