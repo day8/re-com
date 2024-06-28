@@ -276,11 +276,14 @@
      [[offset :parts parts :level (dec level)]
       [box
        :src (at)
+       :align :center
+       :justify :center
        :attr (into {:on-click hide-show!} (get-in parts [:expander :attr]))
-       :style (into {:cursor "pointer"} (get-in parts [:expander :style]))
+       :style (into {:padding-top 4 :cursor "pointer" :height "100%"} (get-in parts [:expander :style]))
        :class (str "rc-tree-select-expander " (get-in parts [:expander :class]))
        :child
-       (if open? "⯆" "⯈")]
+       [u/triangle {:direction (if open? :down :right)
+                    :width 10 :height 10}]]
       " "
       [choice-checkbox (into props {:attr {:ref #(when %
                                                    (set! (.-indeterminate %)

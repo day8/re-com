@@ -262,16 +262,8 @@
               theme)]
            children)))})))
 
-(defn triangle [{:keys [width height fill direction]
-                 :or   {width "9px" height "9px" fill "#888"}}]
-  [:svg {:width width :height height :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg"}
-   [:polygon {:points (case direction
-                        :up   "4,2 8,7 0,7"
-                        :down "4,7 8,2 0,2")
-              :fill   fill}]])
-
 (defn indicator [{:keys [state style]}]
-  [:span {:style style} [triangle {:direction (case (:openable state) :open :up :closed :down)}]])
+  [:span {:style style} [u/triangle {:direction (case (:openable state) :open :up :closed :down)}]])
 
 (defn dropdown
   "A clickable anchor above an openable, floating body.

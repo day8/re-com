@@ -243,3 +243,12 @@
     :else       nil))
 
 (def reduce-> #(reduce %2 %1 %3))
+
+(defn triangle [{:keys [width height fill direction]
+                 :or   {width "9px" height "9px" fill "#888"}}]
+  [:svg {:width width :height height :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg"}
+   [:polygon {:points (case direction
+                        :right "2,2 8,5 2,8"
+                        :up    "4,2 8,7 0,7"
+                        :down  "4,7 8,2 0,2")
+              :fill   fill}]])
