@@ -528,9 +528,11 @@
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
                    placeholder)]
         [:a.chosen-single.chosen-default
-         {:style {:display "flex"
-                  :justify-content :space-between
-                  :width "100%"}
+         {:style (merge {:display "flex"
+                         :justify-content :space-between
+                         :width "100%"}
+                        (when disabled?
+                          {:background-color "#EEE"}))
           :tab-index     (or tab-index 0)
           :on-click      (handler-fn
                           (if @ignore-click

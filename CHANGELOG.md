@@ -2,6 +2,15 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+
+## 2.21.5 (2024-06-29)
+
+#### Fixed
+
+- `single-dropdown` - Fixed disabled style. Now disabled dropdowns appear greyed-out again.
+
+
+
 ## 2.21.5 (2024-06-10)
 
 #### Fixed
