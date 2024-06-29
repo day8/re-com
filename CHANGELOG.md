@@ -3,12 +3,13 @@
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
 
-## 2.21.5 (2024-06-29)
+## 2.21.6 (2024-06-29)
 
 #### Fixed
 
 - `single-dropdown` - Fixed disabled style. Now disabled dropdowns appear greyed-out again.
-
+- `tree-select` - Fixed expander buttons not showing up in some browsers. Now they use svg, not unicode chars.
+- `single-dropdown` - Adjusted triangle indicator. Now uses svg, not a sprite.
 
 
 ## 2.21.5 (2024-06-10)
