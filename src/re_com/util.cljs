@@ -1,6 +1,7 @@
 (ns re-com.util
   (:require
    [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
+   [reagent.core :as r]
    [goog.date.DateTime]
    [goog.date.UtcDateTime]
    [clojure.string :as str]))
@@ -244,11 +245,22 @@
 
 (def reduce-> #(reduce %2 %1 %3))
 
-(defn triangle [{:keys [width height fill direction]
-                 :or   {width "9px" height "9px" fill "#888"}}]
+(defn triangle [& {:keys [width height fill direction]
+                   :or   {width "9px" height "9px" fill "currentColor"}
+                   :as props}]
   [:svg {:width width :height height :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg"}
    [:polygon {:points (case direction
                         :right "2,2 8,5 2,8"
                         :up    "4,2 8,7 0,7"
                         :down  "4,7 8,2 0,2")
               :fill   fill}]])
+
+(defn x-button [& {:as props}]
+  (let [hover? (r/atom nil)]
+    (fn [& {:as props}]
+      [:svg (merge {:on-mouse-enter (partial reset! hover? true)
+                    :on-mouse-leave (partial reset! hover? false)
+                    :width "9px" :height "9px" :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg" :stroke (if @hover? "black" "currentColor")}
+                   props)
+       [:line {:x1 "1" :y1 "1" :x2 "9" :y2 "9"  :stroke-width "2"}]
+       [:line {:x1 "1" :y1 "9" :x2 "9" :y2 "1"  :stroke-width "2"}]])))

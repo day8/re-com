@@ -42,7 +42,8 @@
    :black               "#000000"
    :neutral             "#555555"
    :foreground          "#767a7c"
-   :light-neutral       "#eee"
+   :light-background    "#eee"
+   :light-foreground    "#ccc"
    :background          "white"
    :background-disabled "#EEE"
    :border              "#cccccc"
@@ -139,7 +140,7 @@
 (defn main [props {:keys                                                        [state part]
                    {:as   $
                     :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
-                           dark shadow light light-neutral
+                           dark shadow light light-background
                            border border-dark
                            foreground]} :variables}]
   (->> {}
@@ -201,7 +202,7 @@
                   :border-bottom    (when (get (:edge state) :bottom)
                                       (str "thin solid " border))
                   :border-right     (str "thin" " solid " border)
-                  :background-color light-neutral}}
+                  :background-color light-background}}
 
          ::nested-grid/cell-wrapper
          {:style {:font-size        "12px"
@@ -225,7 +226,7 @@
                   :padding-right    sm-4
                   :padding-left     sm-4
                   :border-bottom    (str "thin" " solid" border)
-                  :background-color light-neutral
+                  :background-color light-background
                   :color            "#666"
                   :text-align       "center"
                   :font-size        "13px"
@@ -252,7 +253,7 @@
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-right     (str "thin" " solid" border)
-                  :background-color light-neutral
+                  :background-color light-background
                   :color            "#666"
                   :text-align       "left"
                   :font-size        "13px"
@@ -268,8 +269,18 @@
                   :cursor   (if (-> state :enable (= :disabled))
                               "default" "pointer")}}
 
+         ::tree-select/dropdown-indicator
+         {:align :center
+          :style {:gap "5px"
+                  :color (:light-foreground $)}}
+
+         ::tree-select/dropdown-indicator-triangle
+         {:align :center
+          :style {:gap "5px"
+                  :color (:neutral $)}}
+
          ::tree-select/dropdown-counter
-         {:style {:margin-left  "10px"
-                  :margin-right "10px"
+         {:style {#_#_:margin-left  "5px"
+                  #_#_:margin-right "5px"
                   :opacity      "50%"}})
        (merge-props props)))

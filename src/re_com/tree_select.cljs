@@ -83,11 +83,14 @@
       :type        "a set of ids | r/atom"
       :description [:span "The set of the ids for currently selected choices. If nil or empty, see "
                     [:code ":placeholder"] "."]}
-     {:name        :groups
-      :required    false
-      :default     "(reagent/atom nil)"
-      :type        "a set of paths | r/atom"
-      :description [:span "The set of currently expanded group paths."]}
+     {:name        :expanded-groups
+      :default     "(r/atom nil)"
+      :type        "a set of vectors of ids | r/atom"
+      :description "The set of currently expanded group paths."}
+     {:name        :on-group-expand
+      :default     "(partial reset! expanded-groups)"
+      :type        "set of vectors of ids -> nil"
+      :description "This function is called whenever the set of expanded groups changes. This usually happens when the user clicks one of the triangular expander icons."}
      {:name        :initial-expanded-groups
       :required    false
       :type        "keyword | set of paths"
@@ -201,26 +204,41 @@
   (when include-args-desc?
     (into
      tree-select-args-desc
-     [{:name :placeholder
-       :required false
-       :type "string"
+     [{:name        :placeholder
+       :required    false
+       :type        "string"
        :validate-fn string?
        :description "(Dropdown version only). Background text shown when there's no selection."}
-      {:name :field-label-fn
-       :required false
-       :type "map -> string or hiccup"
+      {:name        :field-label-fn
+       :required    false
+       :type        "map -> string or hiccup"
        :validate-fn ifn?
        :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
                          "Can return a string or hiccup, which will be rendered inside the dropdown anchor box.")}
-      {:name :alt-text-fn
-       :required false
-       :type "map -> string"
+      {:name        :show-reset-button?
+       :default     :false
+       :type        "boolean | r/atom"
+       :description "When true, shows a small reset icon within the indicator part. By default, the icon looks like an X."}
+      {:name        :on-reset
+       :default     "(partial reset! model #{})"
+       :type        "function"
+       :validate-fn ifn?
+       :description "This function is called when the user clicks the reset button."}
+      {:name        :field-label-fn
+       :required    false
+       :type        "map -> string or hiccup"
+       :validate-fn ifn?
+       :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
+                         "Can return a string or hiccup, which will be rendered inside the dropdown anchor box.")}
+      {:name        :alt-text-fn
+       :required    false
+       :type        "map -> string"
        :validate-fn ifn?
        :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
                          "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}
-      {:name :parts
-       :required false
-       :type "map"
+      {:name        :parts
+       :required    false
+       :type        "map"
        :validate-fn (parts? tree-select-dropdown-parts)
        :description "See Parts section below."}])))
 
@@ -374,86 +392,90 @@
     (into #{} (filter full? current-groups))))
 
 (defn tree-select
-  [& {:keys [model choices initial-expanded-groups id-fn]
-      :or   {id-fn :id}}]
+  [& {:keys [model choices expanded-groups initial-expanded-groups on-group-expand id-fn]
+      :or   {id-fn           :id
+             expanded-groups (r/atom nil)
+             on-group-expand (partial reset! expanded-groups)}}]
   (let [expanded-groups (r/atom nil)]
     (when-some [initial-expanded-groups (deref-or-value initial-expanded-groups)]
-      (reset! expanded-groups (case initial-expanded-groups
-                                :all    (set (map :group (infer-groups choices)))
-                                :none   #{}
-                                :chosen (into #{}
-                                              (comp (filter #(contains? (deref-or-value model) (id-fn %)))
-                                                    (keep :group)
-                                                    (mapcat ancestor-paths))
-                                              choices)
-                                initial-expanded-groups)))
+      (on-group-expand (case initial-expanded-groups
+                         :all    (set (map :group (infer-groups choices)))
+                         :none   #{}
+                         :chosen (into #{}
+                                       (comp (filter #(contains? (deref-or-value model) (id-fn %)))
+                                             (keep :group)
+                                             (mapcat ancestor-paths))
+                                       choices)
+                         initial-expanded-groups)))
     (fn tree-select-render
       [& {:keys [model choices group-label-fn disabled? groups-first?
                  min-width max-width min-height max-height
                  on-change choice-disabled-fn label-fn
-                 choice
+                 choice on-group-expand
                  empty-means-full?
                  parts class style attr]
           :as   args}]
       (or
        (validate-args-macro tree-select-args-desc args)
-       (let [choices        (deref-or-value choices)
-             disabled?      (deref-or-value disabled?)
-             model          (deref-or-value model)
-             label-fn       (or label-fn :label)
-             group-label-fn (or group-label-fn group-label)
-             full?          (or (when empty-means-full? (empty? model))
-                                (every? model (map id-fn choices)))
-             items          (sort-items (into choices (infer-groups* choices))
-                                        :groups-first? groups-first?)
-             item           (fn [item-props]
-                              (let [{:keys [group] :as item-props} (update item-props :group ->v)]
-                                (if (group? item-props)
-                                  (let [descendants    (filter-descendants* group choices)
-                                        descendant-ids (map id-fn descendants)
-                                        checked?       (cond
-                                                         full?                         :all
-                                                         (every? model descendant-ids) :all
-                                                         (some   model descendant-ids) :some)
-                                        new-model      (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
-                                                            (map id-fn)
-                                                            ((if (= :all checked?) set/difference set/union) model)
-                                                            set)
-                                        new-groups     (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))
-                                        group-props    {:group      item-props
-                                                        :label      (group-label-fn item-props)
-                                                        :parts      parts
-                                                        :hide-show! #(swap! expanded-groups toggle group)
-                                                        :toggle!    (handler-fn (on-change new-model new-groups))
-                                                        :solo!     (handler-fn (let [new-model  (set descendant-ids)
-                                                                                     new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
-                                                                                 (on-change new-model new-groups)))
-                                                        :open?      (contains? @expanded-groups group)
-                                                        :checked?   checked?
-                                                        :model      model
-                                                        :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
-                                                        :showing?   (every? (set @expanded-groups) (rest (ancestor-paths group)))
-                                                        :level      (count group)}]
-                                    [group-wrapper group-props])
-                                  (let [level        (inc (count group))
-                                        choice-props {:item      item-props
-                                                      :choice    choice
-                                                      :model     model
-                                                      :label     (label-fn item-props)
-                                                      :parts     parts
-                                                      :showing?  (if-not group
-                                                                   true
-                                                                   (every? (set @expanded-groups) (ancestor-paths group)))
-                                                      :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
-                                                      :solo!     (handler-fn (let [new-model  #{(id-fn item-props)}
-                                                                                   new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
-                                                                               (on-change new-model new-groups)))
-                                                      :toggle!   (handler-fn (let [new-model  (toggle model (id-fn item-props))
-                                                                                   new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
-                                                                               (on-change new-model new-groups)))
-                                                      :checked?  (or full? (get model (id-fn item-props)))
-                                                      :level     level}]
-                                    [choice-wrapper choice-props]))))]
+       (let [choices         (deref-or-value choices)
+             disabled?       (deref-or-value disabled?)
+             model           (deref-or-value model)
+             label-fn        (or label-fn :label)
+             on-group-expand (partial reset! expanded-groups)
+             expanded-groups (deref-or-value expanded-groups)
+             group-label-fn  (or group-label-fn group-label)
+             full?           (or (when empty-means-full? (empty? model))
+                                 (every? model (map id-fn choices)))
+             items           (sort-items (into choices (infer-groups* choices))
+                                         :groups-first? groups-first?)
+             item            (fn [item-props]
+                               (let [{:keys [group] :as item-props} (update item-props :group ->v)]
+                                 (if (group? item-props)
+                                   (let [descendants    (filter-descendants* group choices)
+                                         descendant-ids (map id-fn descendants)
+                                         checked?       (cond
+                                                          full?                         :all
+                                                          (every? model descendant-ids) :all
+                                                          (some   model descendant-ids) :some)
+                                         new-model      (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
+                                                             (map id-fn)
+                                                             ((if (= :all checked?) set/difference set/union) model)
+                                                             set)
+                                         new-groups     (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))
+                                         group-props    {:group      item-props
+                                                         :label      (group-label-fn item-props)
+                                                         :parts      parts
+                                                         :hide-show! (handler-fn (on-group-expand (toggle expanded-groups group)))
+                                                         :toggle!    (handler-fn (on-change new-model new-groups))
+                                                         :solo!      (handler-fn (let [new-model  (set descendant-ids)
+                                                                                       new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
+                                                                                   (on-change new-model new-groups)))
+                                                         :open?      (contains? expanded-groups group)
+                                                         :checked?   checked?
+                                                         :model      model
+                                                         :disabled?  (or disabled? (when choice-disabled-fn (every? choice-disabled-fn descendants)))
+                                                         :showing?   (every? (set expanded-groups) (rest (ancestor-paths group)))
+                                                         :level      (count group)}]
+                                     [group-wrapper group-props])
+                                   (let [level        (inc (count group))
+                                         choice-props {:item      item-props
+                                                       :choice    choice
+                                                       :model     model
+                                                       :label     (label-fn item-props)
+                                                       :parts     parts
+                                                       :showing?  (if-not group
+                                                                    true
+                                                                    (every? (set expanded-groups) (ancestor-paths group)))
+                                                       :disabled? (or disabled? (when choice-disabled-fn (choice-disabled-fn item-props)))
+                                                       :solo!     (handler-fn (let [new-model  #{(id-fn item-props)}
+                                                                                    new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
+                                                                                (on-change new-model new-groups)))
+                                                       :toggle!   (handler-fn (let [new-model  (toggle model (id-fn item-props))
+                                                                                    new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
+                                                                                (on-change new-model new-groups)))
+                                                       :checked?  (or full? (get model (id-fn item-props)))
+                                                       :level     level}]
+                                     [choice-wrapper choice-props]))))]
          [v-box
           :src (at)
           :min-width min-width
@@ -492,12 +514,14 @@
          sort-items)))
 
 (defn tree-select-dropdown [_]
-  (let [showing? (r/atom false)]
+  (let [showing? (r/atom false)
+        expanded-groups (r/atom nil)]
     (fn tree-select-dropdown-render
       [& {:keys [choices  disabled?
                  width min-width max-width min-height max-height on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
+                 show-reset-button? on-reset
                  label
                  choice
                  empty-means-full?
@@ -522,45 +546,55 @@
             labelable-items (labelable-items (deref-or-value model) choices {:id-fn id-fn})
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
-                                             :group-label-fn group-label-fn})]
-        [dd/dropdown {:label       (if label
-                                     [u/part label {}]
-                                     (when anchor-label
-                                       [:span {:title (alt-text-fn {:items          labelable-items
-                                                                    :label-fn       label-fn
-                                                                    :group-label-fn group-label-fn})
-                                               :style {:white-space   "nowrap"
-                                                       :overflow      "hidden"
-                                                       :text-overflow "ellipsis"}}
-                                        anchor-label]))
-                      :placeholder placeholder
-                      :indicator   (fn [props]
-                                     [h-box
-                                      :children
-                                      [[box (themed ::dropdown-counter
-                                              {:child (str (count (deref-or-value model)))})]
-                                       [dd/indicator (themed ::dropdown-indicator props)]]])
-                      :width       width
-                      :body        [tree-select
-                                    (themed ::dropdown-body
-                                      {:choices                 choices
-                                       :choice                  choice
-                                       :group-label-fn          group-label-fn
-                                       :disabled?               disabled?
-                                       :min-width               min-width
-                                       :max-width               max-width
-                                       :min-height              min-height
-                                       :max-height              max-height
-                                       :on-change               on-change
-                                       :groups-first?           groups-first?
-                                       :initial-expanded-groups initial-expanded-groups
-                                       :empty-means-full?       empty-means-full?
-                                       :id-fn                   id-fn
-                                       :label-fn                label-fn
-                                       :model                   model})]
-                      :model       showing?
-                      :theme       theme
-                      :parts       (merge parts
-                                          {:body-wrapper {:style {:width     (or width "221px")
-                                                                  :height    "212px"
-                                                                  :min-width min-width}}})}]))))
+                                             :group-label-fn group-label-fn})
+            on-reset        (or on-reset (handler-fn (on-change (pr-str #{}) (pr-str @expanded-groups))))]
+        [dd/dropdown
+         {:label       (if label
+                         [u/part label {}]
+                         (when anchor-label
+                           [:span {:title (alt-text-fn {:items          labelable-items
+                                                        :label-fn       label-fn
+                                                        :group-label-fn group-label-fn})
+                                   :style {:white-space   "nowrap"
+                                           :overflow      "hidden"
+                                           :text-overflow "ellipsis"}}
+                            anchor-label]))
+          :placeholder placeholder
+          :indicator   (fn [props]
+                         [h-box
+                          (themed ::dropdown-indicator
+                            {:children
+                             [[box {:child (str (count (deref-or-value model)))}]
+                              [dd/indicator (themed ::dropdown-indicator-triangle props)]
+                              (when (u/deref-or-value show-reset-button?)
+                                [u/x-button
+                                 {:on-click (when on-reset
+                                              (handler-fn
+                                               (.stopPropagation event)
+                                               (on-reset (deref-or-value model)
+                                                         (deref-or-value expanded-groups))))}])]})])
+          :width       width
+          :body        [tree-select
+                        (themed ::dropdown-body
+                          {:choices                 choices
+                           :choice                  choice
+                           :group-label-fn          group-label-fn
+                           :expanded-groups         expanded-groups
+                           :disabled?               disabled?
+                           :min-width               min-width
+                           :max-width               max-width
+                           :min-height              min-height
+                           :max-height              max-height
+                           :on-change               on-change
+                           :groups-first?           groups-first?
+                           :initial-expanded-groups initial-expanded-groups
+                           :empty-means-full?       empty-means-full?
+                           :id-fn                   id-fn
+                           :label-fn                label-fn
+                           :model                   model})]
+          :model       showing?
+          :theme       theme
+          :parts       (merge parts
+                              {:body-wrapper {:style {:width     (or width "221px")
+                                                      :height    "212px"
+                                                      :min-width min-width}}})}]))))
