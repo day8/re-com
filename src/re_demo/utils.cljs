@@ -191,14 +191,14 @@
                :child [:span notes]]]])
 
 (defn parts-table
-  [component-name parts]
+  [component-name parts & {:keys [title]}]
   (let [name-of-first-part  (str (first (remove nil? (map :name parts))))
         code-example-spaces (reduce #(str % " ") "" (range (+ (count name-of-first-part) 13)))]
     [v-box
      :src     (at)
      :margin   "0px 20px 20px 0px"
      :children (concat
-                [[title2 "Parts"]
+                [[title2 (or title "Parts")]
                  [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
                  [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
                         Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]

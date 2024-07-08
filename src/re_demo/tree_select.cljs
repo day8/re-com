@@ -335,5 +335,5 @@
                                        "includes an anchor label. By default, it lists all the selected choices, except if an entire group is selected, then that group appears in place of its descendants."]
                                       [args-table tree-select-dropdown-args-desc]]]
                           [demo]]]
-              [parts-table "tree-select" tree-select-parts-desc]
-              [parts-table "tree-select-dropdown" tree-select-dropdown-parts-desc]]])
+              [parts-table "tree-select" tree-select-parts-desc :title [:span "Parts: " [:code "[:tree-select]"]]]
+              [parts-table "tree-select-dropdown" tree-select-dropdown-parts-desc :title [:span "Parts: " [:code "[:tree-select]"]]]]])
