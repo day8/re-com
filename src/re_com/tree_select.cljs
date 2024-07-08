@@ -130,12 +130,18 @@
       :required    false
       :default     false
       :type        "boolean"
-      :description "if true, no user selection is allowed"}
+      :description "When true, no user selection is allowed"}
+     {:name        :required?
+      :default     false
+      :type        "boolean"
+      :description [:span "When true, requires at least 1 choice to be selected. "
+                    "If clicking a choice would result in 0 choices being selected (i.e. a model value of #{}), "
+                    "then " [:code ":on-change"] " will not be called."]}
      {:name        :groups-first?
       :required    false
       :default     false
       :type        "boolean"
-      :description "If true, puts groups at the top of the list. Ungrouped items will appear last."}
+      :description "When true, puts groups at the top of the list. Ungrouped items will appear last."}
      {:name        :choice-disabled-fn
       :required    false
       :default     nil
@@ -412,7 +418,7 @@
                  min-width max-width min-height max-height
                  on-change choice-disabled-fn label-fn
                  choice on-group-expand
-                 empty-means-full?
+                 empty-means-full? required?
                  parts class style attr]
           :as   args}]
       (or
@@ -437,16 +443,21 @@
                                                           full?                         :all
                                                           (every? model descendant-ids) :all
                                                           (some   model descendant-ids) :some)
-                                         new-model      (->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
-                                                             (map id-fn)
-                                                             ((if (= :all checked?) set/difference set/union) model)
-                                                             set)
-                                         new-groups     (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))
+                                         toggle-group     #(->> (cond->> descendants choice-disabled-fn (remove choice-disabled-fn))
+                                                                (map id-fn)
+                                                                ((if (= :all checked?) set/difference set/union) %)
+                                                                set)
+                                         new-groups     (into #{} (map :group) (full-groups (toggle-group model)
+                                                                                            choices
+                                                                                            {:id-fn id-fn}))
                                          group-props    {:group      item-props
                                                          :label      (group-label-fn item-props)
                                                          :parts      parts
                                                          :hide-show! (handler-fn (on-group-expand (toggle expanded-groups group)))
-                                                         :toggle!    (handler-fn (on-change new-model new-groups))
+                                                         :toggle!    (handler-fn
+                                                                      (let [new-model (toggle-group model)]
+                                                                        (when (or (not required?) (seq new-model))
+                                                                          (on-change new-model new-groups))))
                                                          :solo!      (handler-fn (let [new-model  (set descendant-ids)
                                                                                        new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
                                                                                    (on-change new-model new-groups)))
@@ -472,7 +483,8 @@
                                                                                 (on-change new-model new-groups)))
                                                        :toggle!   (handler-fn (let [new-model  (toggle model (id-fn item-props))
                                                                                     new-groups (into #{} (map :group) (full-groups new-model choices {:id-fn id-fn}))]
-                                                                                (on-change new-model new-groups)))
+                                                                                (when (or (not required?) (seq new-model))
+                                                                                  (on-change new-model new-groups))))
                                                        :checked?  (or full? (get model (id-fn item-props)))
                                                        :level     level}]
                                      [choice-wrapper choice-props]))))]
@@ -517,7 +529,7 @@
   (let [showing? (r/atom false)
         expanded-groups (r/atom nil)]
     (fn tree-select-dropdown-render
-      [& {:keys [choices  disabled?
+      [& {:keys [choices  disabled? required?
                  width min-width max-width min-height max-height on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
@@ -578,6 +590,7 @@
                         (themed ::dropdown-body
                           {:choices                 choices
                            :choice                  choice
+                           :required?               required?
                            :group-label-fn          group-label-fn
                            :expanded-groups         expanded-groups
                            :disabled?               disabled?
