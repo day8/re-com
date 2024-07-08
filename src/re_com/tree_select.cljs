@@ -534,7 +534,7 @@
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
                  show-reset-button? on-reset
-                 label body-header choice
+                 label body-header body-footer choice
                  empty-means-full?
                  parts theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
@@ -586,6 +586,7 @@
                                                          (deref-or-value expanded-groups))))}])]})])
           :width       width
           :body-header body-header
+          :body-footer body-footer
           :body        [tree-select
                         (themed ::dropdown-body
                           {:choices                 choices

@@ -44,15 +44,16 @@
      {:name :body-wrapper
       :impl "[box]"
       :level 1
-      :notes "Wraps the :body and :body-header parts. Provides intelligent positioning."}
+      :notes "Shown when the dropdown is open. Provides intelligent positioning."}
      {:name :body-header
       :impl "user-defined"
-      :level 2
-      :notes "Shown when the dropdown is open."}
+      :level 2}
+     {:name :body-header
+      :impl "user-defined"
+      :level 2}
      {:name :body
       :impl "user-defined"
-      :level 2
-      :notes "Shown when the dropdown is open."}]))
+      :level 2}]))
 
 (def dropdown-parts
   (when include-args-desc?
@@ -112,6 +113,10 @@
       :type        "part"
       :validate-fn part?
       :description (str "Appears at the top of the :body part.")}
+     {:name        :body-footer
+      :type        "part"
+      :validate-fn part?
+      :description (str "Appears at the bottom of the :body part.")}
      {:name     :disabled?
       :required false
       :type     "boolean | r/atom"}
@@ -288,7 +293,7 @@
                  anchor-height anchor-width
                  model
                  label placeholder
-                 anchor backdrop body body-header indicator
+                 anchor backdrop body body-header body-footer indicator
                  parts theme main-theme theme-vars base-theme
                  width]
           :or   {placeholder "Select an item"
@@ -365,8 +370,9 @@
                                   :parts           parts
                                   :state           state
                                   :theme           theme}
-                    [u/part body-header part-props nil]
-                    [u/part body part-props]])]})])))))
+                    [u/part body-header part-props]
+                    [u/part body part-props]
+                    [u/part body-footer part-props]])]})])))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
