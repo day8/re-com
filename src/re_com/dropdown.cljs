@@ -44,7 +44,11 @@
      {:name :body-wrapper
       :impl "[box]"
       :level 1
-      :notes "Wraps the :body part. Provides intelligent positioning."}
+      :notes "Wraps the :body and :body-header parts. Provides intelligent positioning."}
+     {:name :body-header
+      :impl "user-defined"
+      :level 2
+      :notes "Shown when the dropdown is open."}
      {:name :body
       :impl "user-defined"
       :level 2
@@ -104,6 +108,10 @@
                         "Appears either above or below the :anchor, "
                         "depending on available screen-space. When a function, "
                         ":body is passed the same keyword arguments as :anchor.")}
+     {:name        :body-header
+      :type        "part"
+      :validate-fn part?
+      :description (str "Appears at the top of the :body part.")}
      {:name     :disabled?
       :required false
       :type     "boolean | r/atom"}
@@ -280,7 +288,7 @@
                  anchor-height anchor-width
                  model
                  label placeholder
-                 anchor backdrop body indicator
+                 anchor backdrop body body-header indicator
                  parts theme main-theme theme-vars base-theme
                  width]
           :or   {placeholder "Select an item"
@@ -357,6 +365,7 @@
                                   :parts           parts
                                   :state           state
                                   :theme           theme}
+                    [u/part body-header part-props nil]
                     [u/part body part-props]])]})])))))
 
 (defn- move-to-new-choice
