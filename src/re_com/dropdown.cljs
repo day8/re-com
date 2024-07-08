@@ -263,7 +263,8 @@
            children)))})))
 
 (defn indicator [{:keys [state style]}]
-  [:span {:style style} [u/triangle {:direction (case (:openable state) :open :up :closed :down)}]])
+  [:span {:style style}
+   [u/triangle {:direction (case (:openable state) :open :up :closed :down)}]])
 
 (defn dropdown
   "A clickable anchor above an openable, floating body.
@@ -552,7 +553,7 @@
            [re-com.dropdown/indicator
             {:style {:margin-right "8px"
                      :margin-top "0.5px"}
-             :state {:openable (if @drop-showing? :open :closed)}}])])))) ;; This odd bit of markup produces the visual arrow on the right
+             :state {:openable (if @drop-showing? :open :closed)}}])]))))
 
 (defn handle-free-text-insertion
   [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]
