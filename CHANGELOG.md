@@ -2,6 +2,18 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.8 (2024-07-09)
+
+#### Added
+
+- `tree-select-dropdown` - Added `:on-group-expand`, `:expanded-groups` & `:show-only-button?` props.
+
+## 2.21.7 (2024-07-07)
+
+#### Added
+
+- `tree-select-dropdown` - Added `:required?`, `:show-reset-button?`, `:on-reset`, `:body-header` & `:body-footer` props.`
+
 
 ## 2.21.6 (2024-06-29)
 
