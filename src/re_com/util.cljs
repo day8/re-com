@@ -248,7 +248,7 @@
 (defn triangle [& {:keys [width height fill direction]
                    :or   {width "9px" height "9px" fill "currentColor"}
                    :as props}]
-  [:svg {:width width :height height :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg"}
+  [:svg {:width width :height height :viewBox (str "0 0 9 9") :xmlns "http://www.w3.org/2000/svg"}
    [:polygon {:points (case direction
                         :right "2,2 8,5 2,8"
                         :up    "4,2 8,7 0,7"
