@@ -77,15 +77,18 @@
      {:name        :model
       :required    true
       :type        "a set of ids | r/atom"
+      :validate-fn validate/set-or-atom?
       :description [:span "The set of the ids for currently selected choices. If nil or empty, see "
                     [:code ":placeholder"] "."]}
      {:name        :expanded-groups
       :default     "(r/atom nil)"
       :type        "a set of vectors of ids | r/atom"
+      :validate-fn validate/set-or-atom?
       :description "The set of currently expanded group paths."}
      {:name        :on-group-expand
       :default     "#(reset! expanded-groups %)"
       :type        "set of vectors of ids -> nil"
+      :validate-fn ifn?
       :description "This function is called whenever the set of expanded groups changes. This usually happens when the user clicks one of the triangular expander icons."}
      {:name        :initial-expanded-groups
       :required    false
@@ -94,7 +97,7 @@
      {:name        :on-change
       :required    true
       :type        "[set of choice ids, set of group vectors]  -> nil"
-      :validate-fn fn?
+      :validate-fn ifn?
       :description [:span "This function is called whenever the selection changes. It is also responsible for updating the value of "
                     [:code ":model"] " as needed."]}
      {:name        :choice
@@ -129,6 +132,7 @@
      {:name        :required?
       :default     false
       :type        "boolean"
+      :validate-fn boolean?
       :description [:span "When true, requires at least 1 choice to be selected. "
                     "If clicking a choice would result in 0 choices being selected (i.e. a model value of #{}), "
                     "then " [:code ":on-change"] " will not be called."]}
@@ -136,6 +140,7 @@
       :required    false
       :default     false
       :type        "boolean"
+      :validate-fn boolean?
       :description "When true, puts groups at the top of the list. Ungrouped items will appear last."}
      {:name        :choice-disabled-fn
       :required    false
