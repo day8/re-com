@@ -102,7 +102,6 @@
       :description [:span "This function is called whenever the selection changes. It is also responsible for updating the value of "
                     [:code ":model"] " as needed."]}
      {:name        :choice
-      :required    true
       :type        "part"
       :validate-fn part?
       :description [:span "alpha"]}
@@ -422,7 +421,7 @@
              disabled?       (deref-or-value disabled?)
              model           (deref-or-value model)
              label-fn        (or label-fn :label)
-             on-group-expand (partial reset! expanded-groups)
+             on-group-expand (or on-group-expand (partial reset! expanded-groups))
              expanded-groups (deref-or-value expanded-groups)
              group-label-fn  (or group-label-fn group-label)
              full?           (or (when empty-means-full? (empty? model))
