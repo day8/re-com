@@ -336,4 +336,4 @@
                                       [args-table tree-select-dropdown-args-desc]]]
                           [demo]]]
               [parts-table "tree-select" tree-select-parts-desc :title [:span "Parts: " [:code "[:tree-select]"]]]
-              [parts-table "tree-select-dropdown" tree-select-dropdown-parts-desc :title [:span "Parts: " [:code "[:tree-select]"]]]]])
+              [parts-table "tree-select-dropdown" tree-select-dropdown-parts-desc :title [:span "Parts: " [:code "[:tree-select-dropdown]"]]]]])
