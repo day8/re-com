@@ -52,17 +52,16 @@
                                      :label-fn                @label-fn
                                      :group-label-fn          @group-label-fn
                                      :choice-disabled-fn      @choice-disabled-fn
-                                     :initial-expanded-groups :chosen
                                      :choices                 cities
                                      :model                   model
                                      :expanded-groups         groups
                                      :on-change               #(reset! model %1)}
                                     (merge props))])
-        open-to-chosen          (fn [] [tree-select* :initial-expanded-groups :chosen])
+        open-to-chosen          (fn [] [tree-select* {:initial-expanded-groups :chosen}])
         open-to-nil             (fn [] [tree-select*])
-        open-to-all             (fn [] [tree-select* :initial-expanded-groups :all])
-        open-to-none            (fn [] [tree-select* :initial-expanded-groups :none])
-        open-to-specified       (fn [] [tree-select* :initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}])]
+        open-to-all             (fn [] [tree-select* {:initial-expanded-groups :all}])
+        open-to-none            (fn [] [tree-select* {:initial-expanded-groups :none}])
+        open-to-specified       (fn [] [tree-select* {:initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}}])]
     (fn []
       [v-box :src (at)
        :gap      "11px"

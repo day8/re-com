@@ -420,8 +420,8 @@
       :or   {id-fn           :id
              expanded-groups (r/atom nil)
              on-group-expand (partial reset! expanded-groups)}}]
-  (let [expanded-groups (r/atom nil)
-        choices         (deref-or-value choices)]
+  (let [default-expanded-groups expanded-groups
+        choices                 (deref-or-value choices)]
     (when-some [initial-expanded-groups (deref-or-value initial-expanded-groups)]
       (on-group-expand (case initial-expanded-groups
                          :all    (set (map :group (infer-groups choices)))
@@ -439,8 +439,10 @@
                  choice on-group-expand
                  empty-means-full? required?
                  show-only-button?
+                 expanded-groups
                  parts class style attr
                  theme-vars base-theme main-theme theme]
+          :or {expanded-groups default-expanded-groups}
           :as   args}]
       (or
        (validate-args-macro tree-select-args-desc args)
@@ -572,8 +574,10 @@
                  on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
+                 expanded-groups
                  show-only-button? show-reset-button? on-reset
                  label body-header body-footer choice
+                 choice-disabled-fn
                  empty-means-full?
                  parts theme main-theme theme-vars base-theme]
           :or   {placeholder "Select an item..."
@@ -600,7 +604,7 @@
             anchor-label    (field-label-fn {:items          labelable-items
                                              :label-fn       label-fn
                                              :group-label-fn group-label-fn})
-            on-reset        (or on-reset (handler-fn (on-change (pr-str #{}) (pr-str @expanded-groups))))]
+            on-reset        (or on-reset (handler-fn (on-change #{} (deref-or-value expanded-groups))))]
         [dd/dropdown
          (themed ::dropdown
            {:label         (if label
@@ -644,9 +648,9 @@
                                :min-width               min-width
                                :max-width               max-width
                                :min-height              min-height
-                               :max-height              max-height
                                :on-change               on-change
                                :groups-first?           groups-first?
+                               :choice-disabled-fn      choice-disabled-fn
                                :initial-expanded-groups initial-expanded-groups
                                :empty-means-full?       empty-means-full?
                                :id-fn                   id-fn
@@ -655,6 +659,6 @@
             :model         showing?
             :theme         theme
             :parts         (merge parts
-                                  {:body-wrapper {:style {:width     (or width "221px")
-                                                          :height    "212px"
-                                                          :min-width min-width}}})})]))))
+                                  {:body-wrapper {:style {:width      (or width "221px")
+                                                          :max-height max-height
+                                                          :min-width  min-width}}})})]))))
