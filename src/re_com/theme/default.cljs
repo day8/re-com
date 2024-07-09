@@ -173,7 +173,7 @@
                     :border-radius    "4px"
                     :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
                                         open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
-                    :color            (:neutral $)
+                    :color            (:foreground $)
                     :height           "34px"
                     :line-height      "34px"
                     :padding          "0 8px 0 8px"
@@ -277,7 +277,7 @@
          ::tree-select/dropdown-indicator-triangle
          {:align :center
           :style {:gap "5px"
-                  :color (:neutral $)}}
+                  :color (:foreground $)}}
 
          ::tree-select/dropdown-counter
          {:style {#_#_:margin-left  "5px"
