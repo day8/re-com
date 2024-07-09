@@ -52,7 +52,7 @@
                           :initial-expanded-groups :chosen
                           :choices           cities
                           :model             model
-                          :groups            groups
+                          :expanded-groups            groups
                           :on-change         #(reset! model %1)])
         open-to-nil (fn []
                       [tree-select :src (at)
@@ -66,7 +66,7 @@
                        :choice-disabled-fn @choice-disabled-fn
                        :choices           cities
                        :model             model
-                       :groups            groups
+                       :expanded-groups            groups
                        :on-change         #(reset! model %1)])
         open-to-all (fn []
                       [tree-select :src (at)
@@ -81,7 +81,7 @@
                        :initial-expanded-groups           :all
                        :choices           cities
                        :model             model
-                       :groups            groups
+                       :expanded-groups            groups
                        :on-change         #(reset! model %1)])
         open-to-none (fn []
                        [tree-select :src (at)
@@ -96,7 +96,7 @@
                         :initial-expanded-groups           :none
                         :choices           cities
                         :model             model
-                        :groups            groups
+                        :expanded-groups            groups
                         :on-change         #(reset! model %1)])
         open-to-specified (fn []
                             [tree-select :src (at)
@@ -111,7 +111,7 @@
                              :initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}
                              :choices           cities
                              :model             model
-                             :groups            groups
+                             :expanded-groups            groups
                              :on-change         #(reset! model %1)])]
     (fn []
       [v-box :src (at)
@@ -142,7 +142,7 @@
                    :placeholder       "Select a city..."
                    :choices           cities
                    :model             model
-                   :groups            groups
+                   :expanded-groups            groups
                    :on-change         #(do (reset! model %1) (println %2))]
                   [gap :src (at) :size "96px"]
                   [h-box :src (at)
