@@ -241,12 +241,7 @@
        :type        "map -> string"
        :validate-fn ifn?
        :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
-                         "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}
-      {:name        :parts
-       :required    false
-       :type        "map"
-       :validate-fn (parts? tree-select-dropdown-parts)
-       :description "See Parts section below."}])))
+                         "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}])))
 
 (defn backdrop
   [{:keys [opacity on-click parts]}]
