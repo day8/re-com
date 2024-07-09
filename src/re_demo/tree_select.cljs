@@ -5,7 +5,7 @@
             [re-com.core          :refer [at h-box box checkbox gap v-box tree-select tree-select-dropdown p label]]
             [re-com.radio-button  :refer [radio-button]]
             [re-com.slider        :refer [slider]]
-            [re-com.tree-select   :refer [tree-select-parts-desc tree-select-dropdown-parts-desc tree-select-dropdown-args-desc]]
+            [re-com.tree-select   :refer [tree-select-parts-desc tree-select-dropdown-parts-desc tree-select-dropdown-args-desc tree-select-args-desc]]
             [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table status-text new-in-version]]))
 
 (def cities [{:id :sydney    :label "Sydney" :group [:oceania :australia :nsw]}
@@ -333,7 +333,9 @@
                                        "can be a vector. If so, the choice appears within a hierarchy of expandable groups."]
                                       [p [:code "tree-select-dropdown"]
                                        "includes an anchor label. By default, it lists all the selected choices, except if an entire group is selected, then that group appears in place of its descendants."]
-                                      [args-table tree-select-dropdown-args-desc]]]
+                                      [args-table tree-select-args-desc {:title [:span "Parameters: " [:code "[:tree-select]"]]}]
+                                      [args-table (remove (set tree-select-args-desc) tree-select-dropdown-args-desc)
+                                       {:title [:span "Extra Parameters: " [:code "[:tree-select-dropdown]"]]}]]]
                           [demo]]]
               [parts-table "tree-select" tree-select-parts-desc :title [:span "Parts: " [:code "[:tree-select]"]]]
               [parts-table "tree-select-dropdown" tree-select-dropdown-parts-desc :title [:span "Parts: " [:code "[:tree-select-dropdown]"]]]]])

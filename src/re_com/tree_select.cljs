@@ -84,7 +84,7 @@
       :type        "a set of vectors of ids | r/atom"
       :description "The set of currently expanded group paths."}
      {:name        :on-group-expand
-      :default     "(partial reset! expanded-groups)"
+      :default     "#(reset! expanded-groups %)"
       :type        "set of vectors of ids -> nil"
       :description "This function is called whenever the set of expanded groups changes. This usually happens when the user clicks one of the triangular expander icons."}
      {:name        :initial-expanded-groups
@@ -175,9 +175,9 @@
                     " is true, all checkboxes appear checked when the model is empty."]}
      {:name :class
       :required false
-      :type "string"
+      :type "string | vector"
       :validate-fn string?
-      :description "CSS class names, space separated (applies to the outer container)"}
+      :description "CSS class string, or vector of class strings (applies to the outer container)."}
      {:name :style
       :required false
       :type "CSS style map"
@@ -205,13 +205,7 @@
   (when include-args-desc?
     (into
      tree-select-args-desc
-     [{:name        :placeholder
-       :required    false
-       :type        "string"
-       :validate-fn string?
-       :description "(Dropdown version only). Background text shown when there's no selection."}
-      {:name        :field-label-fn
-       :required    false
+     [{:name        :field-label-fn
        :type        "map -> string or hiccup"
        :validate-fn ifn?
        :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
@@ -221,22 +215,44 @@
        :type        "boolean | r/atom"
        :description "When true, shows a small reset icon within the indicator part. By default, the icon looks like an X."}
       {:name        :on-reset
-       :default     "(partial reset! model #{})"
+       :default     "#(reset! model #{})"
        :type        "function"
        :validate-fn ifn?
        :description "This function is called when the user clicks the reset button."}
       {:name        :field-label-fn
-       :required    false
        :type        "map -> string or hiccup"
        :validate-fn ifn?
-       :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
+       :description (str "Accepts a map, including keys :items, :group-label-fn and :label-fn. "
                          "Can return a string or hiccup, which will be rendered inside the dropdown anchor box.")}
       {:name        :alt-text-fn
-       :required    false
        :type        "map -> string"
        :validate-fn ifn?
-       :description (str "(Dropdown version only). Accepts a map, including keys :items, :group-label-fn and :label-fn. "
-                         "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}])))
+       :description (str "Accepts a map, including keys :items, :group-label-fn and :label-fn. "
+                         "Returns a string that will display in the native browser tooltip that appears on mouse hover.")}
+      {:name        :anchor-width
+       :type        "map -> string"
+       :validate-fn string?
+       :description [:span "See " [:a {:href "#/generic-dropdown"} "dropdown"]]}
+      {:name        :anchor-height
+       :type        "map -> string"
+       :validate-fn string?
+       :description [:span "See " [:a {:href "#/generic-dropdown"} "dropdown"]]}
+      {:name        :anchor-width
+       :type        "map -> string"
+       :validate-fn string?
+       :description [:span "See " [:a {:href "#/generic-dropdown"} "dropdown"]]}
+      {:name        :placeholder
+       :type        "string"
+       :validate-fn string?
+       :description [:span "See " [:a {:href "#/generic-dropdown"} "dropdown"]]}
+      {:name        :body-header
+       :type        "part"
+       :validate-fn part?
+       :description [:span "See " [:a {:href "#/generic-dropdown"} "dropdown"]]}
+      {:name        :body-footer
+       :type        "part"
+       :validate-fn part?
+       :description [:span "See " [:a {:href "#/generic-dropdown"} "dropdown"]]}])))
 
 (defn backdrop
   [{:keys [opacity on-click parts]}]
@@ -534,8 +550,10 @@
                                :or   {expanded-groups (r/atom nil)}}]
   (let [showing? (r/atom false)]
     (fn tree-select-dropdown-render
-      [& {:keys [choices  disabled? required?
-                 width min-width max-width min-height max-height on-change
+      [& {:keys [choices disabled? required?
+                 width min-width max-width anchor-width
+                 min-height max-height anchor-height
+                 on-change
                  label-fn alt-text-fn group-label-fn model placeholder id-fn field-label-fn
                  groups-first? initial-expanded-groups
                  show-reset-button? on-reset
@@ -569,55 +587,57 @@
             on-reset        (or on-reset (handler-fn (on-change (pr-str #{}) (pr-str @expanded-groups))))]
         [dd/dropdown
          (themed ::dropdown
-           {:label       (if label
-                           [u/part label {}]
-                           (when anchor-label
-                             [:span {:title (alt-text-fn {:items          labelable-items
-                                                          :label-fn       label-fn
-                                                          :group-label-fn group-label-fn})
-                                     :style {:white-space   "nowrap"
-                                             :overflow      "hidden"
-                                             :text-overflow "ellipsis"}}
-                              anchor-label]))
-            :placeholder placeholder
-            :indicator   (fn [props]
-                           [h-box
-                            (themed ::dropdown-indicator
-                              {:children
-                               [[box {:child (str (count (deref-or-value model)))}]
-                                [dd/indicator (themed ::dropdown-indicator-triangle props)]
-                                (when (u/deref-or-value show-reset-button?)
-                                  [u/x-button
-                                   {:on-click (when on-reset
-                                                (handler-fn
-                                                 (.stopPropagation event)
-                                                 (on-reset (deref-or-value model)
-                                                           (deref-or-value expanded-groups))))}])]})])
-            :width       width
-            :body-header body-header
-            :body-footer body-footer
-            :body        [tree-select
-                          (themed ::dropdown-body
-                            {:choices                 choices
-                             :choice                  choice
-                             :required?               required?
-                             :group-label-fn          group-label-fn
-                             :expanded-groups         expanded-groups
-                             :disabled?               disabled?
-                             :min-width               min-width
-                             :max-width               max-width
-                             :min-height              min-height
-                             :max-height              max-height
-                             :on-change               on-change
-                             :groups-first?           groups-first?
-                             :initial-expanded-groups initial-expanded-groups
-                             :empty-means-full?       empty-means-full?
-                             :id-fn                   id-fn
-                             :label-fn                label-fn
-                             :model                   model})]
-            :model       showing?
-            :theme       theme
-            :parts       (merge parts
-                                {:body-wrapper {:style {:width     (or width "221px")
-                                                        :height    "212px"
-                                                        :min-width min-width}}})})]))))
+           {:label         (if label
+                             [u/part label {}]
+                             (when anchor-label
+                               [:span {:title (alt-text-fn {:items          labelable-items
+                                                            :label-fn       label-fn
+                                                            :group-label-fn group-label-fn})
+                                       :style {:white-space   "nowrap"
+                                               :overflow      "hidden"
+                                               :text-overflow "ellipsis"}}
+                                anchor-label]))
+            :placeholder   placeholder
+            :indicator     (fn [props]
+                             [h-box
+                              (themed ::dropdown-indicator
+                                {:children
+                                 [[box {:child (str (count (deref-or-value model)))}]
+                                  [dd/indicator (themed ::dropdown-indicator-triangle props)]
+                                  (when (u/deref-or-value show-reset-button?)
+                                    [u/x-button
+                                     {:on-click (when on-reset
+                                                  (handler-fn
+                                                   (.stopPropagation event)
+                                                   (on-reset (deref-or-value model)
+                                                             (deref-or-value expanded-groups))))}])]})])
+            :width         width
+            :anchor-width  anchor-width
+            :anchor-height anchor-height
+            :body-header   body-header
+            :body-footer   body-footer
+            :body          [tree-select
+                            (themed ::dropdown-body
+                              {:choices                 choices
+                               :choice                  choice
+                               :required?               required?
+                               :group-label-fn          group-label-fn
+                               :expanded-groups         expanded-groups
+                               :disabled?               disabled?
+                               :min-width               min-width
+                               :max-width               max-width
+                               :min-height              min-height
+                               :max-height              max-height
+                               :on-change               on-change
+                               :groups-first?           groups-first?
+                               :initial-expanded-groups initial-expanded-groups
+                               :empty-means-full?       empty-means-full?
+                               :id-fn                   id-fn
+                               :label-fn                label-fn
+                               :model                   model})]
+            :model         showing?
+            :theme         theme
+            :parts         (merge parts
+                                  {:body-wrapper {:style {:width     (or width "221px")
+                                                          :height    "212px"
+                                                          :min-width min-width}}})})]))))
