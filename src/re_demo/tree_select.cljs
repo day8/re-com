@@ -24,95 +24,45 @@
 
 (defn demo
   []
-  (let [model             (reagent/atom #{:sydney :auckland})
-        groups            (reagent/atom nil)
-        disabled?         (reagent/atom false)
-        initial-expanded-groups           (reagent/atom nil)
-        label-fn          (reagent/atom nil)
-        group-label-fn    (reagent/atom nil)
-        choice-disabled-fn (reagent/atom nil)
-        min-width?        (reagent/atom true)
-        min-width         (reagent/atom 200)
-        max-width?        (reagent/atom true)
-        max-width         (reagent/atom 300)
-        min-height?       (reagent/atom true)
-        min-height        (reagent/atom 100)
-        max-height?       (reagent/atom true)
-        max-height        (reagent/atom 350)
-        open-to-chosen (fn []
-                         [tree-select :src (at)
-                          :min-width         (when @min-width? (str @min-width "px"))
-                          :max-width         (when @max-width? (str @max-width "px"))
-                          :min-height        (when @min-height? (str @min-height "px"))
-                          :max-height        (when @max-height? (str @max-height "px"))
-                          :disabled?         disabled?
-                          :label-fn          @label-fn
-                          :group-label-fn    @group-label-fn
-                          :choice-disabled-fn @choice-disabled-fn
-                          :initial-expanded-groups :chosen
-                          :choices           cities
-                          :model             model
-                          :expanded-groups            groups
-                          :on-change         #(reset! model %1)])
-        open-to-nil (fn []
-                      [tree-select :src (at)
-                       :min-width         (when @min-width? (str @min-width "px"))
-                       :max-width         (when @max-width? (str @max-width "px"))
-                       :min-height        (when @min-height? (str @min-height "px"))
-                       :max-height        (when @max-height? (str @max-height "px"))
-                       :disabled?         disabled?
-                       :label-fn          @label-fn
-                       :group-label-fn    @group-label-fn
-                       :choice-disabled-fn @choice-disabled-fn
-                       :choices           cities
-                       :model             model
-                       :expanded-groups            groups
-                       :on-change         #(reset! model %1)])
-        open-to-all (fn []
-                      [tree-select :src (at)
-                       :min-width         (when @min-width? (str @min-width "px"))
-                       :max-width         (when @max-width? (str @max-width "px"))
-                       :min-height        (when @min-height? (str @min-height "px"))
-                       :max-height        (when @max-height? (str @max-height "px"))
-                       :disabled?         disabled?
-                       :label-fn          @label-fn
-                       :group-label-fn    @group-label-fn
-                       :choice-disabled-fn @choice-disabled-fn
-                       :initial-expanded-groups           :all
-                       :choices           cities
-                       :model             model
-                       :expanded-groups            groups
-                       :on-change         #(reset! model %1)])
-        open-to-none (fn []
-                       [tree-select :src (at)
-                        :min-width         (when @min-width? (str @min-width "px"))
-                        :max-width         (when @max-width? (str @max-width "px"))
-                        :min-height        (when @min-height? (str @min-height "px"))
-                        :max-height        (when @max-height? (str @max-height "px"))
-                        :disabled?         disabled?
-                        :label-fn          @label-fn
-                        :group-label-fn    @group-label-fn
-                        :choice-disabled-fn @choice-disabled-fn
-                        :initial-expanded-groups           :none
-                        :choices           cities
-                        :model             model
-                        :expanded-groups            groups
-                        :on-change         #(reset! model %1)])
-        open-to-specified (fn []
-                            [tree-select :src (at)
-                             :min-width         (when @min-width? (str @min-width "px"))
-                             :max-width         (when @max-width? (str @max-width "px"))
-                             :min-height        (when @min-height? (str @min-height "px"))
-                             :max-height        (when @max-height? (str @max-height "px"))
-                             :disabled?         disabled?
-                             :label-fn          @label-fn
-                             :group-label-fn    @group-label-fn
-                             :choice-disabled-fn @choice-disabled-fn
-                             :initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}
-                             :choices           cities
-                             :model             model
-                             :expanded-groups            groups
-                             :on-change         #(reset! model %1)])]
+  (let [model                   (reagent/atom #{:sydney :auckland})
+        groups                  (reagent/atom nil)
+        disabled?               (reagent/atom false)
+        initial-expanded-groups (reagent/atom nil)
+        label-fn                (reagent/atom nil)
+        group-label-fn          (reagent/atom nil)
+        choice-disabled-fn      (reagent/atom nil)
+        min-width?              (reagent/atom true)
+        min-width               (reagent/atom 200)
+        max-width?              (reagent/atom true)
+        max-width               (reagent/atom 300)
+        min-height?             (reagent/atom true)
+        min-height              (reagent/atom 100)
+        max-height?             (reagent/atom true)
+        max-height              (reagent/atom 350)
+        tree-select*            (fn [& {:as props}]
+                                  [tree-select
+                                   (->
+                                    {:src                     (at)
+                                     :min-width               (when @min-width? (str @min-width "px"))
+                                     :max-width               (when @max-width? (str @max-width "px"))
+                                     :min-height              (when @min-height? (str @min-height "px"))
+                                     :max-height              (when @max-height? (str @max-height "px"))
+                                     :attr                    {:key (gensym)}
+                                     :disabled?               disabled?
+                                     :label-fn                @label-fn
+                                     :group-label-fn          @group-label-fn
+                                     :choice-disabled-fn      @choice-disabled-fn
+                                     :initial-expanded-groups :chosen
+                                     :choices                 cities
+                                     :model                   model
+                                     :expanded-groups         groups
+                                     :on-change               #(reset! model %1)}
+                                    (merge props))])
+        open-to-chosen          (fn [] [tree-select* :initial-expanded-groups :chosen])
+        open-to-nil             (fn [] [tree-select*])
+        open-to-all             (fn [] [tree-select* :initial-expanded-groups :all])
+        open-to-none            (fn [] [tree-select* :initial-expanded-groups :none])
+        open-to-specified       (fn [] [tree-select* :initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}])]
     (fn []
       [v-box :src (at)
        :gap      "11px"
@@ -122,10 +72,10 @@
                   [label :src (at) :label "[tree-select ... ]"]
                   [gap :src (at) :size "5px"]
                   [(case @initial-expanded-groups
-                     nil open-to-nil
-                     :chosen open-to-chosen
-                     :all open-to-all
-                     :none open-to-none
+                     nil        open-to-nil
+                     :chosen    open-to-chosen
+                     :all       open-to-all
+                     :none      open-to-none
                      :specified open-to-specified)]
                   [gap :src (at) :size "15px"]
                   [label :src (at) :label "[tree-select-dropdown ... ]"]
