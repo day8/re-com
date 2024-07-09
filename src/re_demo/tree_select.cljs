@@ -318,8 +318,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[tree-select ... ]"
-               "src/re_com/tree-select.cljs"
-               "src/re_demo/tree-select.cljs"]
+               "src/re_com/tree_select.cljs"
+               "src/re_demo/tree_select.cljs"]
 
               [h-box :src (at)
                :gap      "100px"
