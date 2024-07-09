@@ -20,7 +20,3 @@
                    (get part->props (keyword (name part))))]
       (merge-props props v)
       props)))
-
-(defn args [{:keys [attr class style]}]
-  (fn [props _]
-    (merge-props props {:attr attr :class class :style style})))

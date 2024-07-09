@@ -186,6 +186,15 @@
       :required    false
       :type        "map"
       :validate-fn (parts? dropdown-parts)}
+     {:description "See Parts section below."
+      :name        :style
+      :required    false
+      :type        "map"}
+     {:description "See Parts section below."
+      :name        :class
+      :required    false
+      :type        "string | vector"
+      :validate-fn (some-fn string? vector?)}
      {:name        :attr
       :required    false
       :type        "map"}
@@ -335,7 +344,10 @@
                                          (theme/<-props args
                                            {:part    ::body-wrapper
                                             :include [:width :min-width
-                                                      :min-height :max-height]})]}
+                                                      :min-height :max-height]})
+                                         (theme/<-props args
+                                           {:part    ::wrapper
+                                            :include [:class :style :attr]})]}
                 themed      (fn [part props & [special-theme]]
                               (theme/apply props
                                 {:state       state
@@ -361,6 +373,7 @@
                      :attr  {:ref anchor-ref!}
                      :children [[u/part anchor part-props re-com.dropdown/anchor]
                                 [gap :size "1"]
+                                [gap :size "5px"]
                                 [u/part indicator part-props re-com.dropdown/indicator]]})]
                  (when (= :open (:openable state))
                    [body-wrapper {:anchor-ref      anchor-ref
