@@ -608,7 +608,13 @@
         [dd/dropdown
          (themed ::dropdown
            {:label         (if label
-                             [u/part label {}]
+                             [u/part label {:model           (deref-or-value model)
+                                            :state           state
+                                            :placeholder     placeholder
+                                            :label-fn        label-fn
+                                            :group-label-fn  group-label-fn
+                                            :labelable-items labelable-items
+                                            :id-fn           id-fn}]
                              (when anchor-label
                                [:span {:title (alt-text-fn {:items          labelable-items
                                                             :label-fn       label-fn
