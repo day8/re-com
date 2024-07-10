@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.9 (2024-07-10)
+
+#### Changed
+
+- `tree-select-dropdown` - Tweaked styling, expanded the `:label` part (alpha).
+
+
 ## 2.21.8 (2024-07-09)
 
 #### Added
