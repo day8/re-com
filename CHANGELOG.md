@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.10 (2024-07-11)
+
+#### Changed
+
+- `tree-select-dropdown` - Now the anchor label uses a `:span`, and doesn't underline on hover. 
+
+
 ## 2.21.9 (2024-07-10)
 
 #### Changed
