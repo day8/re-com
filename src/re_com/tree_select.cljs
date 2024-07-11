@@ -104,6 +104,11 @@
       :type        "part"
       :validate-fn part?
       :description [:span "alpha"]}
+     {:name        :width
+      :required    false
+      :type        "string"
+      :validate-fn string?
+      :description "Width of the outer wrapper."}
      {:name        :min-width
       :required    false
       :type        "string"
@@ -434,7 +439,7 @@
                          initial-expanded-groups)))
     (fn tree-select-render
       [& {:keys [model choices group-label-fn disabled? groups-first?
-                 min-width max-width min-height max-height
+                 width min-width max-width min-height max-height
                  on-change choice-disabled-fn label-fn
                  choice on-group-expand
                  empty-means-full? required?
@@ -442,7 +447,7 @@
                  expanded-groups
                  parts class style attr
                  theme-vars base-theme main-theme theme]
-          :or {expanded-groups default-expanded-groups}
+          :or   {expanded-groups default-expanded-groups}
           :as   args}]
       (or
        (validate-args-macro tree-select-args-desc args)
@@ -529,6 +534,7 @@
          [v-box
           (themed ::wrapper
             {:src        (at)
+             :width      width
              :min-width  min-width
              :max-width  max-width
              :min-height min-height

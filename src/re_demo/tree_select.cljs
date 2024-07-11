@@ -27,10 +27,13 @@
   (let [model                   (reagent/atom #{:sydney :auckland})
         groups                  (reagent/atom nil)
         disabled?               (reagent/atom false)
+        show-reset-button?      (reagent/atom false)
         initial-expanded-groups (reagent/atom nil)
         label-fn                (reagent/atom nil)
         group-label-fn          (reagent/atom nil)
         choice-disabled-fn      (reagent/atom nil)
+        width?                  (reagent/atom nil)
+        width                   (reagent/atom 212)
         min-width?              (reagent/atom true)
         min-width               (reagent/atom 200)
         max-width?              (reagent/atom true)
@@ -39,29 +42,32 @@
         min-height              (reagent/atom 100)
         max-height?             (reagent/atom true)
         max-height              (reagent/atom 350)
-        tree-select*            (fn [& {:as props}]
-                                  [tree-select
-                                   (->
-                                    {:src                     (at)
-                                     :min-width               (when @min-width? (str @min-width "px"))
-                                     :max-width               (when @max-width? (str @max-width "px"))
-                                     :min-height              (when @min-height? (str @min-height "px"))
-                                     :max-height              (when @max-height? (str @max-height "px"))
-                                     :attr                    {:key (gensym)}
-                                     :disabled?               disabled?
-                                     :label-fn                @label-fn
-                                     :group-label-fn          @group-label-fn
-                                     :choice-disabled-fn      @choice-disabled-fn
-                                     :choices                 cities
-                                     :model                   model
-                                     :expanded-groups         groups
-                                     :on-change               #(reset! model %1)}
-                                    (merge props))])
-        open-to-chosen          (fn [] [tree-select* {:initial-expanded-groups :chosen}])
-        open-to-nil             (fn [] [tree-select*])
-        open-to-all             (fn [] [tree-select* {:initial-expanded-groups :all}])
-        open-to-none            (fn [] [tree-select* {:initial-expanded-groups :none}])
-        open-to-specified       (fn [] [tree-select* {:initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}}])]
+        anchor-width?           (reagent/atom nil)
+        anchor-width            (reagent/atom 212)
+        tree-select*      (fn [& {:as props}]
+                            [tree-select
+                             (->
+                              {:src                (at)
+                               :width              (when @width? (str @width "px"))
+                               :min-width          (when @min-width? (str @min-width "px"))
+                               :max-width          (when @max-width? (str @max-width "px"))
+                               :min-height         (when @min-height? (str @min-height "px"))
+                               :max-height         (when @max-height? (str @max-height "px"))
+                               :attr               {:key (gensym)}
+                               :disabled?          disabled?
+                               :label-fn           @label-fn
+                               :group-label-fn     @group-label-fn
+                               :choice-disabled-fn @choice-disabled-fn
+                               :choices            cities
+                               :model              model
+                               :expanded-groups    groups
+                               :on-change          #(reset! model %1)}
+                              (merge props))])
+        open-to-chosen    (fn [] [tree-select* {:initial-expanded-groups :chosen}])
+        open-to-nil       (fn [] [tree-select*])
+        open-to-all       (fn [] [tree-select* {:initial-expanded-groups :all}])
+        open-to-none      (fn [] [tree-select* {:initial-expanded-groups :none}])
+        open-to-specified (fn [] [tree-select* {:initial-expanded-groups #{[:oceania] [:oceania :new-zealand]}}])]
     (fn []
       [v-box :src (at)
        :gap      "11px"
@@ -80,19 +86,22 @@
                   [label :src (at) :label "[tree-select-dropdown ... ]"]
                   [gap :src (at) :size "5px"]
                   [tree-select-dropdown
-                   :min-width         (when @min-width? (str @min-width "px"))
-                   :max-width         (when @max-width? (str @max-width "px"))
-                   :min-height        (when @min-height? (str @min-height "px"))
-                   :max-height        (when @max-height? (str @max-height "px"))
-                   :disabled?         disabled?
-                   :label-fn          @label-fn
-                   :group-label-fn    @group-label-fn
-                   :choice-disabled-fn @choice-disabled-fn
-                   :placeholder       "Select a city..."
-                   :choices           cities
-                   :model             model
-                   :expanded-groups            groups
-                   :on-change         #(do (reset! model %1) (println %2))]
+                   {:width              (when @width? (str @width "px"))
+                    :min-width          (when @min-width? (str @min-width "px"))
+                    :max-width          (when @max-width? (str @max-width "px"))
+                    :min-height         (when @min-height? (str @min-height "px"))
+                    :max-height         (when @max-height? (str @max-height "px"))
+                    :anchor-width       (when @anchor-width? (str @anchor-width "px"))
+                    :disabled?          disabled?
+                    :show-reset-button? @show-reset-button?
+                    :label-fn           @label-fn
+                    :group-label-fn     @group-label-fn
+                    :choice-disabled-fn @choice-disabled-fn
+                    :placeholder        "Select a city..."
+                    :choices            cities
+                    :model              model
+                    :expanded-groups    groups
+                    :on-change          #(do (reset! model %1) (println %2))}]
                   [gap :src (at) :size "96px"]
                   [h-box :src (at)
                    :height   "45px"
@@ -119,6 +128,12 @@
                                                        :child [:code ":disabled?"]]
                                            :model     disabled?
                                            :on-change #(reset! disabled? %)]
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
+                                                       :align :start
+                                                       :child [:code ":show-reset-button?"]]
+                                           :model     show-reset-button?
+                                           :on-change #(reset! show-reset-button? %)]
                                           [v-box :src (at)
                                            :children [[box :src (at) :align :start :child [:code ":initial-expanded-groups"]]
 
@@ -259,7 +274,47 @@
                                                           :step      1
                                                           :width     "300px"]
                                                          [gap :src (at) :size "5px"]
-                                                         [label :src (at) :label (str @max-height "px")]])]]]]]]
+                                                         [label :src (at) :label (str @max-height "px")]])]]
+                                          [h-box :src (at)
+                                           :align    :center
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
+                                                                   :align :start
+                                                                   :child [:code ":anchor-width"]]
+                                                       :model     anchor-width?
+                                                       :on-change #(reset! anchor-width? %)]
+                                                      [gap :src (at) :size "5px"]
+                                                      (when @anchor-width?
+                                                        [:<>
+                                                         [slider
+                                                          :model     anchor-width
+                                                          :on-change #(reset! anchor-width %)
+                                                          :min       50
+                                                          :max       400
+                                                          :step      1
+                                                          :width     "300px"]
+                                                         [gap :src (at) :size "5px"]
+                                                         [label :src (at) :label (str @anchor-width "px")]])]]
+                                          [h-box :src (at)
+                                           :align    :center
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
+                                                                   :align :start
+                                                                   :child [:code ":width"]]
+                                                       :model     width?
+                                                       :on-change #(reset! width? %)]
+                                                      [gap :src (at) :size "5px"]
+                                                      (when @width?
+                                                        [:<>
+                                                         [slider
+                                                          :model     width
+                                                          :on-change #(reset! width %)
+                                                          :min       50
+                                                          :max       400
+                                                          :step      1
+                                                          :width     "300px"]
+                                                         [gap :src (at) :size "5px"]
+                                                         [label :src (at) :label (str @width "px")]])]]]]]]
                   [gap :src (at) :size "10px"]]])))
 
 (defn panel []
