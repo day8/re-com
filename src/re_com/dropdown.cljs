@@ -208,7 +208,7 @@
       :description "alpha"}]))
 
 (defn anchor [{:keys [label placeholder state theme transition!]}]
-  [:a (theme/props {:state state :part ::anchor :transition! transition!} theme)
+  [:span (theme/props {:state state :part ::anchor :transition! transition!} theme)
    (or label placeholder)])
 
 (defn backdrop [{:keys [state transition!]}]
