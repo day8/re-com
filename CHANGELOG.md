@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.11 (2024-07-11)
+
+#### Fixed
+
+- `tree-select-dropdown` - Fixed a runtime error when `:expanded-groups` is not passed.
+
 ## 2.21.10 (2024-07-11)
 
 #### Changed
