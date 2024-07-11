@@ -423,9 +423,9 @@
 (defn tree-select
   [& {:keys [model choices expanded-groups initial-expanded-groups on-group-expand id-fn]
       :or   {id-fn           :id
-             expanded-groups (r/atom nil)
-             on-group-expand (partial reset! expanded-groups)}}]
+             expanded-groups (r/atom nil)}}]
   (let [default-expanded-groups expanded-groups
+        on-group-expand         (or on-group-expand (partial reset! expanded-groups))
         choices                 (deref-or-value choices)]
     (when-some [initial-expanded-groups (deref-or-value initial-expanded-groups)]
       (on-group-expand (case initial-expanded-groups
@@ -572,7 +572,8 @@
 
 (defn tree-select-dropdown [& {:keys [expanded-groups]
                                :or   {expanded-groups (r/atom nil)}}]
-  (let [showing? (r/atom false)]
+  (let [default-expanded-groups expanded-groups
+        showing? (r/atom false)]
     (fn tree-select-dropdown-render
       [& {:keys [choices disabled? required?
                  width min-width max-width anchor-width
@@ -586,9 +587,10 @@
                  choice-disabled-fn
                  empty-means-full?
                  parts theme main-theme theme-vars base-theme]
-          :or   {placeholder "Select an item..."
-                 label-fn    :label
-                 id-fn       :id}
+          :or   {placeholder     "Select an item..."
+                 label-fn        :label
+                 id-fn           :id
+                 expanded-groups default-expanded-groups}
           :as   args}]
       (let [state           {:enable (if-not disabled? :enabled :disabled)}
             themed          (fn [part props] (theme/apply props
