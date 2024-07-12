@@ -15,6 +15,7 @@
    [re-com.input-time     :as input-time]
    [re-com.splits         :as splits]
    [re-com.modal-panel    :as modal-panel]
+   [re-com.error-modal    :as error-modal]
    [re-com.multi-select   :as multi-select]
    [re-com.popover        :as popover]
    [re-com.progress-bar   :as progress-bar]
@@ -57,7 +58,6 @@
 (def simple-v-table             simple-v-table/simple-v-table)
 (def nested-grid                nested-grid/nested-grid)
 
-
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)
 (def md-icon-button             buttons/md-icon-button)
@@ -91,6 +91,7 @@
 (def throbber                   throbber/throbber)
 
 (def modal-panel                modal-panel/modal-panel)
+(def error-modal                error-modal/error-modal)
 
 (def popover-content-wrapper    popover/popover-content-wrapper)
 (def popover-anchor-wrapper     popover/popover-anchor-wrapper)

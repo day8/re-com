@@ -5,6 +5,7 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
+   [re-com.theme    :as    theme]
    [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
    [re-com.util :as ru :refer [px]]
    [re-com.theme.util :refer [merge-props]]
    [re-com.dropdown :as-alias dropdown]
+   [re-com.error-modal :as-alias error-modal]
    [re-com.nested-grid :as-alias nested-grid]
    [re-com.tree-select :as-alias tree-select]))
 
@@ -34,6 +35,7 @@
    :secondary           "#6c757d"
    :success             "#198754"
    :info                "#0dcaf0"
+   :error               "#bf1010"
    :warning             "#ffc107"
    :danger              "#dc3545"
    :light               "#f8f9fa"
@@ -50,7 +52,16 @@
    :border-dark         "#aaa"
    :shadow              "rgba(0, 0, 0, 0.2)"})
 
-(def static-variables (merge colors golden-section-50))
+(def font-sizes
+  {:font-size/xx-small (px 11)
+   :font-size/x-small  (px 12)
+   :font-size/small    (px 13)
+   :font-size/medium   (px 14)
+   :font-size/large    (px 15)
+   :font-size/x-large  (px 16)
+   :font-size/xx-large (px 17)})
+
+(def static-variables (merge colors golden-section-50 font-sizes))
 
 (defn base-variables [props ctx]
   [props (assoc ctx :variables static-variables)])
@@ -137,12 +148,13 @@
 
 (defn main-variables [props _] props)
 
-(defn main [props {:keys                                                        [state part]
+(defn main [props {:keys                [state part]
                    {:as   $
                     :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
                            dark shadow light light-background
                            border border-dark
-                           foreground]} :variables}]
+                           foreground]} :variables
+                   :as                  ctx}]
   (->> {}
        (case part
 
@@ -209,7 +221,7 @@
                   :background-color "white"
                   :color            "#777"
                   :padding-top      sm-3
-                  :padding-right     sm-3
+                  :padding-right    sm-3
                   :text-align       "right"
                   :border-right     (condp #(get %2 %1) (:edge state)
                                       :column-section-right
@@ -271,16 +283,56 @@
 
          ::tree-select/dropdown-indicator
          {:align :center
-          :style {:gap "5px"
+          :style {:gap   "5px"
                   :color (:light-foreground $)}}
 
          ::tree-select/dropdown-indicator-triangle
          {:align :center
-          :style {:gap "5px"
+          :style {:gap   "5px"
                   :color (:foreground $)}}
 
          ::tree-select/dropdown-counter
          {:style {#_#_:margin-left  "5px"
                   #_#_:margin-right "5px"
-                  :opacity      "50%"}})
+                  :opacity          "50%"}}
+
+         ::error-modal/modal
+         {:wrap-nicely? false}
+
+         ::error-modal/inner-wrapper
+         {:style {:background-color (:white $)
+                  :box-shadow       "2.82843px 2.82843px 4px rgba(1,1,1,0.2)"
+                  :color            (:error $)
+                  :font-size        (:font-size/medium $)
+                  :min-width        (px 474)
+                  :min-height       (px 300)}}
+
+         ::error-modal/title-wrapper
+         (let [{:keys [severity]} state]
+           {:justify :between
+            :align   :center
+            :style   {:background-color (case severity
+                                          :error   (:error $)
+                                          :warning (:warning $)
+                                          "#1e1e1e")
+                      :color            "#FFFFFF"
+                      :padding-left     md-2
+                      :padding-right    md-1}
+            :height  (px 50)})
+
+         ::error-modal/title
+         {:style {:font-size      (:font-size/heading $)
+                  :color          (:white $)
+                  :margin         "0px"
+                  :padding-bottom "3px"}}
+
+         ::error-modal/triangle
+         (let [{:keys [severity]} state]
+           {:style {:fill (case severity
+                            :error   (:error $)
+                            :warning (:warning $)
+                            "#1e1e1e")}})
+
+         ::error-modal/body
+         {:style {:padding (str sm-4 " " md-2)}})
        (merge-props props)))

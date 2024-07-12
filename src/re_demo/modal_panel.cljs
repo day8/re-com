@@ -1,5 +1,6 @@
 (ns re-demo.modal-panel
-  (:require [re-com.core        :refer [at h-box v-box box gap line border title label modal-panel progress-bar input-text checkbox button p]]
+  (:require [re-com.core        :refer [at h-box v-box box gap line border title label modal-panel error-modal progress-bar input-text checkbox button p]]
+            [re-com.error-modal :refer [error-modal]]
             [re-com.modal-panel :refer [modal-panel-parts-desc modal-panel-args-desc]]
             [re-demo.utils      :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
             [re-com.util        :refer [px]]
@@ -126,6 +127,26 @@
                                                    process-ok
                                                    process-cancel]])]])))
 
+(defn error
+  "Create a button to show a 'Please wait...' message for 3 seconds"
+  []
+  (let [show? (reagent/atom false)]
+    (fn []
+      [v-box :src (at)
+       :children [[button :src (at)
+                   :label    "Error report"
+                   :class    "btn-info"
+                   :on-click (fn []
+                               (reset! show? true)
+                               #_(js/setTimeout #(reset! show? false) 3000))]
+                  (when @show?
+                    [error-modal
+                     {:src               (at)
+                      :what-happened     "Something happened"
+                      :implications      "Implications"
+                      :what-to-do        "Do something."
+                      :backdrop-on-click #(reset! show? false)
+                      :on-close          #(reset! show? false)}])]])))
 (defn panel2
   []
   [v-box :src (at)
@@ -158,7 +179,8 @@
                                        :gap      "10px"
                                        :children [[please-wait-message]
                                                   [progress-bar-with-cancel-button]
-                                                  [modal-dialog]]]]]]]
+                                                  [modal-dialog]
+                                                  [error]]]]]]]
               [parts-table "modal-panel" modal-panel-parts-desc]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
