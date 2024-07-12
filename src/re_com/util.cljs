@@ -80,6 +80,12 @@
   [val & negative]
   (str (if negative (- val) val) "px"))
 
+(defn <-px
+  "Takes a string ending with \"px\" and returns an integer."
+  [s]
+  (when (seq s)
+    (parse-long (str/replace s "px" ""))))
+
 (defn px-n
   "takes n numbers (could also be strings) and converts them to a space separated px string
   e.g. (px-n 10 2 30 4) => '10px 2px 30px 4px' for use in :padding, :margin etc.
