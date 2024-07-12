@@ -332,22 +332,19 @@
                                 :blur   (reset! focused? false)
                                 :enter  (js/setTimeout (fn [] (reset! transitionable :in)) 50)
                                 :exit   (js/setTimeout (fn [] (reset! transitionable :out)) 50)))
-                theme       {:variables theme-vars
-                             :base      base-theme
-                             :main      main-theme
-                             :user      [theme
-                                         (theme/parts parts)
-                                         (theme/<-props (merge args {:height anchor-height
-                                                                     :width  (or width anchor-width)})
-                                           {:part    ::anchor-wrapper
-                                            :exclude [:max-height :min-height]})
-                                         (theme/<-props args
-                                           {:part    ::body-wrapper
-                                            :include [:width :min-width
-                                                      :min-height :max-height]})
-                                         (theme/<-props args
-                                           {:part    ::wrapper
-                                            :include [:class :style :attr]})]}
+                theme       (theme/defaults
+                             args
+                             {:user [(theme/<-props (merge args {:height anchor-height
+                                                                 :width  (or width anchor-width)})
+                                       {:part    ::anchor-wrapper
+                                        :exclude [:max-height :min-height]})
+                                     (theme/<-props args
+                                       {:part    ::body-wrapper
+                                        :include [:width :min-width
+                                                  :min-height :max-height]})
+                                     (theme/<-props args
+                                       {:part    ::wrapper
+                                        :include [:class :style :attr]})]})
                 themed      (fn [part props & [special-theme]]
                               (theme/apply props
                                 {:state       state
@@ -369,8 +366,8 @@
                    [u/part backdrop part-props re-com.dropdown/backdrop])
                  [h-box
                   (themed ::anchor-wrapper
-                    {:src   (at)
-                     :attr  {:ref anchor-ref!}
+                    {:src      (at)
+                     :attr     {:ref anchor-ref!}
                      :children [[u/part anchor part-props re-com.dropdown/anchor]
                                 [gap :size "1"]
                                 [gap :size "5px"]

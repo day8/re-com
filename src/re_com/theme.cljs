@@ -73,3 +73,11 @@
                     (select-keys outer-props outer-style-keys))
             (update :attr clojure.core/merge
                     (select-keys outer-props outer-attr-keys)))))))
+
+(defn defaults [{:keys [theme-vars base-theme main-theme theme parts]} & themes]
+  (apply re-com.theme/merge
+    {:variables theme-vars
+     :base      base-theme
+     :main      main-theme
+     :user      [theme (re-com.theme/parts parts)]}
+    themes))
