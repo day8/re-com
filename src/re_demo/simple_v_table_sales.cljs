@@ -62,8 +62,13 @@
         how-many?           (reagent/atom false)
         how-many            (reagent/atom 100)
         spacing             (px 12)
-        spacing7           (px 7)
-        email-row-label-fn  (fn [row] [hyperlink-href :src (at) :label (:email row) :href (str "mailto:" (:email row))])
+        spacing7            (px 7)
+        email-row-label-fn  (fn [row]
+                              (let [value (:email row)]
+                                [hyperlink-href {:src   (at)
+                                                 :attr  {:title value}
+                                                 :label value
+                                                 :href  (str "mailto:" value)}]))
         method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
       [v-box
