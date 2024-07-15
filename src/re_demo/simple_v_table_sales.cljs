@@ -326,8 +326,8 @@
                                                        [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 70  :align "center" :vertical-align "middle" :export? false}
                                                         {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"   :vertical-align "middle"}
                                                         {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"   :vertical-align "middle" :sort-by {}}
-                                                        {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn    :width 200 :align "left"   :vertical-align "middle" :row-export-fn :email}
-                                                        {:id :method :header-label "Method" :row-label-fn method-row-label-fn   :width 100 :align "center" :vertical-align "middle" :row-export-fn (comp name :method)}
+                                                        {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn    :width 200 :align "left"   :vertical-align "middle" :on-export-row-label-fn :email}
+                                                        {:id :method :header-label "Method" :row-label-fn method-row-label-fn   :width 100 :align "center" :vertical-align "middle" :on-export-row-label-fn (comp name :method)}
                                                         {:id :sales  :header-label "Sales"  :row-label-fn #(str "$" (:sales %)) :width 100 :align "right"  :vertical-align "middle" :sort-by {:key-fn :sales}}
                                                         {:id :units  :header-label "Units"  :row-label-fn :units                :width 100 :align "right"  :vertical-align "middle" :sort-by true}]
                                                        :fixed-column-count        @fixed-column-count

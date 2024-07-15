@@ -220,7 +220,8 @@
       [:span "one element for each column in the table. Must contain "
        [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"]
        "," [:code ":width"] ", and " [:code ":height"]
-       ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"]
+       ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"] ", "
+       [:code ":on-export-row-label-fn"] ", "
        " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be "
        [:code "true"] " or a map optionally containing " [:code ":key-fn"]
        " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}

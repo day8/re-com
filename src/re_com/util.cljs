@@ -231,7 +231,7 @@
 
 (defn table->tsv [columns rows]
   (let [header-value-fn  (some-fn :export-header-label :header-label (comp name :id))
-        row-value-fn     (some-fn :row-export-fn :row-label-fn :id)
+        row-value-fn     (some-fn :on-export-row-label-fn :row-label-fn :id)
         row->cells       (apply juxt (map row-value-fn columns))]
     (->> rows
          (map row->cells)
