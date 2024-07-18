@@ -96,7 +96,7 @@
                   :user-select    "none"
                   #_#_:width          "100%"
                   :z-index        (case (:openable state)
-                                    :open 99999 nil)}}
+                                    :open 20 nil)}}
 
          ::dropdown/backdrop
          {:class    "noselect"
@@ -109,7 +109,7 @@
                      :height             "100%"
                      #_#_:pointer-events "none"
                      :z-index            (case (:openable state)
-                                           :open 99998 nil)}}
+                                           :open 10 nil)}}
 
          ::dropdown/body-wrapper
          {:ref   (:ref state)
