@@ -3,6 +3,7 @@
   (:require
    [reagent.core :as r]
    [re-com.theme.util :as tu]
+   [re-com.util :as u]
    [re-com.theme.default :as theme.default]))
 
 (def registry (r/atom {:base-variables theme.default/base-variables
@@ -14,7 +15,7 @@
 
 (def named->vec
   (memoize
-   (juxt :base-variables :main-variables :user-variables :base :main :user)))
+   (juxt :re-com/system :base-variables :main-variables :user-variables :base :main :user)))
 
 (def global (r/reaction (flatten (named->vec @registry))))
 
@@ -22,12 +23,9 @@
 
 (def parts tu/parts)
 
-(defn rf [[props ctx] theme]
-  (let [result (theme props ctx)]
-    (if (vector? result) result [result ctx])))
-
-(defn merge [a {:keys [base main user main-variables user-variables base-variables] :as b}]
+(defn merge [a {:re-com/keys [system] :keys [base main user main-variables user-variables base-variables] :as b}]
   (cond-> a
+    system         (update :re-com/system       conj system)
     base-variables (assoc  :base-variables      base-variables)
     main-variables (assoc  :main-variables      main-variables)
     user-variables (update :user-variables conj user-variables)
@@ -35,17 +33,22 @@
     main           (assoc  :main                main)
     user           (update :user           conj user)))
 
+(defn rf [[props ctx] theme]
+  (let [result (theme props ctx)]
+    (if (vector? result) result [result ctx])))
+
 (defn apply
   ([props ctx themes]
    (->>
     (if-not (map? themes)
-      (update @registry :user conj themes)
+      (update @registry :usder conj themes)
       (merge @registry themes))
     named->vec
     flatten
     (remove nil?)
     (reduce rf [props ctx])
-    first)))
+    first
+    (#(dissoc % :re-com/system)))))
 
 (defn props [ctx themes]
   (apply {} ctx themes))
@@ -74,10 +77,16 @@
             (update :attr clojure.core/merge
                     (select-keys outer-props outer-attr-keys)))))))
 
-(defn defaults [{:keys [theme-vars base-theme main-theme theme parts]} & themes]
-  (apply re-com.theme/merge
-    {:variables theme-vars
-     :base      base-theme
-     :main      main-theme
-     :user      [theme (re-com.theme/parts parts)]}
-    themes))
+(defn add-parts-path [path]
+  (fn parts-pather [props {:keys [part] :as ctx}]
+    [(update props :theme conj (add-parts-path (conj path part)))
+     (assoc ctx :parts-path (conj path part))]))
+
+(defn defaults [{:re-com/keys [system] :keys [theme-vars base-theme main-theme theme parts]} & themes]
+  (re-com.theme/merge
+   {:re-com/system []
+    :variables     theme-vars
+    :base          base-theme
+    :main          main-theme
+    :user          [theme (re-com.theme/parts parts)]}
+   themes))

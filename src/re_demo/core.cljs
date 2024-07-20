@@ -8,7 +8,7 @@
             [reagent.dom                   :as    rdom]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
@@ -259,9 +259,18 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
+(defn main2 []
+  [rc/error-modal
+   {:src               (at)
+    :what-happened     "Something happened"
+    :implications      "Implications"
+    :what-to-do        "Do something."
+    :footer            [:div
+                        [rc/title :level :level3 :label :error-log]]}])
+
 (defn ^:dev/after-load mount-root
   []
-  (rdom/render [main] (get-element-by-id "app")))
+  (rdom/render [main2] (get-element-by-id "app")))
 
 (defn ^:export mount-demo
   []

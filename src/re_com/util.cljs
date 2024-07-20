@@ -249,6 +249,9 @@
     default     (part default props)
     :else       nil))
 
+(defn themed-part [x props & [default]]
+  [x props default])
+
 (def reduce-> #(reduce %2 %1 %3))
 
 (defn triangle [& {:keys [width height fill direction]
@@ -262,11 +265,21 @@
               :fill   fill}]])
 
 (defn x-button [& {:as props}]
-  (let [hover? (r/atom nil)]
-    (fn [& {:as props}]
+  (let [hover-internal? (r/atom nil)]
+    (fn [& {:keys [hover? width height stroke-width]
+            :or {width  "9px"
+                 height "9px"
+                 hover? hover-internal?
+                 stroke-width "1px"}
+            :as   props}]
       [:svg (merge {:on-mouse-enter (partial reset! hover? true)
                     :on-mouse-leave (partial reset! hover? false)
-                    :width "9px" :height "9px" :viewBox "0 0 9 9" :xmlns "http://www.w3.org/2000/svg" :stroke (if @hover? "#767a7c" "currentColor")}
+                    :width          width
+                    :height         height
+                    :viewBox        (str "0 0 " (<-px width) " " (<-px height))
+                    :xmlns          "http://www.w3.org/2000/svg"
+                    :stroke         (if (deref-or-value hover?) "#767a7c" "currentColor")
+                    :stroke-width   stroke-width}
                    props)
-       [:line {:x1 "1" :y1 "1" :x2 "9" :y2 "9"  :stroke-width "1"}]
-       [:line {:x1 "1" :y1 "9" :x2 "9" :y2 "1"  :stroke-width "1"}]])))
+       [:line {:x1 0 :y1 0 :x2 (<-px width) :y2 (<-px height)}]
+       [:line {:x1 0 :y1 (<-px height) :x2 (<-px width) :y2 0}]])))

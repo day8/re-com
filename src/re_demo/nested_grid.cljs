@@ -52,14 +52,14 @@
     [p "A " [:code ":column-spec"] " describes a single column."]
     [:ul
      [:li "For instance, the " [:strong "Basic Demo"] " uses "
-      [:code ":a"] " as a " [:code ":column-spec"] "."]
-     [:li "You can use " [:i "almost any"] " type of value (not just keywords)."]
+      [:code "2"] " as a " [:code ":column-spec"] "."]
+     [:li "You can use " [:i "almost any"] " type of value."]
      [:li "You " [:i "can't"] " use vectors or lists (these are reserved for the "
       [:code ":column-tree"] ")."]
      [:li "At Day8, we tend to use maps. For instance, "
       [:pre {:style {:width 400}} "{:id :a
  :column-label \"A\"
- :special-business-logic ::xyz}"]]]
+ :special-business-logic {::xyz \"abc\"}}"]]]
     [title2 "Column Tree"]
     [p "A " [:code ":column-tree"] "describes a nested arrangement of columns."
      [:ul
@@ -421,7 +421,7 @@
  :cell (fn [{:keys [column-path row-path]}]
           (* (last column-path)
              (last row-path)))]"]]]
-    [p "A simple times table. the " [:code ":cell"] " function receives "
+    [p "A simple times table. The " [:code ":cell"] " function gets called once for each cell, getting passed a "
      [:code ":column-path"] " and " [:code ":row-path"]
      ". In this case, each path is a vector of one number. For instance, "
      "the bottom cells each have a " [:code ":row-path"] " of " [:code "[5]"] "."]
