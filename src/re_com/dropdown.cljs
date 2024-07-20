@@ -122,8 +122,13 @@
       :type     "boolean | r/atom"}
      {:name     :direction
       :required false
-      :default  :best
-      :type     ":up | :down | :toward-center"}
+      :default  :toward-center
+      :type     "keyword"
+      :description [:span "Determines how to position the "
+                    [:code ":body"] " part. " [:code ":toward-center"]
+                    " dynamically re-positions it, while "
+                    [:code ":up"] " and " [:code ":down"]
+                    " force it toward a static direction."]}
      {:default     0
       :description "component's tabindex. A value of -1 removes from order"
       :name        :tab-index
