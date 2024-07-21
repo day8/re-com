@@ -6,8 +6,9 @@
    [clojure.string   :as    string]
    [re-com.config    :refer [include-args-desc?]]
    [re-com.debug     :refer [->attr]]
+   [re-com.util      :as    u]
    [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
-                             scroll-options-list string-or-hiccup? css-style? css-class? html-attr?]]))
+                             scroll-options-list string-or-hiccup? css-style? css-class? html-attr? part?]]))
 
 (def visualise-flow? false)
 
@@ -301,7 +302,7 @@
      {:name :align-self :required false                   :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
      {:name :margin     :required false                   :type "string"        :validate-fn string?        :description "a CSS margin style"}
      {:name :padding    :required false                   :type "string"        :validate-fn string?        :description "a CSS padding style"}
-     {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
+     {:name :gap        :required false                   :type "string"        :validate-fn part?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
      {:name :class      :required false                   :type "string"        :validate-fn css-class?        :description "CSS class names - space separated string, or a vector of strings."}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
@@ -333,10 +334,12 @@
                    (when padding     {:padding    padding})
                    (when visualise-flow? {:background-color "antiquewhite"})
                    style)
-         gap-form (when gap [re-com.box/gap
-                             :src    (at)
-                             :size   gap
-                             :height gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
+         gap-form (if (string? gap)
+                    [re-com.box/gap
+                     :src    (at)
+                     :size   gap
+                     :height gap]
+                    [u/part gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
          children (if gap
                     (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                     children)]
