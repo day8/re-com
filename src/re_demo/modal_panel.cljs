@@ -1,5 +1,5 @@
 (ns re-demo.modal-panel
-  (:require [re-com.core        :refer [at h-box v-box box gap line border title label modal-panel error-modal progress-bar input-text checkbox button p]]
+  (:require [re-com.core        :as rc :refer [at h-box v-box box gap line border title label modal-panel error-modal progress-bar input-text checkbox button p]]
             [re-com.error-modal :refer [error-modal]]
             [re-com.modal-panel :refer [modal-panel-parts-desc modal-panel-args-desc]]
             [re-demo.utils      :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
@@ -139,14 +139,16 @@
                    :on-click (fn []
                                (reset! show? true)
                                #_(js/setTimeout #(reset! show? false) 3000))]
-                  (when @show?
-                    [error-modal
-                     {:src               (at)
-                      :what-happened     "Something happened"
-                      :implications      "Implications"
-                      :what-to-do        "Do something."
-                      :backdrop-on-click #(reset! show? false)
-                      :on-close          #(reset! show? false)}])]])))
+                  (when true #_@show?
+                        [error-modal
+                         {:src               (at)
+                          :what-happened     "Something happened"
+                          :implications      "Implications"
+                          :what-to-do        "Do something."
+                          :footer            [:div
+                                              [rc/title :level :level3 :label :error-log]]
+                          :backdrop-on-click #(reset! show? false)
+                          :on-close          #(reset! show? false)}])]])))
 (defn panel2
   []
   [v-box :src (at)

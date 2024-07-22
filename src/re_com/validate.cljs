@@ -147,7 +147,7 @@
   [arg-defs passed-args]
   (if-not debug?
     nil
-    (let [passed-arg-keys (set (keys passed-args))
+    (let [passed-arg-keys (set (remove #{:theme} (set (keys passed-args))))
           problems        (->> []
                                (arg-names-known? (:arg-names arg-defs) passed-arg-keys)
                                (required-args?   (:required-args arg-defs) passed-arg-keys)

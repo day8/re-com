@@ -150,7 +150,7 @@
 
 (defn main [props {:keys                [state part]
                    {:as   $
-                    :keys [sm-1 sm-2 sm-3 sm-4 sm-6 md-1 md-2
+                    :keys [sm-1 sm-2 sm-3 sm-4 sm-5 sm-6 md-1 md-2
                            dark shadow light light-background
                            border border-dark
                            foreground]} :variables
@@ -302,7 +302,6 @@
          ::error-modal/inner-wrapper
          {:style {:background-color (:white $)
                   :box-shadow       "2.82843px 2.82843px 4px rgba(1,1,1,0.2)"
-                  :color            (:error $)
                   :font-size        (:font-size/medium $)
                   :min-width        (px 474)
                   :min-height       (px 300)}}
@@ -317,14 +316,14 @@
                                           "#1e1e1e")
                       :color            "#FFFFFF"
                       :padding-left     md-2
-                      :padding-right    md-1}
+                      :padding-right    sm-6}
             :height  (px 50)})
 
          ::error-modal/title
-         {:style {:font-size      (:font-size/heading $)
-                  :color          (:white $)
-                  :margin         "0px"
-                  :padding-bottom "3px"}}
+         {:style {:font-size          25
+                  :color              (:white $)
+                  :padding            0
+                  :margin             "0px"}}
 
          ::error-modal/triangle
          (let [{:keys [severity]} state]
@@ -332,6 +331,12 @@
                             :error   (:error $)
                             :warning (:warning $)
                             "#1e1e1e")}})
+
+         ::error-modal/error
+         {:style {:font-family "monospace"
+                  :white-space "pre"
+                  :font-size   :font-size/small
+                  :color       (:neutral $)}}
 
          ::error-modal/body
          {:style {:padding (str sm-4 " " md-2)}})

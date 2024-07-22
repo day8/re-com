@@ -122,8 +122,13 @@
       :type     "boolean | r/atom"}
      {:name     :direction
       :required false
-      :default  :best
-      :type     ":up | :down | :toward-center"}
+      :default  :toward-center
+      :type     "keyword"
+      :description [:span "Determines how to position the "
+                    [:code ":body"] " part. " [:code ":toward-center"]
+                    " dynamically re-positions it, while "
+                    [:code ":up"] " and " [:code ":down"]
+                    " force it toward a static direction."]}
      {:default     0
       :description "component's tabindex. A value of -1 removes from order"
       :name        :tab-index
@@ -221,7 +226,9 @@
 (defn optimize-position!
   "Returns an [x y] position for popover, relative to anchor.
   Considers two possible vertical positions - above or below the anchor.
-  Picks the vertical position whose midpoint is nearest to the viewport's midpoint.
+  If one vertical position clips outside the viewport, chooses the opposite position.
+  If both vertical positions clip, picks the vertical position whose midpoint
+  is nearest the viewport's midpoint.
   Calculates a left-justified horizontal position, constrained by the viewport width
   and the right edge of the anchor.
 
@@ -236,15 +243,19 @@
         a-bot        (.-bottom a-rect)
         b-h          (.-offsetHeight body-el)
         b-w          (.-offsetWidth body-el)
-        v-mid-y      (/ js/window.innerHeight 2)
+        w-h          js/window.innerHeight
+        v-mid-y      (/ w-h 2)
         lo-mid-y     (+ a-bot (/ b-w 2))
         hi-mid-y     (- a-y (/ b-h 2))
+        bot-clipped? (< w-h (+ a-bot b-h))
         top-clipped? (neg? (- a-y b-h))
         top-best?    (= hi-mid-y (nearest v-mid-y lo-mid-y hi-mid-y))
         v-pos        (cond
-                       top-clipped? :low
-                       top-best?    :high
-                       :else        :low)
+                       (not (or top-clipped? bot-clipped?)) :low
+                       bot-clipped?                         :high
+                       top-clipped?                         :low
+                       top-best?                            :high
+                       :else                                :low)
         left-bound   (max (- a-x) 0)
         right-bound  (max (- a-w b-w) 0)
         hi-y         (- b-h)
