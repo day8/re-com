@@ -11,8 +11,6 @@
    [re-com.text :as text]
    [re-com.util :as u :refer [deref-or-value px]]))
 
-(swap! theme/registry update :main vector blue-modern/theme)
-
 (defn close-button [props]
   (let [hover? (r/atom nil)]
     [:div {:on-mouse-enter (partial reset! hover? true)
