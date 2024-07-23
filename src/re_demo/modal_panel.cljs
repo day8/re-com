@@ -139,16 +139,16 @@
                    :on-click (fn []
                                (reset! show? true)
                                #_(js/setTimeout #(reset! show? false) 3000))]
-                  (when true #_@show?
-                        [error-modal
-                         {:src               (at)
-                          :what-happened     "Something happened"
-                          :implications      "Implications"
-                          :what-to-do        "Do something."
-                          :footer            [:div
-                                              [rc/title :level :level3 :label :error-log]]
-                          :backdrop-on-click #(reset! show? false)
-                          :on-close          #(reset! show? false)}])]])))
+                  (when @show?
+                    [error-modal
+                     {:src               (at)
+                      :what-happened     "Something happened"
+                      :implications      "Implications"
+                      :what-to-do        "Do something."
+                      :footer            [:div
+                                          [rc/title :level :level3 :label :error-log]]
+                      :backdrop-on-click #(reset! show? false)
+                      :on-close          #(reset! show? false)}])]])))
 (defn panel2
   []
   [v-box :src (at)
