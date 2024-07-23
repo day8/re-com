@@ -39,6 +39,7 @@
             [re-demo.tree-select           :as    tree-select]
             [re-demo.popovers              :as    popovers]
             [re-demo.datepicker            :as    datepicker]
+            [re-demo.daterange             :as    daterange]
             [re-demo.selection-list        :as    selection-list]
             [re-demo.input-time            :as    input-time]
             [re-demo.layout                :as    layout]
@@ -83,6 +84,7 @@
    {:id :progress-bar           :level :minor :label "Progress Bar"       :panel progress-bar/panel}
    {:id :throbber               :level :minor :label "Throbber"           :panel throbber/panel}
    {:id :date                   :level :minor :label "Date Picker"        :panel datepicker/panel}
+   {:id :daterange              :level :minor :label "Date Range Picker"  :panel daterange/panel}
    {:id :time                   :level :minor :label "Input Time"         :panel input-time/panel}
 
    {:id :selection              :level :major :label "Selection"}
