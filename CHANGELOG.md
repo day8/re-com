@@ -2,6 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.13 (2024-07-23)
+
+#### Added
+
+- New `error-modal` component (alpha).
 
 
 ## 2.21.12 (2024-07-20)
