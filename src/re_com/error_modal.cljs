@@ -26,7 +26,8 @@
              implications implications-title
              what-to-do what-to-do-title
              details details-title
-             error error-title
+             error
+             context
              action instructions
              proceedable?
              undone?
@@ -54,11 +55,14 @@
                                "0,0")
         error             (if (string? error)
                             (fn [props] [:div props error]) error)
+        context           (if (string? context)
+                            (fn [props] [:div props context]) context)
         details           (if (string? details)
                             (fn [props] [:div props details]) details)]
     [mp/modal-panel
      (themed ::modal
        {:backdrop-on-click backdrop-on-click
+        :parts {:child-container {:style {:z-index 50}}}
         :child
         [box/v-box
          (themed ::inner-wrapper
@@ -113,13 +117,13 @@
                       [u/part heading (themed ::sub-title {:label what-to-do-title :level :level3}) text/title]
                       [u/part what-to-do args]])]
 
-                  (when (or details error)
+                  (when (or details error context)
                     [:<>
                      [u/part heading
                       (themed ::sub-title {:label details-title :level :level3}) text/title]
                      [u/part details args]
-
-                     #p (u/part error (themed ::error args))])
+                     [u/part error (themed ::error args)]
+                     [u/part context (themed ::context args)]])
 
                   (when footer
                     [u/part footer args])]})]]})]})]))

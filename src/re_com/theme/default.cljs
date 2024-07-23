@@ -119,7 +119,7 @@
                   :opacity    (when-not (:anchor-top state) 0)
                   :overflow-y "auto"
                   :overflow-x "visible"
-                  :z-index    99999}}
+                  :z-index    30}}
 
          ::nested-grid/cell-grid-container
          {:style {:position        "relative"
@@ -297,14 +297,16 @@
                   :opacity          "50%"}}
 
          ::error-modal/modal
-         {:wrap-nicely? false}
+         {:wrap-nicely? false
+          :style {:z-index 50}}
 
          ::error-modal/inner-wrapper
          {:style {:background-color (:white $)
                   :box-shadow       "2.82843px 2.82843px 4px rgba(1,1,1,0.2)"
                   :font-size        (:font-size/medium $)
                   :min-width        (px 474)
-                  :min-height       (px 300)}}
+                  :min-height       (px 300)
+                  :max-width        (px 525)}}
 
          ::error-modal/title-wrapper
          (let [{:keys [severity]} state]
@@ -334,8 +336,14 @@
 
          ::error-modal/error
          {:style {:font-family "monospace"
-                  :white-space "pre"
-                  :font-size   :font-size/small
+                  :white-space "pre-wrap"
+                  :font-size   :font-size/xx-small
+                  :color       (:neutral $)}}
+
+         ::error-modal/context
+         {:style {:font-family "monospace"
+                  :white-space "pre-wrap"
+                  :font-size   :font-size/xx-small
                   :color       (:neutral $)}}
 
          ::error-modal/body
