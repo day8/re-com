@@ -119,7 +119,7 @@
                       (themed ::sub-title {:label details-title :level :level3}) text/title]
                      [u/part details args]
 
-                     [u/part error (themed ::error args)]])
+                     #p (u/part error (themed ::error args))])
 
                   (when footer
                     [u/part footer args])]})]]})]})]))
