@@ -18,7 +18,9 @@
     [:div {:on-mouse-enter (partial reset! hover? true)
            :on-mouse-leave (partial reset! hover? false)
            :style {:padding "12px 7px 7px 7px"}}
-     [u/x-button (merge props {:hover? hover? :stroke-width "1.2px"})]]))
+     [u/x-button (merge props {:width "12px"
+                               :height "12px"
+                               :hover? hover? :stroke-width "1.2px"})]]))
 
 (defn error-modal
   [& {:keys [severity title
