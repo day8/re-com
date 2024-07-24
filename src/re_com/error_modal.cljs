@@ -35,9 +35,9 @@
              theme
              header footer heading]
       :or   {title               "Sorry, you've hit a bug"
-             what-happened-title "What Happened?"
+             what-happened-title "What Just Happened?"
              implications-title  "Implications"
-             what-to-do-title    "What Should I Do?"
+             what-to-do-title    "What Should You Do Now?"
              details-title       "Low-level Details (for developers):"
              severity            :error
              closeable?          true}
@@ -120,10 +120,11 @@
                   (when (or details error context)
                     [:<>
                      [u/part heading
-                      (themed ::sub-title {:label details-title :level :level3}) text/title]
+                      (themed ::sub-title {:label details-title :level :level4}) [:strong {:style {:font-size "12px"}} details-title]]
                      [u/part details args]
                      [u/part error (themed ::error args)]
                      [u/part context (themed ::context args)]])
 
                   (when footer
                     [u/part footer args])]})]]})]})]))
+
