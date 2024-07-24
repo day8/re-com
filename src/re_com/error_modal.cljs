@@ -33,14 +33,21 @@
              undone?
              backdrop-on-click on-close closeable?
              theme
+             defaults?
+             ask-to-report?
+             engineers-notified?
+             bug?
              header footer heading]
       :or   {title               "Sorry, you've hit a bug"
              what-happened-title "What Just Happened?"
              implications-title  "Implications"
              what-to-do-title    "What Should You Do Now?"
              details-title       "Low-level Details (for developers):"
+             engineers-notified? true
              severity            :error
-             closeable?          true}
+             closeable?          true
+             defaults?           true
+             bug?                true}
       :as   args}]
   (let [themed            (fn [part props]
                             (theme/apply props
@@ -53,16 +60,47 @@
         arrow-points      (str arrow-midpoint "," arrow-midpoint " "
                                arrow-side-length "," 0 " "
                                "0,0")
-        error             (if (string? error)
-                            (fn [props] [:div props error]) error)
-        context           (if (string? context)
-                            (fn [props] [:div props context]) context)
+        error             (cond
+                            (string? error)
+                            (fn [props] [:div props error])
+                            (map? error)
+                            (fn [props] [:div props (pr-str error)])
+                            :else
+                            error)
+        context           (cond
+                            (string? context)
+                            (fn [props] [:div props context])
+                            (map? context)
+                            (fn [props] [:div props (pr-str context)])
+                            :else
+                            context)
         details           (if (string? details)
-                            (fn [props] [:div props details]) details)]
+                            (fn [props] [:div props details]) details)
+        what-happened     (or what-happened
+                              (when defaults?
+                                [:span "Your app encountered an unexpected error. "
+                                 "We currently don't have enough information to explain in more detail. "
+                                 (when undone? "Your last action has been undone. ")
+                                 (if engineers-notified?
+                                   [:<>
+                                    [:br]
+                                    [:i "Our engineers have been notified. "]
+                                    (when bug?
+                                      [:span "This is probably a bug, so we're looking into it."])]
+                                   (when bug? [:span "This is probably a bug."]))]))
+        implications      (or implications
+                              (when defaults?
+                                "This app cannot continue on."))
+        what-to-do        (or what-to-do
+                              (when defaults?
+                                (str
+                                 (if proceedable?
+                                   "You might be able to close this pop-up and continue on. Otherwise, restart this app."
+                                   "You'll have to restart this app."))))]
     [mp/modal-panel
      (themed ::modal
        {:backdrop-on-click backdrop-on-click
-        :parts {:child-container {:style {:z-index 50}}}
+        :parts             {:child-container {:style {:z-index 50}}}
         :child
         [box/v-box
          (themed ::inner-wrapper
@@ -127,4 +165,3 @@
 
                   (when footer
                     [u/part footer args])]})]]})]})]))
-
