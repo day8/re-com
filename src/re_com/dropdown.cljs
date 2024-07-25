@@ -146,6 +146,16 @@
       :type        "integer | string"
       :validate-fn number-or-string?}
      {:description "height of the :body-wrapper part"
+      :name        :body-height
+      :required    false
+      :type        "integer | string"
+      :validate-fn number-or-string?}
+     {:description "width of the :body-wrapper part"
+      :name        :body-width
+      :required    false
+      :type        "integer | string"
+      :validate-fn number-or-string?}
+     {:description "height of the :body-wrapper part"
       :name        :height
       :required    false
       :type        "integer | string"
@@ -161,6 +171,11 @@
       :type        "integer | string"
       :validate-fn number-or-string?}
      {:description "width of the :anchor-wrapper and :body-wrapper parts"
+      :name        :width
+      :required    false
+      :type        "integer | string"
+      :validate-fn number-or-string?}
+     {:description "height of the :body-wrapper part"
       :name        :width
       :required    false
       :type        "integer | string"
@@ -311,11 +326,12 @@
     (fn dropdown-render
       [& {:keys [disabled? on-change tab-index direction
                  anchor-height anchor-width
+                 body-height   body-width
                  model
                  label placeholder
                  anchor backdrop body body-header body-footer indicator
                  parts theme main-theme theme-vars base-theme
-                 width]
+                 width height]
           :or   {placeholder "Select an item"
                  model       default-model
                  direction   :toward-center}
@@ -349,9 +365,10 @@
                                                                  :width  (or width anchor-width)})
                                        {:part    ::anchor-wrapper
                                         :exclude [:max-height :min-height]})
-                                     (theme/<-props args
+                                     (theme/<-props (merge args {:height (or height body-height)
+                                                                 :width  (or width body-width)})
                                        {:part    ::body-wrapper
-                                        :include [:width :min-width
+                                        :include [:width :height :min-width
                                                   :min-height :max-height]})
                                      (theme/<-props args
                                        {:part    ::wrapper

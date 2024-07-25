@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.14 (2024-07-25)
+
+#### Added
+
+- `dropdown` - `:height`, `:body-height` & `:body-width` props
+
 ## 2.21.13 (2024-07-23)
 
 #### Added

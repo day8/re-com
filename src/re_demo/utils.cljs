@@ -1,6 +1,6 @@
 (ns re-demo.utils
   (:require
-   [re-com.core           :refer [title line label hyperlink-href align-style at]]
+   [re-com.core           :as rc :refer [title line label hyperlink-href align-style at]]
    [re-com.box            :refer [box gap h-box v-box]]
    [re-com.text           :refer [p]]
    [re-com.util           :refer [px]]))
@@ -215,3 +215,33 @@
 (defn scroll-to-top
   [element]
   (set! (.-scrollTop element) 0))
+
+(defn prop-slider [{:keys [prop default default-on? id] :or {default-on? true}}]
+  (let [default (or @prop default)]
+    (when (and default-on? default)
+      (reset! prop default))
+    (when-not default-on?
+      (reset! prop nil))
+    (fn [{:keys [prop default]}]
+      [h-box :src (at)
+       :align    :center
+       :children [[rc/checkbox :src (at)
+                   :label     [box :src (at)
+                               :align :start
+                               :child [:code id]]
+                   :model     (some? @prop)
+                   :on-change (if @prop
+                                #(reset! prop nil)
+                                #(reset! prop default))]
+                  [gap :src (at) :size "5px"]
+                  (when @prop
+                    [:<>
+                     [rc/slider
+                      :model     prop
+                      :on-change #(reset! prop %)
+                      :min       50
+                      :max       400
+                      :step      1
+                      :width     "300px"]
+                     [gap :src (at) :size "5px"]
+                     [label :src (at) :label (str @prop "px")]])]])))
