@@ -91,25 +91,25 @@
                                     (str sm-2 " auto #ddd"))
                   :outline-offset (str "-" sm-2)
                   :position       "relative"
-                  #_#_:display        "block"
+                  #_#_:display    "block"
                   :overflow       "hidden"
                   :user-select    "none"
-                  #_#_:width          "100%"
+                  #_#_:width      "100%"
                   :z-index        (case (:openable state)
                                     :open 20 nil)}}
 
          ::dropdown/backdrop
-         {:class    "noselect"
-          :on-click #(do (transition! :close)
-                         (transition! :blur))
-          :style    {:position           "fixed"
-                     :left               "0px"
-                     :top                "0px"
-                     :width              "100%"
-                     :height             "100%"
-                     #_#_:pointer-events "none"
-                     :z-index            (case (:openable state)
-                                           :open 10 nil)}}
+         {:class "noselect"
+          :attr  {:on-click #(do (transition! :close)
+                                 (transition! :blur))}
+          :style {:position           "fixed"
+                  :left               "0px"
+                  :top                "0px"
+                  :width              "100%"
+                  :height             "100%"
+                  #_#_:pointer-events "none"
+                  :z-index            (case (:openable state)
+                                        :open 10 nil)}}
 
          ::dropdown/body-wrapper
          {:ref   (:ref state)
@@ -176,7 +176,8 @@
          ::dropdown/anchor-wrapper
          (let [open?   (= :open (:openable state))
                closed? (= :closed (:openable state))]
-           {:style {:background-color (:white $)
+           {:align :center
+            :style {:background-color (:white $)
                     :background-clip  "padding-box"
                     :border           (str "1px solid "
                                            (cond

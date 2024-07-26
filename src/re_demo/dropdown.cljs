@@ -43,20 +43,22 @@
            :children
            [[title2 "Demo"]
             [dropdown
-             {:anchor       (fn [{:keys [state]}]
-                              [:div "I am " (:openable state) " ;)"])
-              #_#_:parts    {:backdrop {:style {:background-color "blue"}}}
-              :body         [:div "Hello World!"]
-              :model        model
-              :width        (some-> @width px)
-              :height       (some-> @height px)
-              :min-width    (some-> @min-width px)
-              :max-width    (some-> @max-width px)
-              :max-height   (some-> @max-height px)
-              :min-height   (some-> @min-height px)
-              :body-width   (some-> @body-width px)
-              :anchor-width (some-> @anchor-width px)
-              :on-change    #(reset! model %)}]
+             (merge
+              {#_:anchor  #_(fn [{:keys [state label] :as props}]
+                              (str "the " label " is " (:openable state) " ;)"))
+               #_#_:parts {:backdrop {:style {:background-color "blue"}}}
+               :label     "dropdown"
+               :body      [:div "Hello World!"]
+               :model     model
+               :width     (some-> @width px)}
+              (when @height {:height (px @height)})
+              {:min-width    (some-> @min-width px)
+               :max-width    (some-> @max-width px)
+               :max-height   (some-> @max-height px)
+               :min-height   (some-> @min-height px)
+               :body-width   (some-> @body-width px)
+               :anchor-width (some-> @anchor-width px)
+               :on-change    #(reset! model %)})]
             [v-box :src (at)
              :gap "10px"
              :style {:min-width        "550px"

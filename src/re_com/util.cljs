@@ -241,12 +241,12 @@
 
 (def hiccup? vector?)
 
-(defn part [x props & [default]]
+(defn part [x props & {:keys [default]}]
   (cond
     (string? x) x
     (hiccup? x) x
     (ifn? x)    [x props]
-    default     (part default props)
+    default     [part default props]
     :else       nil))
 
 (defn themed-part [x props & [default]]

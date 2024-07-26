@@ -413,7 +413,7 @@
      (-> {:style {:grid-column (path->grid-line-name column-path)
                   :grid-row    (path->grid-line-name row-path)}}
          (theme/apply {:state {:edge edge} :part ::cell-wrapper} theme))
-     [u/part cell props cell-part]]))
+     [u/part cell props :default cell-part]]))
 
 (defn header-label [{:keys [path]}]
   (let [header (last path)]
@@ -441,7 +441,7 @@
             :position          "relative"}}
    [:div (theme/apply {} {:state {:edge edge} :part ::column-header-wrapper}
            theme)
-    [u/part column-header props column-header-part]]
+    [u/part column-header props :default column-header-part]]
    (when (and resize-columns? show?)
      [resize-button (merge props {:dimension :column
                                   :path      column-path})])])
@@ -465,7 +465,7 @@
    [:div (theme/apply {}
            {:state {:edge edge} :part ::row-header-wrapper}
            theme)
-    [u/part row-header props row-header-part]]
+    [u/part row-header props :default row-header-part]]
    (when (and resize-rows? show?)
      [resize-button (merge props {:dimension :row
                                   :path      row-path})])])
@@ -560,7 +560,7 @@
                     :grid-row    (inc y)}}
                   (theme/apply {:state {:edge edge} :part ::header-spacer} theme))]
     [:div props
-     [u/part header-spacer props header-spacer-part]]))
+     [u/part header-spacer props :default header-spacer-part]]))
 
 (defn scroll-container [{:keys [scroll-top scroll-left width height style]} child]
   [:div {:style (merge {:max-height height
@@ -846,7 +846,7 @@
                                                                           (section-left? path)              (conj :column-section-left)
                                                                           (section-right? path)             (conj :column-section-right))}]]
                                       ^{:key [::column (or path (gensym))]}
-                                      [u/part column-header-wrapper props column-header-wrapper-part]))
+                                      [u/part column-header-wrapper props :default column-header-wrapper-part]))
             row-header-cells       (doall
                                     (for [path row-paths
                                           :let [props {:row-path       path
@@ -868,7 +868,7 @@
                                                                          (root-level? path row-paths)   (conj :left)
                                                                          (leaf-level? path row-paths)   (conj :right))}]]
                                       ^{:key [::row (or path (gensym))]}
-                                      [u/part row-header-wrapper props row-header-wrapper-part]))
+                                      [u/part row-header-wrapper props :default row-header-wrapper-part]))
             header-spacer-cells    (for [y    (range column-depth)
                                          x    (range row-depth)
                                          :let [props {:theme         theme
@@ -881,7 +881,7 @@
                                                                        (= y (dec column-depth)) (conj :bottom)
                                                                        (= x (dec row-depth))    (conj :right))}]]
                                      ^{:key [::header-spacer x y]}
-                                     [u/part header-spacer-wrapper props header-spacer-wrapper-part])
+                                     [u/part header-spacer-wrapper props :default header-spacer-wrapper-part])
             cells                  (doall
                                     (for [row-path showing-row-paths]
                                       (doall
@@ -900,7 +900,7 @@
                                                                        (when cell-value
                                                                          {:cell-value cell-value}))]]
                                          ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}
-                                         [u/part cell-wrapper props cell-wrapper-part]))))
+                                         [u/part cell-wrapper props :default cell-wrapper-part]))))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
                                      ^{:key [::zebra-stripe i]}
                                      [:div

@@ -227,13 +227,12 @@
      {:name        :base-theme
       :description "alpha"}]))
 
-(defn anchor [{:keys [label placeholder state theme transition!]}]
-  [:span (theme/props {:state state :part ::anchor :transition! transition!} theme)
+(defn anchor [{:keys [label placeholder style class attr transition!]}]
+  [:span (merge {:style style :class class} attr)
    (or label placeholder)])
 
-(defn backdrop [{:keys [state transition!]}]
-  (fn [{:keys [dropdown-open? state theme parts]}]
-    [:div (theme/props {:transition! transition! :state state :part ::backdrop} theme)]))
+(defn backdrop [{:keys [attr class style state transition!]}]
+  [:div (merge {:style style :class class} attr)])
 
 (defn nearest [x a b]
   (if (< (Math/abs (- a x)) (Math/abs (- b x))) a b))
@@ -361,12 +360,16 @@
                                 :exit   (js/setTimeout (fn [] (reset! transitionable :out)) 50)))
                 theme       (theme/defaults
                              args
-                             {:user [(theme/<-props (merge args {:height anchor-height
-                                                                 :width  (or width anchor-width)})
+                             {:user [(theme/<-props (merge args
+                                                           (when anchor-height {:height anchor-height})
+                                                           (when width {:width width})
+                                                           (when anchor-width {:width anchor-width}))
                                        {:part    ::anchor-wrapper
                                         :exclude [:max-height :min-height]})
-                                     (theme/<-props (merge args {:height (or height body-height)
-                                                                 :width  (or width body-width)})
+                                     (theme/<-props (merge args
+                                                           (when height {:height height})
+                                                           (when body-height {:height body-height})
+                                                           (when body-width {:width body-width}))
                                        {:part    ::body-wrapper
                                         :include [:width :height :min-width
                                                   :min-height :max-height]})
@@ -391,15 +394,17 @@
                {:src (at)
                 :children
                 [(when (= :open (:openable state))
-                   [u/part backdrop part-props re-com.dropdown/backdrop])
+                   [u/part backdrop
+                    (themed ::backdrop part-props)
+                    :default re-com.dropdown/backdrop])
                  [h-box
                   (themed ::anchor-wrapper
                     {:src      (at)
                      :attr     {:ref anchor-ref!}
-                     :children [[u/part anchor part-props re-com.dropdown/anchor]
+                     :children [[u/part anchor (themed ::anchor part-props) :default re-com.dropdown/anchor]
                                 [gap :size "1"]
                                 [gap :size "5px"]
-                                [u/part indicator part-props re-com.dropdown/indicator]]})]
+                                [u/part indicator part-props :default re-com.dropdown/indicator]]})]
                  (when (= :open (:openable state))
                    [body-wrapper {:anchor-ref      anchor-ref
                                   :popover-ref     popover-ref
@@ -408,9 +413,9 @@
                                   :parts           parts
                                   :state           state
                                   :theme           theme}
-                    [u/part body-header part-props]
-                    [u/part body part-props]
-                    [u/part body-footer part-props]])]})])))))
+                    [u/part body-header (themed ::body-header part-props)]
+                    [u/part body (themed ::body part-props)]
+                    [u/part body-footer (themed ::body-footer part-props)]])]})])))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away

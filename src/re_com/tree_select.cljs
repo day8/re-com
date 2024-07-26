@@ -323,7 +323,7 @@
          :children
          (into
           (vec (repeat level [gap :size "10px"]))
-          [[u/part choice props re-com.tree-select/choice]
+          [[u/part choice props :default re-com.tree-select/choice]
            [gap :size "1"]
            (when (and show-only-button? @hover?) [solo-button props])])]))))
 
@@ -361,7 +361,7 @@
             :class (str "rc-tree-select-expander " (get-in parts [:expander :class]))
             :child
             [u/triangle {:direction (if open? :down :right)}]]
-           [u/part re-com.tree-select/group-item props re-com.tree-select/group-item]
+           [u/part re-com.tree-select/group-item props :default re-com.tree-select/group-item]
            [gap :size "1"]
            (when (and show-only-button? @hover?) [solo-button props])])]))))
 
@@ -614,23 +614,24 @@
                                              :group-label-fn group-label-fn})
             on-reset        (or on-reset (handler-fn (on-change #{} (deref-or-value expanded-groups))))]
         [dd/dropdown
+
          (themed ::dropdown
-           {:label         (if label
-                             [u/part label {:model           (deref-or-value model)
-                                            :state           state
-                                            :placeholder     placeholder
-                                            :label-fn        label-fn
-                                            :group-label-fn  group-label-fn
-                                            :labelable-items labelable-items
-                                            :id-fn           id-fn}]
-                             (when anchor-label
-                               [:span {:title (alt-text-fn {:items          labelable-items
-                                                            :label-fn       label-fn
-                                                            :group-label-fn group-label-fn})
-                                       :style {:white-space   "nowrap"
-                                               :overflow      "hidden"
-                                               :text-overflow "ellipsis"}}
-                                anchor-label]))
+           {:label         (cond label
+                                 [u/part label {:model           (deref-or-value model)
+                                                :state           state
+                                                :placeholder     placeholder
+                                                :label-fn        label-fn
+                                                :group-label-fn  group-label-fn
+                                                :labelable-items labelable-items
+                                                :id-fn           id-fn}]
+                                 anchor-label
+                                 [:span {:title (alt-text-fn {:items          labelable-items
+                                                              :label-fn       label-fn
+                                                              :group-label-fn group-label-fn})
+                                         :style {:white-space   "nowrap"
+                                                 :overflow      "hidden"
+                                                 :text-overflow "ellipsis"}}
+                                  anchor-label])
             :placeholder   placeholder
             :indicator     (fn [props]
                              [h-box

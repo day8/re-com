@@ -190,7 +190,7 @@
                                                        :on-change (fn [] (swap! choice-disabled-fn
                                                                                 (fn [x]
                                                                                   (if x nil #(contains? (set (:group %)) :australia)))))]]]
-                                          [prop-slider {:prop width :id :width :default 212 :default-on? false}]
+                                          [prop-slider {:prop width :id :width :default 212 :default-on? true}]
                                           [prop-slider {:prop min-width :id :min-width :default 212 :default-on? false}]
                                           [prop-slider {:prop max-width :id :max-width :default 212 :default-on? false}]
                                           [prop-slider {:prop min-height :id :min-height :default 212 :default-on? false}]
