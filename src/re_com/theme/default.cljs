@@ -188,7 +188,6 @@
                                         open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
                     :color            (:foreground $)
                     :height           "34px"
-                    :line-height      "34px"
                     :padding          "0 8px 0 8px"
                     :text-decoration  "none"
                     :white-space      "nowrap"
