@@ -158,9 +158,6 @@
   (->> {}
        (case part
 
-         ::dropdown/wrapper
-         {:style {:max-width "250px"}}
-
          ::dropdown/body-wrapper
          {:style {:background-color "white"
                   :border-radius    "4px"

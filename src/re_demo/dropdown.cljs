@@ -12,14 +12,16 @@
 
 (defn panel*
   []
-  (let [width        (r/atom 200)
-        height       (r/atom 200)
-        min-width    (r/atom 200)
-        max-width    (r/atom 200)
-        max-height   (r/atom 200)
-        min-height   (r/atom 200)
-        body-width   (r/atom 200)
-        anchor-width (r/atom 200)]
+  (let [width         (r/atom 200)
+        height        (r/atom 200)
+        min-width     (r/atom 200)
+        max-width     (r/atom 200)
+        max-height    (r/atom 200)
+        min-height    (r/atom 200)
+        anchor-height (r/atom 200)
+        body-width    (r/atom 200)
+        body-height    (r/atom 200)
+        anchor-width  (r/atom 200)]
     (fn []
       [v-box :src (at) :size "auto" :gap "10px"
        :children
@@ -52,6 +54,8 @@
                :model     model
                :width     (some-> @width px)}
               (when @height {:height (px @height)})
+              (when @anchor-height {:anchor-height (px @anchor-height)})
+              (when @body-height {:body-height (px @body-height)})
               {:min-width    (some-> @min-width px)
                :max-width    (some-> @max-width px)
                :max-height   (some-> @max-height px)
@@ -68,14 +72,17 @@
              :children [[title3 "Interactive Parameters" {:margin-top "0"}]
                         [v-box :src (at)
                          :gap "20px"
-                         :children [[prop-slider {:prop width :id :width :default 212 :default-on? false}]
-                                    [prop-slider {:prop height :id :height :default 212 :default-on? false}]
-                                    [prop-slider {:prop min-width :id :min-width :default 212 :default-on? false}]
-                                    [prop-slider {:prop max-width :id :max-width :default 212 :default-on? false}]
-                                    [prop-slider {:prop min-height :id :min-height :default 212 :default-on? false}]
-                                    [prop-slider {:prop max-height :id :max-height :default 212 :default-on? false}]
-                                    [prop-slider {:prop body-width :id :body-width :default 212 :default-on? false}]
-                                    [prop-slider {:prop anchor-width :id :anchor-width :default 212 :default-on? false}]]]]]]]]]
+                         :children
+                         [[prop-slider {:prop width :id :width :default 212 :default-on? false}]
+                          [prop-slider {:prop height :id :height :default 212 :default-on? false}]
+                          [prop-slider {:prop min-width :id :min-width :default 212 :default-on? false}]
+                          [prop-slider {:prop max-width :id :max-width :default 212 :default-on? false}]
+                          [prop-slider {:prop min-height :id :min-height :default 212 :default-on? false}]
+                          [prop-slider {:prop max-height :id :max-height :default 212 :default-on? false}]
+                          [prop-slider {:prop body-width :id :body-width :default 212 :default-on? false}]
+                          [prop-slider {:prop body-height :id :body-height :default 212 :default-on? false}]
+                          [prop-slider {:prop anchor-height :id :anchor-height :default 35 :default-on? false :min 10 :max 50}]
+                          [prop-slider {:prop anchor-width :id :anchor-width :default 212 :default-on? false}]]]]]]]]]
         [parts-table "dropdown" dropdown-parts-desc]]])))
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

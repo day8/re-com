@@ -216,7 +216,7 @@
   [element]
   (set! (.-scrollTop element) 0))
 
-(defn prop-slider [{:keys [prop default default-on? id] :or {default-on? true}}]
+(defn prop-slider [{:keys [prop default default-on? id min max] :or {default-on? true min 40 max 500}}]
   (let [default (or @prop default)]
     (when (and default-on? default)
       (reset! prop default))
@@ -239,8 +239,8 @@
                      [rc/slider
                       :model     prop
                       :on-change #(reset! prop %)
-                      :min       50
-                      :max       400
+                      :min       min
+                      :max       max
                       :step      1
                       :width     "300px"]
                      [gap :src (at) :size "5px"]

@@ -360,10 +360,12 @@
                                 :exit   (js/setTimeout (fn [] (reset! transitionable :out)) 50)))
                 theme       (theme/defaults
                              args
-                             {:user [(theme/<-props (merge args
-                                                           (when anchor-height {:height anchor-height})
-                                                           (when width {:width width})
-                                                           (when anchor-width {:width anchor-width}))
+                             {:user [(theme/<-props (-> args
+                                                        (dissoc :height)
+                                                        (merge
+                                                         (when anchor-height {:height anchor-height})
+                                                         (when width {:width width})
+                                                         (when anchor-width {:width anchor-width})))
                                        {:part    ::anchor-wrapper
                                         :exclude [:max-height :min-height]})
                                      (theme/<-props (merge args
