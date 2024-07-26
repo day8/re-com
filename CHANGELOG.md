@@ -10,8 +10,6 @@
 
 - `dropdown` - More consistent handling of width/height props. `:width` applies to both anchor and body, while `:height` applies only to the body. You can override this behavior for specific parts using `:anchor-width`, `:anchor-height`, `:body-width` and `:body-height`.
 
-`:anchor-height`, `:body-height`, `:anchor-width` & `:body-width` props apply more consistently to their parts.
-
 ## 2.21.14 (2024-07-25)
 
 #### Added
