@@ -6,7 +6,8 @@
 
 #### Added
 
-- `datepicker-dropdown` - Can now target the `:anchor-label` part.
+- `datepicker-dropdown` - `:parts` can now target the `:anchor-label` part.
+- `datepicker-dropdown` - Added an optional `:date-cell` argument. This is one of the new "part" arguments, acceping a string, a hiccup or a reagent component function.
 
 ## 2.21.15 (2024-07-26)
 

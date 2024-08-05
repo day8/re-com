@@ -405,57 +405,84 @@
   (change-callback selection))
 
 (defn- table-td
-  [date focus-month selected today {minimum :minimum maximum :maximum selectable-fn :selectable-fn :as attributes} disabled? on-change parts]
-  ;;following can be simplified and terse
-  (let [minimum       (deref-or-value minimum)
-        maximum       (deref-or-value maximum)
-        enabled-min   (if minimum (>=date date minimum) true)
-        enabled-max   (if maximum (<=date date maximum) true)
-        enabled-day   (and enabled-min enabled-max)
-        unselectable-day? (if enabled-day
-                            (not (selectable-fn date))
-                            true)
-        classes       (cond disabled?                              "rc-datepicker-disabled"
-                            unselectable-day?                      "rc-datepicker-unselectable"
-                            (= focus-month (cljs-time/month date)) "rc-datepicker-selectable"
-                            :else                                  "rc-datepicker-selectable rc-datepicker-out-of-focus")
-        classes       (cond (and selected (=date selected date))           (str classes " rc-datepicker-selected start-date end-date ")
-                            (and today (=date date today) (not disabled?)) (str classes " rc-datepicker-today ")
-                            :else                                          (str classes " "))
-        on-click      #(when-not (or disabled? unselectable-day?) (selection-changed date on-change))]
-    [:td
-     (merge
-      {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
-       :style    (get-in parts [:date :style])
-       :on-click (handler-fn (on-click))}
-      (get-in parts [:date :attr]))
-     (cljs-time/day date)]))
+  [{:keys [label date selectable? disabled? class style attr on-change]}]
+  [:td
+   (-> {:class    class
+        :style    style
+        :on-click (when (and selectable? (not disabled?))
+                    (handler-fn (on-change date)))}
+       (merge attr))
+   label])
 
 (defn- week-td [start-of-week date]
   [:td {:class "week"} (week-of-year start-of-week date)])
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
-  [date start-of-week focus-month selected attributes disabled? on-change parts]
+  [{:keys                                                              [date start-of-week focus-month selected disabled? on-change parts date-cell]
+    {:keys [show-weeks? minimum maximum selectable-fn] :as attributes} :attributes}]
 ;  {:pre [(sunday? date)]}
-  (let [table-row (if (:show-weeks? attributes) [:tr (week-td start-of-week date)] [:tr])
-        row-dates (map #(inc-date date %) (range 7))
-        today     (when (:show-today? attributes) (now->utc))]
-    (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change parts) row-dates))))
+  (let [today   (when (:show-today? attributes) (now->utc))
+        minimum (deref-or-value minimum)
+        maximum (deref-or-value maximum)]
+    (into [:tr (when show-weeks? (week-td start-of-week date))]
+          (map #(let [cell-date   (inc-date date %)
+                      enabled-min (if minimum (>=date cell-date minimum) true)
+                      enabled-max (if maximum (<=date cell-date maximum) true)
+                      enabled-day (and enabled-min enabled-max)
+                      selectable? (not (if enabled-day
+                                         (not (selectable-fn cell-date))
+                                         true))
+                      class       (cond disabled?                                   ["rc-datepicker-disabled"]
+                                        (not selectable?)                           ["rc-datepicker-unselectable"]
+                                        (= focus-month (cljs-time/month cell-date)) ["rc-datepicker-selectable"]
+                                        :else                                       ["rc-datepicker-selectable" "rc-datepicker-out-of-focus"])
+                      class       (cond
+                                    (and selected (=date selected cell-date))           (into class ["rc-datepicker-selected" "start-date" "end-date"])
+                                    (and today (=date cell-date today) (not disabled?)) (into class ["rc-datepicker-today"])
+                                    :else class)
+                      class       (conj class "rc-datepicker-date")]
+                  [u/part date-cell {:date          cell-date
+                                     :label         (cljs-time/day cell-date)
+                                     :focus-month   focus-month
+                                     :selected      selected
+                                     :today         today
+                                     :minimum       minimum
+                                     :maximum       maximum
+                                     :selectable-fn selectable-fn
+                                     :attributes    attributes
+                                     :selectable?   selectable?
+                                     :disabled?     disabled?
+                                     :on-change     on-change
+                                     :class         (into class (get-in parts [:date :class]))
+                                     :attr          (get-in parts [:date :attr])
+                                     :style         (get-in parts [:date :style])
+                                     :parts         parts}
+                   :default table-td]))
+          (range 7))))
 
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
-  [display-month selected attributes disabled? on-change parts]
-  (let [start-of-week   (:start-of-week attributes)
-        current-start   (previous (is-day-pred start-of-week) display-month)
-        focus-month     (cljs-time/month display-month)
-        row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
+  [{:keys [display-month selected attributes disabled? on-change parts date-cell]}]
+  (let [start-of-week (:start-of-week attributes)
+        current-start (previous (is-day-pred start-of-week) display-month)]
     (into [:tbody
            (merge
             {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
              :style (get-in parts [:dates :style])}
             (get-in parts [:dates :attr]))]
-          (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change parts) row-start-dates))))
+          (->> (range 6)
+               (map #(inc-date current-start (* 7 %)))
+               (map #(do [table-tr
+                          {:date          %
+                           :date-cell     date-cell
+                           :start-of-week start-of-week
+                           :focus-month   (cljs-time/month display-month)
+                           :selected      selected
+                           :attributes    attributes
+                           :disabled?     disabled?
+                           :on-change     on-change
+                           :parts         parts}]))))))
 
 (defn- configure
   "Augment passed attributes with extra info/defaults"
@@ -503,24 +530,25 @@
 
 (def datepicker-args-desc
   (when include-args-desc?
-    [{:name :model          :required false                               :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
-     {:name :on-change      :required true                                :type "satisfies DateTimeProtocol -> nil"   :validate-fn fn?                       :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
-     {:name :disabled?      :required false  :default false               :type "boolean | atom"                                                             :description "when true, the user can't select dates but can navigate"}
-     {:name :initial-display :required false                              :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description "set the months shown when no model is selected, defaults to the current month"}
-     {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "function"                            :validate-fn fn?                       :description "This predicate function is called with one argument, the date. If it answers false, day will be shown disabled and can't be selected."}
-     {:name :show-weeks?    :required false  :default false               :type "boolean"                                                                    :description "when true, week numbers are shown to the left"}
-     {:name :show-today?    :required false  :default false               :type "boolean"                                                                    :description "when true, today's date is highlighted"}
-     {:name :minimum        :required false                               :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description "no selection or navigation before this date"}
-     {:name :maximum        :required false                               :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description "no selection or navigation after this date"}
-     {:name :start-of-week  :required false  :default 6                   :type "int"                                                                        :description "first day of week (Monday = 0 ... Sunday = 6)"}
-     {:name :hide-border?   :required false  :default false               :type "boolean"                                                                    :description "when true, the border is not displayed"}
-     {:name :i18n           :required false                               :type "map"                                                                        :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
-     {:name :class          :required false                               :type "string"                              :validate-fn string?                   :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
-     {:name :style          :required false                               :type "CSS style map"                       :validate-fn css-style?                :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
-     {:name :attr           :required false                               :type "HTML attr map"                       :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
-     {:name :parts          :required false                               :type "map"                                 :validate-fn (parts? datepicker-parts) :description "See Parts section below."}
-     {:name :src            :required false                               :type "map"                                 :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as       :required false                               :type "map"                                 :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    [{:name :model :required false :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like? :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
+     {:name :on-change :required true :type "satisfies DateTimeProtocol -> nil" :validate-fn fn? :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
+     {:name :disabled? :required false :default false :type "boolean | atom" :description "when true, the user can't select dates but can navigate"}
+     {:name :initial-display :required false :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like? :description "set the months shown when no model is selected, defaults to the current month"}
+     {:name :selectable-fn :required false :default "(fn [date] true)" :type "function" :validate-fn fn? :description "This predicate function is called with one argument, the date. If it answers false, day will be shown disabled and can't be selected."}
+     {:name :show-weeks? :required false :default false :type "boolean" :description "when true, week numbers are shown to the left"}
+     {:name :show-today? :required false :default false :type "boolean" :description "when true, today's date is highlighted"}
+     {:name :minimum :required false :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like? :description "no selection or navigation before this date"}
+     {:name :maximum :required false :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like? :description "no selection or navigation after this date"}
+     {:name :start-of-week :required false :default 6 :type "int" :description "first day of week (Monday = 0 ... Sunday = 6)"}
+     {:name :hide-border? :required false :default false :type "boolean" :description "when true, the border is not displayed"}
+     {:name :i18n :required false :type "map" :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
+     {:name :date-cell :type "part" :description "Optional part to use for each date cell. Should be implemented using [:td]."}
+     {:name :class :required false :type "string" :validate-fn string? :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
+     {:name :style :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
+     {:name :attr :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
+     {:name :parts :required false :type "map" :validate-fn (parts? datepicker-parts) :description "See Parts section below."}
+     {:name :src :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn datepicker
   [& {:keys [model initial-display] :as args}]
@@ -530,7 +558,9 @@
          internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model initial-display (now->utc))))]
      (fn datepicker-render
-       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
+       [& {:keys [model on-change disabled? start-of-week hide-border?
+                  date-cell
+                  class style attr parts src debug-as]
            :or   {start-of-week 6} ;; Default to Sunday
            :as   args}]
        (or
@@ -550,7 +580,13 @@
               :style (get-in parts [:table :style])}
              (get-in parts [:table :attr]))
             [table-thead display-month configuration disabled? parts]
-            [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
+            [table-tbody {:date-cell     date-cell
+                          :display-month @display-month
+                          :selected      @internal-model
+                          :attributes    configuration
+                          :disabled?     disabled?
+                          :on-change     on-change
+                          :parts parts}]]
            hide-border?
            class
            style

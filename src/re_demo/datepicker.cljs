@@ -1,7 +1,7 @@
 (ns re-demo.datepicker
   (:require-macros
    [reagent.ratom     :refer [reaction]]
-   [re-com.core       :refer []])
+   [re-com.core       :refer [handler-fn]])
   (:require
    [goog.date.Date]
    [reagent.core      :as    reagent]
@@ -152,7 +152,16 @@
                  [parameters-with
                   [v-box :src (at)
                    :gap      "15px"
-                   :children [[datepicker :src (at)
+                   :children [[datepicker
+                               :src           (at)
+                               :date-cell     (fn [{:keys [label date selectable? disabled? class style attr on-change]}]
+                                                [:td
+                                                 (-> {:class    class
+                                                      :style    style
+                                                      :on-click (when (and selectable? (not disabled?))
+                                                                  (handler-fn (on-change date)))}
+                                                     (merge attr))
+                                                 label])
                                :model         model1
                                :disabled?     disabled?
                                :show-today?   @show-today?
@@ -184,7 +193,7 @@
                                             [button :src (at)
                                              :label    "Reset"
                                              :class    "btn btn-default"
-                                             :style    {:padding  "1px 4px"}
+                                             :style    {:padding "1px 4px"}
                                              :on-click #(reset! model1 nil)]]]]]
                   enabled-days
                   as-days
@@ -221,39 +230,39 @@
                     show-weeks?
                     start-of-week-choices
                     start-of-week])]
-      :i18n [(fn i18n-fn
-               []
-               (set! (.-DateTimeSymbols goog.i18n) DateTimeSymbols_pl)
-               [parameters-with
-                [v-box
-                 :src      (at)
-                 :gap      "15px"
-                 :children [[datepicker-dropdown
-                             :src             (at)
-                             :model           model4
-                             :show-today?     @show-today?
-                             :show-weeks?     @show-weeks?
-                             :selectable-fn   selectable-pred
-                             :start-of-week   @start-of-week
-                             :placeholder     "Wybierz datę"
-                             :format          "d MMMM yyyy"
-                             :disabled?       disabled?
-                             :goog?           true
-                             :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
-                                               :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
-                             :width           "190px"
-                             :position-offset 25
-                             :on-change       #(reset! model4 %)]
-                            [label
-                             :src   (at)
-                             :label [:span [:code ":model"] " is " (date->string @model4)]]]]
-                enabled-days
-                as-days
-                disabled?
-                show-today?
-                show-weeks?
-                start-of-week-choices
-                start-of-week])])))
+      :i18n     [(fn i18n-fn
+                   []
+                   (set! (.-DateTimeSymbols goog.i18n) DateTimeSymbols_pl)
+                   [parameters-with
+                    [v-box
+                     :src      (at)
+                     :gap      "15px"
+                     :children [[datepicker-dropdown
+                                 :src             (at)
+                                 :model           model4
+                                 :show-today?     @show-today?
+                                 :show-weeks?     @show-weeks?
+                                 :selectable-fn   selectable-pred
+                                 :start-of-week   @start-of-week
+                                 :placeholder     "Wybierz datę"
+                                 :format          "d MMMM yyyy"
+                                 :disabled?       disabled?
+                                 :goog?           true
+                                 :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
+                                                   :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
+                                 :width           "190px"
+                                 :position-offset 25
+                                 :on-change       #(reset! model4 %)]
+                                [label
+                                 :src   (at)
+                                 :label [:span [:code ":model"] " is " (date->string @model4)]]]]
+                    enabled-days
+                    as-days
+                    disabled?
+                    show-today?
+                    show-weeks?
+                    start-of-week-choices
+                    start-of-week])])))
 
 (def variations ^:private
   [{:id :inline       :label "Inline"}
