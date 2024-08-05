@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.16 (2024-08-05)
+
+#### Added
+
+- `datepicker-dropdown` - Can now target the `:anchor-label` part.
+
 ## 2.21.15 (2024-07-26)
 
 #### Changed
@@ -29,7 +35,6 @@
 
 - `dropdown` - Always drops down when not clipping. Before, this component would choose a body position closest to the vertical center of the viewport. Now, it chooses a position below the anchor, unless that would cause the body to clip.
 - `simple-v-table` - Renamed `:row-export-fn` to `:on-export-row-label-fn`.
-
 
 ## 2.21.11 (2024-07-11)
 

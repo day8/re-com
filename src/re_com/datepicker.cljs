@@ -9,13 +9,13 @@
    [cljs-time.predicates :refer [sunday?]]
    [cljs-time.format     :refer [parse unparse formatters formatter]]
    [re-com.box           :refer [border gap box line h-box flex-child-style]]
-   [re-com.util          :refer [deref-or-value now->utc]]
+   [re-com.util          :as u :refer [deref-or-value now->utc]]
    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
    [clojure.string       :as string])
   (:import
    [goog.i18n DateTimeFormat]))
 
-;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
+;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker`pf
 
 ;; --- cljs-time facades ------------------------------------------------------
 
@@ -467,7 +467,8 @@
 
 (def datepicker-parts-desc
   (when include-args-desc?
-    [{:name :wrapper         :level 0 :class "rc-datepicker-wrapper"         :impl "[datepicker]" :notes "Outer wrapper of the datepicker."}
+    [{:name :anchor-label   :level 0 :class "" :impl "[:label]" :notes "Only for [datepicker-dropdown]. The label element which displays the chosen date."}
+     {:name :wrapper         :level 0 :class "rc-datepicker-wrapper"         :impl "[datepicker]" :notes "Outer wrapper of the datepicker."}
      {:name :border          :level 1 :class "rc-datepicker-border"          :impl "[border]"     :notes "The datepicker border."}
      {:type :legacy          :level 2 :class "rc-datepicker"                 :impl "[:div]"       :notes "The datepicker container."}
      {:name :table           :level 3 :class "rc-datepicker-table"           :impl "[:table]"     :notes "The datepicker table."}
@@ -560,7 +561,7 @@
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
-  [shown? model format goog? placeholder width disabled?]
+  [shown? model format goog? placeholder width disabled? parts]
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn
@@ -572,8 +573,13 @@
     :min-width (when-not width "10em")
     :max-width (when-not width "10em")
     :width     width
-    :children  [[:label {:disabled (deref-or-value disabled?)
-                         :class    (str "form-control dropdown-button" (when (deref-or-value disabled?) " dropdown-button-disabled"))}
+    :children  [[:label (merge
+                         {:disabled (deref-or-value disabled?)
+                          :style    (get-in parts [:anchor-label :style])
+                          :class    (str "form-control dropdown-button"
+                                         (when (deref-or-value disabled?) " dropdown-button-disabled")
+                                         (get-in parts [:anchor-label :class]))}
+                         (get-in parts [:anchor-label :attr]))
                  (cond (not (date-like? (deref-or-value model))) [:span {:style {:color "#bbb"}} placeholder]
                        goog?                                     (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
                        :else                                     (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
@@ -601,7 +607,7 @@
          cancel-popover #(reset! shown? false)
          position       :below-left]
      (fn datepicker-dropdown-render
-       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
+       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as parts]
            :or {no-clip? true, position-offset 0, position :below-left}
            :as passthrough-args}]
        (or
@@ -622,7 +628,7 @@
            :class    "rc-datepicker-dropdown-wrapper"
            :showing? shown?
            :position position
-           :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
+           :anchor   [anchor-button shown? model format goog? placeholder width disabled? parts]
            :popover  [popover-content-wrapper
                       :src             (at)
                       :position-offset (+ (if show-weeks? 43 44) position-offset)
