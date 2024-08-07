@@ -280,9 +280,9 @@
         best-y       (case v-pos :low lo-y :high hi-y)]
     [best-x (case direction :up hi-y :down lo-y best-y)]))
 
-(defn body-wrapper [{:keys [state theme anchor-ref popover-ref anchor-position direction]} & children]
-  (let [set-popover-ref!   #(reset! popover-ref %)
-        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @popover-ref
+(defn body-wrapper [{:keys [state theme anchor-ref body-ref anchor-position direction]} & children]
+  (let [set-body-ref!      #(reset! body-ref %)
+        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @body-ref
                                                                         {:direction direction}))
         mounted!           #(do
                               (optimize-position!)
@@ -306,7 +306,7 @@
                                     :anchor-left left
                                     :top         top
                                     :left        left
-                                    :ref         set-popover-ref!})
+                                    :ref         set-body-ref!})
                :part  ::body-wrapper}
               theme)]
            children)))})))
@@ -323,7 +323,7 @@
   "A clickable anchor above an openable, floating body."
   [& {:keys [model] :or {model (reagent/atom nil)}}]
   (let [default-model                                     model
-        [focused? anchor-ref popover-ref anchor-position] (repeatedly #(reagent/atom nil))
+        [focused? anchor-ref body-ref anchor-position] (repeatedly #(reagent/atom nil))
         anchor-ref!                                       #(reset! anchor-ref %)
         transitionable                                    (reagent/atom
                                                            (if (deref-or-value model) :in :out))]
@@ -380,9 +380,9 @@
                                   (js/setTimeout (fn [] (reset! transitionable :out)) 100))))
                     (on-document-click [event]
                       (when (and @anchor-ref
-                                 @popover-ref
+                                 @body-ref
                                  (click-outside? @anchor-ref event)
-                                 (click-outside? @popover-ref event))
+                                 (click-outside? @body-ref event))
                         (transition! :close)))]
               (let [theme      (theme/defaults
                                 args
@@ -435,7 +435,7 @@
                                     [u/part indicator part-props :default re-com.dropdown/indicator]]})]
                      (when (= :open (:openable state))
                        [body-wrapper {:anchor-ref      anchor-ref
-                                      :popover-ref     popover-ref
+                                      :body-ref        body-ref
                                       :anchor-position anchor-position
                                       :direction       direction
                                       :parts           parts
