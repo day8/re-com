@@ -2,9 +2,9 @@
   (:require-macros
    [re-com.core     :refer []])
   (:require
-   [re-com.core     :refer [at h-box v-box single-dropdown label hyperlink-href p p-span]]
+   [re-com.core     :as rc :refer [at h-box v-box single-dropdown label hyperlink-href p p-span]]
    [re-com.dropdown :refer [dropdown-parts-desc dropdown-args-desc dropdown]]
-   [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table status-text prop-slider]]
+   [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table status-text prop-slider prop-checkbox]]
    [re-com.util :refer [px]]
    [reagent.core    :as    r]))
 
@@ -12,16 +12,17 @@
 
 (defn panel*
   []
-  (let [width         (r/atom 200)
-        height        (r/atom 200)
-        min-width     (r/atom 200)
-        max-width     (r/atom 200)
-        max-height    (r/atom 200)
-        min-height    (r/atom 200)
-        anchor-height (r/atom 200)
-        body-width    (r/atom 200)
+  (let [width          (r/atom 200)
+        height         (r/atom 200)
+        min-width      (r/atom 200)
+        max-width      (r/atom 200)
+        max-height     (r/atom 200)
+        min-height     (r/atom 200)
+        anchor-height  (r/atom 200)
+        body-width     (r/atom 200)
         body-height    (r/atom 200)
-        anchor-width  (r/atom 200)]
+        anchor-width   (r/atom 200)
+        show-backdrop? (r/atom nil)]
     (fn []
       [v-box :src (at) :size "auto" :gap "10px"
        :children
@@ -46,13 +47,13 @@
            [[title2 "Demo"]
             [dropdown
              (merge
-              {#_:anchor  #_(fn [{:keys [state label] :as props}]
-                              (str "the " label " is " (:openable state) " ;)"))
-               #_#_:parts {:backdrop {:style {:background-color "blue"}}}
-               :label     "dropdown"
-               :body      [:div "Hello World!"]
-               :model     model
-               :width     (some-> @width px)}
+              {:anchor         (fn [{:keys [state label]}]
+                                 (str "This " label " is " (:openable state) (when (= :open (:openable state)) " ;)")))
+               :label          "dropdown"
+               :body           [:div "Hello World!"]
+               :model          model
+               :width          (some-> @width px)
+               :show-backdrop? @show-backdrop?}
               (when @height {:height (px @height)})
               (when @anchor-height {:anchor-height (px @anchor-height)})
               (when @body-height {:body-height (px @body-height)})
@@ -73,7 +74,8 @@
                         [v-box :src (at)
                          :gap "20px"
                          :children
-                         [[prop-slider {:prop width :id :width :default 212 :default-on? false}]
+                         [[prop-checkbox {:prop show-backdrop? :id :show-backdrop?}]
+                          [prop-slider {:prop width :id :width :default 212 :default-on? false}]
                           [prop-slider {:prop height :id :height :default 212 :default-on? false}]
                           [prop-slider {:prop min-width :id :min-width :default 212 :default-on? false}]
                           [prop-slider {:prop max-width :id :max-width :default 212 :default-on? false}]

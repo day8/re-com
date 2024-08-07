@@ -245,3 +245,13 @@
                       :width     "300px"]
                      [gap :src (at) :size "5px"]
                      [label :src (at) :label (str @prop "px")]])]])))
+
+(defn prop-checkbox [{:keys [prop default id]}]
+  [rc/checkbox :src (at)
+   :label     [rc/box :src (at)
+               :align :start
+               :child [:code id]]
+   :model     @prop
+   :on-change (if (some? prop)
+                #(swap! prop not)
+                #(reset! prop default))])

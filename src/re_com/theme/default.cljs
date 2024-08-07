@@ -74,18 +74,18 @@
        (case part
 
          ::dropdown/wrapper
-         {:attr  {:on-focus #(do (transition! :focus)
-                                 (transition! :enter))
-                  :on-blur  #(do (transition! :blur)
-                                 (transition! :exit))}
+         {:attr  {#_#_#_#_:on-focus #(do (transition! :focus)
+                                         (transition! :enter))
+                      :on-blur  #(do (transition! :blur)
+                                     (transition! :exit))}
           :style {:display  "inline-block"
                   :position "relative"}}
 
          ::dropdown/anchor-wrapper
          {:attr  {:tab-index (or (:tab-index state) 0)
                   :on-click  #(transition! :toggle)
-                  :on-blur   #(do (transition! :blur)
-                                  (transition! :exit))}
+                  #_#_:on-blur   #(do (transition! :blur)
+                                      (transition! :exit))}
           :style {:outline        (when (and (= :focused (:focusable state))
                                              (not= :open (:openable state)))
                                     (str sm-2 " auto #ddd"))
@@ -100,16 +100,13 @@
 
          ::dropdown/backdrop
          {:class "noselect"
-          :attr  {:on-click #(do (transition! :close)
-                                 (transition! :blur))}
-          :style {:position           "fixed"
-                  :left               "0px"
-                  :top                "0px"
-                  :width              "100%"
-                  :height             "100%"
-                  #_#_:pointer-events "none"
-                  :z-index            (case (:openable state)
-                                        :open 10 nil)}}
+          :style {:position       "fixed"
+                  :background-color "black"
+                  :left           "0px"
+                  :top            "0px"
+                  :width          "100%"
+                  :height         "100%"
+                  :pointer-events "none"}}
 
          ::dropdown/body-wrapper
          {:ref   (:ref state)

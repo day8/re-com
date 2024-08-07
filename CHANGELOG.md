@@ -2,6 +2,15 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.17 (2024-08-07)
+
+#### Added
+- `dropdown` - New `:show-backdrop`? prop. Defaults to `nil`.
+
+#### Changed
+
+- `dropdown` - The `:backdrop` part is now purely visual. Clicking outside the anchor or body still closes the dropdown. Instead of `:backdrop`, a global event handler now handles this behavior.
+
 ## 2.21.16 (2024-08-05)
 
 #### Added

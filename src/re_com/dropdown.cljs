@@ -97,10 +97,12 @@
       :default     "re-com.dropdown/backdrop"
       :type        "part"
       :validate-fn part?
-      :description (str "Displays when the dropdown is open. By default, renders a "
-                        "transparent overlay. Clicking this overlay closes the dropdown. "
-                        "When a function, :backdrop is passed the same keyword arguments "
-                        "as :anchor.")}
+      :description (str "Renders a visual overlay, behind the `:anchor` and `:body` parts, when the dropdown is open.")}
+     {:name :show-backdrop?
+      :required? false
+      :type "boolean"
+      :validate-fn boolean?
+      :description "When true, the `:backdrop` part will be rendered when the dropdown is open."}
      {:name        :body
       :required?   true
       :type        "part"
@@ -313,9 +315,12 @@
   [:span {:style style}
    [u/triangle {:direction (case (:openable state) :open :up :closed :down)}]])
 
+(defn click-outside? [element event]
+  (let [target (.-target event)]
+    (not (.contains element target))))
+
 (defn dropdown
-  "A clickable anchor above an openable, floating body.
-  "
+  "A clickable anchor above an openable, floating body."
   [& {:keys [model] :or {model (reagent/atom nil)}}]
   (let [default-model                                     model
         [focused? anchor-ref popover-ref anchor-position] (repeatedly #(reagent/atom nil))
@@ -327,6 +332,7 @@
                  anchor-height anchor-width
                  body-height   body-width
                  model
+                 show-backdrop?
                  label placeholder
                  anchor backdrop body body-header body-footer indicator
                  parts theme main-theme theme-vars base-theme
@@ -336,88 +342,108 @@
                  direction   :toward-center}
           :as   args}]
       (or (validate-args-macro dropdown-args-desc args)
-          (let [state       {:openable       (if (deref-or-value model) :open :closed)
-                             :enable         (if disabled? :disabled :enabled)
-                             :tab-index      tab-index
-                             :focusable      (if (deref-or-value focused?) :focused :blurred)
-                             :transitionable @transitionable}
-                open!       (if on-change
-                              (handler-fn (on-change true))
-                              #(reset! model true))
-                close!      (if on-change
-                              (handler-fn (on-change false))
-                              #(reset! model false))
-                transition! (fn [k]
-                              (case k
-                                :toggle (if (-> state :openable (= :open))
-                                          (close!)
-                                          (open!))
-                                :open   (open!)
-                                :close  (close!)
-                                :focus  (reset! focused? true)
-                                :blur   (reset! focused? false)
-                                :enter  (js/setTimeout (fn [] (reset! transitionable :in)) 50)
-                                :exit   (js/setTimeout (fn [] (reset! transitionable :out)) 50)))
-                theme       (theme/defaults
-                             args
-                             {:user [(theme/<-props (-> args
-                                                        (dissoc :height)
-                                                        (merge
-                                                         (when anchor-height {:height anchor-height})
-                                                         (when width {:width width})
-                                                         (when anchor-width {:width anchor-width})))
-                                       {:part    ::anchor-wrapper
-                                        :exclude [:max-height :min-height]})
-                                     (theme/<-props (merge args
-                                                           (when height {:height height})
-                                                           (when body-height {:height body-height})
-                                                           (when body-width {:width body-width}))
-                                       {:part    ::body-wrapper
-                                        :include [:width :height :min-width
-                                                  :min-height :max-height]})
-                                     (theme/<-props args
-                                       {:part    ::wrapper
-                                        :include [:class :style :attr]})]})
-                themed      (fn [part props & [special-theme]]
-                              (theme/apply props
-                                {:state       state
-                                 :part        part
-                                 :transition! transition!}
-                                (or special-theme theme)))
-                part-props  {:placeholder placeholder
-                             :transition! transition!
-                             :label       label
-                             :theme       theme
-                             :parts       parts
-                             :state       state
-                             :indicator   indicator}]
-            [v-box
-             (themed ::wrapper
-               {:src (at)
-                :children
-                [(when (= :open (:openable state))
-                   [u/part backdrop
-                    (themed ::backdrop part-props)
-                    :default re-com.dropdown/backdrop])
-                 [h-box
-                  (themed ::anchor-wrapper
-                    {:src      (at)
-                     :attr     {:ref anchor-ref!}
-                     :children [[u/part anchor (themed ::anchor part-props) :default re-com.dropdown/anchor]
-                                [gap :size "1"]
-                                [gap :size "5px"]
-                                [u/part indicator part-props :default re-com.dropdown/indicator]]})]
-                 (when (= :open (:openable state))
-                   [body-wrapper {:anchor-ref      anchor-ref
-                                  :popover-ref     popover-ref
-                                  :anchor-position anchor-position
-                                  :direction       direction
-                                  :parts           parts
-                                  :state           state
-                                  :theme           theme}
-                    [u/part body-header (themed ::body-header part-props)]
-                    [u/part body (themed ::body part-props)]
-                    [u/part body-footer (themed ::body-footer part-props)]])]})])))))
+          (let [state {:openable       (if (deref-or-value model) :open :closed)
+                       :enable         (if disabled? :disabled :enabled)
+                       :tab-index      tab-index
+                       :focusable      (if (deref-or-value focused?) :focused :blurred)
+                       :transitionable @transitionable}]
+            (letfn [(open! []
+                      (on-change true)
+                      (.addEventListener js/document "click" on-document-click)
+                      (transition! :enter))
+                    (open-default! []
+                      (reset! model true)
+                      (.addEventListener js/document "click" on-document-click)
+                      (transition! :enter))
+                    (close! []
+                      (on-change false)
+                      (.removeEventListener js/document "click" on-document-click)
+                      (transition! :exit))
+                    (close-default! []
+                      (reset! model false)
+                      (.removeEventListener js/document "click" on-document-click)
+                      (transition! :exit))
+                    (transition! [k]
+                      (case k
+                        :toggle (if (-> state :openable (= :open))
+                                  ((if on-change close! close-default!))
+                                  ((if on-change open! open-default!)))
+                        :open   ((if on-change open! open-default!))
+                        :close  ((if on-change close! close-default!))
+                        :focus  (reset! focused? true)
+                        :blur   (reset! focused? false)
+                        :enter  (do
+                                  (reset! transitionable :entering)
+                                  (js/setTimeout (fn [] (reset! transitionable :in)) 100))
+                        :exit   (do
+                                  (reset! transitionable :exiting)
+                                  (js/setTimeout (fn [] (reset! transitionable :out)) 100))))
+                    (on-document-click [event]
+                      (when (and @anchor-ref
+                                 @popover-ref
+                                 (click-outside? @anchor-ref event)
+                                 (click-outside? @popover-ref event))
+                        (transition! :close)))]
+              (let [theme      (theme/defaults
+                                args
+                                {:user [(theme/<-props (-> args
+                                                           (dissoc :height)
+                                                           (merge
+                                                            (when anchor-height {:height anchor-height})
+                                                            (when width {:width width})
+                                                            (when anchor-width {:width anchor-width})))
+                                          {:part    ::anchor-wrapper
+                                           :exclude [:max-height :min-height]})
+                                        (theme/<-props (merge args
+                                                              (when height {:height height})
+                                                              (when body-height {:height body-height})
+                                                              (when body-width {:width body-width}))
+                                          {:part    ::body-wrapper
+                                           :include [:width :height :min-width
+                                                     :min-height :max-height]})
+                                        (theme/<-props args
+                                          {:part    ::wrapper
+                                           :include [:class :style :attr]})]})
+                    themed     (fn [part props & [special-theme]]
+                                 (theme/apply props
+                                   {:state       state
+                                    :part        part
+                                    :transition! transition!}
+                                   (or special-theme theme)))
+                    part-props {:placeholder placeholder
+                                :transition! transition!
+                                :label       label
+                                :theme       theme
+                                :parts       parts
+                                :state       state
+                                :indicator   indicator}]
+                [v-box
+                 (themed ::wrapper
+                   {:src (at)
+                    :children
+                    [(when (and show-backdrop? (not= :out (:transitionable state)))
+                       [u/part backdrop
+                        (themed ::backdrop part-props)
+                        :default re-com.dropdown/backdrop])
+                     [h-box
+                      (themed ::anchor-wrapper
+                        {:src      (at)
+                         :attr     {:ref anchor-ref!}
+                         :children [[u/part anchor (themed ::anchor part-props) :default re-com.dropdown/anchor]
+                                    [gap :size "1"]
+                                    [gap :size "5px"]
+                                    [u/part indicator part-props :default re-com.dropdown/indicator]]})]
+                     (when (= :open (:openable state))
+                       [body-wrapper {:anchor-ref      anchor-ref
+                                      :popover-ref     popover-ref
+                                      :anchor-position anchor-position
+                                      :direction       direction
+                                      :parts           parts
+                                      :state           state
+                                      :theme           theme}
+                        [u/part body-header (themed ::body-header part-props)]
+                        [u/part body (themed ::body part-props)]
+                        [u/part body-footer (themed ::body-footer part-props)]])]})])))))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
