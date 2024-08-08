@@ -858,6 +858,7 @@
          free-text-sel-range (reagent/atom nil)
          focus-free-text     #(when @free-text-input (.focus @free-text-input))
          node                (reagent/atom nil)
+         ref-callback        #(reset! node %)
          focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))]
      (load-choices "" regex-filter? false)
      (fn single-dropdown-render
@@ -1017,12 +1018,11 @@
                                   :style (merge (flex-child-style (if width "0 0 auto" "auto"))
                                                 (align-style :align-self :start)
                                                 {:width width}
-                                                style)
-                                  :ref   #(reset! node %)}
+                                                style)}
                                  (when tooltip
                                    {:on-mouse-over (handler-fn (reset! over? true))
                                     :on-mouse-out (handler-fn (reset! over? false))})
-                                 (->attr args)
+                                 (->attr (assoc-in args [:attr :ref] ref-callback))
                                  attr)
                                 anchor
                                 (when (and @drop-showing? (not disabled?))

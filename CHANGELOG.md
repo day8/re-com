@@ -2,6 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.18 (2024-08-09)
+
+#### Fixed
+- `single-dropdown` - `:can-drop-above?` now works again.
+
 ## 2.21.17 (2024-08-07)
 
 #### Added
