@@ -1,16 +1,16 @@
 (ns re-com.daterange
   (:require-macros
-   [re-com.core       :refer [handler-fn at reflect-current-component]]) ;; TODO [GR-REMOVE] I like to have requires lined up (not everyone cares)
+   [re-com.core       :refer [handler-fn at reflect-current-component]])
   (:require
    [reagent.core      :as r]
    [re-com.config     :refer [include-args-desc?]]
    [re-com.box        :refer [line border flex-child-style]]
-   [re-com.core       :refer [at v-box h-box box popover-anchor-wrapper popover-content-wrapper]] ;; TODO [GR-REMOVE] Removed unused `:as re-com` (also we normally use `:as rc`)
+   [re-com.core       :refer [at v-box h-box box popover-anchor-wrapper popover-content-wrapper]]
    [re-com.validate   :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
    [re-com.util       :refer [deref-or-value now->utc]]
    [cljs-time.format  :refer [parse unparse formatter]]
    [cljs-time.core    :as cljs-time]
-   [goog.string       :refer [format]]);; TODO [GR-REMOVE] Removed unused `:as gstring`
+   [goog.string       :refer [format]])
   (:import
    [goog.i18n DateTimeFormat]))
 
@@ -170,9 +170,9 @@
               [line]
               [next-year-nav current-month-atom parts]]])
 
-(defn- main-div-with ;; TODO [GR-REMOVE] Haven't updated it here but consider changing to kwargs so that calls are more self documenting
+(defn- main-div-with
   "Main container to pass: class, style and attributes"
-  [body hide-border? class style attr parts src debug-as]
+  [{:keys [child hide-border? class style attr parts src debug-as]}]
   [h-box
    :src src
    :debug-as debug-as
@@ -193,12 +193,12 @@
                                               :position "static"}
                                              style)}
                               attr)
-                       body]]]])
+                       child]]]])
 
 (defn- date-disabled?
   "Checks various things to see if a date had been disabled."
   [date [minimum maximum disabled? selectable-fn]]
-  (let [too-early?   (when minimum (cljs-time/before? date (deref-or-value minimum))) ;; TODO: [GR-REMOVE] It's nice to have formatted let block (IntelliJ has a keyboard shortcut to do this - Highlight the block and press Ctrl+Alt+L)
+  (let [too-early?   (when minimum (cljs-time/before? date (deref-or-value minimum)))
         too-late?    (when maximum (cljs-time/after? date (deref-or-value maximum)))
         de-selected? (when selectable-fn (not (selectable-fn date)))]
     (or too-early? too-late? de-selected? disabled?)))
@@ -206,7 +206,7 @@
 (defn- create-interval
   "inclusively creates a vector of date-formats from start to end."
   [start end]
-  (let [first (deref-or-value start) ;; TODO: [GR-REMOVE] Format let block
+  (let [first (deref-or-value start)
         last  (deref-or-value end)]
     (loop [cur first result []]
       (if (cljs-time/after? cur last)
@@ -229,7 +229,7 @@
    (and (= @fsm "pick-end")                                                                   ;if we're picking and end date
         (or (cljs-time/before? @start-date day)
             (cljs-time/equal?  @start-date day))
-        (if check-interval? ;; TODO [GR-REMOVE] Multi-line formatting more readable, especially when else clause is insignificant compared to if clause
+        (if check-interval?
           (interval-valid? start-date day disabled-data)
           true))
     (do
@@ -259,13 +259,13 @@
     (when selectable-fn (not (selectable-fn day))) "daterange-disabled-td"
     (and @start-date (not= day "") (cljs-time/equal? @end-date @start-date) (cljs-time/before? day (plus-day @temp-end)) (cljs-time/after? day @start-date)) "daterange-temp-td" ;changed to fix flashing
     (and show-today? (cljs-time/equal? day (now->utc))) "daterange-today"
-    :default "daterange-default-td"))
+    :else "daterange-default-td"))
 
 (defn- create-day-td
   "Create table data elements with reactive classes and on click/hover handlers"
   [day [fsm start-date end-date temp-end] {:keys [on-change disabled? selectable-fn minimum maximum show-today? check-interval? parts] :as args}]
   (let [disabled-data (vector minimum maximum disabled? selectable-fn)]
-    (if (= day "") ;; TODO [GR-REMOVE] Formatting
+    (if (= day "")
       [:td ""]
       (let [correct-class (class-for-td fsm day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?)
             clickable?    (not (date-disabled? day disabled-data))]
@@ -291,15 +291,10 @@
           (for [day days-list]
             [create-day-td day atoms args]))))
 
-;(defn- parse-date-from-ints  ;; TODO: [GR-REMOVE] This already exists as cljs-time/date-time - REMOVE THIS
-;  "Given 3 ints, parse them as a useable date-format e.g. 11 2 2021"
-;  [d m y]
-;  (parse (formatter "ddMMYYYY") (str (format "%02d" d) (format "%02d" m) (str y))))
-
 (defn- empty-days-count
   "Returns the number of empty date tiles at the start of the month based on the first day of the month and the chosen week start day, monday = 1 sunday = 7"
   [chosen start]
-  (let [chosen (or chosen 1)] ;default week start of monday ;; TODO: Change from (if chosen chosen 1)
+  (let [chosen (or chosen 1)]
     (if (> chosen start)
       (- 7 (- chosen start))
       (- start chosen))))
@@ -307,19 +302,13 @@
 (defn- days-for-month
   "Produces a partitioned list of date-formats with all the days in the given month, with leading empty strings to align with the days of the week"
   [date-from-month start-of-week]
-  (let [month             (cljs-time/month date-from-month) ;; TODO: [GR-REMOVE] Format let block
+  (let [month             (cljs-time/month date-from-month)
         year              (cljs-time/year date-from-month)
         last-day-of-month (cljs-time/day (cljs-time/last-day-of-the-month date-from-month))
         first-day-val     (cljs-time/day-of-week (cljs-time/first-day-of-the-month date-from-month)) ;; 1 = mon  7 = sun
         day-ints          (range 1 (inc last-day-of-month)) ;; e.g. (1 2 3 ... 31)
-
-        ;days              (map #(parse-date-from-ints % month year) day-ints) ;; turn into real date-times
-        ;; TODO [GR-REMOVE] parse-date-from-ints is already implemented in cljs-time lib
-        days              (map #(cljs-time/date-time year month %) day-ints) ;; turn into real date-times
-
-        ;with-lead-emptys  (flatten (cons (repeat (empty-days-count start-of-week first-day-val) "") days)) ;; for padding the table
-        ;; TODO [GR-REMOVE] I have replaced the above line with a generally more readable (and more easily edited) version (will let you look for other examples to update
-        with-lead-emptys  (-> start-of-week ;; for padding the table
+        days              (map #(cljs-time/date-time year month %) day-ints)
+        with-lead-emptys  (-> start-of-week
                               (empty-days-count first-day-val)
                               (repeat "")
                               (cons days)
@@ -327,14 +316,14 @@
 
     (partition-all 7 with-lead-emptys))) ;; split into lists of 7 to be passed to create-week-tr
 
-(def days-vec [[:td "M"] [:td "Tu"] [:td "W"] [:td "Th"] [:td "F"] [:td "Sa"] [:td "Su"]]) ;for cycling and display depending on start-of-week
+(def days-vec [[:td "M"] [:td "Tu"] [:td "W"] [:td "Th"] [:td "F"] [:td "Sa"] [:td "Su"]])
 
 (defn- create-table
   "Given the result from days-for-month for a given month, create the :tbody using the relevant :tr and :td functions above"
   [date atoms {:keys [start-of-week i18n parts show-weeks?] :as args}]
-  (let [into-tr            (if show-weeks? [:tr [:td]] [:tr]) ;; TODO: [GR-REMOVE] Format let block
+  (let [into-tr            (if show-weeks? [:tr [:td]] [:tr])
         days-of-week       (if (:days i18n)
-                             (map (fn [new-day [td _]] [td new-day]) (:days i18n) days-vec) ;update days vec with the changed days
+                             (map (fn [new-day [td _]] [td new-day]) (:days i18n) days-vec)
                              days-vec)
         add-parts          (fn [[td day-string]]
                              (vector td
@@ -611,7 +600,9 @@
   [& {:keys [model initial-display] :as args}]
   (or
    (validate-args-macro daterange-args-desc args)
-   (let [current-month (r/atom (or (deref-or-value initial-display) (:start (deref-or-value model)) (now->utc))) ;; TODO: [GR-REMOVE] Format let block
+   (let [current-month (r/atom (or (deref-or-value initial-display)
+                                   (:start (deref-or-value model))
+                                   (now->utc)))
          fsm           (r/atom "pick-start")
          start-date    (r/atom (:start (deref-or-value model)))
          end-date      (r/atom (:end (deref-or-value model)))
@@ -620,42 +611,43 @@
        [& {:keys [model hide-border? i18n class style attr parts src debug-as] :as args}]
        (or
         (validate-args-macro daterange-args-desc args) ;re validate args each time they change
-        (let [latest-external-model   (deref-or-value model) ;; TODO: [GR-REMOVE] Format let block
+        (let [latest-external-model   (deref-or-value model)
               internal-model-refernce {:start @start-date :end @end-date}]
           (when (and (model-changed? latest-external-model internal-model-refernce) (= @fsm "pick-start"))
             (reset! start-date (:start latest-external-model))
             (reset! end-date (:end latest-external-model)))
-          [main-div-with ;; TODO [GR-REMOVE] Haven't updated it here but consider changing to kwargs so that calls are more self documenting
-           [h-box :src (at)
-            :gap "60px"
-            :padding "15px"
-            :children [[v-box :src (at)
-                        :gap "10px"
-                        :children [[prev-nav current-month parts i18n]
-                                   [create-table @current-month [fsm start-date end-date temp-end] args]]]
-                       [v-box :src (at)
-                        :gap "10px"
-                        :children [[next-nav current-month parts i18n]
-                                   [create-table (plus-month @current-month) [fsm start-date end-date temp-end] args]]]]]
-           hide-border?
-           class
-           style
-           attr
-           parts
-           src
-           (or debug-as (reflect-current-component))]))))))
+          [main-div-with
+           {:child
+            [h-box :src (at)
+             :gap "60px"
+             :padding "15px"
+             :children [[v-box :src (at)
+                         :gap "10px"
+                         :children [[prev-nav current-month parts i18n]
+                                    [create-table @current-month [fsm start-date end-date temp-end] args]]]
+                        [v-box :src (at)
+                         :gap "10px"
+                         :children [[next-nav current-month parts i18n]
+                                    [create-table (plus-month @current-month) [fsm start-date end-date temp-end] args]]]]]
+            :hide-border? hide-border?
+            :class class
+            :style style
+            :attr attr
+            :parts parts
+            :src src
+            :debug-as (or debug-as (reflect-current-component))}]))))))
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format goog? placeholder width disabled?]
-  (let [format-str (or format "dd MMM, yyyy")]       ;; TODO [GR-REMOVE] Changed from (if format format "dd MMM, yyyy")
+  (let [format-str (or format "dd MMM, yyyy")]
     [:div {:class    "rc-daterange-dropdown-anchor input-group display-flex noselect"
            :style    (flex-child-style "none")
            :on-click (handler-fn
                       (when (not (deref-or-value disabled?))
                         (swap! shown? not)))}
      [h-box
-      :width     (or width "228px") ;; TODO [GR-REMOVE] Changed from (if width width "228px")
+      :width     (or width "228px")
       :children  [[box
                    :size "auto"
                    :class (str "form-control dropdown-button" (when (deref-or-value disabled?) " dropdown-button-disabled"))

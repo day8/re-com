@@ -9,16 +9,8 @@
 (defn theme [props {:keys [state part part-path]
                     $     :variables
                     :as   ctx}]
-  (->> (or
-        (case part-path
-          [:re-com.error-modal/sub-title-2
-           ::text/title-label]
-          {:style {:color "red"}}
-          nil)
-        (case part
-          ::dropdown/anchor-wrapper
-          {:style {:height      "25px"
-                   :line-height "23px"}}
-          nil)
-        {})
+  (->> (case part
+         ::dropdown/anchor-wrapper
+         {:style {:height      "25px"}}
+         {})
        (theme/merge-props props)))
