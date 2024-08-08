@@ -11,14 +11,18 @@
    [re-com.text :as text]
    [re-com.util :as u :refer [deref-or-value px]]))
 
-(defn close-button [props]
+(defn close-button [_]
   (let [hover? (r/atom nil)]
-    [:div {:on-mouse-enter (partial reset! hover? true)
-           :on-mouse-leave (partial reset! hover? false)
-           :style {:padding "12px 7px 7px 7px"}}
-     [u/x-button (merge props {:width "12px"
-                               :height "12px"
-                               :hover? hover? :stroke-width "1.2px"})]]))
+    (fn [{:keys [on-click] :as props}]
+      [:div {:on-mouse-enter (partial reset! hover? true)
+             :on-mouse-leave (partial reset! hover? false)
+             :on-click       on-click
+             :style          {:padding "12px 7px 7px 7px"}}
+       [u/x-button (merge props {:width        "12px"
+                                 :height       "12px"
+                                 :hover?       hover?
+                                 :stroke       (if @hover? "#000000" "#ffffff")
+                                 :stroke-width "1.2px"})]])))
 
 (defn error-modal
   [& {:keys [severity title
