@@ -611,7 +611,7 @@
   [& {:keys [model initial-display] :as args}]
   (or
    (validate-args-macro daterange-args-desc args)
-   (let [current-month (r/atom (or (deref-or-value initial-display) (now->utc))) ;; TODO: [GR-REMOVE] Format let block
+   (let [current-month (r/atom (or (deref-or-value initial-display) (:start (deref-or-value model)) (now->utc))) ;; TODO: [GR-REMOVE] Format let block
          fsm           (r/atom "pick-start")
          start-date    (r/atom (:start (deref-or-value model)))
          end-date      (r/atom (:end (deref-or-value model)))
