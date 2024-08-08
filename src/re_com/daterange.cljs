@@ -3,6 +3,7 @@
    [re-com.core       :refer [handler-fn at reflect-current-component]])
   (:require
    [reagent.core      :as r]
+   [re-com.dropdown   :as dd]
    [re-com.config     :refer [include-args-desc?]]
    [re-com.box        :refer [line border flex-child-style]]
    [re-com.core       :refer [at v-box h-box box popover-anchor-wrapper popover-content-wrapper]]
@@ -176,8 +177,8 @@
   [h-box
    :src src
    :debug-as debug-as
-   :size "none"
-   :height "250px"
+   #_#_:size "none"
+   #_#_:height "250px"
    :class "rc-daterange-wrapper"
    :children [[border
                :src (at)
@@ -578,6 +579,9 @@
       :type "map",
       :validate-fn (parts? daterange-parts),
       :description "See Parts section below."}
+     {:name :theme,
+      :required false,
+      :description "alpha"}
      {:name :src,
       :required false,
       :type "map",
@@ -630,47 +634,30 @@
                          :children [[next-nav current-month parts i18n]
                                     [create-table (plus-month @current-month) [fsm start-date end-date temp-end] args]]]]]
             :hide-border? hide-border?
-            :class class
-            :style style
-            :attr attr
-            :parts parts
-            :src src
-            :debug-as (or debug-as (reflect-current-component))}]))))))
+            :class        class
+            :style        style
+            :attr         attr
+            :parts        parts
+            :src          src
+            :debug-as     (or debug-as (reflect-current-component))}]))))))
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format goog? placeholder width disabled?]
   (let [format-str (or format "dd MMM, yyyy")]
-    [:div {:class    "rc-daterange-dropdown-anchor input-group display-flex noselect"
-           :style    (flex-child-style "none")
-           :on-click (handler-fn
-                      (when (not (deref-or-value disabled?))
-                        (swap! shown? not)))}
-     [h-box
-      :width     (or width "228px")
-      :children  [[box
-                   :size "auto"
-                   :class (str "form-control dropdown-button" (when (deref-or-value disabled?) " dropdown-button-disabled"))
-                   :style {#_#_:font-weight 600 :border-radius "5px 0px 0px 5px" :padding "3px 8px 0 8px"}
-                   :child (cond
-                            (not (date-like? (:start (deref-or-value model)))) (do
-                                                                                 (prn (:start (deref-or-value model)))
-                                                                                 [:span {:style {:color "#bbb"}} placeholder])
-                            goog? (str
-                                   (.format (DateTimeFormat. (if (seq format) format format-str)) (:start (deref-or-value model)))
-                                   " - "
-                                   (.format (DateTimeFormat. (if (seq format) format format-str)) (:end (deref-or-value model))))
+    (cond
+      (not (date-like? (:start (deref-or-value model)))) (do
+                                                           (prn (:start (deref-or-value model)))
+                                                           [:span {:style {:color "#bbb"}} placeholder])
+      goog? (str
+             (.format (DateTimeFormat. (if (seq format) format format-str)) (:start (deref-or-value model)))
+             " - "
+             (.format (DateTimeFormat. (if (seq format) format format-str)) (:end (deref-or-value model))))
 
-                            :else (str
-                                   (unparse (formatter format-str) (deref-or-value (:start (deref-or-value model))))
-                                   " - "
-                                   (unparse (formatter format-str) (deref-or-value (:end (deref-or-value model))))))]
-                  [h-box
-                   :justify :around
-                   :class (str "dropdown-button activator input-group-addon" (when (deref-or-value disabled?) " dropdown-button-disabled"))
-                   :style {:padding "3px 0px 0px 0px"
-                           :width "30px"}
-                   :children [[:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]]]))
+      :else (str
+             (unparse (formatter format-str) (deref-or-value (:start (deref-or-value model))))
+             " - "
+             (unparse (formatter format-str) (deref-or-value (:end (deref-or-value model))))))))
 
 (def daterange-dropdown-args-desc
   (when include-args-desc?
@@ -686,39 +673,36 @@
   [& {:keys [src] :as args}]
   (or
    (validate-args-macro daterange-dropdown-args-desc args)
-   (let [shown?         (r/atom false)
-         cancel-popover #(reset! shown? false)
-         position       :below-left]
+   (let [shown? (r/atom false)]
      (fn render-fn
-       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as initial-display]
-           :or {no-clip? true, position-offset 0}
+       [& {:keys [model show-weeks? on-change format goog?
+                  placeholder width disabled?  src
+                  debug-as initial-display
+                  theme
+                  anchor-width anchor-height body-header body-footer]
+
            :as passthrough-args}]
        (or
         (validate-args-macro daterange-dropdown-args-desc passthrough-args)
         (let [collapse-on-select (fn [new-model]
                                    (reset! shown? false)
-                                   (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
+                                   (when on-change (on-change new-model)))
               passthrough-args   (-> passthrough-args
-                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
+                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)
                                      (assoc :on-change collapse-on-select)
                                      (assoc :src (at))
-                                     (merge {:hide-border? true})                                                        ;; apply defaults
-                                     vec
-                                     flatten)]
-          [popover-anchor-wrapper
-           :src      src
-           :debug-as (or debug-as (reflect-current-component))
-           :class    "rc-daterange-dropdown-wrapper"
-           :showing? shown?
-           :position position
-           :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
-           :popover  [popover-content-wrapper
-                      :src             (at)
-                      :position-offset (+ (if show-weeks? 87 88) position-offset)
-                      :no-clip?        no-clip?
-                      :arrow-length    0
-                      :arrow-width     0
-                      :arrow-gap       3
-                      :padding         "0px"
-                      :on-cancel       cancel-popover
-                      :body            (into [daterange] passthrough-args)]]))))))
+                                     (merge {:hide-border? true}))]
+          [dd/dropdown
+           {:class         "rc-daterange-dropdown-wrapper"
+            :on-change     (partial reset! shown?)
+            :model         shown?
+            :label         [anchor-button shown? model format goog? placeholder width disabled?]
+            :indicator     [:i.zmdi.zmdi-apps {:style {:font-size "18px"}}]
+            :width         width
+            :theme         theme
+            :anchor-width  anchor-width
+            :anchor-height anchor-height
+            :body-header   body-header
+            :body-width    "520px"
+            :body-footer   body-footer
+            :body          [daterange passthrough-args]}]))))))
