@@ -45,7 +45,7 @@
                                                            :padding          "20px"}
                                                    :child "Box 1"]
                                                   [line :src (at)
-                                                   `pf            :size  "3px"
+                                                   :size  "3px"
                                                    :color "red"]
                                                   [box :src (at)
                                                    :style {:background-color "lightgrey"
