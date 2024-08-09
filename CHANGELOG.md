@@ -2,6 +2,9 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+#### Added
+- `single-dropdown` - `:drop-direction` prop. Overrides any behavior which would position the body dynamically. `:up` or `:above` positions the body above the anchor, `:down`, `:dn` or `:below` positions it below.
+
 ## 2.21.18 (2024-08-09)
 
 #### Fixed
