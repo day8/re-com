@@ -240,7 +240,7 @@
   (if (< (Math/abs (- a x)) (Math/abs (- b x))) a b))
 
 (defn optimize-position!
-  "Returns an [x y] position for popover, relative to anchor.
+  "Returns an [x y] position for body, relative to anchor.
   Considers two possible vertical positions - above or below the anchor.
   If one vertical position clips outside the viewport, chooses the opposite position.
   If both vertical positions clip, picks the vertical position whose midpoint
@@ -248,7 +248,7 @@
   Calculates a left-justified horizontal position, constrained by the viewport width
   and the right edge of the anchor.
 
-  In other words, the popover slides left & right within the anchor width,
+  In other words, the body slides left & right within the anchor width,
   and blinks up & down, to find the least cut-off position."
   [anchor-el body-el & {:keys [direction]}]
   (let [a-rect       (.getBoundingClientRect anchor-el)
