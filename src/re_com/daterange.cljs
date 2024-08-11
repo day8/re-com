@@ -667,6 +667,8 @@
           {:name :no-clip?        :required false  :default true           :type "boolean"  :description "[daterange-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
           {:name :placeholder     :required false                          :type "string"   :description "[daterange-dropdown only] placeholder text for when a date is not selected."}
           {:name :width           :required false  :validate-fn string?    :type "string"   :description "[daterange-dropdown only] a CSS width style"}
+          {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[daterange-dropdown only] px horizontal offset of the popup"}
+          {:name :body-footer     :required false   :type "part"  :description "[daterange-dropdown only] extra part added to the bottom of the dropdown"}
           {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[daterange-dropdown only] px horizontal offset of the popup"})))
 
 (defn daterange-dropdown
@@ -688,7 +690,7 @@
                                    (reset! shown? false)
                                    (when on-change (on-change new-model)))
               passthrough-args   (-> passthrough-args
-                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)
+                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset :anchor-width :anchor-height :body-header :body-width :body-footer)
                                      (assoc :on-change collapse-on-select)
                                      (assoc :src (at))
                                      (merge {:hide-border? true}))]
