@@ -268,6 +268,7 @@
         top-best?    (= hi-mid-y (nearest v-mid-y lo-mid-y hi-mid-y))
         v-pos        (cond
                        (not (or top-clipped? bot-clipped?)) :low
+                       (and top-clipped? bot-clipped?)      :low
                        bot-clipped?                         :high
                        top-clipped?                         :low
                        top-best?                            :high
