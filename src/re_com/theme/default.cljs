@@ -211,42 +211,49 @@
                   :background-color light-background}}
 
          ::nested-grid/cell-wrapper
-         {:style {:font-size        "12px"
-                  :background-color "white"
-                  :color            "#777"
-                  :padding-top      sm-3
-                  :padding-right    sm-3
-                  :text-align       "right"
-                  :border-right     (condp #(get %2 %1) (:edge state)
-                                      :column-section-right
-                                      (str "thin" " solid " border-dark)
-                                      :right
-                                      (str "thin" " solid " border-dark)
-                                      (str "thin" " solid " border))
-                  :border-bottom    (if ((:edge state) :bottom)
-                                      (str "thin" " solid " border-dark)
-                                      (str "thin" " solid " border))}}
+         (let [{:keys [value]}        state
+               {:keys [align-column]} (into {} (filter map?) (:column-path state))]
+           {:style {:font-size        "12px"
+                    :background-color "white"
+                    :color            "#777"
+                    :padding-top      sm-3
+                    :padding-right    sm-3
+                    :padding-left     sm-3
+                    :text-align       (or align-column
+                                          (cond (string? value) :left
+                                                (number? value) :right)
+                                          :right)
+                    :border-right     (condp #(get %2 %1) (:edge state)
+                                        :column-section-right
+                                        (str "thin" " solid " border-dark)
+                                        :right
+                                        (str "thin" " solid " border-dark)
+                                        (str "thin" " solid " border))
+                    :border-bottom    (if ((:edge state) :bottom)
+                                        (str "thin" " solid " border-dark)
+                                        (str "thin" " solid " border))}})
 
          ::nested-grid/column-header-wrapper
-         {:style {:padding-top      sm-3
-                  :padding-right    sm-4
-                  :padding-left     sm-4
-                  :border-bottom    (str "thin" " solid" border)
-                  :background-color light-background
-                  :color            "#666"
-                  :text-align       "center"
-                  :font-size        "13px"
-                  :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
-                  :border-right     (condp #(get %2 %1) (:edge state)
-                                      :column-section-right
-                                      (str "thin" " solid " border-dark)
-                                      :right
-                                      (str "thin" " solid " border-dark)
-                                      (str "thin" " solid " border))
-                  #_#_:font-weight  "bold"
-                  :overflow         "hidden"
-                  :white-space      "nowrap"
-                  :text-overflow    "ellipsis"}}
+         (let [{:keys [align-column align-column-header]} (:header-spec state)]
+           {:style {:padding-top      sm-3
+                    :padding-right    sm-4
+                    :padding-left     sm-4
+                    :border-bottom    (str "thin" " solid " border)
+                    :background-color light-background
+                    :color            "#666"
+                    :text-align       (or align-column-header align-column :center)
+                    :font-size        "13px"
+                    :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
+                    :border-right     (condp #(get %2 %1) (:edge state)
+                                        :column-section-right
+                                        (str "thin" " solid " border-dark)
+                                        :right
+                                        (str "thin" " solid " border-dark)
+                                        (str "thin" " solid " border))
+                    #_#_:font-weight  "bold"
+                    :overflow         "hidden"
+                    :white-space      "nowrap"
+                    :text-overflow    "ellipsis"}})
 
          ::nested-grid/row-header-wrapper
          {:style {:padding-top      sm-3
@@ -292,7 +299,7 @@
 
          ::error-modal/modal
          {:wrap-nicely? false
-          :style {:z-index 50}}
+          :style        {:z-index 50}}
 
          ::error-modal/inner-wrapper
          {:style {:background-color (:white $)
@@ -316,10 +323,10 @@
             :height  (px 50)})
 
          ::error-modal/title
-         {:style {:font-size          25
-                  :color              (:white $)
-                  :padding            0
-                  :margin             "0px"}}
+         {:style {:font-size 25
+                  :color     (:white $)
+                  :padding   0
+                  :margin    "0px"}}
 
          ::error-modal/triangle
          (let [{:keys [severity]} state]

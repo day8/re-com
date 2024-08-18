@@ -3,8 +3,9 @@
    [clojure.string :as str]
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
    [re-com.util :as u]
+   [re-com.theme :as theme]
    [reagent.core :as r]
-   [re-com.nested-grid  :as nested-grid :refer [nested-grid nested-grid-args-desc nested-grid-parts-desc]]
+   [re-com.nested-grid  :as grid :refer [nested-grid nested-grid-args-desc nested-grid-parts-desc]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
@@ -293,6 +294,72 @@
 
 (defn rand-color [] (str "rgb(" (* 255 (rand)) "," (* 255 (rand)) "," (* 255 (rand)) ")"))
 
+(defn rf8-grid-theme [props {:keys [part state] $ :variables}]
+  (let [$ (merge $ {:border-light "#ccc"
+                    :dark         "#768895"})]
+    (->>
+     nil
+     (case part
+       :re-com.nested-grid/nested-grid
+       {:row-height           "20px"
+        :column-header-height "20px"
+        :row-header-width     0
+        :show-zebra-stripes?  false}
+
+       :re-com.nested-grid/cell-wrapper
+       {:style {:border-left  "none"
+                :border-right "none"}}
+
+       :re-com.nested-grid/column-header-wrapper
+       {:style {:border-right     "none"
+                :padding-left     "10px"
+                :padding-top      1
+                :background-color ($ :dark)
+                :color            ($ :white)}})
+     (theme/merge-props props))))
+
+(def rf8-grid-parts
+  {:re-com.nested-grid/nested-grid
+   {:row-height           "20px"
+    :column-header-height "20px"
+    :row-header-width     0
+    :show-zebra-stripes?  false}
+
+   :re-com.nested-grid/cell-wrapper
+   {:style {:border-left  "none"
+            :border-right "none"}}
+
+   :re-com.nested-grid/column-header-wrapper
+   {:style {:border-right     "none"
+            :padding-left     "10px"
+            :padding-top      1
+            :background-color "#768895"
+            :color            :white}}})
+
+(defn style-demo []
+  [v-box
+   :gap "12px"
+   :children
+   [[nested-grid
+     {#_#_:theme        rf8-grid-theme
+      :parts            rf8-grid-parts
+      :row-header-width 0
+      :column-tree      (->> [{:id "Align Column" :width 120 :align-column :left}
+                              {:id "Default Alignment" :width 120}
+                              {:id "Align Column Header" :width 150 :align-column-header :right}]
+                             (map-indexed (fn [i item] (assoc item :index i)))
+                             vec)
+      :cell-value       (fn [{[{:keys [cell-values]}] :row-path
+                              [{:keys [index]}]       :column-path}]
+                          (get cell-values index))
+      :row-tree         (->> [{:label "Text" :cell-values ["Lorem" "ipsum" "dolor"]}
+                              {:label "Text" :cell-values ["sit" "amet" " consectetur"]}
+                              {:label "Text" :cell-values ["adipiscing" "elit" " sed"]}
+                              {:label "Number" :cell-values (vec (range 1000 1003))}]
+                             (map-indexed (fn [i item] (assoc item :index i)))
+                             vec)
+      :cell             (fn [{:keys [value]}] value)}]]])
+
 (defn internals-demo []
   [v-box
    :gap "12px"
@@ -311,9 +378,9 @@
      :cell (fn [{:keys [column-path] [{:keys [tree]}] :row-path}]
              (case (:id (last column-path))
                "Tree"       (str tree)
-               "Leaf Paths" (str (vec (nested-grid/leaf-paths
-                                       (nested-grid/header-spec->header-paths tree))))
-               "All Paths"  (str (nested-grid/header-spec->header-paths tree))))]
+               "Leaf Paths" (str (vec (grid/leaf-paths
+                                       (grid/header-spec->header-paths tree))))
+               "All Paths"  (str (grid/header-spec->header-paths tree))))]
     [p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] "."]
     [line]
     [h-box
@@ -614,7 +681,8 @@
   (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
-              {:id :app        :label "Applications" :view app-demo}]
+              {:id :app        :label "Applications" :view app-demo}
+              {:id :style      :label "Style" :view style-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
