@@ -3,7 +3,11 @@
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
 #### Added
+
+## 2.21.19 (2024-08-19)
+
 - `single-dropdown` - `:drop-direction` prop. Overrides any behavior which would position the body dynamically. `:up` or `:above` positions the body above the anchor, `:down`, `:dn` or `:below` positions it below.
+- `nested-grid` - optional `:align-column` & `:align-column-header` keys for column-specs.
 
 ## 2.21.18 (2024-08-09)
 

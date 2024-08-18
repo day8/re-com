@@ -40,15 +40,23 @@
 (defn apply
   ([props ctx themes]
    (->>
-    (if-not (map? themes)
-      (update @registry :user conj themes)
-      (merge @registry themes))
+    (cond
+      (map? themes) (re-com.theme/merge @registry themes)
+      :else         (update @registry :user conj themes))
     named->vec
     flatten
     (remove nil?)
     (reduce rf [props ctx])
     first
     (#(dissoc % :re-com/system)))))
+
+(defn with-ctx [new-ctx]
+  (fn with-ctx [props ctx]
+    [props (clojure.core/merge ctx new-ctx)]))
+
+(defn with-state [new-state]
+  (fn with-state [props ctx]
+    [props (update ctx :state clojure.core/merge new-state)]))
 
 (defn props [ctx themes]
   (apply {} ctx themes))
@@ -76,6 +84,11 @@
                     (select-keys outer-props outer-style-keys))
             (update :attr clojure.core/merge
                     (select-keys outer-props outer-attr-keys)))))))
+
+(defn top-level-part [{:keys [theme] :as props} part]
+  (cond-> props
+    theme (re-com.theme/apply {:part part} theme)
+    theme (merge props)))
 
 (defn add-parts-path [path]
   (fn parts-pather [props {:keys [part] :as ctx}]
