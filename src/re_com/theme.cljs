@@ -41,7 +41,7 @@
   ([props ctx themes]
    (->>
     (if-not (map? themes)
-      (update @registry :usder conj themes)
+      (update @registry :user conj themes)
       (merge @registry themes))
     named->vec
     flatten
