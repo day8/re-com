@@ -14,8 +14,11 @@
     [{:name :wrapper :level 1 :impl "[:div]"}
      {:name :cell-grid-container :level 2 :impl "[:div]"}
      {:name :cell-wrapper :level 3 :impl "[:div]"}
+     {:name :column-header-grid-container :level 1 :impl "[:div]"}
      {:name :column-header-wrapper :level 2 :impl "[:div]"}
+     {:name :row-header-grid-container :level 1 :impl "[:div]"}
      {:name :row-header-wrapper :level 2 :impl "[:div]"}
+     {:name :header-spacer-grid-container :level 1 :impl "[:div]"}
      {:name :header-spacer :level 2 :impl "[:div]"}
      {:name :zebra-stripe :level 2 :impl "[:div]"}]))
 
@@ -975,27 +978,28 @@
                                                               (px (+ native-height 4))]))}}
           (when show-export-button? [:div])
           (when show-export-button? control-panel)
-          [:div {:style {:display               "grid"
-                         :box-sizing            "border-box"
-                         #_#_:border-left       "medium solid #ccc"
-                         #_#_:border-top        "medium solid #ccc"
-                         :grid-template-columns (grid-template max-row-widths)
-                         :grid-template-rows    (grid-template max-column-heights)}}
+          [:div (themed ::header-spacer-grid-container
+                  {:style {:display               "grid"
+                           :box-sizing            "border-box"
+                           :grid-template-columns (grid-template max-row-widths)
+                           :grid-template-rows    (grid-template max-column-heights)}})
            header-spacer-cells]
           [scroll-container {:scroll-left scroll-left
                              :width       max-width
                              :style       {#_#_:border-top "medium solid #ccc"}}
-           [:div {:style {:display               "grid"
-                          :width                 :fit-content
-                          :grid-template-columns (grid-template cell-grid-columns)
-                          :grid-template-rows    (grid-template max-column-heights)}}
+           [:div (themed ::column-header-grid-container
+                   {:style {:display               "grid"
+                            :width                 :fit-content
+                            :grid-template-columns (grid-template cell-grid-columns)
+                            :grid-template-rows    (grid-template max-column-heights)}})
             column-header-cells]]
           [scroll-container {:scroll-top scroll-top
                              :height     max-height
                              :style      {#_#_:border-left "medium solid #ccc"}}
-           [:div {:style {:display               "grid"
-                          :grid-template-columns (grid-template max-row-widths)
-                          :grid-template-rows    (grid-template cell-grid-rows)}}
+           [:div (themed ::row-header-grid-container
+                   {:style {:display               "grid"
+                            :grid-template-columns (grid-template max-row-widths)
+                            :grid-template-rows    (grid-template cell-grid-rows)}})
             row-header-cells]]
           (-> cell-grid-container
               (into cells)
