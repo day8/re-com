@@ -212,7 +212,7 @@
 
          ::nested-grid/cell-wrapper
          (let [{:keys [value]}        state
-               {:keys [align-column]} (into {} (filter map?) (:column-path state))]
+               {:keys [align align-column]} (into {} (filter map?) (:column-path state))]
            {:style {:font-size        "12px"
                     :background-color "white"
                     :color            "#777"
@@ -220,6 +220,7 @@
                     :padding-right    sm-3
                     :padding-left     sm-3
                     :text-align       (or align-column
+                                          align
                                           (cond (string? value) :left
                                                 (number? value) :right)
                                           :right)
@@ -234,14 +235,14 @@
                                         (str "thin" " solid " border))}})
 
          ::nested-grid/column-header-wrapper
-         (let [{:keys [align-column align-column-header]} (:header-spec state)]
+         (let [{:keys [align-column align-column-header align]} (:header-spec state)]
            {:style {:padding-top      sm-3
                     :padding-right    sm-4
                     :padding-left     sm-4
                     :border-bottom    (str "thin" " solid " border)
                     :background-color light-background
                     :color            "#666"
-                    :text-align       (or align-column-header align-column :center)
+                    :text-align       (or align-column-header align-column align :center)
                     :font-size        "13px"
                     :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
                     :border-right     (condp #(get %2 %1) (:edge state)
