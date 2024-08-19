@@ -200,7 +200,7 @@
                   :background-color "transparent"}}
 
          ::nested-grid/header-spacer
-         {:style {:border-left      (if ((:edge state) :left)
+         {:style {:border-left      (if (contains? (:edge state) :left)
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-top       (when (get (:edge state) :top)
@@ -230,7 +230,7 @@
                                         :right
                                         (str "thin" " solid " border-dark)
                                         (str "thin" " solid " border))
-                    :border-bottom    (if ((:edge state) :bottom)
+                    :border-bottom    (if (contains? (:edge state) :bottom)
                                         (str "thin" " solid " border-dark)
                                         (str "thin" " solid " border))}})
 
@@ -260,10 +260,10 @@
          {:style {:padding-top      sm-3
                   :padding-right    sm-3
                   :padding-left     sm-6
-                  :border-left      (if ((:edge state) :left)
+                  :border-left      (if (contains? (:edge state) :left)
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
-                  :border-bottom    (if ((:edge state) :bottom)
+                  :border-bottom    (if (contains? (:edge state) :bottom)
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
                   :border-right     (str "thin" " solid" border)
