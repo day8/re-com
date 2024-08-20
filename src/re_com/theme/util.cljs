@@ -10,10 +10,3 @@
       (every? map? ms) (clojure.core/apply merge-with merge-props ms)
       (every? vector? ms) (reduce into ms)
       :else (last ms))))
-
-(defn parts [part->props]
-  (fn [props {:keys [part]}]
-    (if-let [v (or (get part->props part)
-                   (get part->props (keyword (name part))))]
-      (merge-props props v)
-      props)))
