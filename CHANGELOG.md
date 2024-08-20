@@ -2,6 +2,10 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+#### Added
+- `nested-grid` - More parts, better themeing support
+- `nested-grid` - optional `:align` key for column-specs.
+
 ## 2.21.19 (2024-08-19)
 
 #### Added

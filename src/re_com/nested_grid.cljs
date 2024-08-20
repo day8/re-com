@@ -185,18 +185,40 @@
       :type "function"
       :validate-fn ifn?
       :description
-      [:span "Called whenever the export button is clicked."
-       " Expects keyword arguments "
-       [:code ":header-rows"] " and " [:code ":main-rows"] "."]}
+      [:span "Called whenever the export button is clicked. "
+       "Can expect to be passed several keyword arguments. "
+       "Each argument is a nested vector of cell values. "
+       [:ul
+        [:li [:strong [:code ":rows"]] ": "
+         "Everything."]
+        [:li [:strong [:code ":header-rows"]] ": "
+         "Everything above the cells. Each row includes spacers for the top-left corner, "
+         "followed by column headers."]
+        [:li [:strong [:code ":main-rows"]] ": "
+         "Includes first row of main cells and everything beneath it. "
+         "Each row includes the row-headers, followed by the main cells."]
+        [:li [:strong [:code ":cells"]] ": "
+         "Just the cells, without any headers."]
+        [:li [:strong [:code ":spacers"]] ": "
+         "Just the spacers in the top-left corner."]
+        [:li [:strong [:code ":row-headers"]] ": "
+         "Just the row headers, no cells."]
+        [:li [:strong [:code ":column-headers"]] ": "
+         "Just the column headers, no cells."]
+        [:li [:strong [:code ":default"]] ": "
+         [:code "nested-grid"] "'s default function for " [:code ":on-export"] ". "
+         "This joins the rows into a single string of tab-separated values, then "
+         "writes that string to the clipboard."]]]}
      {:name :on-export-cell
       :required false
       :type "{:keys [row-path column-path]} -> string"
       :validate-fn ifn?
       :description
-      [:span "Similar to " [:code ":cell"] ", but it should return a string value only."
-       " After the export button is clicked, " [:code "nested-grid"] " maps "
+      [:span "Similar to " [:code ":cell"] ", but its return value should be serializable. "
+       "Returning a hiccup or render-fn is probably a bad idea. "
+       "After the export button is clicked, " [:code "nested-grid"] " maps "
        [:code ":on-export-cell"] "over any cells marked for export, passing the "
-       "results to " [:code ":on-export"] " via the " [:code ":main-rows"] " prop."]}
+       "results to " [:code ":on-export"] "."]}
      {:name :on-export-row-header
       :required false
       :type "{:keys [row-path]} -> string"
@@ -452,7 +474,7 @@
                                                                 :do         (header-main-span row-paths)
                                                                 (not show?) dec))
                               :position          "relative"}}
-          {:state {:edge edge} :part ::row-header-wrapper}
+          {:part ::row-header-wrapper}
           theme)
 
    [:div
@@ -878,6 +900,7 @@
                                                        :resize-handler resize-handler
                                                        :resize-rows?   resize-rows?
                                                        :drag           drag
+                                                       :theme          theme
                                                        :selection?     selection?
                                                        :edge           (cond-> #{}
                                                                          (start-branch? path row-paths) (conj :top)
@@ -916,9 +939,9 @@
                                                                  :column-path column-path
                                                                  :row-path    row-path
                                                                  :value       value}
-                                                          props (merge {:cell        cell
-                                                                        :theme       (update theme :user-variables
-                                                                                             conj (theme/with-state state))}
+                                                          props (merge {:cell  cell
+                                                                        :theme (update theme :user-variables
+                                                                                       conj (theme/with-state state))}
                                                                        (when cell-value
                                                                          {:cell-value cell-value})
                                                                        state)]]

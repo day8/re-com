@@ -296,14 +296,15 @@
 
 (defn rf8-grid-theme [props {:keys [part state] $ :variables}]
   (let [$ (merge $ {:border-light "#ccc"
-                    :dark         "#768895"})]
+                    :dark         "#768895"
+                    :neutral      "#ccc"})]
     (->>
      nil
      (case part
        :re-com.nested-grid/nested-grid
        {:row-height           "20px"
         :column-header-height "20px"
-        :row-header-width     0
+        #_#_:row-header-width 0
         :show-zebra-stripes?  false}
 
        :re-com.nested-grid/cell-wrapper
@@ -312,6 +313,24 @@
 
        :re-com.nested-grid/column-header-wrapper
        {:style {:border-right     "none"
+                :padding-left     "10px"
+                :padding-top      1
+                :background-color ($ :dark)
+                :color            ($ :white)}}
+
+       :re-com.nested-grid/row-header-wrapper
+       {:style {:border-left      "none"
+                :border-bottom    "none"
+                :border-right     "none"
+                :padding-left     "10px"
+                :padding-top      1
+                :background-color "#99a"
+                :color            ($ :white)}}
+
+       :re-com.nested-grid/header-spacer-wrapper
+       {:style {:border-left      "none"
+                :border-bottom    "none"
+                :border-right     "none"
                 :padding-left     "10px"
                 :padding-top      1
                 :background-color ($ :dark)
@@ -334,6 +353,13 @@
             :padding-left     "10px"
             :padding-top      1
             :background-color "#768895"
+            :color            :white}}
+
+   :re-com.nested-grid/header-spacer-wrapper
+   {:style {:border-right     "none"
+            :padding-left     "10px"
+            :padding-top      1
+            :background-color "#768895"
             :color            :white}}})
 
 (defn style-demo []
@@ -341,24 +367,29 @@
    :gap "12px"
    :children
    [[nested-grid
-     {#_#_:theme        rf8-grid-theme
-      :parts            rf8-grid-parts
-      :row-header-width 0
-      :column-tree      (->> [{:id "Align Column" :width 120 :align-column :left}
-                              {:id "Default Alignment" :width 120}
-                              {:id "Align Column Header" :width 150 :align-column-header :right}]
-                             (map-indexed (fn [i item] (assoc item :index i)))
-                             vec)
-      :cell-value       (fn [{[{:keys [cell-values]}] :row-path
-                              [{:keys [index]}]       :column-path}]
-                          (get cell-values index))
-      :row-tree         (->> [{:label "Text" :cell-values ["Lorem" "ipsum" "dolor"]}
-                              {:label "Text" :cell-values ["sit" "amet" " consectetur"]}
-                              {:label "Text" :cell-values ["adipiscing" "elit" " sed"]}
-                              {:label "Number" :cell-values (vec (range 1000 1003))}]
-                             (map-indexed (fn [i item] (assoc item :index i)))
-                             vec)
-      :cell             (fn [{:keys [value]}] value)}]]])
+     {:theme                rf8-grid-theme
+      #_#_:parts            rf8-grid-parts
+      #_#_:row-header-width 0
+      :header-spacer        (fn [{:keys [x]}]
+                              (get ["Market" "Network"] x))
+      :column-tree          (->> [{:id "Align Column" :width 120 :align-column :left}
+                                  {:id "Default Alignment" :width 120}
+                                  {:id "Align Column Header" :width 150 :align-column-header :right}]
+                                 (map-indexed (fn [i item] (assoc item :index i)))
+                                 vec)
+      :cell-value           (fn [{:keys [row-path column-path]}]
+                              (let [cell-values (some :cell-values (reverse row-path))
+                                    index       (some :index (reverse column-path))]
+                                (get cell-values index)))
+      :show-branch-paths?   true
+      :row-tree             [{:measure :market :market "Sydney" :label "Sydney"}
+                             [{:measure     :station :station "TEN" :label "TEN"
+                               :cell-values ["Lorem" "ipsum" "dolor"]}
+                              {:measure     :station :station "ABC" :label "ABC"
+                               :cell-values ["sit" "amet" " consectetur"]}
+                              {:measure     :station :station "NINE" :label "NINE"
+                               :cell-values (vec (range 1000 1003))}]]
+      :cell                 (fn [{:keys [value]}] value)}]]])
 
 (defn internals-demo []
   [v-box
@@ -678,11 +709,11 @@
      [:code ":cell"] " is responsible for styling the resulting " [:code ":value."]]]])
 
 (defn demos []
-  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
+  (let [tabs [{:id :style      :label "Style" :view style-demo}
+              {:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
-              {:id :app        :label "Applications" :view app-demo}
-              {:id :style      :label "Style" :view style-demo}]
+              {:id :app        :label "Applications" :view app-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
@@ -758,9 +789,14 @@
     [p "If your " [:code ":column-spec"] " or " [:code ":row-spec"] " is a map, you can include a few special keys. "
      "These will cause " [:code "nested-grid"] " to handle your column or row with special behavior."
      [:ul
-      [:li [:code ":width"]  ": sets the initial width."]
-      [:li [:code ":height"] ": sets the initial height."]
-      [:li [:code ":show?"]  ": show (" [:code "true"] ") or hide (" [:code "false"] ") cells, overriding any other context, settings, or branch/leaf position."]]]
+      [:li [:strong [:code ":width"]]  ": sets the initial width."]
+      [:li [:strong [:code ":height"]] ": sets the initial height."]
+      [:li [:strong [:code ":align"]]  ": when declard in a " [:code ":column-spec"] ", aligns a column header and all its corresponding cells. Can be either "
+       [:code ":right"] ", " [:code ":left"] " or " [:code ":center"] ". This tends to work out of the box whenever your " [:code ":cell"] " function returns a string. "
+       "If your " [:code ":cell"] " fn returns a hiccup, you may be better off controlling alignment within that hiccup."]
+      [:li [:strong [:code ":align-column"]]  ": like " [:code ":align"] ", but more explicit."]
+      [:li [:strong [:code ":align-column-header"]]  ": like " [:code ":align"] ", but only for the column-header cells."]
+      [:li [:strong [:code ":show?"]]  ": show (" [:code "true"] ") or hide (" [:code "false"] ") cells, overriding any other context, settings, or branch/leaf position."]]]
     [p "Here's the first table, but instead of the column-spec " [:code ":fruit"] ", we use a map with special keys. This lets us show a single branch path, while the others remain hidden:"
      [:pre "[:plant [{:id :fruit :show? true :width 200} [:apple :banana] :vegetable [:potato]]]"]]
     [nested-grid
