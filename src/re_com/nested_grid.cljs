@@ -545,11 +545,12 @@
 
 (defn header-spacer-part [_] "")
 
-(defn header-spacer-wrapper-part [{:keys [theme x y header-spacer edge]}]
+(defn header-spacer-wrapper-part [{:keys [theme x y header-spacer edge] :as props}]
   (let [props (-> {:style
                    {:grid-column (inc x)
                     :grid-row    (inc y)}}
-                  (theme/apply {:state {:edge edge} :part ::header-spacer} theme))]
+                  (merge props)
+                  (theme/apply {:state {:edge edge} :part ::header-spacer-wrapper} theme))]
     [:div props
      [u/part header-spacer props :default header-spacer-part]]))
 

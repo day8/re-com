@@ -199,7 +199,7 @@
          {:style {:padding          "0px"
                   :background-color "transparent"}}
 
-         ::nested-grid/header-spacer
+         ::nested-grid/header-spacer-wrapper
          {:style {:border-left      (if (contains? (:edge state) :left)
                                       (str "thin" " solid " border-dark)
                                       (str "thin" " solid " border))
