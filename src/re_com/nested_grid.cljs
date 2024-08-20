@@ -15,6 +15,7 @@
      {:name :export-button :level 2 :impl "[:div]"}
      {:name :cell-grid-container :level 2 :impl "[:div]"}
      {:name :cell-wrapper :level 3 :impl "[:div]"}
+     {:name :cell :level 4 :impl "[:div]"}
      {:name :column-header-grid-container :level 1 :impl "[:div]"}
      {:name :column-header-wrapper :level 2 :impl "[:div]"}
      {:name :row-header-grid-container :level 1 :impl "[:div]"}
@@ -449,7 +450,7 @@
    (-> {:style {:grid-column (path->grid-line-name column-path)
                 :grid-row    (path->grid-line-name row-path)}}
        (theme/apply {:part ::cell-wrapper} theme))
-   [u/part cell (dissoc props :cell) :default cell-part]])
+   [u/part cell (theme/apply (dissoc props :cell) {:part ::cell} theme) :default cell-part]])
 
 (defn header-label [{:keys [path]}]
   (let [header (last path)]
