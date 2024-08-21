@@ -2,9 +2,16 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+
+## 2.21.20 (2024-08-21)
+
 #### Added
 - `nested-grid` - More parts, better themeing support
 - `nested-grid` - optional `:align` key for column-specs.
+
+#### Fixed
+
+- `nested-grid` - resizing columns works again (without rendering every cell).
 
 ## 2.21.19 (2024-08-19)
 
