@@ -257,10 +257,8 @@
        "selected, then only 2 cells are exported."]}]))
 
 (defn descendant? [path-a path-b]
-  (let [a-ct (count path-a)
-        b-ct (count path-b)]
-    (and (not (>= a-ct b-ct))
-         (= path-a (subvec path-b 0 a-ct)))))
+  (and (not (>= (count path-a) (count path-b)))
+       (= path-a (vec (take (count path-a) path-b)))))
 
 (defn ancestor? [path-a path-b]
   (descendant? path-b path-a))
