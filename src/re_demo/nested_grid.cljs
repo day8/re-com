@@ -709,11 +709,11 @@
      [:code ":cell"] " is responsible for styling the resulting " [:code ":value."]]]])
 
 (defn demos []
-  (let [tabs [{:id :style      :label "Style" :view style-demo}
-              {:id :basic      :label "Basic Demo" :view basic-demo}
+  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
-              {:id :app        :label "Applications" :view app-demo}]
+              {:id :app        :label "Applications" :view app-demo}
+              {:id :style      :label "Style" :view style-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
