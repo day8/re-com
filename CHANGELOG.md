@@ -2,10 +2,15 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.22 (2024-08-29)
+
+#### Fixed
+- `nested-grid` - Header grid sizes are more correct.
+
 ## 2.21.21 (2024-08-22)
 
 #### Fixed
-- `nested-grid` nested headers render correctly again
+- `nested-grid` - nested headers render correctly again.
 
 
 ## 2.21.20 (2024-08-21)

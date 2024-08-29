@@ -156,6 +156,14 @@
       [:span "The default height that a column-header will use. "
        "Can be overridden by a " [:code ":height"] "key in the "
        [:code ":column-spec"] ", or by component-local state."]}
+     {:name :row-height
+      :default 25
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default height that a row will use. "
+       "Can be overridden by a " [:code ":height"] "key in the "
+       [:code ":row-spec"] ", or by component-local state."]}
      {:name :column-width
       :default 30
       :type "number"
@@ -452,29 +460,13 @@
   (into [:div (theme/apply {} {:part ::column-header-wrapper} theme)]
         children))
 
-(defn row-header-part [{:keys [row-path]}]
-  (header-label {:path row-path}))
-
 (defn row-header-wrapper-part
-  [{:keys [row-path row-paths row-header theme show? edge resize-rows?]
-    :as props}]
-  [:div (theme/apply {:style {:grid-row-start    (path->grid-line-name row-path)
-                              :grid-row-end      (str "span " (cond-> row-path
-                                                                :do (header-cross-span row-paths)
-                                                                (not show?) dec))
-                              :grid-column-start (count row-path)
-                              :grid-column-end   (str "span " (cond-> row-path
-                                                                :do         (header-main-span row-paths)
-                                                                (not show?) dec))
-                              :position          "relative"}}
-          {:part ::row-header-wrapper}
-          theme)
+  [{:keys [theme children]}]
+  (into [:div (theme/apply {} {:part ::row-header-wrapper} theme)]
+        children))
 
-   [:div
-    [u/part row-header props :default row-header-part]]
-   (when (and resize-rows? show?)
-     [resize-button (merge props {:dimension :row
-                                  :path      row-path})])])
+(defn row-header-part [{:keys [path]}]
+  (header-label {:path path}))
 
 (def level count)
 
@@ -889,27 +881,45 @@
                                                                      :path            path})])]))
             row-header-cells       (doall
                                     (for [path row-paths
-                                          :let [props {:row-path       path
-                                                       :path           path
-                                                       :row-header     row-header
-                                                       :row-paths      row-paths
-                                                       :show?          (show? path :row)
-                                                       :on-resize      resize-row!
-                                                       :mouse-down-y   mouse-down-y
-                                                       :last-mouse-y   last-mouse-y
-                                                       :mouse-y        mouse-y
-                                                       :resize-handler resize-handler
-                                                       :resize-rows?   resize-rows?
-                                                       :drag           drag
-                                                       :theme          theme
-                                                       :selection?     selection?
-                                                       :edge           (cond-> #{}
-                                                                         (start-branch? path row-paths) (conj :top)
-                                                                         (end-branch? path row-paths)   (conj :bottom)
-                                                                         (= 1 (count path))             (conj :left)
-                                                                         (= (count path) row-depth)     (conj :right))}]]
+                                          :let [edge (cond-> #{}
+                                                       (start-branch? path row-paths) (conj :top)
+                                                       (end-branch? path row-paths)   (conj :bottom)
+                                                       (= 1 (count path))             (conj :left)
+                                                       (= (count path) row-depth)     (conj :right))
+                                                state {:edge        edge
+                                                       :row-path    path
+                                                       :path        path
+                                                       :header-spec (last path)
+                                                       :show?       show?}
+                                                props (merge {:theme      (update theme :user-variables
+                                                                                  conj (theme/with-state state))
+                                                              :selection? selection?
+                                                              :edge       edge}
+                                                             state)]]
                                       ^{:key [::row (or path (gensym))]}
-                                      [u/part row-header-wrapper props :default row-header-wrapper-part]))
+                                      [:div {:style {:grid-row-start    (path->grid-line-name path)
+                                                     :grid-row-end      (str "span " (cond-> path
+                                                                                       :do         (header-cross-span showing-row-paths)
+                                                                                       :do         dec
+                                                                                       (not show?) dec))
+                                                     :grid-column-start (count path)
+                                                     :grid-column-end   (str "span " (cond-> path
+                                                                                       :do         (header-main-span showing-row-paths)
+                                                                                       (not show?) dec))
+                                                     :position          "relative"}}
+                                       [u/part row-header-wrapper
+                                        (merge props {:children [[u/part row-header props :default row-header-part]]})
+                                        :default row-header-wrapper-part]
+                                       (when (and resize-rows? show?)
+                                         [resize-button {:mouse-down-x    mouse-down-x
+                                                         :last-mouse-x    last-mouse-x
+                                                         :mouse-x         mouse-x
+                                                         :resize-handler  resize-handler
+                                                         :resize-columns? resize-columns?
+                                                         :on-resize       resize-column!
+                                                         :drag            drag
+                                                         :dimension       :row
+                                                         :path            path}])]))
             header-spacer-cells    (for [y    (range column-depth)
                                          x    (range row-depth)
                                          :let [props {:theme         theme
