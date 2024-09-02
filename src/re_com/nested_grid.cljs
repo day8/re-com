@@ -438,13 +438,13 @@
 (defn cell-part [{:keys [column-path row-path]}]
   nil)
 
-(defn cell-wrapper-part [{:keys [column-path row-path cell theme cell-value value]
-                          :as   props}]
-  [:div
-   (-> {:style {:grid-column (path->grid-line-name column-path)
-                :grid-row    (path->grid-line-name row-path)}}
-       (theme/apply {:part ::cell-wrapper} theme))
-   [u/part cell (theme/apply (dissoc props :cell) {:part ::cell} theme) :default cell-part]])
+(defn cell-wrapper-part [{:keys [column-path row-path theme children] :as props}]
+  (into
+   [:div
+    (-> {:style {:grid-column (path->grid-line-name column-path)
+                 :grid-row    (path->grid-line-name row-path)}}
+        (theme/apply {:part ::cell-wrapper} theme))]
+   children))
 
 (defn header-label [{:keys [path]}]
   (let [header (last path)]
@@ -950,14 +950,18 @@
                                                                  :column-path column-path
                                                                  :row-path    row-path
                                                                  :value       value}
+                                                          theme (update theme :user-variables
+                                                                        conj (theme/with-state state))
                                                           props (merge {:cell  cell
-                                                                        :theme (update theme :user-variables
-                                                                                       conj (theme/with-state state))}
-                                                                       (when cell-value
-                                                                         {:cell-value cell-value})
-                                                                       state)]]
+                                                                        :theme theme}
+                                                                       state)
+                                                          cell-props (merge {:value value
+                                                                             :theme theme}
+                                                                            state)]]
                                          ^{:key [::cell-wrapper (or [column-path row-path] (gensym))]}
-                                         [u/part cell-wrapper props :default cell-wrapper-part]))))
+                                         [u/part cell-wrapper
+                                          (merge props {:children [[u/part cell cell-props :default cell-part]]})
+                                          :default cell-wrapper-part]))))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
                                      ^{:key [::zebra-stripe i]}
                                      [:div
