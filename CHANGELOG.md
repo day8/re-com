@@ -2,6 +2,14 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.23 (2024-09-02)
+
+#### Added
+- `nested-grid` - `:theme-cells?` prop, useful to optimize render performance.
+
+#### Fixed
+- `nested-grid` - Optimized performance.
+
 ## 2.21.22 (2024-08-29)
 
 #### Fixed
