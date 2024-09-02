@@ -66,10 +66,27 @@
 (defn base-variables [props ctx]
   [props (assoc ctx :variables static-variables)])
 
-(defn base [props {:keys                   [state part transition!]
-                   {:keys [sm-2]}          :variables
-                   {:keys [anchor-height]} :component-props
-                   :as                     ctx}]
+(defmulti base (fn [_ {:keys [part]}] part))
+
+(def cell-wrapper-base {#_#_:pointer-events "none"
+                        :user-select        "none"
+                        :overflow           "hidden"
+                        :position           "relative"})
+
+(defmethod base ::nested-grid/cell-wrapper [props _]
+  (update props :style merge cell-wrapper-base))
+
+(def row-header-wrapper-base {:position           "relative"
+                              :user-select        "none"
+                              :height             "100%"})
+
+(defmethod base ::nested-grid/row-header-wrapper [props _]
+  (update props :style merge row-header-wrapper-base))
+
+(defmethod base :default [props {:keys                   [state part transition!]
+                                 {:keys [sm-2]}          :variables
+                                 {:keys [anchor-height]} :component-props
+                                 :as                     ctx}]
   (->> {}
        (case part
 
@@ -132,29 +149,79 @@
 
          ::nested-grid/column-header-wrapper
          {:style {:position           "relative"
-                  #_#_:pointer-events "none"
-                  :user-select        "none"
-                  :height             "100%"}}
-
-         ::nested-grid/row-header-wrapper
-         {:style {:position           "relative"
-                  #_#_:pointer-events "none"
                   :user-select        "none"
                   :height             "100%"}})
        (merge-props props)))
 
 (defn main-variables [props _] props)
 
-(defn main [props {:keys                [state part]
-                   {:as   $
-                    :keys [sm-1 sm-2 sm-3 sm-4 sm-5 sm-6 md-1 md-2
-                           dark shadow light light-background
-                           border border-dark
-                           foreground]} :variables
-                   :as                  ctx}]
+(defmulti main (fn [_ {:keys [part]}] part))
+
+(def cell-wrapper-main
+  (let [{:keys [sm-3]} golden-section-50]
+    {:font-size        12
+     :background-color "white"
+     :color            "#777"
+     :padding-top      sm-3
+     :padding-right    sm-3
+     :padding-left     sm-3
+     :text-align :right
+     :border-right "thin solid #ccc"}))
+
+(defmethod main ::nested-grid/cell-wrapper
+  [props {{:keys [edge value column-path]} :state}]
+  (let [align (some :align column-path)]
+    (update props :style merge
+            cell-wrapper-main
+            (cond align
+                  {:text-align align}
+                  (string? value)
+                  {:text-align :left})
+            (when (seq edge)
+              {:border-right  (cond
+                                (contains? edge :column-section-right)
+                                "thin solid #aaa"
+                                (contains? edge :right)
+                                "thin solid #aaa")
+               :border-bottom (if (contains? edge :bottom)
+                                "thin solid #aaa"
+                                "thin solid #ccc")}))))
+
+(def row-header-wrapper-main
+  (let [{:keys [sm-3 sm-6]}               golden-section-50
+        {:keys [border light-background]} colors]
+    {:padding-top      sm-3
+     :padding-right    sm-3
+     :padding-left     sm-6
+     :border-right     (str "thin" " solid" border)
+     :background-color light-background
+     :color            "#666"
+     :text-align       "left"
+     :font-size        "13px"
+     :overflow         "hidden"
+     :white-space      "nowrap"
+     :text-overflow    "ellipsis"
+     :border-left      "thin solid #ccc"
+     :border-bottom    "thin solid #ccc"}))
+
+(defmethod main ::nested-grid/row-header-wrapper
+  [props {{:keys [edge]} :state}]
+  (update props :style merge
+          row-header-wrapper-main
+          (when (contains? edge :left)
+            {:border-left "thin solid #aaa"})
+          (when (contains? edge :bottom)
+            {:border-bottom "thin solid #aaa"})))
+
+(defmethod main :default [props {:keys                [state part]
+                                 {:as   $
+                                  :keys [sm-1 sm-2 sm-3 sm-4 sm-5 sm-6 md-1 md-2
+                                         dark shadow light light-background
+                                         border border-dark
+                                         foreground]} :variables
+                                 :as                  ctx}]
   (->> {}
        (case part
-
          ::dropdown/body-wrapper
          {:style {:background-color "white"
                   :border-radius    "4px"
@@ -210,30 +277,6 @@
                   :border-right     (str "thin" " solid " border)
                   :background-color light-background}}
 
-         ::nested-grid/cell-wrapper
-         (let [{:keys [value]}        state
-               {:keys [align align-column]} (into {} (filter map?) (:column-path state))]
-           {:style {:font-size        "12px"
-                    :background-color "white"
-                    :color            "#777"
-                    :padding-top      sm-3
-                    :padding-right    sm-3
-                    :padding-left     sm-3
-                    :text-align       (or align-column
-                                          align
-                                          (cond (string? value) :left
-                                                (number? value) :right)
-                                          :right)
-                    :border-right     (condp #(get %2 %1) (:edge state)
-                                        :column-section-right
-                                        (str "thin" " solid " border-dark)
-                                        :right
-                                        (str "thin" " solid " border-dark)
-                                        (str "thin" " solid " border))
-                    :border-bottom    (if (contains? (:edge state) :bottom)
-                                        (str "thin" " solid " border-dark)
-                                        (str "thin" " solid " border))}})
-
          ::nested-grid/column-header-wrapper
          (let [{:keys [align-column align-column-header align]} (:header-spec state)]
            {:style {:padding-top      sm-3
@@ -255,26 +298,6 @@
                     :overflow         "hidden"
                     :white-space      "nowrap"
                     :text-overflow    "ellipsis"}})
-
-         ::nested-grid/row-header-wrapper
-         {:style {:padding-top      sm-3
-                  :padding-right    sm-3
-                  :padding-left     sm-6
-                  :border-left      (if (contains? (:edge state) :left)
-                                      (str "thin" " solid " border-dark)
-                                      (str "thin" " solid " border))
-                  :border-bottom    (if (contains? (:edge state) :bottom)
-                                      (str "thin" " solid " border-dark)
-                                      (str "thin" " solid " border))
-                  :border-right     (str "thin" " solid" border)
-                  :background-color light-background
-                  :color            "#666"
-                  :text-align       "left"
-                  :font-size        "13px"
-                  #_#_:font-weight  "bold"
-                  :overflow         "hidden"
-                  :white-space      "nowrap"
-                  :text-overflow    "ellipsis"}}
 
          ::tree-select/dropdown-anchor
          {:style {:padding  "0 0 0 0"
