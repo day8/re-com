@@ -118,6 +118,18 @@
       :description
       [:span "When " [:code "true"] ", displays cells and headers for all "
        [:code ":column-paths"] " and " [:code ":row-paths"] ", not just the leaf paths."]}
+     {:name :theme-cells?
+      :type "boolean"
+      :default "true"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "false"] ", uses the " [:code ":cell"] " function directly, "
+       " not wrapping or themeing it. That means your theme fn will not get called with a "
+       [:code "part"] " value of " [:code "::cell"] " or " [:code "::cell-wrapper"] ". "
+       "the " [:code "::cell-wrapper"] " part will not be used at all. Your "
+       [:code ":cell"] " will be passed a " [:code ":style"] " prop, and "
+       "it must return a div with that style applied (necessary for grid positioning). "
+       "This improves performance for grids with a high number of cells."]}
      {:name :resize-columns?
       :type "boolean"
       :default "true"
@@ -631,6 +643,7 @@
              :keys [column-tree row-tree
                     cell cell-value column-header row-header header-spacer
                     cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
+                    theme-cells?
                     show-branch-paths?
                     max-height max-width
                     column-width column-header-height row-header-width row-height
@@ -649,7 +662,8 @@
                     on-export-column-header header-label
                     on-export-row-header    header-label
                     resize-columns?         true
-                    resize-rows?            false}}
+                    resize-rows?            false
+                    theme-cells?            true}}
             (theme/top-level-part passed-in-props ::nested-grid)
             theme                 (theme/defaults
                                    props
@@ -891,8 +905,7 @@
                                                       :show?       show?}
                                                props (merge {:theme      (update theme :user-variables
                                                                                  conj (theme/with-state state))
-                                                             :selection? selection?
-                                                             :edge       edge}
+                                                             :selection? selection?}
                                                             state)]]
                                      ^{:key [::row (or path (gensym))]}
                                      [:div {:style {:grid-row-start    (path->grid-line-name path)
@@ -930,32 +943,41 @@
                                                                        (= y (dec column-depth)) (conj :bottom)
                                                                        (= x (dec row-depth))    (conj :right))}]]
                                      (u/part header-spacer-wrapper props :default header-spacer-wrapper-part))
-            cells                  (for [row-path showing-row-paths
-                                         column-path showing-column-paths
-                                         :let        [edge (cond-> #{}
-                                                             (= column-path (first showing-column-paths)) (conj :left)
-                                                             (= column-path (last showing-column-paths))  (conj :right)
-                                                             (= row-path (first showing-row-paths))       (conj :top)
-                                                             (= row-path (last showing-row-paths))        (conj :bottom)
-                                                             (cell-section-left? column-path)             (conj :column-section-left)
-                                                             (cell-section-right? column-path)            (conj :column-section-right))
-                                                      value (when cell-value (cell-value {:column-path column-path
-                                                                                          :row-path    row-path}))
-                                                      state {:edge        edge
-                                                             :column-path column-path
-                                                             :row-path    row-path
-                                                             :value       value}
-                                                      theme (update theme :user-variables
-                                                                    conj (theme/with-state state))
-                                                      props (merge {:cell  cell
-                                                                    :theme theme}
-                                                                   state)
-                                                      cell-props (merge {:value value
-                                                                         :theme theme}
-                                                                        state)]]
-                                     (u/part cell-wrapper
-                                             (merge props {:children [(u/part cell cell-props :default cell-part)]})
-                                             :default cell-wrapper-part))
+            cells                  (if-not theme-cells?
+                                     (for [row-path    showing-row-paths
+                                           column-path showing-column-paths
+                                           :let        [value (when cell-value (cell-value {:column-path column-path :row-path row-path}))]]
+                                       [cell {:style {:grid-column (path->grid-line-name column-path)
+                                                      :grid-row    (path->grid-line-name row-path)}
+                                              :row-path    row-path
+                                              :column-path column-path
+                                              :value       value}])
+                                     (for [row-path showing-row-paths
+                                           column-path showing-column-paths
+                                           :let        [edge (cond-> #{}
+                                                               (= column-path (first showing-column-paths)) (conj :left)
+                                                               (= column-path (last showing-column-paths))  (conj :right)
+                                                               (= row-path (first showing-row-paths))       (conj :top)
+                                                               (= row-path (last showing-row-paths))        (conj :bottom)
+                                                               (cell-section-left? column-path)             (conj :column-section-left)
+                                                               (cell-section-right? column-path)            (conj :column-section-right))
+                                                        value (when cell-value (cell-value {:column-path column-path
+                                                                                            :row-path    row-path}))
+                                                        state {:edge        edge
+                                                               :column-path column-path
+                                                               :row-path    row-path
+                                                               :value       value}
+                                                        theme (update theme :user-variables
+                                                                      conj (theme/with-state state))
+                                                        props (merge {:cell  cell
+                                                                      :theme theme}
+                                                                     state)
+                                                        cell-props (merge {:value value
+                                                                           :theme theme}
+                                                                          state)]]
+                                       (u/part cell-wrapper
+                                               (merge props {:children [(u/part cell cell-props :default cell-part)]})
+                                               :default cell-wrapper-part)))
             zebra-stripes          (for [i (filter even? (range 1 (inc (count row-paths))))]
                                      ^{:key [::zebra-stripe i]}
                                      [:div
