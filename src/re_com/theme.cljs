@@ -15,7 +15,7 @@
 
 (def named->vec
   (memoize
-   (juxt :re-com/system :base-variables :main-variables :user-variables :base :main :user)))
+   (juxt :base-variables :main-variables :user-variables :base :main :user)))
 
 (def global (r/reaction (flatten (named->vec @registry))))
 
@@ -23,7 +23,6 @@
 
 (defn merge [a {:re-com/keys [system] :keys [base main user main-variables user-variables base-variables] :as b}]
   (cond-> a
-    system         (update :re-com/system       conj system)
     base-variables (assoc  :base-variables      base-variables)
     main-variables (assoc  :main-variables      main-variables)
     user-variables (update :user-variables conj user-variables)
@@ -47,8 +46,7 @@
     flatten
     (remove nil?)
     (reduce rf [props ctx])
-    first
-    (#(dissoc % :re-com/system)))))
+    first)))
 
 (defn with-state [& args] {::template ::with-state :args args})
 
@@ -66,10 +64,9 @@
     [(update props :theme conj (add-parts-path (conj path part)))
      (assoc ctx :parts-path (conj path part))]))
 
-(defn defaults [{:re-com/keys [system] :keys [theme-vars base-theme main-theme theme parts]} & themes]
+(defn defaults [{:keys [theme-vars base-theme main-theme theme parts]} & themes]
   (re-com.theme/merge
-   {:re-com/system []
-    :variables     theme-vars
+   {:variables     theme-vars
     :base          base-theme
     :main          main-theme
     :user          [theme (re-com.theme/parts parts)]}
