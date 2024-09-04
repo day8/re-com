@@ -447,10 +447,10 @@
            (reduce rf ""))
       " [end]"))))
 
-(defn cell-part [{:keys [column-path row-path]}]
-  nil)
+(defn cell-part [{:keys [value]}]
+  (str value))
 
-(defn cell-wrapper-part [{:keys [column-path row-path theme children] :as props}]
+(defn cell-wrapper-part [{:keys [column-path row-path theme children]}]
   (into
    [:div
     (-> {:style {:grid-column (path->grid-line-name column-path)
