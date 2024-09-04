@@ -166,7 +166,8 @@
      :padding-right    sm-3
      :padding-left     sm-3
      :text-align :right
-     :border-right "thin solid #ccc"}))
+     :border-right "thin solid #ccc"
+     :border-bottom "thin solid #ccc"}))
 
 (defmethod main ::nested-grid/cell-wrapper
   [props {{:keys [edge value column-path]} :state}]
@@ -182,7 +183,9 @@
                                 (contains? edge :column-section-right)
                                 "thin solid #aaa"
                                 (contains? edge :right)
-                                "thin solid #aaa")
+                                "thin solid #aaa"
+                                :else
+                                "thin solid #ccc")
                :border-bottom (if (contains? edge :bottom)
                                 "thin solid #aaa"
                                 "thin solid #ccc")}))))
