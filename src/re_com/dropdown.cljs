@@ -37,7 +37,7 @@
       :impl "user-defined"
       :level 2
       :notes "Displays the :label or :placeholder."}
-     {:name :anchor
+     {:name :indicator
       :impl "user-defined"
       :level 3
       :notes "Displays an arrow, indicating whether the dropdown is open."}
