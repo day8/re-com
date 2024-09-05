@@ -50,7 +50,7 @@
 
 (defn with-state [& args] {::template ::with-state :args args})
 
-(defn parts [& args] {::template ::with-state :args args})
+(defn parts [& args] {::template ::parts :args args})
 
 (defn <-props [& args] {::template ::<-props :args args})
 
