@@ -2,9 +2,16 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.24 (2024-09-05)
+
+#### Changed
+
+- `tree-select-dropdown` - Renamed most of the parts (still unstable).
 
 #### Fixed
+
 - `nested-grid` - Fixed missing cell borders
+- Fixed parts system not working in some alpha components.
 
 ## 2.21.23 (2024-09-02)
 
