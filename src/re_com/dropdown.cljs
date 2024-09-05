@@ -430,10 +430,14 @@
                       (themed ::anchor-wrapper
                         {:src      (at)
                          :attr     {:ref anchor-ref!}
-                         :children [[u/part anchor (themed ::anchor part-props) :default re-com.dropdown/anchor]
+                         :children [[u/part anchor
+                                     (themed ::anchor part-props)
+                                     :default re-com.dropdown/anchor]
                                     [gap :size "1"]
                                     [gap :size "5px"]
-                                    [u/part indicator part-props :default re-com.dropdown/indicator]]})]
+                                    [u/part indicator
+                                     (themed ::indicator part-props)
+                                     :default re-com.dropdown/indicator]]})]
                      (when (= :open (:openable state))
                        [body-wrapper {:anchor-ref      anchor-ref
                                       :body-ref        body-ref

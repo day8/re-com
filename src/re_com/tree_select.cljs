@@ -15,38 +15,46 @@
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
-    [{:class "rc-tree-select-dropdown"
-      :impl  "[:div]"
-      :level 1
-      :name  :dropdown}
-     {:class "rc-tree-select-dropdown-anchor"
-      :impl  "[h-box]"
-      :level 2
-      :name  :anchor}
-     {:class "rc-tree-select-dropdown-counter"
-      :impl  "[box]"
-      :level 3
-      :name  :counter}
-     {:class "rc-tree-select-dropdown-indicator-triangle"
-      :impl  "[box]"
-      :level 3
-      :name  :anchor-expander}
-     {:class "rc-tree-select-dropdown-backdrop"
-      :impl  "[:div]"
-      :level 2
-      :name  :backdrop}
-     {:class "rc-tree-select-dropdown-dropdown-wrapper"
-      :impl  "[v-box]"
-      :level 2
-      :name  :dropdown-wrapper}
-     {:class "rc-tree-select-dropdown-dropdown-indicator"
-      :impl  "[v-box]"
-      :level 3
-      :name  :dropdown-indicator}
-     {:class "rc-tree-select-dropdown-body"
-      :impl  "[tree-select]"
-      :level 3
-      :name  :body}]))
+    (when include-args-desc?
+      [{:impl "[v-box]"
+        :level 0
+        :name :dropdown-wrapper
+        :notes "Outer wrapper."}
+       {:name :dropdown-backdrop
+        :impl "user-defined"
+        :level 1
+        :notes "Transparent, clickable backdrop. Shown when the dropdown is open."}
+       {:name :dropdown-anchor-wrapper
+        :impl "[box]"
+        :level 1
+        :notes "Wraps the :anchor part. Opens or closes the dropdown when clicked."}
+       {:name :dropdown-anchor
+        :impl "user-defined"
+        :level 2
+        :notes "Displays the :label or :placeholder."}
+       {:impl  "[:span]"
+        :level 3
+        :name  :label}
+       {:impl  "[box]"
+        :level 3
+        :name  :counter}
+       {:name :dropdown-indicator
+        :impl "user-defined"
+        :level 3
+        :notes "Displays an arrow, indicating whether the dropdown is open."}
+       {:name :dropdown-body-wrapper
+        :impl "[box]"
+        :level 1
+        :notes "Shown when the dropdown is open. Provides intelligent positioning."}
+       {:name :dropdown-body-header
+        :impl "user-defined"
+        :level 2}
+       {:name :dropdown-body-header
+        :impl "user-defined"
+        :level 2}
+       {:name :dropdown-body
+        :impl "user-defined"
+        :level 2}])))
 
 (def tree-select-dropdown-parts
   (when include-args-desc?
@@ -573,7 +581,7 @@
 (defn tree-select-dropdown [& {:keys [expanded-groups]
                                :or   {expanded-groups (r/atom nil)}}]
   (let [default-expanded-groups expanded-groups
-        showing? (r/atom false)]
+        showing?                (r/atom false)]
     (fn tree-select-dropdown-render
       [& {:keys [choices disabled? required?
                  width min-width max-width anchor-width
@@ -592,53 +600,73 @@
                  id-fn           :id
                  expanded-groups default-expanded-groups}
           :as   args}]
-      (let [state           {:enable (if-not disabled? :enabled :disabled)}
-            themed          (fn [part props] (theme/apply props
-                                               {:state       state
-                                                :part        part
-                                                :transition! #()}
-                                               {:variables theme-vars
-                                                :base      base-theme
-                                                :main      main-theme
-                                                :user      [theme
-                                                            (theme/parts parts)
-                                                            (theme/<-props args {:part    ::dropdown
-                                                                                 :include [:class :style :attr]})]}))
-            label-fn        (or label-fn :label)
-            alt-text-fn     (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
-            group-label-fn  (or group-label-fn (comp name last :group))
-            field-label-fn  (or field-label-fn field-label)
-            labelable-items (labelable-items (deref-or-value model) (deref-or-value choices) {:id-fn id-fn})
-            anchor-label    (field-label-fn {:items          labelable-items
-                                             :label-fn       label-fn
-                                             :group-label-fn group-label-fn})
-            on-reset        (or on-reset (handler-fn (on-change #{} (deref-or-value expanded-groups))))]
+      (let [state             {:enable (if-not disabled? :enabled :disabled)}
+            themed            (fn [part props] (theme/apply props
+                                                 {:state       state
+                                                  :part        part
+                                                  :transition! #()}
+                                                 {:variables theme-vars
+                                                  :base      base-theme
+                                                  :main      main-theme
+                                                  :user      [theme
+                                                              (theme/parts parts)
+                                                              (theme/<-props args {:part    ::dropdown
+                                                                                   :include [:class :style :attr]})]}))
+            label-fn          (or label-fn :label)
+            alt-text-fn       (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
+            group-label-fn    (or group-label-fn (comp name last :group))
+            field-label-fn    (or field-label-fn field-label)
+            labelable-items   (labelable-items (deref-or-value model) (deref-or-value choices) {:id-fn id-fn})
+            anchor-label      (field-label-fn {:items          labelable-items
+                                               :label-fn       label-fn
+                                               :group-label-fn group-label-fn})
+            anchor-label-part [:span (themed ::label {:title (alt-text-fn {:items          labelable-items
+                                                                           :label-fn       label-fn
+                                                                           :group-label-fn group-label-fn})
+                                                      :style {:white-space   "nowrap"
+                                                              :overflow      "hidden"
+                                                              :text-overflow "ellipsis"}})
+                               anchor-label]
+            on-reset          (or on-reset (handler-fn (on-change #{} (deref-or-value expanded-groups))))
+            body              (fn [{:keys [class style attr]}]
+                                [tree-select
+                                 (themed ::dropdown-body
+                                   {:choices                 choices
+                                    :choice                  choice
+                                    :required?               required?
+                                    :group-label-fn          group-label-fn
+                                    :show-only-button?       show-only-button?
+                                    :expanded-groups         expanded-groups
+                                    :disabled?               disabled?
+                                    :min-width               min-width
+                                    :max-width               max-width
+                                    :min-height              min-height
+                                    :on-change               on-change
+                                    :groups-first?           groups-first?
+                                    :choice-disabled-fn      choice-disabled-fn
+                                    :initial-expanded-groups initial-expanded-groups
+                                    :empty-means-full?       empty-means-full?
+                                    :id-fn                   id-fn
+                                    :label-fn                label-fn
+                                    :model                   model})])]
         [dd/dropdown
-
          (themed ::dropdown
-           {:label         (cond label
-                                 [u/part label {:model           (deref-or-value model)
-                                                :state           state
-                                                :placeholder     placeholder
-                                                :label-fn        label-fn
-                                                :group-label-fn  group-label-fn
-                                                :labelable-items labelable-items
-                                                :id-fn           id-fn}]
-                                 anchor-label
-                                 [:span {:title (alt-text-fn {:items          labelable-items
-                                                              :label-fn       label-fn
-                                                              :group-label-fn group-label-fn})
-                                         :style {:white-space   "nowrap"
-                                                 :overflow      "hidden"
-                                                 :text-overflow "ellipsis"}}
-                                  anchor-label])
+           {:label         [u/part label {:model           (deref-or-value model)
+                                          :state           state
+                                          :placeholder     placeholder
+                                          :label-fn        label-fn
+                                          :group-label-fn  group-label-fn
+                                          :labelable-items labelable-items
+                                          :id-fn           id-fn}
+                            :default
+                            anchor-label-part]
             :placeholder   placeholder
             :indicator     (fn [props]
                              [h-box
                               (themed ::dropdown-indicator
                                 {:children
-                                 [[box {:child (str (count (deref-or-value model)))}]
-                                  [dd/indicator (themed ::dropdown-indicator-triangle props)]
+                                 [[box (themed ::counter {:child (str (count (deref-or-value model)))})]
+                                  [dd/indicator (themed ::dropdown-indicator props)]
                                   (when (u/deref-or-value show-reset-button?)
                                     [u/x-button
                                      {:on-click (when on-reset
@@ -651,29 +679,19 @@
             :anchor-height anchor-height
             :body-header   body-header
             :body-footer   body-footer
-            :body          [tree-select
-                            (themed ::dropdown-body
-                              {:choices                 choices
-                               :choice                  choice
-                               :required?               required?
-                               :group-label-fn          group-label-fn
-                               :show-only-button?       show-only-button?
-                               :expanded-groups         expanded-groups
-                               :disabled?               disabled?
-                               :min-width               min-width
-                               :max-width               max-width
-                               :min-height              min-height
-                               :on-change               on-change
-                               :groups-first?           groups-first?
-                               :choice-disabled-fn      choice-disabled-fn
-                               :initial-expanded-groups initial-expanded-groups
-                               :empty-means-full?       empty-means-full?
-                               :id-fn                   id-fn
-                               :label-fn                label-fn
-                               :model                   model})]
+            :body          body
             :model         showing?
             :theme         theme
-            :parts         (merge parts
-                                  {:body-wrapper {:style {:width      (or width "221px")
-                                                          :max-height max-height
-                                                          :min-width  min-width}}})})]))))
+            :parts         (merge
+                            {:wrapper        (:dropdown-wrapper parts)
+                             :backdrop       (:dropdown-backdrop parts)
+                             :anchor-wrapper (:dropdown-anchor-wrapper parts)
+                             :anchor         (:dropdown-anchor parts)
+                             :indicator      (:dropdown-indicator parts)
+                             :body-wrapper   (merge {:style {:width      (or width "221px")
+                                                             :max-height max-height
+                                                             :min-width  min-width}}
+                                                    (:dropdown-body-wrapper parts))
+                             :body-header    (:dropdown-body-header parts)
+                             :body           (:dropdown-body parts)}
+                            (:parts (:dropdown parts)))})]))))
