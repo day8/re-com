@@ -2,6 +2,16 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.21.25 (2024-09-05)
+
+#### Changed
+
+- `nested-grid` - Export button stays mounted, even when `:show-export-button?` is off.
+  This is useful when automating the export behavior by targeting the button with a click event.
+- `nested-grid` - Exports now make use of the `:cell-value` function by default.
+- `nested-grid` - `:on-export-column-header` now accepts a `:column-path` prop (same for `:on-export-row-header`).
+
+
 ## 2.21.24 (2024-09-05)
 
 #### Changed

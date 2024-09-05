@@ -704,7 +704,7 @@
             cell-section-right?   (set (map last cell-sections))
             column-depth          (count max-column-heights)
             row-depth             (count max-row-widths)
-            on-export-cell        (or on-export-cell (comp pr-str cell))
+            on-export-cell        (or on-export-cell (comp pr-str cell-value))
             default-on-export     (fn on-export [{:keys [rows]}]
                                     (->> rows (map u/tsv-line) str/join u/clipboard-write!))
             on-export             (or on-export default-on-export)
@@ -747,7 +747,8 @@
                                          insert     (fn [result path]
                                                       (assoc-in result
                                                                 [(->y path) (->x path)]
-                                                                (on-export-column-header {:path path})))]
+                                                                (on-export-column-header {:path path
+                                                                                          :column-path path})))]
                                      (cond->> column-paths
                                        :do        (reduce insert result)
                                        selection? (mapv crop)))
@@ -778,7 +779,8 @@
                                          insert     (fn [result path]
                                                       (assoc-in result
                                                                 [(->y path) (->x path)]
-                                                                (on-export-row-header {:path path})))
+                                                                (on-export-row-header {:path path
+                                                                                       :row-path path})))
                                          all        (reduce insert result row-paths)]
                                      (if-not selection?
                                        all
@@ -814,31 +816,31 @@
                                       :attr         {:title "Copy to Clipboard"}
                                       :on-click     on-click}])
             control-panel         [:div {:style {:position         :relative
+                                                 :visibility       (when-not show-export-button? :hidden)
                                                  :margin-right     10
                                                  :background-color "white"
                                                  :width            (or max-width "1fr")}}
                                    [:div {:style {:position :absolute
                                                   :right    0}}
-                                    (when show-export-button?
-                                      (u/part export-button
-                                              (themed ::export-button
-                                                {:on-click #(let [column-headers (export-column-headers)
-                                                                  row-headers    (export-row-headers)
-                                                                  spacers        (export-spacers)
-                                                                  cells          (export-cells)
-                                                                  header-rows    (mapv into spacers column-headers)
-                                                                  main-rows      (mapv into row-headers cells)
-                                                                  rows           (concat header-rows main-rows)]
-                                                              (on-export
-                                                               {:column-headers column-headers
-                                                                :row-headers    row-headers
-                                                                :spacers        spacers
-                                                                :cells          cells
-                                                                :header-rows    header-rows
-                                                                :main-rows      main-rows
-                                                                :rows           rows
-                                                                :default        default-on-export}))})
-                                              :default default-export-button))]]
+                                    (u/part export-button
+                                            (themed ::export-button
+                                              {:on-click #(let [column-headers (export-column-headers)
+                                                                row-headers    (export-row-headers)
+                                                                spacers        (export-spacers)
+                                                                cells          (export-cells)
+                                                                header-rows    (mapv into spacers column-headers)
+                                                                main-rows      (mapv into row-headers cells)
+                                                                rows           (concat header-rows main-rows)]
+                                                            (on-export
+                                                             {:column-headers column-headers
+                                                              :row-headers    row-headers
+                                                              :spacers        spacers
+                                                              :cells          cells
+                                                              :header-rows    header-rows
+                                                              :main-rows      main-rows
+                                                              :rows           rows
+                                                              :default        default-on-export}))})
+                                            :default default-export-button)]]
             cell-grid-container   [:div
                                    (themed ::cell-grid-container
                                      {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
@@ -1027,12 +1029,12 @@
                                                                   (str/replace max-width
                                                                                "px"
                                                                                ""))))))])
-                 :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] [])
+                 :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] ["0px"])
                                                              [showing-column-widths
                                                               (px (apply + max-column-heights))
                                                               (px (+ native-height 4))]))}}
-          (when show-export-button? [:div])
-          (when show-export-button? control-panel)
+          [:div]
+          control-panel
           (into [:div (themed ::header-spacer-grid-container
                         {:style {:display               "grid"
                                  :box-sizing            "border-box"
