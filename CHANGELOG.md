@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+
+
+## 2.21.26 (2024-09-05)
+
+No changes.
+
 ## 2.21.25 (2024-09-05)
 
 #### Changed
