@@ -4,9 +4,17 @@
 
 
 
+## 2.21.27 (2024-09-05)
+
+#### Fixed
+
+- Reverted `tree-select-dropdown`. Identical to 2.21.25.
+
+
 ## 2.21.26 (2024-09-05)
 
-No changes.
+#### Changed
+- `tree-select-dropdown` - Dynamic sizing WIP.
 
 ## 2.21.25 (2024-09-05)
 
