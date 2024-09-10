@@ -1079,3 +1079,79 @@
                             :last-mouse-x last-mouse-x
                             :last-mouse-y last-mouse-y
                             :on-resize    resize-handler}])]))))
+
+(defn observe-resize [ref on-resize]
+  (let []))
+
+(def grid-width 640)
+(def grid-height 260)
+(def test-cells (map #(do ^{:key %}
+                       [:div {:style {:overflow :hidden
+                                      :border-right "thin solid grey"
+                                      :border-bottom "thin solid grey"}} (str %)])
+                     (range 100)))
+
+(defn test-grid []
+  (let [width (r/atom 0)
+        height (r/atom 0)
+        observer (js/ResizeObserver.
+                  (fn [entries]
+                    (let [entry (aget entries 0)
+                          content-rect (.-contentRect entry)]
+                      (reset! width (.-width content-rect))
+                      (reset! height  (.-height content-rect)))))
+        observe! #(.observe observer %)
+        scroll-left (r/atom 0)
+        scroll-top (r/atom 0)]
+    (fn []
+      [:div {:ref observe!
+             :style {:display :grid
+                     :height "100%"
+                     :min-height 25
+                     :max-height (+ grid-height 20)
+                     :flex 1
+                     :grid-template-columns (str "50px minmax(0px, " grid-width "px)")
+                     :grid-template-rows "20px 1fr"}}
+       [:div "x"]
+       [scroll-container {:scroll-left scroll-left}
+        [:div {:style {:display :grid
+                       :grid-template-columns "repeat(8, 80px)"
+                       :background "orange"}}
+         (take 8 test-cells)]]
+       [scroll-container {:scroll-top scroll-top}
+        [:div {:style {:display :grid
+                       :grid-template-rows "repeat(13, 20px)"
+                       :background "orange"}}
+         (take 13 test-cells)]]
+       [:div {:style {:grid-template-columns "repeat(8, 80px)"
+                      :grid-template-rows "repeat(13, 20px)"
+                      :max-width grid-width
+                      :overflow :auto
+                      :max-height grid-height
+                      :background "lightblue"
+                      :display "grid"}
+              :on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                              (reset! scroll-left (.-scrollLeft (.-target %))))}
+        test-cells]])))
+
+(defn test-main []
+  [box/v-box
+   :width "100%"
+   :height "100%"
+   :children
+   (into [[test-grid]]
+         (mapv
+          #(do [box/box :style {:background %
+                                :opacity "0.1"
+                                :max-height 200}
+                :size "1"
+                :child
+                [:div {:style {:min-height 100
+                               :width 50
+                               :background "white"}}
+                 "XYZ" [:br]
+                 "XYZ" [:br]
+                 "XYZ" [:br]
+                 "XYZ" [:br]
+                 "XYZ"]])
+          [#_"red" "green" #_"blue"]))])
