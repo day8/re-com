@@ -261,34 +261,50 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
+(def grid-width 640)
+(def grid-height 260)
+
 (defn test-grid []
   [:div {:style {:display :grid
-                         :height "100%"
-                         :flex 1
-                         :grid-template-rows "20px 1fr"}}
-           [:div {:style {:background "orange"}}]
-   [:div {:style {:background "pink" :height "100%" :overflow :auto }}
-            [:div {:style {:width "30px"
-                           :background "lightblue"
-                           :overflow-y :hidden}}
-             (interleave (repeat 100 "hi") (repeat 50 [:br]))]]])
+                 :height "100%"
+                 :min-height 25
+                 :max-height (+ grid-height 20)
+                 :flex 1
+                 :grid-template-columns "50px minmax(0, 800px)"
+                 :grid-template-rows "20px 1fr"}}
+   [:div]
+   [:div {:style {:background "orange"}}]
+   [:div {:style {:max-height grid-height :background "lightgreen"}}]
+   [:div {:style {:grid-template-columns "80px 80px 80px 80px 80px 80px 80px 80px"
+                  :grid-template-rows "repeat(13, 20px)"
+                  :max-width grid-width
+                  :overflow :auto
+                  :max-height grid-height
+                  :background "lightblue"
+                  :display "grid"}}
+    (repeat 100 [:div {:style {:overflow :hidden}} "hi"])]])
 
 (defn test-main []
   [rc/v-box
-   :width "800px"
+   :width "100%"
    :height "100%"
    :children
    (into [[test-grid]]
          (mapv
-          #(do [rc/box :style {:background %} :size "1" :min-height "100px"
+          #(do [rc/box :style {:background %
+                               :opacity "0.1"
+                               :max-height 200}
+                :size "1"
                 :child
-                [:div {:style {:min-height 100 :width 50 :background "white"}}
+                [:div {:style {:min-height 100
+                               :width 50
+                               :background "white"}}
                  "XYZ" [:br]
                  "XYZ" [:br]
                  "XYZ" [:br]
                  "XYZ" [:br]
                  "XYZ"]])
-          ["red" "green" #_"blue"]))])
+          [#_"red" "green" #_"blue"]))])
 
 (defn ^:dev/after-load mount-root
   []
