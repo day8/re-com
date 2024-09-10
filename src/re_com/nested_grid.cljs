@@ -1012,7 +1012,7 @@
                                           native-scrollbar-width
                                           showing-row-heights)]
         [:div
-         (themed ::wrapper {})
+         (themed ::wrapper {:style {:flex "1 1 0px"}})
          [:div {:on-mouse-enter #(reset! hover? true)
                 :on-mouse-leave #(reset! hover? false)
                 :style
@@ -1030,9 +1030,8 @@
                                                                                "px"
                                                                                ""))))))])
                  :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] ["0px"])
-                                                             [showing-column-widths
-                                                              (px (apply + max-column-heights))
-                                                              (px (+ native-height 4))]))}}
+                                                             [(px (apply + max-column-heights))
+                                                              "minmax(0px, 100%)" #_(px (+ native-height 4))]))}}
           [:div]
           control-panel
           (into [:div (themed ::header-spacer-grid-container

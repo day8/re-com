@@ -261,9 +261,38 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
+(defn test-grid []
+  [:div {:style {:display :grid
+                         :height "100%"
+                         :flex 1
+                         :grid-template-rows "20px 1fr"}}
+           [:div {:style {:background "orange"}}]
+   [:div {:style {:background "pink" :height "100%" :overflow :auto }}
+            [:div {:style {:width "30px"
+                           :background "lightblue"
+                           :overflow-y :hidden}}
+             (interleave (repeat 100 "hi") (repeat 50 [:br]))]]])
+
+(defn test-main []
+  [rc/v-box
+   :width "800px"
+   :height "100%"
+   :children
+   (into [[test-grid]]
+         (mapv
+          #(do [rc/box :style {:background %} :size "1" :min-height "100px"
+                :child
+                [:div {:style {:min-height 100 :width 50 :background "white"}}
+                 "XYZ" [:br]
+                 "XYZ" [:br]
+                 "XYZ" [:br]
+                 "XYZ" [:br]
+                 "XYZ"]])
+          ["red" "green" #_"blue"]))])
+
 (defn ^:dev/after-load mount-root
   []
-  (rdom/render [main] (get-element-by-id "app")))
+  (rdom/render [test-main] (get-element-by-id "app")))
 
 (defn ^:export mount-demo
   []
