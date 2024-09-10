@@ -1,7 +1,13 @@
 ## N.N.N (YYYY-MM-DD)
 
-> Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
+> Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+
+## 2.21.28 (2024-09-09)
+
+#### Changed
+
+- `nested-grid` - now maximizes its vertical flex space by default.
 
 
 ## 2.21.27 (2024-09-05)
