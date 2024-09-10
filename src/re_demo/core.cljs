@@ -10,7 +10,7 @@
             [secretary.core                :as    secretary]
             [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
-            [re-com.util                   :refer [get-element-by-id item-for-id]]
+            [re-com.util                   :refer [get-element-by-id item-for-id deref-or-value]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.debug                 :as    debug]
             [re-demo.config                :as    config]
@@ -261,9 +261,33 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
+(def content (mapv #(do [:div {:style {:border "thin solid white"}} %]) (repeat 200 "Lorem Ipsum ")))
+
+(defn test-main []
+  [rc/v-box
+   :max-height "100%"
+   :max-width "500px"
+   :children
+   [[re-com.nested-grid/test-grid]
+    [:div {:style {:height 50 :width 200 :background "orange"}}]
+    #_[rc/p {:style {:margin-left 100}}
+     "Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph.
+Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph.
+Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph.
+Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. Sample Paragraph. "]
+    #_#_[rc/nested-grid]
+    [rc/nested-grid
+     :column-tree [2 4 6 8 10 12 14 16 18 20]
+     :column-width 100
+     :row-height 100
+       :row-tree    [1 3 5 7 9 11 13 15 17 19]
+       :cell (fn [{:keys [column-path row-path edge]}]
+               (* (last column-path) (last row-path)))]
+    #_[:div "ABCDEFG LOREM"]]])
+
 (defn ^:dev/after-load mount-root
   []
-  (rdom/render [main] (get-element-by-id "app")))
+  (rdom/render [test-main] (get-element-by-id "app")))
 
 (defn ^:export mount-demo
   []

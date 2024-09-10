@@ -1012,7 +1012,7 @@
                                           native-scrollbar-width
                                           showing-row-heights)]
         [:div
-         (themed ::wrapper {})
+         {}
          [:div {:on-mouse-enter #(reset! hover? true)
                 :on-mouse-leave #(reset! hover? false)
                 :style
@@ -1020,7 +1020,8 @@
                  :overflow              :hidden
                  :display               "grid"
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                        (if-not max-width
+                                                       (if max-width (px max-width) "minmax(100px, auto)")
+                                                        #_(if-not max-width
                                                           (str "minmax(0, " (+ 2 native-width) "px)")
                                                           (px (cond-> native-width
                                                                 max-width
@@ -1030,9 +1031,8 @@
                                                                                "px"
                                                                                ""))))))])
                  :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] ["0px"])
-                                                             [showing-column-widths
-                                                              (px (apply + max-column-heights))
-                                                              (px (+ native-height 4))]))}}
+                                                             [(px (apply + max-column-heights))
+                                                              "minmax(40px, 100%)"]))}}
           [:div]
           control-panel
           (into [:div (themed ::header-spacer-grid-container
@@ -1080,3 +1080,25 @@
                             :last-mouse-x last-mouse-x
                             :last-mouse-y last-mouse-y
                             :on-resize    resize-handler}])]))))
+
+(defn test-grid []
+  (let [scroll-top  (r/atom 0)
+        scroll-left (r/atom 0)]
+    (fn []
+      [:div {:style {:height :fit-content
+                     :grid-template-columns "100px minmax(40px, 100vw)"
+                     :grid-template-rows    "100px minmax(40px, 100%) 10px"
+                     :display               :grid
+                     :gap                   10}}
+       [:div {:style {:background "green"}}]
+       [:div {:style {:background "yellow"}}]
+       [scroll-container {:scroll-top scroll-top}
+        (into [:div {:style {:background "blue"}}]              ["a" "b" "c"])]
+       (into [:div {:on-scroll #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                    (reset! scroll-left (.-scrollLeft (.-target %))))
+                    :style     {:display               :grid
+                                :grid-template-columns "repeat(20, 60px)"
+                                :grid-template-rows    "repeat(10, 40px) 10px"
+                                :overflow              :auto}}]
+             ["a" "b" "c"])
+       [:div {:style {:background "purple"}}]])))
