@@ -1080,11 +1080,31 @@
                             :last-mouse-y last-mouse-y
                             :on-resize    resize-handler}])]))))
 
-(defn observe-resize [ref on-resize]
-  (let []))
-
 (def grid-width 640)
 (def grid-height 260)
+(def column-widths (repeat 8 80))
+(def columns (vec (interleave (repeatedly gensym) (repeat 8 80))))
+
+(defn within [lower upper columns]
+  (let [a
+        (loop [sum 0 start nil end nil i 0 prefixes 0 [column & remainder] columns]
+          (cond
+            (empty? remainder)       [start (or end (count columns))]
+            (not (number? column))   (recur sum start end (inc i) (inc prefixes) remainder)
+            (< (+ sum column) lower) (recur (+ sum column) start end (inc i) 0 remainder)
+            :else                    (- i prefixes)))]
+    a))
+
+(within 200 4800 columns)
+(within 2 4 [:a :b :c 2 :b :d :d :d :d :d :d :d 10])
+
+(->> columns
+     (take 10)
+     (filter number?)
+     (apply +))
+
+(def row-heights (repeat 13 20))
+
 (def test-cells (map #(do ^{:key %}
                        [:div {:style {:overflow :hidden
                                       :border-right "thin solid grey"
@@ -1094,37 +1114,38 @@
 (defn test-grid []
   (let [width (r/atom 0)
         height (r/atom 0)
-        observer (js/ResizeObserver.
-                  (fn [entries]
-                    (let [entry (aget entries 0)
-                          content-rect (.-contentRect entry)]
-                      (reset! width (.-width content-rect))
-                      (reset! height  (.-height content-rect)))))
-        observe! #(.observe observer %)
+        resize-observer (js/ResizeObserver.
+                         (fn [entries]
+                           (let [entry (aget entries 0)
+                                 content-rect (.-contentRect entry)]
+                             (reset! width (.-width content-rect))
+                             (reset! height  (.-height content-rect)))))
+        resize-observe! #(when % (.observe resize-observer %))
         scroll-left (r/atom 0)
-        scroll-top (r/atom 0)]
+        scroll-top (r/atom 0)
+        vis (r/reaction @scroll-left)]
     (fn []
-      [:div {:ref observe!
+      [:div {:ref resize-observe!
              :style {:display :grid
                      :height "100%"
                      :min-height 25
                      :max-height (+ grid-height 20)
                      :flex 1
-                     :grid-template-columns (str "50px minmax(0px, " grid-width "px)")
+                     :grid-template-columns (str "200px minmax(0px, " grid-width "px)")
                      :grid-template-rows "20px 1fr"}}
-       [:div "x"]
+       [:div (str @vis)]
        [scroll-container {:scroll-left scroll-left}
         [:div {:style {:display :grid
-                       :grid-template-columns "repeat(8, 80px)"
+                       :grid-template-columns (grid-template column-widths)
                        :background "orange"}}
          (take 8 test-cells)]]
        [scroll-container {:scroll-top scroll-top}
         [:div {:style {:display :grid
-                       :grid-template-rows "repeat(13, 20px)"
+                       :grid-template-rows (grid-template row-heights)
                        :background "orange"}}
          (take 13 test-cells)]]
-       [:div {:style {:grid-template-columns "repeat(8, 80px)"
-                      :grid-template-rows "repeat(13, 20px)"
+       [:div {:style {:grid-template-columns (grid-template column-widths)
+                      :grid-template-rows (grid-template row-heights)
                       :max-width grid-width
                       :overflow :auto
                       :max-height grid-height
