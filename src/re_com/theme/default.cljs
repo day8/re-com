@@ -137,8 +137,7 @@
 
          ::nested-grid/cell-grid-container
          {:style {:position        "relative"
-                  :overflow        "auto"
-                  :scrollbar-width "thin"
+
                   :gap             "0px"}}
 
          ::nested-grid/cell-wrapper
