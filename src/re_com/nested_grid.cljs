@@ -1009,35 +1009,34 @@
             native-height          (apply +
                                           native-scrollbar-width
                                           showing-row-heights)]
-        [:<>
-
+        [:div
+         [:div {:style {:height (when show-export-button? 25)}} control-panel]
          [:div {:on-mouse-enter #(reset! hover? true)
                 :on-mouse-leave #(reset! hover? false)
                 :style
                 {:max-width             max-width
+                 :max-height            max-height
                  :overflow              :auto
                  :display               :grid
                  :grid-template-columns (grid-template [(px (apply + max-row-widths))
                                                         "1fr"])
-                 :grid-template-rows    (grid-template (into (if show-export-button? ["25px"] ["0px"])
+                 :grid-template-rows    (grid-template (into []
                                                              [(px (apply + max-column-heights))
                                                               "1fr"]))}}
-          [:div]
-          control-panel
           (into [:div (themed ::header-spacer-grid-container
                         {:style {:display               :grid
                                  :box-sizing            :border-box
                                  :position              :sticky
                                  :top                   0
                                  :left                  0
-                                 :z-index               20
+                                 :z-index               3
                                  :grid-template-columns (grid-template max-row-widths)
                                  :grid-template-rows    (grid-template max-column-heights)}})]
                 header-spacer-cells)
           (into [:div (themed ::column-header-grid-container
                         {:style {:position              :sticky
                                  :top 0
-                                 :z-index 15
+                                 :z-index 2
                                  :display               :grid
                                  :width                 :fit-content
                                  :grid-template-columns (grid-template cell-grid-columns)
@@ -1046,7 +1045,7 @@
           (into [:div (themed ::row-header-grid-container
                         {:style {:position :sticky
                                  :left 0
-                                 :z-index 10
+                                 :z-index 1
                                  :display               "grid"
                                  :grid-template-columns (grid-template max-row-widths)
                                  :grid-template-rows    (grid-template cell-grid-rows)}})]
