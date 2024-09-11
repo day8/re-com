@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.21.29 (2024-09-12)
+
+#### Fixed
+
+- `nested-grid` - Improved scroll performance with large grids
+
 
 ## 2.21.28 (2024-09-09)
 
