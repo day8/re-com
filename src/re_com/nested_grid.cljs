@@ -747,7 +747,7 @@
                                          insert     (fn [result path]
                                                       (assoc-in result
                                                                 [(->y path) (->x path)]
-                                                                (on-export-column-header {:path path
+                                                                (on-export-column-header {:path        path
                                                                                           :column-path path})))]
                                      (cond->> column-paths
                                        :do        (reduce insert result)
@@ -779,7 +779,7 @@
                                          insert     (fn [result path]
                                                       (assoc-in result
                                                                 [(->y path) (->x path)]
-                                                                (on-export-row-header {:path path
+                                                                (on-export-row-header {:path     path
                                                                                        :row-path path})))
                                          all        (reduce insert result row-paths)]
                                      (if-not selection?
@@ -843,11 +843,11 @@
                                             :default default-export-button)]]
             cell-grid-container   [:div
                                    (themed ::cell-grid-container
-                                     {:style     {:max-height            max-height
-                                                  :max-width             max-width
-                                                  :display               "grid"
-                                                  :grid-template-columns (grid-template cell-grid-columns)
-                                                  :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                     {:style {:max-height            max-height
+                                              :max-width             max-width
+                                              :display               "grid"
+                                              :grid-template-columns (grid-template cell-grid-columns)
+                                              :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells   (for [path column-paths
                                         :let [edge (cond-> #{}
                                                      (start-branch? path column-paths) (conj :left)
@@ -947,12 +947,12 @@
                                      (for [row-path    showing-row-paths
                                            column-path showing-column-paths
                                            :let        [value (when cell-value (cell-value {:column-path column-path :row-path row-path}))]]
-                                       [cell {:style {:grid-column (path->grid-line-name column-path)
-                                                      :grid-row    (path->grid-line-name row-path)}
+                                       [cell {:style       {:grid-column (path->grid-line-name column-path)
+                                                            :grid-row    (path->grid-line-name row-path)}
                                               :row-path    row-path
                                               :column-path column-path
                                               :value       value}])
-                                     (for [row-path showing-row-paths
+                                     (for [row-path    showing-row-paths
                                            column-path showing-column-paths
                                            :let        [edge (cond-> #{}
                                                                (= column-path (first showing-column-paths)) (conj :left)
@@ -1035,17 +1035,17 @@
                 header-spacer-cells)
           (into [:div (themed ::column-header-grid-container
                         {:style {:position              :sticky
-                                 :top 0
-                                 :z-index 2
+                                 :top                   0
+                                 :z-index               2
                                  :display               :grid
                                  :width                 :fit-content
                                  :grid-template-columns (grid-template cell-grid-columns)
                                  :grid-template-rows    (grid-template max-column-heights)}})]
                 column-header-cells)
           (into [:div (themed ::row-header-grid-container
-                        {:style {:position :sticky
-                                 :left 0
-                                 :z-index 1
+                        {:style {:position              :sticky
+                                 :left                  0
+                                 :z-index               1
                                  :display               "grid"
                                  :grid-template-columns (grid-template max-row-widths)
                                  :grid-template-rows    (grid-template cell-grid-rows)}})]
