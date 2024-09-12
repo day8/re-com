@@ -1026,8 +1026,8 @@
             native-height (+ u/scrollbar-thickness
                                    (apply + max-column-heights)
                                    (apply + showing-row-heights))]
-        [:<>
-         #_[:div {:style {:height (when show-export-button? 25)}} control-panel]
+        [:div
+         [:div {:style {:height (when show-export-button? 25)}} control-panel]
          [:div {:on-mouse-enter #(reset! hover? true)
                 :on-mouse-leave #(reset! hover? false)
                 :style
