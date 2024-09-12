@@ -14,10 +14,6 @@
 
 ;; The public API for this component is called table (see last component in this file)
 
-(def scrollbar-thickness 10)
-(def scrollbar-margin    2)
-(def scrollbar-tot-thick (+ scrollbar-thickness (* 2 scrollbar-margin)))
-
 (def px (memoize util/px))
 
 (defn show-row-data-on-alt-click
@@ -524,7 +520,9 @@
      {:name :max-row-viewport-height    :required false                :type "integer"                     :validate-fn number?                :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (and horizontal scrollbar). If not specified, value determined by parent height and number of rows"]}
      {:name :scroll-rows-into-view      :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table to a particular row range. Must be an atom. The map contains the keys " [:code ":start-row"] " and " [:code ":end-row"] " (row indexes)."]}
      {:name :scroll-columns-into-view   :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table of a particular column range. Must be an atom. Map that contains the keys " [:code ":start-col"] " and " [:code ":end-col"]  " in pixel units."]}
-     {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
+     {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description
+      "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise
+ there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
      {:name :class                      :required false                :type "string"                      :validate-fn string?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
      {:name :parts                      :required false                :type "map"                         :validate-fn (parts? v-table-parts) :description "See Parts section below."}
      {:name :src                        :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
@@ -1136,7 +1134,7 @@
                                           (or column-header-height 0)
                                           (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
                                           (or column-footer-height 0)
-                                          scrollbar-tot-thick))}
+                                          util/scrollbar-tot-thick))}
 
                                ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
                                ;; The solution seems to be to use CSS overscroll-behavior
@@ -1208,7 +1206,7 @@
 
                                       [box/gap
                                        :src  (at)
-                                       :size (px scrollbar-tot-thick)]]]
+                                       :size (px util/scrollbar-tot-thick)]]]
 
                              ;; ========== MIDDLE SECTION (4, 5, 6) - column header/footer and content area
 
@@ -1296,11 +1294,11 @@
                                        :class          (str "rc-v-table-h-scroll " (get-in parts [:h-scroll :class]))
                                        :type           :horizontal
                                        :length         @rl-row-viewport-width
-                                       :width          scrollbar-thickness
+                                       :width          util/scrollbar-thickness
                                        :content-length @content-rows-width
                                        :scroll-pos     @scroll-x
                                        :on-change      on-h-scroll-change
-                                       :style          (merge {:margin (px-n scrollbar-margin 0)}
+                                       :style          (merge {:margin (px-n util/scrollbar-margin 0)}
                                                               (get-in parts [:h-scroll :style]))
                                        :attr           (get-in parts [:h-scroll :attr])]]]
 
@@ -1354,7 +1352,7 @@
 
                                       [box/gap
                                        :src  (at)
-                                       :size (px scrollbar-tot-thick)]]]
+                                       :size (px util/scrollbar-tot-thick)]]]
 
                              ;; ========== Vertical scrollbar section
 
@@ -1374,11 +1372,11 @@
                                                :class          (str "rc-v-table-v-scroll " (get-in parts [:v-scroll :class]))
                                                :type           :vertical
                                                :length         @rl-row-viewport-height
-                                               :width          scrollbar-thickness
+                                               :width          util/scrollbar-thickness
                                                :content-length @content-rows-height
                                                :scroll-pos     @scroll-y
                                                :on-change      on-v-scroll-change
-                                               :style          (merge {:margin (px-n 0 scrollbar-margin)}
+                                               :style          (merge {:margin (px-n 0 util/scrollbar-margin)}
                                                                       (get-in parts [:v-scroll :style]))
                                                :attr           (get-in parts [:v-scroll :attr])]]
                                       [box/gap
@@ -1386,7 +1384,7 @@
                                        :size (px (or column-footer-height 0))]
                                       [box/gap
                                        :src  (at)
-                                       :size (px scrollbar-tot-thick)]]]
+                                       :size (px util/scrollbar-tot-thick)]]]
 
                              ;; ========== Debug section
 

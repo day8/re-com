@@ -2,6 +2,17 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.21.30 (2024-09-13)
+
+#### Changed
+
+- `nested-grid` is now a flex item, taking up as much vertical and horizontal space as possible.
+
+#### Added
+
+- `nested-grid` - `:remove-empty-row-space?` and `:remove-empty-column-space?` props.
+
+
 ## 2.21.29 (2024-09-12)
 
 #### Fixed

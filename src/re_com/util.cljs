@@ -283,3 +283,8 @@
                    props)
        [:line {:x1 0 :y1 0 :x2 (<-px width) :y2 (<-px height)}]
        [:line {:x1 0 :y1 (<-px height) :x2 (<-px width) :y2 0}]])))
+
+(def scrollbar-thickness 10)
+(def scrollbar-margin    2)
+(def scrollbar-tot-thick (+ scrollbar-thickness (* 2 scrollbar-margin)))
+

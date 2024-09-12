@@ -442,7 +442,7 @@
               actual-table-width     (+ fixed-content-width
                                         (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
                                         content-width
-                                        v-table/scrollbar-tot-thick
+                                        u/scrollbar-tot-thick
                                         (* 2 table-padding)
                                         2)]  ;; 2 border widths
           [box
@@ -476,7 +476,7 @@
                       :row-content-width       content-width
                       :row-height              row-height
                       :max-row-viewport-height (when max-rows (* max-rows row-height))
-                      ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
+                      ;:max-width               (px (or max-width (+ fixed-content-width content-width u/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
                         ;; ===== Corners (section 1, 3)
                       :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
                                                                                     :hover?         header-hover?
@@ -612,7 +612,7 @@
               actual-table-width     (+ fixed-content-width
                                         (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
                                         content-width
-                                        v-table/scrollbar-tot-thick
+                                        u/scrollbar-tot-thick
                                         (* 2 table-padding)
                                         2)]  ;; 2 border widths
           [box
@@ -641,7 +641,7 @@
                       :row-content-width       content-width
                       :row-height              row-height
                       :max-row-viewport-height (when max-rows (* max-rows row-height))
-                      ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
+                      ;:max-width               (px (or max-width (+ fixed-content-width content-width u/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
                         ;; ===== Corners (section 1, 3)
                       :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
                                                                                     :parts          parts
