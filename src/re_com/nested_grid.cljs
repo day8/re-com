@@ -915,6 +915,7 @@
                                                    (end-branch? path row-paths)   (conj :bottom)
                                                    (= 1 (count path))             (conj :left)
                                                    (= (count path) row-depth)     (conj :right))
+                                            show? (show? path :row)
                                             state {:edge        edge
                                                    :row-path    path
                                                    :path        path
@@ -928,7 +929,6 @@
                                   [:div {:style {:grid-row-start    (path->grid-line-name path)
                                                  :grid-row-end      (str "span " (cond-> path
                                                                                    :do         (header-cross-span showing-row-paths)
-                                                                                   :do         dec
                                                                                    (not show?) dec))
                                                  :grid-column-start (count path)
                                                  :grid-column-end   (str "span " (cond-> path
