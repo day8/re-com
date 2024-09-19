@@ -841,30 +841,30 @@
                                                   :right    0}}
                                     (u/part export-button
                                             (themed ::export-button
-                                                    {:on-click #(let [column-headers (export-column-headers)
-                                                                      row-headers    (export-row-headers)
-                                                                      spacers        (export-spacers)
-                                                                      cells          (export-cells)
-                                                                      header-rows    (mapv into spacers column-headers)
-                                                                      main-rows      (mapv into row-headers cells)
-                                                                      rows           (concat header-rows main-rows)]
-                                                                  (on-export
-                                                                   {:column-headers column-headers
-                                                                    :row-headers    row-headers
-                                                                    :spacers        spacers
-                                                                    :cells          cells
-                                                                    :header-rows    header-rows
-                                                                    :main-rows      main-rows
-                                                                    :rows           rows
-                                                                    :default        default-on-export}))})
+                                              {:on-click #(let [column-headers (export-column-headers)
+                                                                row-headers    (export-row-headers)
+                                                                spacers        (export-spacers)
+                                                                cells          (export-cells)
+                                                                header-rows    (mapv into spacers column-headers)
+                                                                main-rows      (mapv into row-headers cells)
+                                                                rows           (concat header-rows main-rows)]
+                                                            (on-export
+                                                             {:column-headers column-headers
+                                                              :row-headers    row-headers
+                                                              :spacers        spacers
+                                                              :cells          cells
+                                                              :header-rows    header-rows
+                                                              :main-rows      main-rows
+                                                              :rows           rows
+                                                              :default        default-on-export}))})
                                             :default default-export-button)]]
             cell-grid-container   [:div
                                    (themed ::cell-grid-container
-                                           {:style {:max-height            max-height
-                                                    :max-width             max-width
-                                                    :display               "grid"
-                                                    :grid-template-columns (grid-template cell-grid-columns)
-                                                    :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                     {:style {:max-height            max-height
+                                              :max-width             max-width
+                                              :display               "grid"
+                                              :grid-template-columns (grid-template cell-grid-columns)
+                                              :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells   (for [path column-paths
                                         :let [edge (cond-> #{}
                                                      (start-branch? path column-paths) (conj :left)
@@ -999,14 +999,14 @@
                                   ^{:key [::zebra-stripe i]}
                                   [:div
                                    (themed ::zebra-stripe
-                                           {:style
-                                            {:grid-column-start 1
-                                             :grid-column-end   "end"
-                                             :grid-row          i
-                                             :background-color  "#999"
-                                             :opacity           0.05
-                                             :z-index           2
-                                             :pointer-events    "none"}})])
+                                     {:style
+                                      {:grid-column-start 1
+                                       :grid-column-end   "end"
+                                       :grid-row          i
+                                       :background-color  "#999"
+                                       :opacity           0.05
+                                       :z-index           2
+                                       :pointer-events    "none"}})])
             box-selector        [selection-part
                                  {:drag                drag
                                   :grid-columns        cell-grid-columns
@@ -1019,11 +1019,10 @@
                                   :selection-grid-spec selection-grid-spec}]
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
-            
-            native-width  (+ u/scrollbar-tot-thick
+            native-width        (+ u/scrollbar-tot-thick
                                    (apply + showing-column-widths)
                                    (apply + max-row-widths))
-            native-height (+ u/scrollbar-thickness
+            native-height       (+ u/scrollbar-thickness
                                    (apply + max-column-heights)
                                    (apply + showing-row-heights))]
         [:div
@@ -1045,31 +1044,31 @@
                                                              [(px (apply + max-column-heights))
                                                               "1fr"]))}}
           (into [:div (themed ::header-spacer-grid-container
-                              {:style {:display               :grid
-                                       :box-sizing            :border-box
-                                       :position              :sticky
-                                       :top                   0
-                                       :left                  0
-                                       :z-index               3
-                                       :grid-template-columns (grid-template max-row-widths)
-                                       :grid-template-rows    (grid-template max-column-heights)}})]
+                        {:style {:display               :grid
+                                 :box-sizing            :border-box
+                                 :position              :sticky
+                                 :top                   0
+                                 :left                  0
+                                 :z-index               3
+                                 :grid-template-columns (grid-template max-row-widths)
+                                 :grid-template-rows    (grid-template max-column-heights)}})]
                 header-spacer-cells)
           (into [:div (themed ::column-header-grid-container
-                              {:style {:position              :sticky
-                                       :top                   0
-                                       :z-index               2
-                                       :display               :grid
-                                       :width                 :fit-content
-                                       :grid-template-columns (grid-template cell-grid-columns)
-                                       :grid-template-rows    (grid-template max-column-heights)}})]
+                        {:style {:position              :sticky
+                                 :top                   0
+                                 :z-index               2
+                                 :display               :grid
+                                 :width                 :fit-content
+                                 :grid-template-columns (grid-template cell-grid-columns)
+                                 :grid-template-rows    (grid-template max-column-heights)}})]
                 column-header-cells)
           (into [:div (themed ::row-header-grid-container
-                              {:style {:position              :sticky
-                                       :left                  0
-                                       :z-index               1
-                                       :display               "grid"
-                                       :grid-template-columns (grid-template max-row-widths)
-                                       :grid-template-rows    (grid-template cell-grid-rows)}})]
+                        {:style {:position              :sticky
+                                 :left                  0
+                                 :z-index               1
+                                 :display               "grid"
+                                 :grid-template-columns (grid-template max-row-widths)
+                                 :grid-template-rows    (grid-template cell-grid-rows)}})]
                 row-header-cells)
           (-> cell-grid-container
               (into cells)
