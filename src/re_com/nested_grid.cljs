@@ -214,6 +214,35 @@
       [:span "The default width that a row of grid cells will use. "
        "Can be overridden by a " [:code ":width"]
        "key in the " [:code ":row-spec"] ", or by component-local state."]}
+     {:name :sticky?
+      :default false
+      :type "boolean"
+      :description
+      [:span "When true, disables scroll bars on the wrapper. "
+       "In that case: "
+       [:ul
+        [:li "Header cells \"stick\" to the first ancestor which is a scroll container"]
+        [:li [:code ":max-width"] " and " [:code ":max-height"] " have no effect"]
+        [:li [:code ":sticky-top"] " and " [:code ":sticky-left"] " take effect"]]
+       "See css sticky positioning for details. "]}
+     {:name :sticky-top
+      :default false
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "When " [:code ":sticky?"] " is true, "
+       "header cells (and the top buttons) stick to an ancestor scroll container. "
+       [:code ":sticky-top"] " Adds a pixel offset, making them stick higher or lower on the page."
+       " Useful to prevent overlap, for instance, if the page header is sticky, absolute or fixed."]}
+     {:name :sticky-left
+      :default false
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "When " [:code ":sticky?"] " is true, "
+       "header cells (and the top buttons) stick to an ancestor scroll container. "
+       [:code ":sticky-left"] " Adds a pixel offset, making them stick further left or right on the page."
+       " Useful to prevent overlap, for instance, if the page sidebar is sticky, absolute or fixed."]}
      {:name :show-export-button?
       :required false
       :default false
@@ -665,11 +694,15 @@
                     show-export-button? on-export export-button
                     on-export-cell on-export-column-header on-export-row-header
                     show-zebra-stripes?
-                    show-selection-box? resize-columns? resize-rows?]
+                    show-selection-box? resize-columns? resize-rows?
+                    sticky? sticky-left sticky-top]
              :or   {column-header-height       25
                     column-width               55
                     row-header-width           80
                     row-height                 25
+                    sticky?                    false
+                    sticky-left                0
+                    sticky-top                 0
                     remove-empty-row-space?    true
                     remove-empty-column-space? true
                     show-export-button?        true
@@ -832,38 +865,50 @@
                                                      :padding-bottom 0}
                                       :attr         {:title "Copy to Clipboard"}
                                       :on-click     on-click}])
-            control-panel         [:div {:style {:position         :relative
-                                                 :visibility       (when-not show-export-button? :hidden)
-                                                 :margin-right     10
-                                                 :background-color "white"
-                                                 :height           (when show-export-button? 25)
-                                                 :width            (or max-width "1fr")}}
-                                   [:div {:style {:position :absolute
-                                                  :right    0}}
-                                    (u/part export-button
-                                            (themed ::export-button
-                                              {:on-click #(let [column-headers (export-column-headers)
-                                                                row-headers    (export-row-headers)
-                                                                spacers        (export-spacers)
-                                                                cells          (export-cells)
-                                                                header-rows    (mapv into spacers column-headers)
-                                                                main-rows      (mapv into row-headers cells)
-                                                                rows           (concat header-rows main-rows)]
-                                                            (on-export
-                                                             {:column-headers column-headers
-                                                              :row-headers    row-headers
-                                                              :spacers        spacers
-                                                              :cells          cells
-                                                              :header-rows    header-rows
-                                                              :main-rows      main-rows
-                                                              :rows           rows
-                                                              :default        default-on-export}))})
-                                            :default default-export-button)]]
+            export-button         (u/part export-button
+                                          (themed ::export-button
+                                            {:style    {:position :fixed
+                                                        :right    10}
+                                             :on-click #(let [column-headers (export-column-headers)
+                                                              row-headers    (export-row-headers)
+                                                              spacers        (export-spacers)
+                                                              cells          (export-cells)
+                                                              header-rows    (mapv into spacers column-headers)
+                                                              main-rows      (mapv into row-headers cells)
+                                                              rows           (concat header-rows main-rows)]
+                                                          (on-export
+                                                           {:column-headers column-headers
+                                                            :row-headers    row-headers
+                                                            :spacers        spacers
+                                                            :cells          cells
+                                                            :header-rows    header-rows
+                                                            :main-rows      main-rows
+                                                            :rows           rows
+                                                            :default        default-on-export}))})
+                                          :default default-export-button)
+            control-panel         [:div {:style {:display          :flex
+                                                 :justify-content  :end
+                                                 :position         (when sticky? :sticky)
+                                                 :height           25
+                                                 :top              (when sticky? sticky-top)
+                                                 :background-color :white
+                                                 :z-index          3}}
+                                   [box/v-box {:align    :center
+                                               :justify  :center
+                                               :style    {:z-index          4
+                                                          :position         :sticky
+                                                          :background-color :white
+                                                          :right            0
+                                                          :width            25
+                                                          :height           25}
+                                               :children [export-button]}]]
             cell-grid-container   [:div
                                    (themed ::cell-grid-container
                                      {:style {:max-height            max-height
                                               :max-width             max-width
-                                              :display               "grid"
+                                              :display               :grid
+                                              :grid-column-start     2
+                                              :grid-row-start        2
                                               :grid-template-columns (grid-template cell-grid-columns)
                                               :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells   (for [path column-paths
@@ -1036,8 +1081,9 @@
                                                      :on-resize    resize-handler}])]
             ;; FIXME This changes on different browsers - do we need to get it dynamically?
             ;; FIXME We should use :scrollbar-gutter (chrome>=94)
+            total-column-width   (apply + showing-column-widths)
             native-width         (+ u/scrollbar-tot-thick
-                                    (apply + showing-column-widths)
+                                    total-column-width
                                     (apply + max-row-widths))
             native-height        (+ u/scrollbar-thickness
                                     (apply + max-column-heights)
@@ -1050,10 +1096,10 @@
                                          :max-height            (or max-height
                                                                     (when remove-empty-row-space? native-height))
                                          :flex                  1
-                                         :overflow              :auto
+                                         :overflow              (when-not sticky? :auto)
                                          :display               :grid
                                          :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                                                "1fr"])
+                                                                                (px total-column-width)])
                                          :grid-template-rows    (grid-template (into []
                                                                                      [(px (apply + max-column-heights))
                                                                                       "1fr"]))}}]
@@ -1063,26 +1109,32 @@
                                                {:style {:display               :grid
                                                         :box-sizing            :border-box
                                                         :position              :sticky
-                                                        :top                   sticky-top
-                                                        :left                  sticky-left
+                                                        :top                   (cond-> sticky-top sticky? (+ 25))
+                                                        :left                  (if sticky? sticky-left 0)
+                                                        :grid-column-start     1
+                                                        :grid-row-start        1
                                                         :z-index               3
                                                         :grid-template-columns (grid-template max-row-widths)
                                                         :grid-template-rows    (grid-template max-column-heights)}})]
                                        header-spacer-cells)
             column-headers       (into [:div (themed ::column-header-grid-container
                                                {:style {:position              :sticky
-                                                        :top                   sticky-top
+                                                        :top                   (cond-> sticky-top sticky? (+ 25))
+                                                        :width                 :fit-content
                                                         :z-index               2
                                                         :display               :grid
-                                                        :width                 :fit-content
+                                                        :grid-column-start     2
+                                                        :grid-row-start        1
                                                         :grid-template-columns (grid-template cell-grid-columns)
                                                         :grid-template-rows    (grid-template max-column-heights)}})]
                                        column-header-cells)
             row-headers          (into [:div (themed ::row-header-grid-container
                                                {:style {:position              :sticky
-                                                        :left                  sticky-left
+                                                        :left                  (if sticky? sticky-left 0)
                                                         :z-index               1
                                                         :display               :grid
+                                                        :grid-column-start     1
+                                                        :grid-row-start        2
                                                         :grid-template-columns (grid-template max-row-widths)
                                                         :grid-template-rows    (grid-template cell-grid-rows)}})]
                                        row-header-cells)
