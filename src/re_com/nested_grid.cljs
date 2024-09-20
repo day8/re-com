@@ -424,6 +424,7 @@
   (let [dragging? (r/atom false)
         hovering? (r/atom nil)]
     (fn [& {:keys [dimension on-resize path resize-handler selection?
+                   edge
                    mouse-down-x last-mouse-x mouse-x
                    mouse-down-y last-mouse-y mouse-y]}]
       [:div {:on-mouse-enter #(reset! hovering? true)
@@ -460,14 +461,22 @@
                              {:top    0
                               :cursor "col-resize"
                               :height "100%"
-                              :width  "9px"
-                              :right  "-4px"})
+                              :width  (if (get edge :right)
+                                        "4px"
+                                        "9px")
+                              :right  (if (get edge :right)
+                                        0
+                                        "-4px")})
                            (when (= :row dimension)
                              {:left   0
                               :cursor "row-resize"
-                              :height "9px"
+                              :height (if (get edge :bottom)
+                                        "4px"
+                                        "9px")
                               :width  "100%"
-                              :bottom "-4px"}))}])))
+                              :bottom (if (get edge :bottom)
+                                        0
+                                        "-4px")}))}])))
 
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
@@ -952,6 +961,7 @@
                                                                     :resize-handler  resize-handler
                                                                     :resize-columns? resize-columns?
                                                                     :on-resize       resize-column!
+                                                                    :edge            edge
                                                                     :drag            drag
                                                                     :dimension       :column
                                                                     :path            path})])])
@@ -985,15 +995,16 @@
                                             (merge props {:children [(u/part row-header props :default row-header-part)]})
                                             :default row-header-wrapper-part)
                                     (when (and resize-rows? show?)
-                                      [resize-button {:mouse-down-x    mouse-down-x
-                                                      :last-mouse-x    last-mouse-x
-                                                      :mouse-x         mouse-x
-                                                      :resize-handler  resize-handler
-                                                      :resize-columns? resize-columns?
-                                                      :on-resize       resize-column!
-                                                      :drag            drag
-                                                      :dimension       :row
-                                                      :path            path}])])
+                                      [resize-button (merge props {:mouse-down-x   mouse-down-x
+                                                                   :last-mouse-x   last-mouse-x
+                                                                   :mouse-x        mouse-x
+                                                                   :resize-handler resize-handler
+                                                                   :resize-rows?   resize-rows?
+                                                                   :on-resize      resize-row!
+                                                                   :edge           edge
+                                                                   :drag           drag
+                                                                   :dimension      :row
+                                                                   :path           path})])])
             header-spacer-cells  (for [y    (range column-depth)
                                        x    (range row-depth)
                                        :let [props {:theme         theme
