@@ -1074,23 +1074,40 @@
             native-height        (+ u/scrollbar-thickness
                                     (apply + max-column-heights)
                                     (apply + showing-row-heights))
+            control-panel        [:div {:style (merge {:display          :flex
+                                                       :max-width        native-width
+                                                       :justify-content  :end
+                                                       :height           25
+                                                       :background-color :white
+                                                       :z-index          3}
+                                                      (when sticky?
+                                                        {:position :sticky
+                                                         :top      sticky-top}))}
+                                  [box/v-box {:align    :center
+                                              :justify  :center
+                                              :style    {:z-index          4
+                                                         :position         :sticky
+                                                         :background-color :white
+                                                         :right            0
+                                                         :width            25
+                                                         :height           25}
+                                              :children [export-button]}]]
             outer-grid-container [:div {:on-mouse-enter #(reset! hover? true)
                                         :on-mouse-leave #(reset! hover? false)
                                         :style
-                                        {:max-width             (or max-width
-                                                                    (when remove-empty-column-space? native-width))
-                                         :max-height            (or max-height
-                                                                    (when remove-empty-row-space? native-height))
-                                         :flex                  1
-                                         :overflow              (when-not sticky? :auto)
-                                         :display               :grid
-                                         :grid-template-columns (grid-template [(px (apply + max-row-widths))
-                                                                                (px total-column-width)])
-                                         :grid-template-rows    (grid-template (into []
-                                                                                     [(px (apply + max-column-heights))
-                                                                                      "1fr"]))}}]
-            sticky-left          0
-            sticky-top           0
+                                        (merge
+                                         {:position              :relative
+                                          :display               :grid
+                                          :grid-template-columns (grid-template [(px (apply + max-row-widths))
+                                                                                 (px total-column-width)])
+                                          :grid-template-rows    (grid-template [(px (apply + max-column-heights))
+                                                                                 "1fr"])}
+                                         (when-not sticky?
+                                           {:max-width  (when remove-empty-column-space? native-width)
+                                            :max-height (or max-height
+                                                            (when remove-empty-row-space? native-height))
+                                            :flex       1
+                                            :overflow   :auto}))}]
             header-spacers       (into [:div (themed ::header-spacer-grid-container
                                                {:style {:display               :grid
                                                         :box-sizing            :border-box
@@ -1130,7 +1147,11 @@
                                              zebra-stripes
                                              []))
                                      (conj (when show-selection-box? box-selector)))]
-        [:div
+        [:div {:style (merge {:flex-direction :column}
+                             (when-not sticky?
+                               {:flex    1
+                                :display :flex
+                                :height  :fit-content}))}
          control-panel
          (conj
           outer-grid-container
