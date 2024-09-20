@@ -627,15 +627,6 @@
              (update props :style merge grid-style)
              :default header-spacer-part)]))
 
-(defn scroll-container [{:keys [scroll-top scroll-left width height style]} child]
-  [:div {:style (merge {:max-height height
-                        :max-width  width
-                        :overflow   "hidden"}
-                       style)}
-   [:div {:style {:transform (str "translateX(" (- (deref-or-value scroll-left)) "px) "
-                                  "translateY(" (- (deref-or-value scroll-top)) "px)")}}
-    child]])
-
 (defn nested-grid [& {:keys [column-width row-height theme parts]
                       :or   {column-width 60
                              row-height   30}}]
@@ -895,22 +886,6 @@
                                                             :rows           rows
                                                             :default        default-on-export}))})
                                           :default default-export-button)
-            control-panel         [:div {:style {:display          :flex
-                                                 :justify-content  :end
-                                                 :position         (when sticky? :sticky)
-                                                 :height           25
-                                                 :top              (when sticky? sticky-top)
-                                                 :background-color :white
-                                                 :z-index          3}}
-                                   [box/v-box {:align    :center
-                                               :justify  :center
-                                               :style    {:z-index          4
-                                                          :position         :sticky
-                                                          :background-color :white
-                                                          :right            0
-                                                          :width            25
-                                                          :height           25}
-                                               :children [export-button]}]]
             cell-grid-container   [:div
                                    (themed ::cell-grid-container
                                      {:style {:max-height            max-height
