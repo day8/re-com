@@ -78,7 +78,7 @@
 
 (def row-header-wrapper-base {:position           "relative"
                               :user-select        "none"
-                              :height             "100%"})
+                              #_#_:height             "100%"})
 
 (defmethod base ::nested-grid/row-header-wrapper [props _]
   (update props :style merge row-header-wrapper-base))
@@ -200,7 +200,7 @@
      :color            "#666"
      :text-align       "left"
      :font-size        "13px"
-     :overflow         "hidden"
+     #_#_:overflow         "hidden"
      :white-space      "nowrap"
      :text-overflow    "ellipsis"
      :border-left      "thin solid #ccc"

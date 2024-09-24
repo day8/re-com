@@ -525,8 +525,8 @@
         children))
 
 (defn row-header-wrapper-part
-  [{:keys [theme children]}]
-  (into [:div (theme/apply {} {:part ::row-header-wrapper} theme)]
+  [{:keys [theme children part]}]
+  (into [:div (theme/apply {} {:part part} theme)]
         children))
 
 (defn row-header-part [{:keys [path]}]
@@ -967,7 +967,8 @@
                                                                                     (not show?) dec))
                                                   :position          "relative"}}
                                     (u/part row-header-wrapper
-                                            (merge props {:children [(u/part row-header props :default row-header-part)]})
+                                            (merge props {:part     ::row-header-wrapper
+                                                          :children [(u/part row-header props :default row-header-part)]})
                                             :default row-header-wrapper-part)
                                     (when (and resize-rows? show?)
                                       [resize-button (merge props {:mouse-down-x   mouse-down-x

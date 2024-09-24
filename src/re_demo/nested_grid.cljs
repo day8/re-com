@@ -501,6 +501,77 @@
      ", more cells get rendered. " [:code "[1]"] " and " [:code "[2]"] " count as "
      "branch paths, since they have children in the " [:code ":row-tree"] ". By default, these are not shown."]]])
 
+(defn basic-grid []
+  [nested-grid
+   :column-tree [2 4 6]
+   :row-tree    [1 3 5]
+
+   :row-header-width 200
+   :remove-empty-column-space? true
+   :cell (fn [{:keys [column-path row-path edge]}]
+           (* (last column-path) (last row-path)))])
+
+(defn lookup-grid []
+  [nested-grid
+   :column-tree [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 17 18 19 20 29 28 27 26 25 24 23 22 21]
+   :row-tree    [0 [1 2 3] 4 [5 6 7] 8 [9 10 11] 12 [13 14 15] 17 18 19 20 29 28 27 26 25 24 23 22 21]
+   :row-header-wrapper (fn [{:keys [children part theme]}]
+                         [:div (re-com.theme/apply
+                                 {:style {:color :red
+                                          :position :sticky
+                                          :top 0}}
+                                 {:part part}
+                                 theme)
+                          [:div {:style {:position :sticky
+                                         :top 0}}
+                           "X"
+                           (first children)]])
+   :sticky? true
+   :cell (fn [{:keys [column-path row-path]}]
+           (get-in lookup-table [(last column-path)
+                                 (last row-path)]))])
+
+(defn not-grid
+  []
+  [:div {:style {:flex 1
+                 :overflow :auto}}
+   [:div {:style {:width 200
+                  :height 200
+                  :background :blue}}]
+   "hi"])
+
+(defn layout-demo []
+  [:div {:style {:display :grid
+                 :grid-template-rows "50px 50px"
+                 :grid-template-columns "50px 50px 50px"}}
+   [:div {:style {:background :orange :position :sticky :top 0}}]
+   [:div {:style {:background :yellow}}]
+   [:div {:style {:background :blue}}]
+   [:div {:style {:background :red
+                  :display :grid
+                  :grid-template-rows "20px 20px"
+                  :grid-template-columns "20px 20px"}}
+    [:div {:style {:height 50 :width 50}}
+     [:div {:style {:position :sticky :top 0}} "HI"]]]
+   [:div {:style {:background :purple}}]
+   [:div {:style {:background :black}}]]
+  #_[:div #_{:style {:resize :both
+                     :overflow :auto}}
+
+     [v-box
+      :style {:height "100%"}
+      :children
+      [#_#_[basic-grid]
+         [not-grid]
+       [lookup-grid]]]
+     #_[h-box
+        :justify :start
+        :align :start
+        :children
+        [[not-grid]
+         [basic-grid]
+         [lookup-grid]]]])
+
 (defn basic-demo []
   [v-box
    :gap "12px"
@@ -508,11 +579,7 @@
    [[h-box
      :justify :between
      :children
-     [[nested-grid
-       :column-tree [2 4 6]
-       :row-tree    [1 3 5]
-       :cell (fn [{:keys [column-path row-path edge]}]
-               (* (last column-path) (last row-path)))]
+     [[basic-grid]
       [:pre {:style {:margin-top "19px"}} "[nested-grid
  :column-tree [2 4 6]
  :row-tree    [1 3 5]
@@ -527,12 +594,7 @@
     [h-box
      :justify :between
      :children
-     [[nested-grid
-       :column-tree [0 1 2]
-       :row-tree    [2 3 4]
-       :cell (fn [{:keys [column-path row-path]}]
-               (get-in lookup-table [(last column-path)
-                                     (last row-path)]))]
+     [[lookup-grid]
       [:pre {:style {:margin-top "19px"}} "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
                    [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
                    [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])
@@ -709,10 +771,12 @@
      [:code ":cell"] " is responsible for styling the resulting " [:code ":value."]]]])
 
 (defn demos []
-  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
+  (let [tabs [{:id :layout     :label "Layout" :view layout-demo}
+              {:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
               {:id :app        :label "Applications" :view app-demo}
+
               {:id :style      :label "Style" :view style-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
