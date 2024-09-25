@@ -499,10 +499,10 @@
            (reduce rf ""))
       " [end]"))))
 
-(defn cell-part [{:keys [value]}]
+(defn cell [{:keys [value]}]
   (str value))
 
-(defn cell-wrapper-part [{:keys [column-path row-path theme children]}]
+(defn cell-wrapper [{:keys [column-path row-path theme children]}]
   (into
    [:div
     (-> {:style {:grid-column (path->grid-line-name column-path)
@@ -516,20 +516,20 @@
              (:id header)
              header))))
 
-(defn column-header-part [{:keys [path]}]
+(defn column-header [{:keys [path]}]
   (header-label {:path path}))
 
-(defn column-header-wrapper-part
+(defn column-header-wrapper
   [{:keys [theme children]}]
   (into [:div (theme/apply {} {:part ::column-header-wrapper} theme)]
         children))
 
-(defn row-header-wrapper-part
+(defn row-header-wrapper
   [{:keys [theme children]}]
   (into [:div (theme/apply {} {:part ::row-header-wrapper} theme)]
         children))
 
-(defn row-header-part [{:keys [path]}]
+(defn row-header [{:keys [path]}]
   (header-label {:path path}))
 
 (def level count)
@@ -927,8 +927,8 @@
                                                                                      (not show?) dec))
                                                    :position          "relative"}}
                                      (u/part column-header-wrapper
-                                             (merge props {:children [(u/part column-header props :default column-header-part)]})
-                                             :default column-header-wrapper-part)
+                                             (merge props {:children [(u/part column-header props :default re-com.nested-grid/column-header)]})
+                                             :default re-com.nested-grid/column-header-wrapper)
                                      (when (and resize-columns? show?)
                                        [resize-button (merge props {:mouse-down-x    mouse-down-x
                                                                     :last-mouse-x    last-mouse-x
@@ -967,8 +967,9 @@
                                                                                     (not show?) dec))
                                                   :position          "relative"}}
                                     (u/part row-header-wrapper
-                                            (merge props {:children [(u/part row-header props :default row-header-part)]})
-                                            :default row-header-wrapper-part)
+                                            (merge props {:children [(u/part row-header props
+                                                                             :default re-com.nested-grid/row-header)]})
+                                            :default re-com.nested-grid/row-header-wrapper)
                                     (when (and resize-rows? show?)
                                       [resize-button (merge props {:mouse-down-x   mouse-down-x
                                                                    :last-mouse-x   last-mouse-x
@@ -1025,8 +1026,8 @@
                                                                          :theme theme}
                                                                         state)]]
                                      (u/part cell-wrapper
-                                             (merge props {:children [(u/part cell cell-props :default cell-part)]})
-                                             :default cell-wrapper-part)))
+                                             (merge props {:children [(u/part cell cell-props :default re-com.nested-grid/cell)]})
+                                             :default re-com.nested-grid/cell-wrapper)))
             zebra-stripes        (for [i (filter even? (range 1 (inc (count row-paths))))]
                                    ^{:key [::zebra-stripe i]}
                                    [:div
