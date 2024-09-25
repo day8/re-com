@@ -511,14 +511,17 @@
      [[nested-grid
        :column-tree [2 4 6]
        :row-tree    [1 3 5]
-       :cell (fn [{:keys [column-path row-path edge]}]
-               (* (last column-path) (last row-path)))]
+       :cell (fn [{:keys [column-path row-path]}]
+               (let [[column-spec] column-path
+                     [row-spec]    row-path]
+                 (* column-spec row-spec)))]
       [:pre {:style {:margin-top "19px"}} "[nested-grid
  :column-tree [2 4 6]
  :row-tree    [1 3 5]
  :cell (fn [{:keys [column-path row-path]}]
-          (* (last column-path)
-             (last row-path)))]"]]]
+         (let [[column-spec] column-path
+               [row-spec]    row-path]
+           (* column-spec row-spec)))]"]]]
     [p "A simple times table. The " [:code ":cell"] " function gets called once for each cell, getting passed a "
      [:code ":column-path"] " and " [:code ":row-path"]
      ". In this case, each path is a vector of one number. For instance, "
