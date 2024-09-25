@@ -519,16 +519,6 @@
 (defn column-header [{:keys [path]}]
   (header-label {:path path}))
 
-(defn column-header-wrapper
-  [{:keys [theme children]}]
-  (into [:div (theme/apply {} {:part ::column-header-wrapper} theme)]
-        children))
-
-(defn row-header-wrapper
-  [{:keys [theme children]}]
-  (into [:div (theme/apply {} {:part ::row-header-wrapper} theme)]
-        children))
-
 (defn row-header [{:keys [path]}]
   (header-label {:path path}))
 
@@ -910,12 +900,13 @@
                                                      :path        path
                                                      :header-spec (last path)
                                                      :show?       show?}
-
-                                              props (merge {:theme      (update theme :user-variables
-                                                                                conj (theme/with-state state))
+                                              theme (update theme :user-variables
+                                                            conj (theme/with-state state))
+                                              props (merge {:theme      theme
                                                             :selection? selection?
                                                             :edge       edge}
-                                                           state)]]
+                                                           state)
+                                              children [(u/part column-header (theme/apply props {:part ::header-label} theme) :default header-label)]]]
                                     ^{:key [::column (or path (gensym))]}
                                     [:div {:style {:grid-column-start (path->grid-line-name path)
                                                    :grid-column-end   (str "span " (cond-> path
@@ -927,8 +918,9 @@
                                                                                      (not show?) dec))
                                                    :position          "relative"}}
                                      (u/part column-header-wrapper
-                                             (merge props {:children [(u/part column-header props :default re-com.nested-grid/column-header)]})
-                                             :default re-com.nested-grid/column-header-wrapper)
+                                             (-> props
+                                                 (merge {:children children})
+                                                 (theme/apply {:part ::column-header-wrapper} theme)))
                                      (when (and resize-columns? show?)
                                        [resize-button (merge props {:mouse-down-x    mouse-down-x
                                                                     :last-mouse-x    last-mouse-x
@@ -952,10 +944,12 @@
                                                     :path        path
                                                     :header-spec (last path)
                                                     :show?       show?}
-                                             props (merge {:theme      (update theme :user-variables
-                                                                               conj (theme/with-state state))
+                                             theme (update theme :user-variables
+                                                           conj (theme/with-state state))
+                                             props (merge {:theme      theme
                                                            :selection? selection?}
-                                                          state)]]
+                                                          state)
+                                             children [(u/part row-header (theme/apply props {:part ::row-header} theme) :default header-label)]]]
                                    ^{:key [::row (or path (gensym))]}
                                    [:div {:style {:grid-row-start    (path->grid-line-name path)
                                                   :grid-row-end      (str "span " (cond-> path
@@ -967,9 +961,9 @@
                                                                                     (not show?) dec))
                                                   :position          "relative"}}
                                     (u/part row-header-wrapper
-                                            (merge props {:children [(u/part row-header props
-                                                                             :default re-com.nested-grid/row-header)]})
-                                            :default re-com.nested-grid/row-header-wrapper)
+                                            (-> props
+                                                (merge {:children children})
+                                                (theme/apply {:part ::row-header-wrapper} theme)))
                                     (when (and resize-rows? show?)
                                       [resize-button (merge props {:mouse-down-x   mouse-down-x
                                                                    :last-mouse-x   last-mouse-x

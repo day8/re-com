@@ -241,13 +241,17 @@
 
 (def hiccup? vector?)
 
+(defn default-part   [{:keys [class style attr children]}]
+  (into [:div (merge {:class class :style style} attr)]
+        children))
+
 (defn part [x props & {:keys [default]}]
   (cond
     (string? x) x
     (hiccup? x) x
     (ifn? x)    [x props]
     default     [part default props]
-    :else       nil))
+    :else       [default-part props]))
 
 (defn themed-part [x props & [default]]
   [x props default])
@@ -287,4 +291,3 @@
 (def scrollbar-thickness 10)
 (def scrollbar-margin    2)
 (def scrollbar-tot-thick (+ scrollbar-thickness (* 2 scrollbar-margin)))
-
