@@ -2,10 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
-## 2.21.31 (2024-09-28)
+## 2.22.0 (2024-09-28)
 
 #### Changed
 
+- `single-dropdown` - No longer aligns itself at the beginning of a flex container (i.e., removed ``align-self: flex-start`).
 - `nested-grid` - Row-header labels are now sticky within their grid areas.
 
 #### Added

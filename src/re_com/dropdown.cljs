@@ -1035,7 +1035,7 @@
                                                (when @drop-showing? "chosen-with-drop ")
                                                class)          ;; Prevent user text selection
                                    :style (merge (flex-child-style (if width "0 0 auto" "auto"))
-                                                 (align-style :align-self :start)
+                                                 #_(align-style :align-self :start)
                                                  {:width width}
                                                  style)}
                                   (when tooltip
