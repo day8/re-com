@@ -1146,7 +1146,8 @@
                              (when-not sticky?
                                {:flex    1
                                 :display :flex
-                                :height  :fit-content}))}
+                                :height  :fit-content
+                                :width   :fit-content}))}
          control-panel
          (conj
           outer-grid-container
