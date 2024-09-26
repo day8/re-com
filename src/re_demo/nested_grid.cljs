@@ -716,7 +716,7 @@
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
               {:id :app        :label "Applications" :view app-demo}
-              {:id :style      :label "Style" :view style-demo}]
+              #_{:id :style      :label "Style" :view style-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
