@@ -76,12 +76,36 @@
 (defmethod base ::nested-grid/cell-wrapper [props _]
   (update props :style merge cell-wrapper-base))
 
-(def row-header-wrapper-base {:position           "relative"
-                              :user-select        "none"
+(def row-header-wrapper-base {:user-select        "none"
                               :height             "100%"})
 
 (defmethod base ::nested-grid/row-header-wrapper [props _]
   (update props :style merge row-header-wrapper-base))
+
+(defmethod base ::nested-grid/column-header-wrapper [props _]
+  (update props :style merge
+          {:user-select "none"
+           :width      "100%"
+           :height "100%"}))
+
+(defmethod base ::nested-grid/row-header
+  [props {{:keys [sticky? column-header-total-height]} :state}]
+  (update props :style merge {:width         "100%"
+                              :text-overflow :ellipsis
+                              :overflow      :hidden
+                              :position      :sticky
+                              :top           column-header-total-height}
+          (when sticky? {:position :sticky
+                         :top      (+ 25 column-header-total-height)})))
+
+(defmethod base ::nested-grid/column-header
+  [props {{:keys [sticky? row-header-total-width]} :state}]
+  (update props :style merge {:height   "100%"
+                              #_#_:position :sticky
+                              #_#_:left     row-header-total-width
+                              #_#_:right    10}
+          #_(when sticky? {:position :sticky
+                         :top      (+ 25 row-header-total-width)})))
 
 (defmethod base :default [props {:keys                   [state part transition!]
                                  {:keys [sm-2]}          :variables
@@ -93,16 +117,16 @@
          ::dropdown/wrapper
          {:attr  {#_#_#_#_:on-focus #(do (transition! :focus)
                                          (transition! :enter))
-                      :on-blur  #(do (transition! :blur)
-                                     (transition! :exit))}
+                      :on-blur          #(do (transition! :blur)
+                                             (transition! :exit))}
           :style {:display  "inline-block"
                   :position "relative"}}
 
          ::dropdown/anchor-wrapper
-         {:attr  {:tab-index (or (:tab-index state) 0)
-                  :on-click  #(transition! :toggle)
-                  #_#_:on-blur   #(do (transition! :blur)
-                                      (transition! :exit))}
+         {:attr  {:tab-index   (or (:tab-index state) 0)
+                  :on-click    #(transition! :toggle)
+                  #_#_:on-blur #(do (transition! :blur)
+                                    (transition! :exit))}
           :style {:outline        (when (and (= :focused (:focusable state))
                                              (not= :open (:openable state)))
                                     (str sm-2 " auto #ddd"))
@@ -117,13 +141,13 @@
 
          ::dropdown/backdrop
          {:class "noselect"
-          :style {:position       "fixed"
+          :style {:position         "fixed"
                   :background-color "black"
-                  :left           "0px"
-                  :top            "0px"
-                  :width          "100%"
-                  :height         "100%"
-                  :pointer-events "none"}}
+                  :left             "0px"
+                  :top              "0px"
+                  :width            "100%"
+                  :height           "100%"
+                  :pointer-events   "none"}}
 
          ::dropdown/body-wrapper
          {:ref   (:ref state)
@@ -136,20 +160,15 @@
                   :z-index    30}}
 
          ::nested-grid/cell-grid-container
-         {:style {:position        "relative"
+         {:style {:position "relative"
 
-                  :gap             "0px"}}
+                  :gap "0px"}}
 
          ::nested-grid/cell-wrapper
          {:style {#_#_:pointer-events "none"
                   :user-select        "none"
                   :overflow           "hidden"
-                  :position           "relative"}}
-
-         ::nested-grid/column-header-wrapper
-         {:style {:position           "relative"
-                  :user-select        "none"
-                  :height             "100%"}})
+                  :position           "relative"}})
        (merge-props props)))
 
 (defn main-variables [props _] props)
@@ -200,9 +219,7 @@
      :color            "#666"
      :text-align       "left"
      :font-size        "13px"
-     :overflow         "hidden"
      :white-space      "nowrap"
-     :text-overflow    "ellipsis"
      :border-left      "thin solid #ccc"
      :border-bottom    "thin solid #ccc"}))
 
@@ -269,14 +286,14 @@
                   :background-color "transparent"}}
 
          ::nested-grid/header-spacer-wrapper
-         {:style {:border-left      (if (contains? (:edge state) :left)
-                                      (str "thin" " solid " border-dark)
-                                      (str "thin" " solid " border))
+         {:style {:border-left      (when (contains? (:edge state) :left)
+                                      (str "thin" " solid " border-dark))
                   :border-top       (when (get (:edge state) :top)
                                       (str "thin solid " border-dark))
                   :border-bottom    (when (get (:edge state) :bottom)
                                       (str "thin solid " border))
-                  :border-right     (str "thin" " solid " border)
+                  :border-right     (when (get (:edge state) :right)
+                                      (str "thin" " solid " border))
                   :background-color light-background}}
 
          ::nested-grid/column-header-wrapper
@@ -296,10 +313,8 @@
                                         :right
                                         (str "thin" " solid " border-dark)
                                         (str "thin" " solid " border))
-                    #_#_:font-weight  "bold"
-                    :overflow         "hidden"
-                    :white-space      "nowrap"
-                    :text-overflow    "ellipsis"}})
+                    :display :flex
+                    :justify-content :center}})
 
          ::tree-select/dropdown-anchor
          {:style {:padding  "0 0 0 0"
