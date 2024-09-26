@@ -2,6 +2,17 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.21.31 (2024-09-28)
+
+#### Changed
+
+- `nested-grid` - Row-header labels are now sticky within their grid areas.
+
+#### Added
+
+- `nested-grid` - `:sticky?` prop
+
+
 ## 2.21.30 (2024-09-13)
 
 #### Changed
