@@ -271,50 +271,68 @@
       :reagent-render
       (fn [{:keys [children column-path row-path]}]
         (into
-         [:div {:style {:grid-column      (ng/path->grid-line-name [column-path])
-                        :grid-row         (ng/path->grid-line-name [row-path])
+         [:div {:style {:grid-column      (ng/path->grid-line-name column-path)
+                        :grid-row         (ng/path->grid-line-name row-path)
                         :transition       "background-color 0.5s ease-in"
                         :background-color @background-color
                         :border           "thin solid black"}}]
          children))})))
 
-(defn lazy-rows [{:keys [cell-top row-height container-height row-count row-seq]}]
-  (let [before  (quot cell-top row-height)
-        visible (inc (quot container-height row-height))
-        after   (dec (- row-count visible before))
-        sum     (+ before visible after)
-        paths   (take visible (drop before row-seq))]
-    {:before  before
-     :visible visible
-     :after   after
-     :sum     sum
-     :paths   paths}))
+(defn cumulative-sum-window [low high value-fn coll]
+  (loop [coll         coll
+         sum          0
+         num-below    0 total-below  0 items-below  []
+         num-within   0 total-within 0 items-within []
+         num-above    0 total-above  0 items-above  []]
+    (if (empty? coll)
+      [num-below total-below items-below
+       num-within total-within items-within
+       num-above total-above items-above]
+      (let [[i & remainder] coll
+            value           (value-fn i)
+            new-sum         (+ sum value)]
+        (cond
+          (< new-sum low)
+          (recur remainder new-sum
+                 (inc num-below) (+ total-below value) (conj items-below i)
+                 num-within total-within items-within
+                 num-above total-above items-above)
+          (and (>= new-sum low) (<= new-sum high))
+          (recur remainder new-sum
+                 num-below total-below items-below
+                 (inc num-within) (+ total-within value) (conj items-within i)
+                 num-above total-above items-above)
+          (> new-sum high)
+          (recur remainder new-sum
+                 num-below total-below items-below
+                 num-within total-within items-within
+                 (inc num-above) (+ total-above value) (conj items-above i)))))))
 
-(defn lazy-columns [{:keys [cell-left column-width container-width column-count column-seq]}]
-  (let [before  (quot cell-left column-width)
-        visible (inc (quot container-width column-width))
-        after   (dec (- column-count visible before))
-        sum     (+ before visible after)
-        paths   (take visible (drop before column-seq))]
-    {:before  before
-     :visible visible
-     :after   after
-     :sum     sum
-     :paths   paths}))
-
-(defn new-grid [{:keys [row-height row-count column-count column-seq row-seq row-heights column-width] :as props}]
+(defn new-grid [{:keys [row-height column-seq row-seq row-heights column-width column-widths] :as props}]
   (let [cell-container-ref  (r/atom nil)
         cell-container-ref! (partial reset! cell-container-ref)
         cell-top            (r/atom 0)
         cell-left           (r/atom 0)
         container-height    (r/atom nil)
         container-width     (r/atom nil)
-        row-reaction        (def row-reaction (r/reaction (lazy-rows (merge props {:cell-top @cell-top :container-height @container-height}))))
-        column-reaction     (def column-reaction (r/reaction (lazy-columns (merge props {:cell-left @cell-left :container-width @container-width}))))
+        container-right     (r/reaction (+ @cell-left @container-width))
+        container-bottom    (r/reaction (+ @cell-top @container-height))
         on-scroll!          #(do (reset! cell-top (.-scrollTop (.-target %)))
                                  (reset! cell-left (.-scrollLeft (.-target %))))
         on-resize!          #(do (reset! container-height (.-height (.-contentRect (aget % 0))))
-                                 (reset! container-width (.-width (.-contentRect (aget % 0)))))]
+                                 (reset! container-width (.-width (.-contentRect (aget % 0)))))
+        path-fn             vector
+        size-fn             :size
+        column-total-width  (apply + (map size-fn column-seq))
+        row-total-height    (apply + (map size-fn row-seq))
+        column-v-margin     100
+        row-v-margin        100
+        left-bound          (r/reaction (max 0 (- @cell-left column-v-margin)))
+        right-bound         (r/reaction (min column-total-width (+ @container-right column-v-margin)))
+        top-bound           (r/reaction (max 0 (- @cell-top row-v-margin)))
+        bottom-bound        (r/reaction (min row-total-height (+ @container-bottom row-v-margin)))
+        column-window       (r/reaction (cumulative-sum-window @left-bound @right-bound size-fn column-seq))
+        row-window          (r/reaction (cumulative-sum-window @top-bound @bottom-bound size-fn row-seq))]
     (r/create-class
      {:component-did-mount
       (fn [_]
@@ -322,42 +340,48 @@
         (.observe (js/ResizeObserver. on-resize!) @cell-container-ref))
       :reagent-render
       (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height max-width]}]
-        (let [space-left     (* (:before @column-reaction) column-width)
-              space-right    (* (:after @column-reaction) column-width)
-              space-top      (* (:before @row-reaction) row-height)
-              space-bottom   (* (:after @row-reaction) row-height)
-              grid-container [:div {:ref   cell-container-ref!
-                                    :style {:max-height            max-height
-                                            :max-width             max-width
-                                            :overflow              :auto
-                                            :width                 :fit-content
-                                            :display               :grid
-                                            :grid-template-columns (ng/grid-template (concat [space-left]
-                                                                                             (mapcat #(do [[%] column-width]) (:paths @column-reaction))
-                                                                                             [space-right]))
-                                            :grid-template-rows    (ng/grid-template (concat [space-top]
-                                                                                             (mapcat #(do [[%] row-height])   (:paths @row-reaction))
-                                                                                             [space-bottom]))}}]]
+
+        (let [[column-num-left column-space-left columns-left
+               column-num-within column-space-within columns-within
+               column-num-right column-space-right columns-right] @column-window
+              [row-num-top row-space-top rows-top
+               row-num-within row-space-within rows-within
+               row-num-bottom row-space-bottom rows-bottom]       @row-window
+              grid-container                                      [:div {:ref   cell-container-ref!
+                                                                         :style {:max-height            max-height
+                                                                                 :max-width             max-width
+                                                                                 :min-width             100
+                                                                                 :min-height            100
+                                                                                 :overflow              :auto
+                                                                                 :width                 :fit-content
+                                                                                 :display               :grid
+                                                                                 :grid-template-columns (ng/grid-template (concat [column-space-left]
+                                                                                                                                  (interleave (map path-fn columns-within)
+                                                                                                                                              (map size-fn columns-within))
+                                                                                                                                  [column-space-right]))
+                                                                                 :grid-template-rows    (ng/grid-template (concat [row-space-top]
+                                                                                                                                  (interleave (map path-fn rows-within)
+                                                                                                                                              (map size-fn rows-within))
+                                                                                                                                  [row-space-bottom]))}}]]
           (into grid-container
-                (for [column-path (:paths @column-reaction)
-                      row-path    (:paths @row-reaction)
+                (for [column-path (map path-fn columns-within)
+                      row-path    (map path-fn rows-within)
                       :let        [props {:row-path    row-path
                                           :column-path column-path
-                                          :children    [(str row-path " " column-path)]}]]
+                                          :children    [(str (:id (last row-path)) " " (:id (last column-path)))]}]]
                   ^{:key [column-path row-path]}
                   [test-cell props]))))})))
 
 ;; Initialize
 (defn test-main []
-  [new-grid {:row-height   25
-             :row-heights  (repeatedly 1000 #(+ 25 (rand-int 25)))
-             :row-count    1000
-             :column-count 25
-             :column-width 80
-             :max-height   "80vh"
-             :max-width    "80vw"
-             :row-seq      (range 1000)
-             :column-seq  (range 25)}])
+  [new-grid {:row-height    25
+             :column-width  100
+             :max-height    "80vh"
+             :max-width     "80vw"
+             :row-seq       (for [n (range 1000)]
+                              {:id n :size (+ 25 (rand-int 75)) :type :row})
+             :column-seq    (for [n (range 1000)]
+                              {:id n :size (+ 25 (rand-int 75)) :type :column})}])
 
 (defn ^:dev/after-load mount-root
   []
