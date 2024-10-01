@@ -16,7 +16,7 @@
             [re-demo.config                :as    config]
             [re-demo.introduction          :as    introduction]
             [re-demo.radio-button          :as    radio-button]
-            [re-demo.checkbox              :as    checkbox]
+            [re-demo.checkbox             :as    checkbox]
             [re-demo.input-text            :as    input-text]
             [re-demo.slider                :as    slider]
             [re-demo.label                 :as    label]
@@ -59,6 +59,8 @@
             [re-demo.v-table               :as    v-table]
             [re-demo.simple-v-table        :as    simple-v-table]
             [re-demo.nested-grid                 :as    nested-grid]
+            [re-com.nested-grid            :as ng]
+            [reagent.core :as r]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -261,9 +263,174 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
+#_(defn new-grid [{:keys [row-height row-count row-seq]}]
+  (let [cell-container-ref  (r/atom nil)
+        cell-container-ref! (partial reset! cell-container-ref)
+        cell-top            (r/atom nil)
+        container-height    (r/atom nil)
+        prev-scroll-top     (r/atom nil)
+        row-reaction        (r/reaction (let [before         (quot @cell-top row-height)
+                                              visible        (inc (quot @container-height row-height))
+                                              after          (dec (- row-count visible before))
+                                              sum            (+ before visible after)
+                                              paths          (take visible (drop before row-seq))]
+                                          {:before before
+                                           :visible visible
+                                           :after after
+                                           :sum sum
+                                           :paths paths}))]
+  (r/create-class
+   {:get-snapshot-before-update
+    (fn [] @cell-top)
+    
+    :component-did-update
+    (fn [_ _ snapshot]
+      (let [el @cell-container-ref]
+        (when (and el (not= snapshot (.-scrollTop el)))
+          (set! (.-scrollTop el) snapshot))))
+
+    :component-did-mount
+    (fn [_] (let [on-scroll! (fn [e] (let [scroll-top (-> e .-target .-scrollTop)]
+                                     (js/requestAnimationFrame #(reset! cell-top scroll-top))))
+                 on-resize! #(reset! container-height (.-height (.-contentRect (aget % 0))))]
+             (.addEventListener @cell-container-ref "scroll" on-scroll!)
+             (.observe (js/ResizeObserver. on-resize!) @cell-container-ref)))
+    :reagent-render
+    (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height]}]
+      (let [column-paths   (ng/header-spec->header-paths column-tree)
+            spacer-div     (repeat (count column-paths) [:div])
+            {:keys [before visible after sum paths]} @row-reaction
+            row-heights (concat [(* before row-height)]
+                                (repeat visible row-height)
+                                [(* after row-height)])
+            grid-container [:div {:ref   cell-container-ref!
+                                  :style {:on-scroll             #(println (.-scrollTop (.-target %)))
+                                          :max-height            max-height
+                                          :overflow              :auto
+                                          :width                 :fit-content
+                                          :display               :grid
+                                          :grid-template-columns (->> column-paths
+                                                                      (mapcat (fn [path] [path column-width]))
+                                                                      ng/grid-template)
+                                          :grid-template-rows    (ng/grid-template row-heights)}}]]
+        [:<>
+         (js/console.log @cell-top, before, visible, after, @container-height)
+         (into grid-container
+               (concat
+                spacer-div
+                (for [row-path    paths
+                      column-path column-paths]
+                  [:div {:style {:border "thin solid black"}} (str row-path column-path)])
+                spacer-div))]))})))
+
+(defn test-cell [{:keys [children]}]
+  (let [background-color (r/atom "#cceeff")]
+    (r/create-class
+     {:component-did-mount
+      (fn [] #p "hi"(reset! background-color "#fff"))
+      :reagent-render
+      (fn [{:keys [children column-path row-path]}]
+        (into
+
+         [:div {:style {:transition "background-color 0.5s ease-in"
+                             :background-color @background-color
+                             :border "thin solid black"}}]
+              children))})))
+
+(def fake-cell-top (r/atom 0))
+
+(defn new-grid [{:keys [row-height row-count row-seq]}]
+  (let [cell-container-ref  (r/atom nil)
+        cell-container-ref! (partial reset! cell-container-ref)
+        cell-top            (r/atom 0)
+        prev                (r/atom 0)
+        container-height    (r/atom nil)
+        prev-scroll-top     (r/atom nil)
+        row-reaction        (r/reaction (let [before         (quot @cell-top row-height)
+                                              visible        (inc (quot @container-height row-height))
+                                              after          (dec (- row-count visible before))
+                                              sum            (+ before visible after)
+                                              paths          (take visible (drop before row-seq))]
+                                          {:before before
+                                           :visible visible
+                                           :after after
+                                           :sum sum
+                                           :paths paths}))
+        prev-before        (atom nil)]
+
+    (r/create-class
+     {#_#_:get-snapshot-before-update ;; Capture the scroll position before re-render
+      (fn [] #p @cell-top) ;; Return the current scrollTop before the DOM update
+
+     :component-did-update
+      (fn [_ _ _prev]
+        (let [el @cell-container-ref
+              top (.-scrollTop el)]
+          (when el
+            #_(cond (< #p @prev #p top)
+                  (set! (.-scrollTop el) (- top 100))
+                  (> #p @prev #p top)
+                  (set! (.-scrollTop el) top)
+                  :else nil)
+            (reset! prev top))))
+
+      :component-did-mount
+     
+      
+      
+      (fn [_]
+        (let [on-scroll! (fn [e]
+                           (reset! cell-top (-> e .-target .-scrollTop)))
+
+              on-resize! #(reset! container-height (.-height (.-contentRect (aget % 0))))]
+          (.addEventListener @cell-container-ref "scroll" on-scroll!) ;; Attach scroll listener
+          (.observe (js/ResizeObserver. on-resize!) @cell-container-ref))) ;; Attach resize observer
+
+      :reagent-render
+      (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height]}]
+        (let [column-paths   (ng/header-spec->header-paths column-tree)
+              spacer-div     (repeat (count column-paths) [:div])
+              {:keys [before visible after sum paths]} @row-reaction
+              row-heights (concat [(* before row-height)]
+                                  (repeat visible row-height)
+                                  [(* after row-height)])
+              grid-container [:div {:ref   cell-container-ref!
+                                    :style {:max-height            max-height
+                                            :overflow              :auto
+                                            :width                 :fit-content
+                                            :display               :grid
+                                            :grid-template-columns (->> column-paths
+                                                                        (mapcat (fn [path] [path column-width]))
+                                                                        ng/grid-template)
+                                            :grid-template-rows    (ng/grid-template row-heights)}}]]
+          [:<>
+           #_(js/console.log @cell-top before visible after @container-height)
+           (into grid-container
+                 (concat
+                  spacer-div
+                  (for [row-path    paths
+                        column-path column-paths
+                        :let [props {:row-path row-path
+                                :column-path column-path
+                                     :children [(str row-path " " column-path)]}]]
+                    ^{:key [column-path row-path]}
+                    [test-cell props])
+                  spacer-div))
+           [:button {:on-click #(swap! fake-cell-top + 50)} "fake-cell-top"]]))})))
+
+;; Initialize
+(defn test-main []
+  [new-grid {:row-height   100
+             :row-count    1000
+             :column-width 100
+             :max-height   "80vh"
+             :max-width    "30vh"
+             :row-seq      (for [i (range 100) j (range 10)] [i j])
+             :column-tree  [4 5 6]}])
+
 (defn ^:dev/after-load mount-root
   []
-  (rdom/render [main] (get-element-by-id "app")))
+  (rdom/render [test-main] (get-element-by-id "app")))
 
 (defn ^:export mount-demo
   []
