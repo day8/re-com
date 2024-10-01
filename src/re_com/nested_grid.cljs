@@ -1,4 +1,6 @@
 (ns re-com.nested-grid
+  (:require-macros
+   [re-com.core         :refer [handler-fn]])
   (:require
    [clojure.string :as str]
    [re-com.util :as u :refer [px deref-or-value]]
@@ -502,10 +504,15 @@
 (defn cell [{:keys [value]}]
   (str value))
 
-(defn cell-wrapper [{:keys [column-path row-path theme children]}]
+(defn debug-click [event props]
+  (when (.-altKey event)
+    (js/console.log (pr-str (select-keys props [:column-path :row-path])))))
+
+(defn cell-wrapper [{:keys [column-path row-path theme children] :as props}]
   (into
    [:div
-    (-> {:style {:grid-column (path->grid-line-name column-path)
+    (-> {:on-click (when debug? (handler-fn (debug-click event props)))
+         :style {:grid-column (path->grid-line-name column-path)
                  :grid-row    (path->grid-line-name row-path)}}
         (theme/apply {:part ::cell-wrapper} theme))]
    children))
@@ -521,8 +528,8 @@
    (merge props {:children [(header-label props)]})])
 
 (defn row-header [props]
-    [u/default-part
-     (merge props {:children [(header-label props)]})])
+  [u/default-part
+   (merge props {:children [(header-label props)]})])
 
 (def level count)
 
@@ -612,7 +619,8 @@
   (let [grid-style {:grid-column (inc x)
                     :grid-row    (inc y)}]
     [:div  (theme/apply
-             {:style grid-style}
+             {:style grid-style
+              :on-click (when debug? (handler-fn (debug-click event props)))}
              {:state {:edge edge} :part ::header-spacer-wrapper}
              theme)
      (u/part header-spacer
@@ -931,6 +939,7 @@
                                           (u/part column-header-wrapper
                                                   (-> props
                                                       (merge {:children children})
+                                                      (merge (when debug? {:attr {:on-click (handler-fn (debug-click event props))}}))
                                                       (theme/apply {:part ::column-header-wrapper} theme)))
                                           (when (and resize-columns? show?)
                                             [resize-button (merge props {:mouse-down-x    mouse-down-x
@@ -979,6 +988,7 @@
                                           (u/part row-header-wrapper
                                                   (-> props
                                                       (merge {:children children})
+                                                      (merge (when debug? {:attr {:on-click (handler-fn (debug-click event props))}}))
                                                       (theme/apply {:part ::row-header-wrapper} theme)))
                                           (when (and resize-rows? show?)
                                             [resize-button (merge props {:mouse-down-x   mouse-down-x

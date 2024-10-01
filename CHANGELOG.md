@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.1 (2024-10-01)
+
+#### Added
+
+- `nested-grid` - alt-click a cell while in DEBUG mode to print its `:column-path` and `:row-path`.
+
 ## 2.22.0 (2024-09-28)
 
 #### Changed

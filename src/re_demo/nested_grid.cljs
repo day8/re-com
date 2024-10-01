@@ -747,6 +747,9 @@
   [v-box
    :children
    [[title2 "More"]
+    [title3 "Debugging"]
+    [p "When " [:code "goog.DEBUG"] " is true, alt-clicking any cell will print its "
+     [:code ":row-path"] " and " [:code ":header-path"] " to the console."]
     [title3 "Rendering Header Cells"]
     [p "Just like " [:code ":cell"] ", the "
      [:code ":column-header"] " and " [:code ":row-header"] " props "
