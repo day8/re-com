@@ -44,7 +44,7 @@
     args))
 
 (defn log-on-alt-click* [event & {:as args}]
-  (when (.-ctrlKey event) (log args)))
+  (when (.-altKey event) (log args)))
 
 (defn log-on-alt-click [{:as args} & {:keys [show-all-args?] :or {show-all-args? false}}]
   (if debug?

@@ -2,6 +2,14 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.3 (2024-10-03)
+
+#### Fixed
+
+- `nested-grid` alt-key debugging actually uses the alt-key (not ctrl).
+
+## 2.22.2 (2024-10-03)
+
 #### Added
 
 - New closure-define, `re-com.config/debug-parts?` (boolean): overrides goog.DEBUG to enable some debug features.
