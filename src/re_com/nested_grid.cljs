@@ -5,6 +5,7 @@
    [clojure.string :as str]
    [re-com.util :as u :refer [px deref-or-value]]
    [reagent.core :as r]
+   [re-com.debug :as debug]
    [re-com.config      :refer [debug? include-args-desc?]]
    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part?]]
    [re-com.theme :as theme]
@@ -506,7 +507,7 @@
 
 (defn debug-click [event props]
   (when (.-altKey event)
-    (js/console.log (pr-str (select-keys props [:column-path :row-path])))))
+    (debug/log (pr-str (select-keys props [:column-path :row-path])))))
 
 (defn cell-wrapper [{:keys [column-path row-path theme children] :as props}]
   (into
@@ -1015,13 +1016,13 @@
                                          (u/part header-spacer-wrapper props :default header-spacer-wrapper-part))
             cells                      (if-not theme-cells?
                                          (for [row-path    showing-row-paths
-                                               column-path showing-column-paths
-                                               :let        [value (when cell-value (cell-value {:column-path column-path :row-path row-path}))]]
-                                           [cell {:style       {:grid-column (path->grid-line-name column-path)
-                                                                :grid-row    (path->grid-line-name row-path)}
-                                                  :row-path    row-path
-                                                  :column-path column-path
-                                                  :value       value}])
+                                               column-path showing-column-paths]
+                                           [cell (cond-> {:style       {:grid-column (path->grid-line-name column-path)
+                                                                        :grid-row    (path->grid-line-name row-path)}
+                                                          :row-path    row-path
+                                                          :column-path column-path}
+                                                   cell-value
+                                                   (merge {:value (cell-value {:column-path column-path :row-path row-path})}))])
                                          (for [row-path    showing-row-paths
                                                column-path showing-column-paths
                                                :let        [edge (cond-> #{}
@@ -1033,17 +1034,17 @@
                                                                    (cell-section-right? column-path)            (conj :column-section-right))
                                                             value (when cell-value (cell-value {:column-path column-path
                                                                                                 :row-path    row-path}))
-                                                            state {:edge        edge
-                                                                   :column-path column-path
-                                                                   :row-path    row-path
-                                                                   :value       value}
+                                                            state (cond-> {:edge        edge
+                                                                           :column-path column-path
+                                                                           :row-path    row-path}
+                                                                    value (merge {:value value}))
                                                             theme (update theme :user-variables
                                                                           conj (theme/with-state state))
                                                             props (merge {:cell  cell
                                                                           :theme theme}
                                                                          state)
-                                                            cell-props (merge {:value value
-                                                                               :theme theme}
+                                                            cell-props (merge {:theme theme}
+                                                                              (when value {:value value})
                                                                               state)]]
                                            (u/part cell-wrapper
                                                    (merge props {:children [(u/part cell cell-props :default re-com.nested-grid/cell)]})

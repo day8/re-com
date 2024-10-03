@@ -6,7 +6,7 @@
   (:require
    [reagent.core       :as    reagent]
    [re-com.config      :refer [debug? include-args-desc?]]
-   [re-com.debug       :refer [->attr]]
+   [re-com.debug       :as debug :refer [->attr]]
    [re-com.box         :as    box]
    [re-com.util        :as    util :refer [deref-or-value px-n]]
    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
@@ -23,7 +23,7 @@
   :on-click (handler-fn (v-table/show-row-data-on-alt-click row row-index event))"
   [row row-index event]
   (when  (.-altKey event)
-    (js/console.log (str "ROW-INDEX[" row-index "]") row)))
+    (debug/log (str "ROW-INDEX[" row-index "]") row)))
 
 (defn scrollbar
   "Render a horizontal or vertical scrollbar
