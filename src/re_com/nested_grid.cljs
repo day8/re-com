@@ -1173,7 +1173,7 @@
                                 :display :flex
                                 :height  :fit-content
                                 :width   :fit-content}))}
-         control-panel
+         (when show-export-button? control-panel)
          (conj
           outer-grid-container
           header-spacers

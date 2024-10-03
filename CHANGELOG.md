@@ -2,6 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+
+#### Fixed
+
+- `nested-grid` - Fixed `:show-export-button?` prop.
+
 ## 2.22.1 (2024-10-01)
 
 #### Added
