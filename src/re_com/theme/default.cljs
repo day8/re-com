@@ -312,9 +312,7 @@
                                         (str "thin" " solid " border-dark)
                                         :right
                                         (str "thin" " solid " border-dark)
-                                        (str "thin" " solid " border))
-                    :display :flex
-                    :justify-content :center}})
+                                        (str "thin" " solid " border))}})
 
          ::tree-select/dropdown-anchor
          {:style {:padding  "0 0 0 0"
