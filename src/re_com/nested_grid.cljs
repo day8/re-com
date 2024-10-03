@@ -1047,9 +1047,11 @@
                                                                          state)
                                                             cell-props (merge {:theme theme}
                                                                               (when value {:value value})
-                                                                              state)]]
+                                                                              state)
+                                                            children [(u/part cell cell-props
+                                                                              :default re-com.nested-grid/cell)]]]
                                            (u/part cell-wrapper
-                                                   (merge props {:children [(u/part cell cell-props :default re-com.nested-grid/cell)]})
+                                                   (themed ::cell-wrapper (merge props {:children children}))
                                                    :default re-com.nested-grid/cell-wrapper)))
             zebra-stripes              (for [i (filter even? (range 1 (inc (count row-paths))))]
                                          ^{:key [::zebra-stripe i]}

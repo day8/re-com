@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.4 (2024-10-03)
+
+#### Fixed
+
+- `nested-grid`: restored missing style for the cell-wrapper part
+
+
 ## 2.22.3 (2024-10-03)
 
 #### Fixed
