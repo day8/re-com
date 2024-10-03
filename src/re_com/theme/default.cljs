@@ -89,14 +89,12 @@
            :height "100%"}))
 
 (defmethod base ::nested-grid/row-header
-  [props {{:keys [sticky? column-header-total-height]} :state}]
+  [props {{:keys [sticky? sticky-top]} :state}]
   (update props :style merge {:width         "100%"
                               :text-overflow :ellipsis
                               :overflow      :hidden
                               :position      :sticky
-                              :top           column-header-total-height}
-          (when sticky? {:position :sticky
-                         :top      (+ 25 column-header-total-height)})))
+                              :top           sticky-top}))
 
 (defmethod base ::nested-grid/column-header
   [props {{:keys [sticky? row-header-total-width]} :state}]

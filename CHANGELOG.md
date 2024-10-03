@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.5 (2024-10-03)
+
+#### Fixed
+
+- `nested-grid`: Fixed sticky-top of row-headers when export-button is hidden
+
+
 ## 2.22.4 (2024-10-03)
 
 #### Fixed

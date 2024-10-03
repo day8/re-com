@@ -966,8 +966,8 @@
                                                           :header-spec (last path)
                                                           :show?       show?
                                                           :sticky?     sticky?
-                                                          :column-header-total-height
-                                                          column-header-total-height}
+                                                          :sticky-top (cond-> column-header-total-height
+                                                                        (and sticky? show-export-button?) (+ 25))}
                                                    theme (update theme :user-variables
                                                                  conj (theme/with-state state))
                                                    props (merge {:theme      theme
