@@ -1132,7 +1132,7 @@
                                                      {:style {:display               :grid
                                                               :box-sizing            :border-box
                                                               :position              :sticky
-                                                              :top                   (cond-> sticky-top sticky? (+ 25))
+                                                              :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
                                                               :left                  (if sticky? sticky-left 0)
                                                               :grid-column-start     1
                                                               :grid-row-start        1
@@ -1142,7 +1142,7 @@
                                              header-spacer-cells)
             column-headers             (into [:div (themed ::column-header-grid-container
                                                      {:style {:position              :sticky
-                                                              :top                   (cond-> sticky-top sticky? (+ 25))
+                                                              :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
                                                               :width                 :fit-content
                                                               :z-index               2
                                                               :display               :grid
@@ -1181,3 +1181,4 @@
           row-headers
           cells)
          overlays]))))
+
