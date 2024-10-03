@@ -214,7 +214,6 @@
     {:padding-top      sm-3
      :padding-right    sm-3
      :padding-left     sm-6
-     :border-right     (str "thin" " solid" border)
      :background-color light-background
      :color            "#666"
      :text-align       "left"
@@ -227,6 +226,8 @@
   [props {{:keys [edge]} :state}]
   (update props :style merge
           row-header-wrapper-main
+          (when (contains? edge :right)
+            {:border-right "thin solid #aaa"})
           (when (contains? edge :left)
             {:border-left "thin solid #aaa"})
           (when (contains? edge :bottom)
