@@ -97,13 +97,8 @@
                               :top           sticky-top}))
 
 (defmethod base ::nested-grid/column-header
-  [props {{:keys [sticky? row-header-total-width]} :state}]
-  (update props :style merge {:height   "100%"
-                              #_#_:position :sticky
-                              #_#_:left     row-header-total-width
-                              #_#_:right    10}
-          #_(when sticky? {:position :sticky
-                         :top      (+ 25 row-header-total-width)})))
+  [props _]
+  (update props :style merge {:height "100%"}))
 
 (defmethod base :default [props {:keys                   [state part transition!]
                                  {:keys [sm-2]}          :variables
