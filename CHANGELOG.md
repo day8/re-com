@@ -2,10 +2,20 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+#### Added
+
+- New closure-define, `re-com.config/debug-parts?` (boolean): overrides goog.DEBUG to enable some debug features.
+  Currently, this only affects nested-grid. You can alt-click any cell to log its props.
+- New closure-define, `re-com.config/log-format` (string): how to log. Options:
+  - "js": js console (default)
+  - "pr-str" plain-text, pr-str
+  - "pretty" plain-text, pprint
 
 #### Fixed
 
-- `nested-grid` - Fixed `:show-export-button?` prop.
+- `nested-grid` - Fix `:show-export-button?` prop.
+- `nested-grid` - Fix alignment when declared in column-header
+- `nested-grid` - Fix sticky-top when `:sticky?` is true
 
 ## 2.22.1 (2024-10-01)
 

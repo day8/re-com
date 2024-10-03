@@ -6,7 +6,7 @@
    [re-com.util :as u :refer [px deref-or-value]]
    [reagent.core :as r]
    [re-com.debug :as debug]
-   [re-com.config      :refer [debug? include-args-desc?]]
+   [re-com.config      :as config :refer [include-args-desc?]]
    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part?]]
    [re-com.theme :as theme]
    [re-com.box :as box]
@@ -505,17 +505,15 @@
 (defn cell [{:keys [value]}]
   (str value))
 
-(defn debug-click [event props]
-  (when (.-altKey event)
-    (debug/log (pr-str (select-keys props [:column-path :row-path])))))
-
-(defn cell-wrapper [{:keys [column-path row-path theme children] :as props}]
+(defn cell-wrapper [{:keys [column-path row-path class style attr theme children] :as props}]
   (into
    [:div
-    (-> {:on-click (when debug? (handler-fn (debug-click event props)))
-         :style {:grid-column (path->grid-line-name column-path)
-                 :grid-row    (path->grid-line-name row-path)}}
-        (theme/apply {:part ::cell-wrapper} theme))]
+    (-> {:on-click (debug/log-on-alt-click props)
+         :class class
+         :style (merge {:grid-column (path->grid-line-name column-path)
+                        :grid-row    (path->grid-line-name row-path)}
+                       style)}
+        (merge attr))]
    children))
 
 (defn header-label [{:keys [path]}]
@@ -620,8 +618,8 @@
   (let [grid-style {:grid-column (inc x)
                     :grid-row    (inc y)}]
     [:div  (theme/apply
-             {:style grid-style
-              :on-click (when debug? (handler-fn (debug-click event props)))}
+             {:style    grid-style
+              :on-click (debug/log-on-alt-click props)}
              {:state {:edge edge} :part ::header-spacer-wrapper}
              theme)
      (u/part header-spacer
@@ -696,7 +694,8 @@
                     on-export-cell on-export-column-header on-export-row-header
                     show-zebra-stripes?
                     show-selection-box? resize-columns? resize-rows?
-                    sticky? sticky-left sticky-top]
+                    sticky? sticky-left sticky-top
+                    debug-parts?]
              :or   {column-header-height       25
                     column-width               55
                     row-header-width           80
@@ -714,7 +713,8 @@
                     on-export-row-header       header-label
                     resize-columns?            true
                     resize-rows?               false
-                    theme-cells?               true}}
+                    theme-cells?               true
+                    debug-parts?               (or config/debug? config/debug-parts?)}}
             (theme/top-level-part passed-in-props ::nested-grid)
             theme                      (theme/defaults
                                         props
@@ -940,7 +940,7 @@
                                           (u/part column-header-wrapper
                                                   (-> props
                                                       (merge {:children children})
-                                                      (merge (when debug? {:attr {:on-click (handler-fn (debug-click event props))}}))
+                                                      (merge {:attr {:on-click (debug/log-on-alt-click props)}})
                                                       (theme/apply {:part ::column-header-wrapper} theme)))
                                           (when (and resize-columns? show?)
                                             [resize-button (merge props {:mouse-down-x    mouse-down-x
@@ -989,7 +989,7 @@
                                           (u/part row-header-wrapper
                                                   (-> props
                                                       (merge {:children children})
-                                                      (merge (when debug? {:attr {:on-click (handler-fn (debug-click event props))}}))
+                                                      (merge {:attr {:on-click (debug/log-on-alt-click props)}})
                                                       (theme/apply {:part ::row-header-wrapper} theme)))
                                           (when (and resize-rows? show?)
                                             [resize-button (merge props {:mouse-down-x   mouse-down-x
@@ -1022,7 +1022,9 @@
                                                           :row-path    row-path
                                                           :column-path column-path}
                                                    cell-value
-                                                   (merge {:value (cell-value {:column-path column-path :row-path row-path})}))])
+                                                   (merge {:value (cell-value {:column-path column-path :row-path row-path})})
+                                                   debug-parts?
+                                                   (merge {:attr {:on-click (re-com.debug/log-on-alt-click props)}}))])
                                          (for [row-path    showing-row-paths
                                                column-path showing-column-paths
                                                :let        [edge (cond-> #{}
@@ -1182,4 +1184,3 @@
           row-headers
           cells)
          overlays]))))
-

@@ -1,11 +1,21 @@
 (ns re-com.debug
+  (:require-macros
+   [re-com.core         :refer [handler-fn]])
   (:require
+   [cljs.pprint            :refer [pprint]]
    [goog.object            :as    gobj]
    [cljs.reader            :refer [read-string]]
    [clojure.string         :as    string]
    [reagent.core           :as    r]
    [reagent.impl.component :as    component]
-   [re-com.config          :refer [debug? root-url-for-compiler-output]]))
+   [re-com.config          :refer [debug? debug-parts? root-url-for-compiler-output log-format]]))
+
+(def log
+  (case (some-> log-format name)
+    "pr-str" (comp js/console.log pr-str)
+    "js"     js/console.log
+    "pretty" pprint
+    js/console.log))
 
 (defn short-component-name
   "Returns the interesting part of component-name"
@@ -27,11 +37,21 @@
   [args]
   (if (map? args)
     (->> ;; Remove args already represented in component hierarchy
-     (dissoc args :src :child :children :panel-1 :panel-2 :debug-as)
+     (dissoc args :src :child :children :panel-1 :panel-2 :debug-as :theme :cell :edge)
       ;; Remove args with nil value
      (remove (comp nil? second))
      (into {}))
     args))
+
+(defn log-on-alt-click* [event & {:as args}]
+  (when (.-ctrlKey event) (log args)))
+
+(defn log-on-alt-click [{:as args} & {:keys [show-all-args?] :or {show-all-args? false}}]
+  (if debug?
+    (handler-fn (log-on-alt-click* event (cond-> args (not show-all-args?) loggable-args)))
+    (if debug-parts?
+      (handler-fn (log-on-alt-click* event (cond-> args (not show-all-args?) loggable-args)))
+      nil)))
 
 (defn ->attr
   [{:keys [src debug-as] :as args}]
