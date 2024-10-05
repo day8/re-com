@@ -48,8 +48,8 @@
                                        [:li "something of a test harness"]]]]
                           [v-box :src (at)
                            :children [[p RHS-column-style [:br] [:br] [:br]
-                                       "Most pages of this app have hyperlinks (to the right of the page title) which take you
-                                        directly to the associated source code (within github)."]]]]]]])
+                                       "To help with your exploration, look up at the page title \"Introduction\", and just to the right of it, 
+                                       notice the two hyperlinks which link to the source code (Github) associated with this page and the component being presented. This feature exists on all pages."]]]]]]])
 
 (defn named-params
   []
