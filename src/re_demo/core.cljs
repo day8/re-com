@@ -10,7 +10,7 @@
             [secretary.core                :as    secretary]
             [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
-            [re-com.util                   :refer [get-element-by-id item-for-id]]
+            [re-com.util                   :as u :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.debug                 :as    debug]
             [re-demo.config                :as    config]
@@ -263,27 +263,12 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
-(defn test-cell [{:keys [children]}]
-  (let [background-color (r/atom "#cceeff")]
-    (r/create-class
-     {:component-did-mount
-      (fn [] (reset! background-color "#fff"))
-      :reagent-render
-      (fn [{:keys [children column-path row-path]}]
-        (into
-         [:div {:style {:grid-column      (ng/path->grid-line-name column-path)
-                        :grid-row         (ng/path->grid-line-name row-path)
-                        :transition       "background-color 0.5s ease-in"
-                        :background-color @background-color
-                        :border           "thin solid black"}}]
-         children))})))
-
 (defn cumulative-sum-window [low high value-fn coll]
-  (loop [coll         coll
-         sum          0
-         num-below    0 total-below  0 items-below  []
-         num-within   0 total-within 0 items-within []
-         num-above    0 total-above  0 items-above  []]
+  (loop [coll       coll
+         sum        0
+         num-below  0 total-below  0 items-below  []
+         num-within 0 total-within 0 items-within []
+         num-above  0 total-above  0 items-above  []]
     (if (empty? coll)
       [num-below total-below items-below
        num-within total-within items-within
@@ -308,7 +293,7 @@
                  num-within total-within items-within
                  (inc num-above) (+ total-above value) (conj items-above i)))))))
 
-(defn new-grid [{:keys [row-height column-seq row-seq row-heights column-width column-widths] :as props}]
+(defn new-grid [{:keys [cell row-height column-seq row-seq row-heights column-width column-widths] :as props}]
   (let [cell-container-ref  (r/atom nil)
         cell-container-ref! (partial reset! cell-container-ref)
         cell-top            (r/atom 0)
@@ -322,24 +307,24 @@
         on-resize!          #(do (reset! container-height (.-height (.-contentRect (aget % 0))))
                                  (reset! container-width (.-width (.-contentRect (aget % 0)))))
         path-fn             vector
-        size-fn             :size
-        column-total-width  (apply + (map size-fn column-seq))
-        row-total-height    (apply + (map size-fn row-seq))
+        size-fn             :cell-size
+        column-total-width  (r/reaction (apply + (map size-fn (u/deref-or-value column-seq))))
+        row-total-height    (r/reaction (apply + (map size-fn (u/deref-or-value row-seq))))
         column-v-margin     100
         row-v-margin        100
         left-bound          (r/reaction (max 0 (- @cell-left column-v-margin)))
-        right-bound         (r/reaction (min column-total-width (+ @container-right column-v-margin)))
+        right-bound         (r/reaction (min @column-total-width (+ @container-right column-v-margin)))
         top-bound           (r/reaction (max 0 (- @cell-top row-v-margin)))
-        bottom-bound        (r/reaction (min row-total-height (+ @container-bottom row-v-margin)))
-        column-window       (r/reaction (cumulative-sum-window @left-bound @right-bound size-fn column-seq))
-        row-window          (r/reaction (cumulative-sum-window @top-bound @bottom-bound size-fn row-seq))]
+        bottom-bound        (r/reaction (min @row-total-height (+ @container-bottom row-v-margin)))
+        column-window       (r/reaction (cumulative-sum-window @left-bound @right-bound size-fn (u/deref-or-value column-seq)))
+        row-window          (r/reaction (cumulative-sum-window @top-bound @bottom-bound size-fn (u/deref-or-value row-seq)))]
     (r/create-class
      {:component-did-mount
       (fn [_]
         (.addEventListener @cell-container-ref "scroll" on-scroll!)
         (.observe (js/ResizeObserver. on-resize!) @cell-container-ref))
       :reagent-render
-      (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height max-width]}]
+      (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height max-width extra-height]}]
 
         (let [[column-num-left column-space-left columns-left
                column-num-within column-space-within columns-within
@@ -362,29 +347,84 @@
                                                                                  :grid-template-rows    (ng/grid-template (concat [row-space-top]
                                                                                                                                   (interleave (map path-fn rows-within)
                                                                                                                                               (map size-fn rows-within))
-                                                                                                                                  [row-space-bottom]))}}]]
+                                                                                                                                  [(+ row-space-bottom @extra-height)]))}}]]
           (into grid-container
                 (for [column-path (map path-fn columns-within)
                       row-path    (map path-fn rows-within)
                       :let        [props {:row-path    row-path
-                                          :column-path column-path
-                                          :children    [(str (:id (last row-path)) " " (:id (last column-path)))]}]]
+                                          :column-path column-path}]]
                   ^{:key [column-path row-path]}
-                  [test-cell props]))))})))
+                  [cell props]))))})))
 
-;; Initialize
+(def extra-height (r/atom 0))
+
+(defn data-chunk [& {:keys [dimension index-offset size with-loader?] :or {size 10 with-loader? true}}]
+  (for [chunk-index (range size)]
+    (cond->
+     {:index       (+ chunk-index index-offset)
+      :chunk-index chunk-index
+      :size        size
+      :id          (gensym)
+      :cell-size   (+ 25 (rand-int 75))
+      :dimension   dimension}
+      (and with-loader? (= chunk-index 0)) (assoc :loader? true))))
+
+(def row-seq (r/atom '()))
+
+(def rows-loaded (r/atom 0))
+
+(defn load-row-chunk! [& {:keys [size] :or {size 10}}]
+  (swap! row-seq concat (data-chunk {:size         size
+                                     :index-offset @rows-loaded
+                                     :dimension    :row}))
+  (swap! rows-loaded + size))
+
+(def column-seq (r/atom (data-chunk {:dimension :column :size 100})))
+
+(defn test-cell [{:keys [row-path column-path]}]
+  (let [{:keys           [loader?]
+         row-index       :index
+         row-size        :size
+         row-chunk-index :chunk-index}    (peek row-path)
+        {column-index       :index
+         column-chunk-index :chunk-index} (peek column-path)
+        loader?                           (and loader? (= 0 column-chunk-index))
+        loaded?                           (r/reaction (pos? (- @rows-loaded row-index row-size)))
+        background-color                  (r/atom "#cceeff")
+        init-background!                  #(reset! background-color "#fff")]
+    (r/create-class
+     {:component-did-mount
+      #(do (when (and loader? (not @loaded?))
+             (load-row-chunk!))
+           (init-background!))
+      :reagent-render
+      (fn [{:keys [children column-path row-path]}]
+        [:div {:style {:grid-column      (ng/path->grid-line-name column-path)
+                       :grid-row         (ng/path->grid-line-name row-path)
+                       :padding          5
+                       :font-size        10
+                       :transition       "background-color 0.5s ease-in"
+                       :background-color @background-color
+                       :border           "thin solid black"
+                       :border-top       (if (= 0 row-chunk-index)
+                                           "thick solid black"
+                                           "thin solid black")}}
+         (str row-index " // " column-index)])})))
+
 (defn test-main []
-  [new-grid {:row-height    25
-             :column-width  100
-             :max-height    "80vh"
-             :max-width     "80vw"
-             :row-seq       (for [n (range 1000)]
-                              {:id n :size (+ 25 (rand-int 75)) :type :row})
-             :column-seq    (for [n (range 1000)]
-                              {:id n :size (+ 25 (rand-int 75)) :type :column})}])
+  [:<> [new-grid {:row-height   25
+                  :column-width 100
+                  :max-height   "80vh"
+                  :max-width    "80vw"
+                  :extra-height extra-height
+                  :row-seq      row-seq
+                  :column-seq   column-seq
+                  :cell         test-cell}]
+   [:div "rows loaded:" @rows-loaded]])
 
 (defn ^:dev/after-load mount-root
   []
+  (load-row-chunk!)
   (rdom/render [test-main] (get-element-by-id "app")))
 
 (defn ^:export mount-demo
