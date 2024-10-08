@@ -212,15 +212,13 @@
      :text-align       "left"
      :font-size        "13px"
      :white-space      "nowrap"
-     :border-left      "thin solid #ccc"
+     :border-right     "thin solid #ccc"
      :border-bottom    "thin solid #ccc"}))
 
 (defmethod main ::nested-grid/row-header-wrapper
   [props {{:keys [edge]} :state}]
   (update props :style merge
           row-header-wrapper-main
-          (when (contains? edge :right)
-            {:border-right "thin solid #aaa"})
           (when (contains? edge :left)
             {:border-left "thin solid #aaa"})
           (when (contains? edge :bottom)
@@ -295,17 +293,18 @@
            {:style {:padding-top      sm-3
                     :padding-right    sm-4
                     :padding-left     sm-4
-                    :border-bottom    (str "thin" " solid " border)
                     :background-color light-background
                     :color            "#666"
                     :text-align       (or align-column-header align-column align :center)
                     :font-size        "13px"
                     :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
-                    :border-right     (condp #(get %2 %1) (:edge state)
-                                        :column-section-right
+                    :border-bottom    (str "thin solid " border)
+                    :border-right     (cond
+                                        (get (:edge state) :column-section-right)
                                         (str "thin" " solid " border-dark)
-                                        :right
+                                        (get (:edge state) :right)
                                         (str "thin" " solid " border-dark)
+                                        :else
                                         (str "thin" " solid " border))}})
 
          ::tree-select/dropdown-anchor

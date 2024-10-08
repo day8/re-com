@@ -16,16 +16,20 @@
   (when include-args-desc?
     [{:name :wrapper :level 1 :impl "[:div]"}
      {:name :export-button :level 2 :impl "[:div]"}
-     {:name :cell-grid-container :level 2 :impl "[:div]"}
-     {:name :cell-wrapper :level 3 :impl "[:div]"}
-     {:name :cell :level 4 :impl "[:div]"}
-     {:name :column-header-grid-container :level 1 :impl "[:div]"}
-     {:name :column-header-wrapper :level 2 :impl "[:div]"}
-     {:name :row-header-grid-container :level 1 :impl "[:div]"}
-     {:name :row-header-wrapper :level 2 :impl "[:div]"}
-     {:name :header-spacer-grid-container :level 1 :impl "[:div]"}
-     {:name :header-spacer :level 2 :impl "[:div]"}
-     {:name :zebra-stripe :level 2 :impl "[:div]"}]))
+     {:name :outer-grid-container :level 2 :impl "[:div]"}
+     {:name :header-spacer-grid-container :level 3 :impl "[:div]"}
+     {:name :header-spacer-wrapper :level 4 :impl "[:div]"}
+     {:name :header-spacer :level 5 :impl "[:div]"}
+     {:name :column-header-grid-container :level 3 :impl "[:div]"}
+     {:name :column-header-wrapper :level 4 :impl "[:div]"}
+     {:name :column-header :level 5 :impl "[:div]"}
+     {:name :row-header-grid-container :level 3 :impl "[:div]"}
+     {:name :row-header-wrapper :level 4 :impl "[:div]"}
+     {:name :row-header :level 5 :impl "[:div]"}
+     {:name :cell-grid-container :level 3 :impl "[:div]"}
+     {:name :cell-wrapper :level 4 :impl "[:div]"}
+     {:name :cell :level 5 :impl "[:div]"}
+     {:name :zebra-stripe :level 5 :impl "[:div]"}]))
 
 (def nested-grid-parts
   (when include-args-desc?
@@ -612,20 +616,6 @@
                                :right      -6
                                :bottom     -6}}]]))])))))
 
-(defn header-spacer-part [_] "")
-
-(defn header-spacer-wrapper-part [{:keys [theme x y header-spacer edge] :as props}]
-  (let [grid-style {:grid-column (inc x)
-                    :grid-row    (inc y)}]
-    [:div  (theme/apply
-             {:style    grid-style
-              :on-click (debug/log-on-alt-click props)}
-             {:state {:edge edge} :part ::header-spacer-wrapper}
-             theme)
-     (u/part header-spacer
-             (update props :style merge grid-style)
-             :default header-spacer-part)]))
-
 (defn nested-grid [& {:keys [column-width row-height theme parts]
                       :or   {column-width 60
                              row-height   30}}]
@@ -750,10 +740,12 @@
             row-header-total-height    (apply + showing-row-heights)
             row-header-total-width     (apply + max-row-widths)
             all-sections               (->> (vals (group-by first column-paths))
+                                            (remove (comp #{1} count))
                                             (mapcat #(vals (group-by level %))))
             section-left?              (set (map first all-sections))
             section-right?             (set (map last all-sections))
             cell-sections              (->> (vals (group-by first showing-column-paths))
+                                            (remove (comp #{1} count))
                                             (mapcat #(vals (group-by level %))))
             cell-section-left?         (set (map first cell-sections))
             cell-section-right?        (set (map last cell-sections))
@@ -955,10 +947,12 @@
                                                                          :path            path})])])
             row-header-cells           (for [path row-paths
                                              :let [edge (cond-> #{}
-                                                          (start-branch? path row-paths) (conj :top)
-                                                          (end-branch? path row-paths)   (conj :bottom)
-                                                          (= 1 (count path))             (conj :left)
-                                                          (= (count path) row-depth)     (conj :right))
+                                                          (start-branch? path row-paths)                (conj :top)
+                                                          ;; TODO: incorrect when the final path is shallower than the tree
+                                                          (end-branch? path row-paths)                  (conj :bottom)
+                                                          (= 1 (count path))                            (conj :left)
+                                                          (or (= (count path) row-depth)
+                                                              (= 1 (header-cross-span path row-paths))) (conj :right))
                                                    show? (show? path :row)
                                                    state {:edge        edge
                                                           :row-path    path
@@ -966,8 +960,8 @@
                                                           :header-spec (last path)
                                                           :show?       show?
                                                           :sticky?     sticky?
-                                                          :sticky-top (cond-> column-header-total-height
-                                                                        (and sticky? show-export-button?) (+ 25))}
+                                                          :sticky-top  (cond-> column-header-total-height
+                                                                         (and sticky? show-export-button?) (+ 25))}
                                                    theme (update theme :user-variables
                                                                  conj (theme/with-state state))
                                                    props (merge {:theme      theme
@@ -1004,16 +998,24 @@
                                                                          :path           path})])])
             header-spacer-cells        (for [y    (range column-depth)
                                              x    (range row-depth)
-                                             :let [props {:theme         theme
-                                                          :x             x
-                                                          :y             y
-                                                          :header-spacer header-spacer
-                                                          :edge          (cond-> #{}
-                                                                           (zero? y)                (conj :top)
-                                                                           (zero? x)                (conj :left)
-                                                                           (= y (dec column-depth)) (conj :bottom)
-                                                                           (= x (dec row-depth))    (conj :right))}]]
-                                         (u/part header-spacer-wrapper props :default header-spacer-wrapper-part))
+                                             :let [state {:edge (cond-> #{}
+                                                                  (zero? y)                (conj :top)
+                                                                  (zero? x)                (conj :left)
+                                                                  (= y (dec column-depth)) (conj :bottom)
+                                                                  (= x (dec row-depth))    (conj :right))}
+                                                   theme (update theme :user-variables
+                                                                 conj (theme/with-state state))
+                                                   props (merge state
+                                                                {:style         {:grid-column (inc x)
+                                                                                 :grid-row    (inc y)}
+                                                                 :attr          {:on-click (debug/log-on-alt-click props)}
+                                                                 :theme         theme
+                                                                 :x             x
+                                                                 :y             y
+                                                                 :header-spacer header-spacer})
+                                                   children [(u/part header-spacer props)]]]
+                                         (u/part header-spacer-wrapper
+                                                 (theme/apply (merge props {:children children}) {:part ::header-spacer-wrapper} theme)))
             cells                      (if-not theme-cells?
                                          (for [row-path    showing-row-paths
                                                column-path showing-column-paths]
@@ -1048,10 +1050,11 @@
                                                             cell-props (merge {:theme theme}
                                                                               (when value {:value value})
                                                                               state)
-                                                            children [(u/part cell cell-props
+                                                            children [(u/part cell
+                                                                              (theme/apply cell-props {:state state :part ::cell} theme)
                                                                               :default re-com.nested-grid/cell)]]]
                                            (u/part cell-wrapper
-                                                   (themed ::cell-wrapper (merge props {:children children}))
+                                                   (theme/apply (merge props {:children children}) {:part ::cell-wrapper} theme)
                                                    :default re-com.nested-grid/cell-wrapper)))
             zebra-stripes              (for [i (filter even? (range 1 (inc (count row-paths))))]
                                          ^{:key [::zebra-stripe i]}
@@ -1117,22 +1120,24 @@
                                                                :width            25
                                                                :height           25}
                                                     :children [export-button]}]]
-            outer-grid-container       [:div {:on-mouse-enter #(reset! hover? true)
-                                              :on-mouse-leave #(reset! hover? false)
-                                              :style
-                                              (merge
-                                               {:position              :relative
-                                                :display               :grid
-                                                :grid-template-columns (grid-template [(px row-header-total-width)
-                                                                                       (px column-header-total-width)])
-                                                :grid-template-rows    (grid-template [(px column-header-total-height)
-                                                                                       "1fr"])}
-                                               (when-not sticky?
-                                                 {:max-width  (or max-width (when remove-empty-column-space? native-width))
-                                                  :max-height (or max-height
-                                                                  (when remove-empty-row-space? native-height))
-                                                  :flex       1
-                                                  :overflow   :auto}))}]
+            outer-grid-container       [:div
+                                        (themed ::outer-grid-container
+                                          {:on-mouse-enter #(reset! hover? true)
+                                           :on-mouse-leave #(reset! hover? false)
+                                           :style
+                                           (merge
+                                            {:position              :relative
+                                             :display               :grid
+                                             :grid-template-columns (grid-template [(px row-header-total-width)
+                                                                                    (px column-header-total-width)])
+                                             :grid-template-rows    (grid-template [(px column-header-total-height)
+                                                                                    "1fr"])}
+                                            (when-not sticky?
+                                              {:max-width  (or max-width (when remove-empty-column-space? native-width))
+                                               :max-height (or max-height
+                                                               (when remove-empty-row-space? native-height))
+                                               :flex       1
+                                               :overflow   :auto}))})]
             header-spacers             (into [:div (themed ::header-spacer-grid-container
                                                      {:style {:display               :grid
                                                               :box-sizing            :border-box
@@ -1172,12 +1177,13 @@
                                                    zebra-stripes
                                                    []))
                                            (conj (when show-selection-box? box-selector)))]
-        [:div {:style (merge {:flex-direction :column}
-                             (when-not sticky?
-                               {:flex    1
-                                :display :flex
-                                :height  :fit-content
-                                :width   :fit-content}))}
+        [:div (themed ::wrapper
+                {:style (merge {:flex-direction :column}
+                               (when-not sticky?
+                                 {:flex    1
+                                  :display :flex
+                                  :height  :fit-content
+                                  :width   :fit-content}))})
          (when show-export-button? control-panel)
          (conj
           outer-grid-container
