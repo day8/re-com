@@ -270,52 +270,50 @@
          num-within 0 total-within 0 items-within []
          num-above  0 total-above  0 items-above  []]
     (if (empty? coll)
-      [num-below total-below items-below
+      [num-below  total-below  items-below
        num-within total-within items-within
-       num-above total-above items-above]
+       num-above  total-above  items-above]
       (let [[i & remainder] coll
             value           (value-fn i)
             new-sum         (+ sum value)]
         (cond
           (< new-sum low)
-          (recur remainder new-sum
+          (recur remainder       new-sum
                  (inc num-below) (+ total-below value) (conj items-below i)
-                 num-within total-within items-within
-                 num-above total-above items-above)
-          (and (>= new-sum low) (<= new-sum high))
-          (recur remainder new-sum
-                 num-below total-below items-below
+                 num-within      total-within          items-within
+                 num-above       total-above           items-above)
+          (<= low new-sum high)
+          (recur remainder        new-sum
+                 num-below        total-below            items-below
                  (inc num-within) (+ total-within value) (conj items-within i)
-                 num-above total-above items-above)
+                 num-above        total-above            items-above)
           (> new-sum high)
-          (recur remainder new-sum
-                 num-below total-below items-below
-                 num-within total-within items-within
+          (recur remainder       new-sum
+                 num-below       total-below           items-below
+                 num-within      total-within          items-within
                  (inc num-above) (+ total-above value) (conj items-above i)))))))
 
 (defn new-grid [{:keys [cell row-height column-seq row-seq row-heights column-width column-widths] :as props}]
   (let [cell-container-ref  (r/atom nil)
         cell-container-ref! (partial reset! cell-container-ref)
-        cell-top            (r/atom 0)
-        cell-left           (r/atom 0)
+        scroll-top          (r/atom 0)
+        scroll-left         (r/atom 0)
         container-height    (r/atom nil)
         container-width     (r/atom nil)
-        container-right     (r/reaction (+ @cell-left @container-width))
-        container-bottom    (r/reaction (+ @cell-top @container-height))
-        on-scroll!          #(do (reset! cell-top (.-scrollTop (.-target %)))
-                                 (reset! cell-left (.-scrollLeft (.-target %))))
+        container-right     (r/reaction (+ @scroll-left @container-width))
+        container-bottom    (r/reaction (+ @scroll-top @container-height))
+        on-scroll!          #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                 (reset! scroll-left (.-scrollLeft (.-target %))))
         on-resize!          #(do (reset! container-height (.-height (.-contentRect (aget % 0))))
                                  (reset! container-width (.-width (.-contentRect (aget % 0)))))
         path-fn             vector
         size-fn             :cell-size
-        column-total-width  (r/reaction (apply + (map size-fn (u/deref-or-value column-seq))))
-        row-total-height    (r/reaction (apply + (map size-fn (u/deref-or-value row-seq))))
         column-v-margin     100
         row-v-margin        100
-        left-bound          (r/reaction (max 0 (- @cell-left column-v-margin)))
-        right-bound         (r/reaction (min @column-total-width (+ @container-right column-v-margin)))
-        top-bound           (r/reaction (max 0 (- @cell-top row-v-margin)))
-        bottom-bound        (r/reaction (min @row-total-height (+ @container-bottom row-v-margin)))
+        left-bound          (r/reaction (max 0 (- @scroll-left column-v-margin)))
+        right-bound         (r/reaction (+ @container-right column-v-margin))
+        top-bound           (r/reaction (max 0 (- @scroll-top row-v-margin)))
+        bottom-bound        (r/reaction (+ @container-bottom row-v-margin))
         column-window       (r/reaction (cumulative-sum-window @left-bound @right-bound size-fn (u/deref-or-value column-seq)))
         row-window          (r/reaction (cumulative-sum-window @top-bound @bottom-bound size-fn (u/deref-or-value row-seq)))]
     (r/create-class
