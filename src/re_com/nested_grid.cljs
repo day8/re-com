@@ -1180,10 +1180,12 @@
         [:div (themed ::wrapper
                 {:style (merge {:flex-direction :column}
                                (when-not sticky?
-                                 {:flex    1
-                                  :display :flex
-                                  :height  :fit-content
-                                  :width   :fit-content}))})
+                                 (merge {:flex    1
+                                         :display :flex}
+                                        (when remove-empty-column-space?
+                                          {:max-width :fit-content})
+                                        (when remove-empty-row-space?
+                                          {:max-height :fit-content}))))})
          (when show-export-button? control-panel)
          (conj
           outer-grid-container
