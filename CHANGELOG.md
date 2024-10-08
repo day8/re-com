@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.6 (2024-10-08)
+
+#### Fixed
+
+- `nested-grid`: Fixed overflow behavior when behaving as a flex item.
+- `nested-grid`: Fixed `:remove-empty-column-space?` and `:remove-empty-row-space?` props
+
 ## 2.22.5 (2024-10-03)
 
 #### Fixed
