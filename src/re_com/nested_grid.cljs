@@ -1107,18 +1107,18 @@
                                                              :justify-content  :end
                                                              :height           25
                                                              :background-color :white
-                                                             :z-index          3}
+                                                             :z-index          2}
                                                             (when sticky?
                                                               {:position :sticky
                                                                :top      sticky-top}))}
                                         [box/v-box {:align    :center
                                                     :justify  :center
-                                                    :style    {:z-index          4
-                                                               :position         :sticky
+                                                    :style    {:position         :sticky
                                                                :background-color :white
                                                                :right            0
                                                                :width            25
-                                                               :height           25}
+                                                               :height           25
+                                                               :margin-right     10}
                                                     :children [export-button]}]]
             outer-grid-container       [:div
                                         (themed ::outer-grid-container
@@ -1180,7 +1180,7 @@
         [:div (themed ::wrapper
                 {:style (merge {:flex-direction :column}
                                (when-not sticky?
-                                 (merge {:flex    1
+                                 (merge {:flex    "0 0 auto"
                                          :display :flex}
                                         (when remove-empty-column-space?
                                           {:max-width :fit-content})

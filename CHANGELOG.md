@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.8 (2024-10-10)
+
+#### Changed
+
+- `nested-grid`: Adjust flex-child style & internal layering
+
 ## 2.22.6 (2024-10-08)
 
 #### Fixed
