@@ -212,13 +212,15 @@
      :text-align       "left"
      :font-size        "13px"
      :white-space      "nowrap"
-     :border-right     "thin solid #ccc"
+     :border-left      "thin solid #ccc"
      :border-bottom    "thin solid #ccc"}))
 
 (defmethod main ::nested-grid/row-header-wrapper
   [props {{:keys [edge]} :state}]
   (update props :style merge
           row-header-wrapper-main
+          (when (contains? edge :right)
+            {:border-right "thin solid #aaa"})
           (when (contains? edge :left)
             {:border-left "thin solid #aaa"})
           (when (contains? edge :bottom)
