@@ -38,7 +38,6 @@
 
 (defn apply
   ([props ctx themes]
-   (println (:part ctx))
    (->>
     (cond
       (map? themes) (re-com.theme/merge @registry themes)
