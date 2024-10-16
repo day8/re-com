@@ -1066,7 +1066,7 @@
                                               :grid-row          i
                                               :background-color  "#999"
                                               :opacity           0.05
-                                              :z-index           2
+                                              :z-index           1
                                               :pointer-events    "none"}})])
             box-selector               [selection-part
                                         {:drag                drag
