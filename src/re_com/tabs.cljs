@@ -141,7 +141,7 @@
                                         (get-in parts [:button :class]))
                          :style    style
                          :on-click (when (and on-change (not selected?) (not disabled?))
-                                     (handler-fn (println (gensym)) (on-change id)))}
+                                     (handler-fn (on-change id)))}
                         (when tooltip
                           {:on-mouse-over (handler-fn (reset! showing id))
                            :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))})
