@@ -18,11 +18,12 @@
              :on-mouse-leave (partial reset! hover? false)
              :on-click       on-click
              :style          {:padding "12px 7px 7px 7px"}}
-       [u/x-button (merge props {:width        "12px"
-                                 :height       "12px"
-                                 :hover?       hover?
-                                 :stroke       (if @hover? "#000000" "#ffffff")
-                                 :stroke-width "1.2px"})]])))
+       [u/x-button (merge {:width        "12px"
+                           :height       "12px"
+                           :hover?       hover?
+                           :stroke       (if @hover? "#000000" "#ffffff")
+                           :stroke-width "1.2px"}
+                          props)]])))
 
 (defn error-modal
   [& {:keys [severity title

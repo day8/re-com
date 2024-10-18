@@ -268,25 +268,24 @@
                         :down  "4,7 8,2 0,2")
               :fill   fill}]])
 
-(defn x-button [& {:as props}]
+(defn x-button [& {}]
   (let [hover-internal? (r/atom nil)]
-    (fn [& {:keys [hover? width height stroke-width]
+    (fn [& {:keys [hover? on-click width height stroke-width]
             :or {width  "9px"
                  height "9px"
                  hover? hover-internal?
-                 stroke-width "1px"}
-            :as   props}]
-      [:svg (merge {:on-mouse-enter (partial reset! hover? true)
-                    :on-mouse-leave (partial reset! hover? false)
-                    :width          width
-                    :height         height
-                    :viewBox        (str "0 0 " (<-px width) " " (<-px height))
-                    :xmlns          "http://www.w3.org/2000/svg"
-                    :stroke         (if (deref-or-value hover?) "#767a7c" "currentColor")
-                    :stroke-width   stroke-width}
-                   props)
-       [:line {:x1 0 :y1 0 :x2 (<-px width) :y2 (<-px height)}]
-       [:line {:x1 0 :y1 (<-px height) :x2 (<-px width) :y2 0}]])))
+                 stroke-width "1px"}}]
+      [:div {:on-click on-click}
+       [:svg {:on-mouse-enter (partial reset! hover? true)
+              :on-mouse-leave (partial reset! hover? false)
+              :width          width
+              :height         height
+              :viewBox        (str "0 0 " (<-px width) " " (<-px height))
+              :xmlns          "http://www.w3.org/2000/svg"
+              :stroke         (if (deref-or-value hover?) "#767a7c" "currentColor")
+              :stroke-width   stroke-width}
+        [:line {:x1 0 :y1 0 :x2 (<-px width) :y2 (<-px height)}]
+        [:line {:x1 0 :y1 (<-px height) :x2 (<-px width) :y2 0}]]])))
 
 (def scrollbar-thickness 10)
 (def scrollbar-margin    2)
