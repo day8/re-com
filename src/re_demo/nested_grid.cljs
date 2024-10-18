@@ -4,6 +4,7 @@
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
    [re-com.util :as u]
    [re-com.theme :as theme]
+   [re-com.nested-grid.util :as ngu]
    [reagent.core :as r]
    [re-com.nested-grid  :as grid :refer [nested-grid nested-grid-args-desc nested-grid-parts-desc]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
@@ -819,36 +820,39 @@
      "), we only store a " [:code ":width"] " key. "
      "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
-(defn panel
-  []
-  (let [tabs [{:id :intro :label "Introduction" :view intro-column}
-              {:id :concepts :label "Concepts" :view concepts-column}
-              {:id :more :label "More" :view more-column}
-              {:id :parameters :label "Parameters" :view args-column}]
-        !tab-id (r/atom (:id (first tabs)))
-        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
-    (fn []
-      [v-box
-       :src      (at)
-       :size     "auto"
-       :gap      "10px"
-       :children
-       [[panel-title "[nested-grid ... ]"
-         "src/re_com/nested_grid.cljs"
-         "src/re_demo/nested_grid.cljs"]
-        [h-box
+#_(defn panel
+    []
+    (let [tabs [{:id :intro :label "Introduction" :view intro-column}
+                {:id :concepts :label "Concepts" :view concepts-column}
+                {:id :more :label "More" :view more-column}
+                {:id :parameters :label "Parameters" :view args-column}]
+          !tab-id (r/atom (:id (first tabs)))
+          !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
+      (fn []
+        [v-box
          :src      (at)
-         :gap      "50px"
+         :size     "auto"
+         :gap      "10px"
          :children
-         [[v-box
+         [[panel-title "[nested-grid ... ]"
+           "src/re_com/nested_grid.cljs"
+           "src/re_demo/nested_grid.cljs"]
+          [h-box
            :src      (at)
+           :gap      "50px"
            :children
-           [[rc/horizontal-tabs
-             :src       (at)
-             :model     !tab-id
-             :tabs      tabs
-             :style     {:margin-top "12px"}
-             :on-change #(reset! !tab-id %)]
-            [(:view @!tab)]]]
-          [demos]]]
-        [parts-table "nested-grid" nested-grid-parts-desc]]])))
+           [[v-box
+             :src      (at)
+             :children
+             [[rc/horizontal-tabs
+               :src       (at)
+               :model     !tab-id
+               :tabs      tabs
+               :style     {:margin-top "12px"}
+               :on-change #(reset! !tab-id %)]
+              [(:view @!tab)]]]
+            [demos]]]
+          [parts-table "nested-grid" nested-grid-parts-desc]]])))
+
+(defn panel []
+  [ngu/test-component])
