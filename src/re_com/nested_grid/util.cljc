@@ -55,63 +55,88 @@
                  num-within total-within items-within
                  (inc num-above) (+ total-above value) (conj items-above i)))))))
 
-(def branch? (some-fn vector? list?))
-(def leaf? (complement branch?))
-(def leaf-size (fn [node] (cond (number? node) node
-                                (map? node) (:size node)
+#_(def branch? (some-fn vector? list?))
+#_(def leaf? (complement branch?))
+
+(def random-node [[:b [:c 1 2]]])
+
+(def children (comp seq rest))
+
+(def leaf? (some-fn map? number?))
+
+(defn branch? [node]
+  (and (vector? node)
+       (leaf? (first node))))
+
+(def invalid? (complement (some-fn leaf? branch?)))
+
+(def leaf-size (fn [node] (cond (number? node)  node
+                                (map? node)     (:size node)
                                 (keyword? node) 20)))
 
+(tree-seq branch? children [:x [:a 2] [:a 3] [:b 4]])
+
 (defn walk-size [{:keys [window-start window-end tree size-cache]}]
+  (println)
   (let [sum-size       (volatile! 0)
         windowed-nodes (volatile! [])
-        collect!       (fn [node] (vswap! windowed-nodes conj node))
+        collect!       (fn [path] (when-not (empty? path)
+                                    (vswap! windowed-nodes conj path)))
         cache!         (fn [node size] (vswap! size-cache assoc node size))
-        intersection?  (fn [x1 x2]
+        intersection?  (fn [[x1 x2]]
                          (and (<= x1 window-end)
                               (>= x2 window-start)))
         walk
         (fn walk [path node]
           (cond
-            (leaf? node)   (let [leaf-size (leaf-size node)
-                                 sum       @sum-size
-                                 new-sum   (+ sum leaf-size)]
-                             (when (intersection? sum new-sum)
-                               (collect! (if (empty? path)
-                                           []
-                                           (conj (pop path) node))))
-                             (vreset! sum-size new-sum)
+            #_#_(invalid? node) (complain!)
+            (leaf? node)   (let [sum       @sum-size
+                                 leaf-size (leaf-size node)
+                                 this-path (conj (vec (butlast path)) node)
+                                 bounds    [sum (+ sum leaf-size)]]
+                             (when (intersection? bounds)
+                               (collect! this-path))
+                             (vreset! sum-size (+ sum leaf-size))
                              leaf-size)
             (branch? node) (let [sum        @sum-size
-                                 csum       (get @size-cache node)
-                                 skippable? (and csum (not (intersection? sum (+ sum csum))))]
+                                 csize      (get @size-cache node)
+                                 cbounds    [sum (+ sum csize)]
+                                 skippable? (and csize (not (intersection? cbounds)))]
                              (if skippable?
-                               (let [new-sum (+ sum csum)]
+                               (let [new-sum (+ sum csize)]
                                  (vreset! sum-size new-sum)
                                  new-sum)
                                (let [descend     (map (partial walk (conj path (first node))))
-                                     branch-size (transduce descend + node)]
-                                 (when-not csum (cache! node branch-size))
-                                 (when (intersection? sum (+ sum branch-size))
-                                   #_(collect! path))
+                                     _           (collect! path)
+                                     branch-size (transduce descend + node)
+                                     node-bounds [sum (+ sum branch-size)]]
+                                 (when-not csize (cache! node branch-size))
+                                 #_(vreset! sum-size (+ sum branch-size))
+                                 (when-not (intersection? node-bounds)
+                                   (vswap! windowed-nodes pop))
                                  branch-size)))))]
     (walk [] tree)
     {:sum-size       @sum-size
-     :windowed-nodes @windowed-nodes}))
+     :windowed-nodes (distinct @windowed-nodes)}))
 
-#_(walk-size {:window-start 0,
-              :window-end 100,
-              :tree [:root [:a [50 100] [50 100]] [:b [50 100] [50 100]]],
+#_(walk-size {:window-start 2,
+              :window-end 4,
+              :tree [1 [1 1] [1 1] [1 1]],
               :size-cache (volatile! {})})
-#_(walk-size {:window-start 8
-              :window-end   12
-              :size-cache   (volatile! {})
+(def chch (volatile! {}))
+#_(walk-size {:window-start 181
+              :window-end   1110
+              :size-cache   chch
               :tree         [:root
+                             [:a] [:b] [:c] [:d] [:e] [:f] [:g]
+                             [:m
+                              [2 3]]
                              [:a
                               [2 3]
-                              [2 3]]
+                              [4 5]]
                              [:b
                               [2 3]
-                              [2 3]]]})
+                              [4]]]})
 
 #?(:cljs
    (defn test-component []
@@ -128,8 +153,8 @@
            height-cache       (volatile! {})
            test-tree          (def test-tree [:root
                                               [:a
-                                               [30 100]
-                                               [40 100]]
+                                               30 100
+                                               [:my-branch 101]]
                                               [:b
                                                [50 100]
                                                [60 100]]])
@@ -140,10 +165,10 @@
                                           :window-end   100000
                                           :tree         test-tree
                                           :size-cache   (volatile! {})})
-           traversal    (r/reaction (walk-size {:window-start @window-start
-                                                :window-end   @window-end
-                                                :tree         test-tree
-                                                :size-cache   height-cache}))]
+           traversal          (r/reaction (walk-size {:window-start @window-start
+                                                      :window-end   @window-end
+                                                      :tree         test-tree
+                                                      :size-cache   height-cache}))]
        (r/create-class
         {:component-did-mount
          (fn [_] (.addEventListener @container-ref "scroll" on-scroll!))
