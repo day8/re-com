@@ -854,5 +854,216 @@
             [demos]]]
           [parts-table "nested-grid" nested-grid-parts-desc]]])))
 
+(def row-seq (r/atom '()))
+
+(def rows-loaded (r/atom 0))
+
+(defn data-chunk [& {:keys [dimension index-offset size with-loader?] :or {size 10 with-loader? true}}]
+  (for [chunk-index (range size)]
+    (cond->
+     {:index       (+ chunk-index index-offset)
+      :chunk-index chunk-index
+      :size        size
+      :id          (gensym)
+      :cell-size   (+ 25 (rand-int 75))
+      :dimension   dimension}
+      (and with-loader? (= chunk-index 0)) (assoc :loader? true))))
+
+(defn load-row-chunk! [& {:keys [size] :or {size 10}}]
+  (swap! row-seq concat (data-chunk {:size         size
+                                     :index-offset @rows-loaded
+                                     :dimension    :row}))
+  (swap! rows-loaded + size))
+
+(def column-seq (r/atom (data-chunk {:dimension :column :size 100})))
+
+(defn test-cell [{:keys [row-path column-path]}]
+  (let [{:keys           [loader?]
+         row-index       :index
+         row-size        :size
+         row-chunk-index :chunk-index}    (peek row-path)
+        {column-index       :index
+         column-chunk-index :chunk-index} (peek column-path)
+        loader?                           (and loader? (= 0 column-chunk-index))
+        loaded?                           (r/reaction (pos? (- @rows-loaded row-index row-size)))
+        background-color                  (r/atom "#cceeff")
+        init-background!                  #(reset! background-color "#fff")]
+    (r/create-class
+     {:component-did-mount
+      #(do (when (and loader? (not @loaded?))
+             (load-row-chunk!))
+           (init-background!))
+      :reagent-render
+      (fn [{:keys [children column-path row-path]}]
+        [:div {:style {:grid-column      (grid/path->grid-line-name column-path)
+                       :grid-row         (grid/path->grid-line-name row-path)
+                       :padding          5
+                       :font-size        10
+                       :transition       "background-color 0.5s ease-in"
+                       :background-color @background-color
+                       :border           "thin solid black"
+                       :border-top       (if (= 0 row-chunk-index)
+                                           "thick solid black"
+                                           "thin solid black")}}
+         (str row-index " // " column-index)])})))
+
+(defn linear-search-infinite-scroll-test [{:keys [cell row-height column-seq row-seq row-heights column-width column-widths] :as props}]
+  (let [_ (load-row-chunk!)
+        cell-container-ref  (r/atom nil)
+        cell-container-ref! (partial reset! cell-container-ref)
+        scroll-top          (r/atom 0)
+        scroll-left         (r/atom 0)
+        container-height    (r/atom nil)
+        container-width     (r/atom nil)
+        container-right     (r/reaction (+ @scroll-left @container-width))
+        container-bottom    (r/reaction (+ @scroll-top @container-height))
+        on-scroll!          #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                 (reset! scroll-left (.-scrollLeft (.-target %))))
+        on-resize!          #(do (reset! container-height (.-height (.-contentRect (aget % 0))))
+                                 (reset! container-width (.-width (.-contentRect (aget % 0)))))
+        path-fn             vector
+        size-fn             :cell-size
+        column-v-margin     100
+        row-v-margin        100
+        left-bound          (r/reaction (max 0 (- @scroll-left column-v-margin)))
+        right-bound         (r/reaction (+ @container-right column-v-margin))
+        top-bound           (r/reaction (max 0 (- @scroll-top row-v-margin)))
+        bottom-bound        (r/reaction (+ @container-bottom row-v-margin))
+        column-window       (r/reaction (ngu/cumulative-sum-window @left-bound @right-bound size-fn (u/deref-or-value column-seq)))
+        row-window          (r/reaction (ngu/cumulative-sum-window @top-bound @bottom-bound size-fn (u/deref-or-value row-seq)))]
+    (r/create-class
+     {:component-did-mount
+      (fn [_]
+        (.addEventListener @cell-container-ref "scroll" on-scroll!)
+        (.observe (js/ResizeObserver. on-resize!) @cell-container-ref))
+      :reagent-render
+      (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height max-width]}]
+
+        (let [[column-num-left column-space-left columns-left
+               column-num-within column-space-within columns-within
+               column-num-right column-space-right columns-right] @column-window
+              [row-num-top row-space-top rows-top
+               row-num-within row-space-within rows-within
+               row-num-bottom row-space-bottom rows-bottom]       @row-window
+              grid-container                                      [:div {:ref   cell-container-ref!
+                                                                         :style {:max-height            max-height
+                                                                                 :max-width             max-width
+                                                                                 :min-width             100
+                                                                                 :min-height            100
+                                                                                 :overflow              :auto
+                                                                                 :width                 :fit-content
+                                                                                 :display               :grid
+                                                                                 :grid-template-columns (grid/grid-template (concat [column-space-left]
+                                                                                                                                    (interleave (map path-fn columns-within)
+                                                                                                                                                (map size-fn columns-within))
+                                                                                                                                    [column-space-right]))
+                                                                                 :grid-template-rows    (grid/grid-template (concat [row-space-top]
+                                                                                                                                    (interleave (map path-fn rows-within)
+                                                                                                                                                (map size-fn rows-within))
+                                                                                                                                    [row-space-bottom]))}}]]
+          (into grid-container
+                (for [column-path (map path-fn columns-within)
+                      row-path    (map path-fn rows-within)
+                      :let        [props {:row-path    row-path
+                                          :column-path column-path}]]
+                  ^{:key [column-path row-path]}
+                  [cell props]))))})))
+
+(defn node->div [node {:keys [traversal path] :or {path []}}]
+  (let [style {:border-top       "thin solid black"
+               :border-left      "thin solid black"
+               :margin-left      50
+               :background-color :lightgreen}]
+    (cond
+      (ngu/leaf? node)   (let [leaf-path (conj path node)]
+                           [:div {:style (merge style
+                                                {:height     (ngu/leaf-size node)
+                                                 :background (if (contains? (set (some-> traversal deref :windowed-nodes)) leaf-path)
+                                                               :lightgreen
+                                                               :white)})}
+                            (str leaf-path)])
+      (ngu/branch? node) (let [[own-node & children] node
+                               this-path             (conj path (first node))]
+                           (into [:div {:style (merge style
+                                                      {:position   :relative
+                                                       :height     :fit-content
+                                                       :background (if (contains? (set (some-> traversal deref :windowed-nodes)) this-path)
+                                                                     :lightgreen
+                                                                     :white)})}
+                                  [:div {:style {:height (ngu/leaf-size own-node)}}
+                                   (str this-path)]]
+                                 (map #(do [node->div % {:traversal traversal :path (conj path own-node)}])
+                                      children))))))
+
+(defn window-search-test [{:keys [tree]}]
+  (let [container-ref      (r/atom nil)
+        set-container-ref! (partial reset! container-ref)
+        scroll-top         (r/atom nil)
+        scroll-left        (r/atom nil)
+        on-scroll!         #(do (reset! scroll-top (.-scrollTop (.-target %)))
+                                (reset! scroll-left (.-scrollLeft (.-target %))))
+        window-size        100
+        window-ratio       0.5
+        window-start       (r/reaction (* 2 @scroll-top))
+        window-end         (r/reaction (+ window-size (* 2 @scroll-top)))
+        height-cache       (volatile! {})
+        path-seq           (def node-seq (:windowed-nodes (ngu/walk-size {:window-start 0
+                                                                          :window-end   999999
+                                                                          :tree         tree
+                                                                          :size-cache   (volatile! {})})))
+        {:keys [sum-size]} (ngu/walk-size {:window-start 0
+                                           :window-end   100000
+                                           :tree         tree
+                                           :size-cache   (volatile! {})})
+        traversal          (r/reaction (ngu/walk-size {:window-start @window-start
+                                                       :window-end   @window-end
+                                                       :tree         tree
+                                                       :size-cache   height-cache}))]
+    (r/create-class
+     {:component-did-mount
+      (fn [_] (.addEventListener @container-ref "scroll" on-scroll!))
+      :reagent-render (fn []
+                        [:div
+                         [:div {:ref   set-container-ref!
+                                :style {:width      400
+                                        :overflow-y :auto
+                                        :position   :relative
+                                        :height     sum-size}}
+                          [:div {:style {:position           :fixed
+                                         :margin-left        20
+                                         :display            :grid
+                                         :grid-template-rows (str/join " " (->> path-seq
+                                                                                (map last)
+                                                                                (map ngu/leaf-size)
+                                                                                (map u/px)))}}
+                           (node->div tree {:traversal traversal})]
+                          [:div {:style {:position   :fixed
+                                         :height     window-size
+                                         :width      220
+                                         :margin-left "70px"
+                                         :border-top "thick solid red"
+                                         :border-bottom "thick solid red"
+                                         :margin-top (* 2 @scroll-top)
+                                         :background "rgba(0,0,1,0.2)"}}
+                           (str (* 2 @scroll-top))]
+                          [:div {:style {:width      400
+                                         :height     (* sum-size (+ 1 window-ratio))}}
+                           (str sum-size)]]
+                         [:br]
+                         [:pre
+                          (str @traversal)]])})))
+
 (defn panel []
-  [ngu/test-component])
+  [rc/h-box
+   :gap "50px"
+   :children
+   [[rc/box :size "400px" :child [window-search-test {:tree ngu/test-tree}]]
+    [:<> [linear-search-infinite-scroll-test
+          {:row-height   25
+           :column-width 100
+           :max-height   "80vh"
+           :max-width    "80vw"
+           :row-seq      row-seq
+           :column-seq   column-seq
+           :cell         test-cell}]
+     [:div "rows loaded:" @rows-loaded]]]])
