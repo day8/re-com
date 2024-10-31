@@ -2,6 +2,7 @@
   (:require-macros
    [re-com.validate])
   (:require
+   [clojure.string :as str]
    [cljs-time.core         :as    time.core]
    [clojure.set            :refer [superset?]]
    [re-com.config          :refer [debug?]]
@@ -403,6 +404,9 @@
                (extension-attribute? %))
           attrs))
 
+(defn obvious-camel-case? [s]
+  (boolean (re-matches #"^[a-z]+[A-Z][a-zA-Z]*$" s)))
+
 (defn html-attr?
   "Returns true if the passed argument is a valid HTML, SVG or event attribute.
    Otherwise returns a warning map.
@@ -419,8 +423,18 @@
                  result   (cond
                             contains-class? ":attr parameters (including :parts) do not allow :class"
                             contains-style? ":attr parameters (including :parts) do not allow :style"
-                            :else           (when-let [invalid (not-empty (invalid-html-attrs arg-keys))]
-                                              (str "Unknown HTML attribute(s): " invalid)))]
+                            :else
+                            (when-let [invalid (not-empty (invalid-html-attrs arg-keys))]
+                              (let [camels (filter (comp obvious-camel-case? name) invalid)]
+                                (str "Unknown HTML attribute(s): " invalid
+                                     (when (seq camels)
+                                       (str "\n\n  Camel-cased arguments were passed: "
+                                            camels
+                                            ". Did you mean to type: "
+                                            (map (comp keyword gstring/toSelectorCase name)
+                                                 camels)
+                                            "?"
+                                            "\n  See: https://github.com/reagent-project/reagent/blob/master/doc/FAQ/MyAttributesAreMissing.md"))))))]
              (or (nil? result)
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
