@@ -324,7 +324,14 @@
       [:span "when true, dragging the mouse causes an excel-style "
        "selection box to appear. When there is a selection box, any export behavior "
        "takes the bounds of that box into account. For instance, if 2 cells are "
-       "selected, then only 2 cells are exported."]}]))
+       "selected, then only 2 cells are exported."]}
+     {:description
+      [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
+       [:code ":file"] "and" [:code ":line"] ". See 'Debugging'."]
+      :name :src
+      :required false
+      :type "map"
+      :validate-fn map?}]))
 
 (defn descendant? [path-a path-b]
   (and (not (>= (count path-a) (count path-b)))
@@ -685,7 +692,8 @@
                     show-zebra-stripes?
                     show-selection-box? resize-columns? resize-rows?
                     sticky? sticky-left sticky-top
-                    debug-parts?]
+                    debug-parts?
+                    src]
              :or   {column-header-height       25
                     column-width               55
                     row-header-width           80
@@ -1177,15 +1185,17 @@
                                                    zebra-stripes
                                                    []))
                                            (conj (when show-selection-box? box-selector)))]
-        [:div (themed ::wrapper
-                {:style (merge {:flex-direction :column}
+        [:div (debug/->attr
+               (themed ::wrapper
+                       {:src src
+                        :style (merge {:flex-direction :column}
                                (when-not sticky?
                                  (merge {:flex    "0 0 auto"
                                          :display :flex}
                                         (when remove-empty-column-space?
                                           {:max-width :fit-content})
                                         (when remove-empty-row-space?
-                                          {:max-height :fit-content}))))})
+                                          {:max-height :fit-content}))))}))
          (when show-export-button? control-panel)
          (conj
           outer-grid-container
