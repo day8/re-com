@@ -895,8 +895,8 @@
            (init-background!))
       :reagent-render
       (fn [{:keys [children column-path row-path]}]
-        [:div {:style {:grid-column      (grid/path->grid-line-name column-path)
-                       :grid-row         (grid/path->grid-line-name row-path)
+        [:div {:style {:grid-column      (ngu/path->grid-line-name column-path)
+                       :grid-row         (ngu/path->grid-line-name row-path)
                        :padding          5
                        :font-size        10
                        :transition       "background-color 0.5s ease-in"
@@ -953,14 +953,14 @@
                                                                                  :overflow              :auto
                                                                                  :width                 :fit-content
                                                                                  :display               :grid
-                                                                                 :grid-template-columns (grid/grid-template (concat [column-space-left]
-                                                                                                                                    (interleave (map path-fn columns-within)
-                                                                                                                                                (map size-fn columns-within))
-                                                                                                                                    [column-space-right]))
-                                                                                 :grid-template-rows    (grid/grid-template (concat [row-space-top]
-                                                                                                                                    (interleave (map path-fn rows-within)
-                                                                                                                                                (map size-fn rows-within))
-                                                                                                                                    [row-space-bottom]))}}]]
+                                                                                 :grid-template-columns (ngu/grid-template (concat [column-space-left]
+                                                                                                                                   (interleave (map path-fn columns-within)
+                                                                                                                                               (map size-fn columns-within))
+                                                                                                                                   [column-space-right]))
+                                                                                 :grid-template-rows    (ngu/grid-template (concat [row-space-top]
+                                                                                                                                   (interleave (map path-fn rows-within)
+                                                                                                                                               (map size-fn rows-within))
+                                                                                                                                   [row-space-bottom]))}}]]
           (into grid-container
                 (for [column-path (map path-fn columns-within)
                       row-path    (map path-fn rows-within)
@@ -978,7 +978,7 @@
       (ngu/leaf? node)   (let [leaf-path (conj path node)]
                            [:div {:style (merge style
                                                 {:height     (ngu/leaf-size node)
-                                                 :background (if (contains? (set (some-> traversal deref :windowed-nodes)) leaf-path)
+                                                 :background (if (contains? (set (some-> traversal deref :windowed-paths)) leaf-path)
                                                                :lightgreen
                                                                :white)})}
                             (str leaf-path)])
@@ -987,7 +987,7 @@
                            (into [:div {:style (merge style
                                                       {:position   :relative
                                                        :height     :fit-content
-                                                       :background (if (contains? (set (some-> traversal deref :windowed-nodes)) this-path)
+                                                       :background (if (contains? (set (some-> traversal deref :windowed-paths)) this-path)
                                                                      :lightgreen
                                                                      :white)})}
                                   [:div {:style {:height (ngu/leaf-size own-node)}}
@@ -995,10 +995,12 @@
                                  (map #(do [node->div % {:traversal traversal :path (conj path own-node)}])
                                       children))))))
 
+(def scroll-top (r/atom 0))
+
 (defn window-search-test [{:keys [tree]}]
   (let [container-ref      (r/atom nil)
         set-container-ref! (partial reset! container-ref)
-        scroll-top         (r/atom nil)
+        #_#_scroll-top         (r/atom nil)
         scroll-left        (r/atom nil)
         on-scroll!         #(do (reset! scroll-top (.-scrollTop (.-target %)))
                                 (reset! scroll-left (.-scrollLeft (.-target %))))
@@ -1007,7 +1009,7 @@
         window-start       (r/reaction (* 2 @scroll-top))
         window-end         (r/reaction (+ window-size (* 2 @scroll-top)))
         height-cache       (volatile! {})
-        path-seq           (def node-seq (:windowed-nodes (ngu/walk-size {:window-start 0
+        path-seq           (def node-seq (:windowed-paths (ngu/walk-size {:window-start 0
                                                                           :window-end   999999
                                                                           :tree         tree
                                                                           :size-cache   (volatile! {})})))
@@ -1053,11 +1055,92 @@
                          [:pre
                           (str @traversal)]])})))
 
+(defn differences [v]
+  (into [(first v)]
+        (map (fn [[a b]] (- b a)) (partition 2 1 v))))
+
+(defn new-nested-grid [{:keys [row-tree column-tree]}]
+  (let [internal-row-tree    (r/atom (u/deref-or-value row-tree))
+        internal-column-tree (r/atom (u/deref-or-value column-tree))
+        wy                   (r/reaction @scroll-top)
+        wh                   (r/atom 100)
+        row-traversal        (r/reaction (ngu/walk-size {:tree @internal-row-tree :window-start (* @wy 2) :window-end (+ (* @wy 2) @wh)}))
+        column-traversal     (r/reaction (ngu/walk-size {:tree @internal-column-tree}))]
+    (r/create-class
+     {:component-did-update
+      #(let [[_ {:keys [row-tree column-tree]}] (r/argv %)]
+         (reset! internal-row-tree (u/deref-or-value row-tree))
+         (reset! internal-column-tree (u/deref-or-value column-tree)))
+      :reagent-render
+      (fn [{:keys [row-tree column-tree cell row-header-width column-header-height]
+            :or   {row-header-width     40
+                   column-header-height 25
+                   cell                 [:div {:style {:border "thin solid grey"}}]}}]
+        (u/deref-or-value row-tree)
+        (u/deref-or-value column-tree)
+        (let [{row-space          :level->space
+               row-height-total   :sum-size
+               windowed-row-paths :windowed-paths
+               windowed-row-sizes :windowed-sizes
+               windowed-row-sums  :windowed-sums}     #p @row-traversal
+              {column-space          :level->space
+               column-width-total    :sum-size
+               windowed-column-paths :windowed-paths
+               windowed-column-sizes :windowed-sizes} @column-traversal
+              column-depth                            (count column-space)
+              column-header-heights                   (repeat column-depth column-header-height)
+              column-header-height-total              (apply + column-header-heights)
+              row-depth                               (count row-space)
+              row-header-widths                       (repeat row-depth row-header-width)
+              row-header-width-total                  (apply + row-header-widths)
+              spacer-container                        [:div {:style {:border "thin solid lightblue"}} "spacer"]
+              column-header-container                 [:div {:style {:border "thin solid lightblue"}} "column"]
+              row-header-container                    [:div {:style {:display               :grid
+                                                                     :grid-template-rows    (ngu/grid-template (interleave (vec (concat [[:start]] windowed-row-paths [[:end]]))
+                                                                                                                           (differences (conj windowed-row-sums row-height-total))))
+                                                                     :grid-template-columns (ngu/grid-template row-header-widths)}}]
+              row-header-cells                        (for [path windowed-row-paths]
+                                                        [:div {:style {:grid-row-start    (ngu/path->grid-line-name path)
+                                                                       :grid-column-start (count path)
+                                                                       :border            "thin solid green"
+                                                                       :overflow          :hidden
+                                                                       :font-size 8}}
+
+                                                         (pr-str path)])
+              main-container                          [:div
+                                                       {:style {:flex                  "0 0 auto"
+                                                                :display               :grid
+                                                                :grid-template-rows    (ngu/grid-template [column-header-height-total row-height-total])
+                                                                :grid-template-columns (ngu/grid-template [row-header-width-total column-width-total])}}]
+              cell-grid-container                     [:div {:style {:display               :grid
+                                                                     :grid-template-rows    (ngu/grid-template (interleave (vec (concat [[:start]] windowed-row-paths [[:end]]))
+                                                                                                                           (differences (conj windowed-row-sums row-height-total))))
+                                                                     :grid-template-columns (ngu/grid-template (interleave windowed-column-paths
+                                                                                                                           windowed-column-sizes))}}]
+              top-spacer-cells                        (for [column-path windowed-column-paths]
+                                                        [:div])
+              cells                                   (for [row-path    windowed-row-paths
+                                                            column-path windowed-column-paths]
+                                                        (u/part cell {:row-path row-path :column-path column-path}))]
+          (conj main-container
+                spacer-container
+                column-header-container
+                (into row-header-container row-header-cells)
+                (into cell-grid-container (concat top-spacer-cells cells)))))})))
+
+(def row-tree (r/atom ngu/test-tree))
+
 (defn panel []
+
   [rc/h-box
    :gap "50px"
    :children
-   [[rc/box :size "400px" :child [window-search-test {:tree ngu/test-tree}]]
+   [[new-nested-grid {:row-tree    row-tree
+                      :column-tree [:a :b :c :d :e :f :g :h :i :j :k]}]
+    [rc/box
+     :style {:margin-top 50}
+     :size "400px"
+     :child [window-search-test {:tree ngu/test-tree}]]
     [:<> [linear-search-infinite-scroll-test
           {:row-height   25
            :column-width 100

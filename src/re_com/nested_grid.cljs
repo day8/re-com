@@ -4,6 +4,7 @@
   (:require
    [clojure.string :as str]
    [re-com.util :as u :refer [px deref-or-value]]
+   [re-com.nested-grid.util :as ngu]
    [reagent.core :as r]
    [re-com.debug :as debug]
    [re-com.config      :as config :refer [include-args-desc?]]
@@ -492,27 +493,6 @@
                                         0
                                         "-4px")}))}])))
 
-(defn path->grid-line-name [path]
-  (str "line__" (hash path) "-start"))
-
-(defn grid-template
-  ([tokens & more-tokens]
-   (grid-template (apply concat tokens more-tokens)))
-  ([tokens]
-   (let [rf (fn [s group]
-              (str s " "
-                   (cond (number? (first group))
-                         (str/join " " (map px group))
-                         (string? (first group))
-                         (str/join " " group)
-                         :else
-                         (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
-     (str
-      (->> tokens
-           (partition-by (some-fn number? string?))
-           (reduce rf ""))
-      " [end]"))))
-
 (defn cell [{:keys [value]}]
   (str value))
 
@@ -521,8 +501,8 @@
    [:div
     (-> {:on-click (debug/log-on-alt-click props)
          :class class
-         :style (merge {:grid-column (path->grid-line-name column-path)
-                        :grid-row    (path->grid-line-name row-path)}
+         :style (merge {:grid-column (ngu/path->grid-line-name column-path)
+                        :grid-row    (ngu/path->grid-line-name row-path)}
                        style)}
         (merge attr))]
    children))
@@ -898,8 +878,8 @@
                                                    :display               :grid
                                                    :grid-column-start     2
                                                    :grid-row-start        2
-                                                   :grid-template-columns (grid-template cell-grid-columns)
-                                                   :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                                   :grid-template-columns (ngu/grid-template cell-grid-columns)
+                                                   :grid-template-rows    (ngu/grid-template cell-grid-rows)}})]
             column-header-cells        (for [path column-paths
                                              :let [edge (cond-> #{}
                                                           (start-branch? path column-paths) (conj :left)
@@ -928,7 +908,7 @@
                                                               (theme/apply props {:part ::column-header} theme)
                                                               :default re-com.nested-grid/column-header)]]]
                                          ^{:key [::column (or path (gensym))]}
-                                         [:div {:style {:grid-column-start (path->grid-line-name path)
+                                         [:div {:style {:grid-column-start (ngu/path->grid-line-name path)
                                                         :grid-column-end   (str "span " (cond-> path
                                                                                           :do         (header-cross-span column-paths)
                                                                                           (not show?) dec))
@@ -979,7 +959,7 @@
                                                                      (theme/apply props {:part ::row-header} theme)
                                                                      :default re-com.nested-grid/row-header)]]]
                                          ^{:key [::row (or path (gensym))]}
-                                         [:div {:style {:grid-row-start    (path->grid-line-name path)
+                                         [:div {:style {:grid-row-start    (ngu/path->grid-line-name path)
                                                         :grid-row-end      (str "span " (cond-> path
                                                                                           :do         (header-cross-span showing-row-paths)
                                                                                           (not show?) dec))
@@ -1027,8 +1007,8 @@
             cells                      (if-not theme-cells?
                                          (for [row-path    showing-row-paths
                                                column-path showing-column-paths]
-                                           [cell (cond-> {:style       {:grid-column (path->grid-line-name column-path)
-                                                                        :grid-row    (path->grid-line-name row-path)}
+                                           [cell (cond-> {:style       {:grid-column (ngu/path->grid-line-name column-path)
+                                                                        :grid-row    (ngu/path->grid-line-name row-path)}
                                                           :row-path    row-path
                                                           :column-path column-path}
                                                    cell-value
@@ -1136,10 +1116,10 @@
                                            (merge
                                             {:position              :relative
                                              :display               :grid
-                                             :grid-template-columns (grid-template [(px row-header-total-width)
-                                                                                    (px column-header-total-width)])
-                                             :grid-template-rows    (grid-template [(px column-header-total-height)
-                                                                                    "1fr"])}
+                                             :grid-template-columns (ngu/grid-template [(px row-header-total-width)
+                                                                                        (px column-header-total-width)])
+                                             :grid-template-rows    (ngu/grid-template [(px column-header-total-height)
+                                                                                        "1fr"])}
                                             (when-not sticky?
                                               {:max-width  (or max-width (when remove-empty-column-space? native-width))
                                                :max-height (or max-height
@@ -1155,8 +1135,8 @@
                                                               :grid-column-start     1
                                                               :grid-row-start        1
                                                               :z-index               3
-                                                              :grid-template-columns (grid-template max-row-widths)
-                                                              :grid-template-rows    (grid-template max-column-heights)}})]
+                                                              :grid-template-columns (ngu/grid-template max-row-widths)
+                                                              :grid-template-rows    (ngu/grid-template max-column-heights)}})]
                                              header-spacer-cells)
             column-headers             (into [:div (themed ::column-header-grid-container
                                                      {:style {:position              :sticky
@@ -1166,8 +1146,8 @@
                                                               :display               :grid
                                                               :grid-column-start     2
                                                               :grid-row-start        1
-                                                              :grid-template-columns (grid-template cell-grid-columns)
-                                                              :grid-template-rows    (grid-template max-column-heights)}})]
+                                                              :grid-template-columns (ngu/grid-template cell-grid-columns)
+                                                              :grid-template-rows    (ngu/grid-template max-column-heights)}})]
                                              column-header-cells)
             row-headers                (into [:div (themed ::row-header-grid-container
                                                      {:style {:position              :sticky
@@ -1176,8 +1156,8 @@
                                                               :display               :grid
                                                               :grid-column-start     1
                                                               :grid-row-start        2
-                                                              :grid-template-columns (grid-template max-row-widths)
-                                                              :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                                              :grid-template-columns (ngu/grid-template max-row-widths)
+                                                              :grid-template-rows    (ngu/grid-template cell-grid-rows)}})]
                                              row-header-cells)
             cells                      (-> cell-grid-container
                                            (into cells)
@@ -1187,15 +1167,15 @@
                                            (conj (when show-selection-box? box-selector)))]
         [:div (debug/->attr
                (themed ::wrapper
-                       {:src src
-                        :style (merge {:flex-direction :column}
-                               (when-not sticky?
-                                 (merge {:flex    "0 0 auto"
-                                         :display :flex}
-                                        (when remove-empty-column-space?
-                                          {:max-width :fit-content})
-                                        (when remove-empty-row-space?
-                                          {:max-height :fit-content}))))}))
+                 {:src src
+                  :style (merge {:flex-direction :column}
+                                (when-not sticky?
+                                  (merge {:flex    "0 0 auto"
+                                          :display :flex}
+                                         (when remove-empty-column-space?
+                                           {:max-width :fit-content})
+                                         (when remove-empty-row-space?
+                                           {:max-height :fit-content}))))}))
          (when show-export-button? control-panel)
          (conj
           outer-grid-container

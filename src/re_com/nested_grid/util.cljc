@@ -3,6 +3,28 @@
             #?@(:cljs [[reagent.core :as r]
                        [re-com.util :as u]])))
 
+(defn path->grid-line-name [path]
+  (str "line__" (hash path) "-start"))
+
+#?(:cljs
+   (defn grid-template
+     ([tokens & more-tokens]
+      (grid-template (apply concat tokens more-tokens)))
+     ([tokens]
+      (let [rf (fn [s group]
+                 (str s " "
+                      (cond (number? (first group))
+                            (str/join " " (map u/px group))
+                            (string? (first group))
+                            (str/join " " group)
+                            :else
+                            (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
+        (str
+         (->> tokens
+              (partition-by (some-fn number? string?))
+              (reduce rf ""))
+         " [end]")))))
+
 (def spec? (some-fn vector? seq?))
 (def item? (complement spec?))
 (def ascend pop)
@@ -67,49 +89,83 @@
                                 (keyword? node) 20)))
 
 (defn walk-size [{:keys [window-start window-end tree size-cache]}]
-  (println)
   (let [sum-size       (volatile! 0)
-        windowed-nodes (volatile! [])
-        collect!       (fn [path] (vswap! windowed-nodes conj path))
-        cache!         (fn [node size] (vswap! size-cache assoc node size))
-        intersection?  (fn [[x1 x2]]
-                         (and (<= x1 window-end)
-                              (>= x2 window-start)))
+        level->space   (volatile! {})
+        windowed-paths (volatile! [])
+        windowed-sizes (volatile! [])
+        windowed-sums  (volatile! [])
+        collect-space! (fn [level space]
+                         (vswap! level->space
+                                 (fn [m] (cond-> m
+                                           (not (get m level)) (assoc level space)))))
+        collect-size!  (fn [size] (vswap! windowed-sizes conj size))
+        forget-size!   #(vswap! windowed-sizes pop)
+        collect-sum!   (fn [sum]  (vswap! windowed-sums conj sum))
+        forget-sum!    #(vswap! windowed-sums pop)
+        collect-path!  (fn [size] (vswap! windowed-paths conj size))
+        forget-path!   #(vswap! windowed-paths pop)
+        cache!         (if-not size-cache
+                         (constantly nil)
+                         (fn [node size] (vswap! size-cache assoc node size)))
+        lookup         (if-not size-cache
+                         (constantly nil)
+                         #(get @size-cache %))
+        intersection?  (if-not (and window-start window-end)
+                         (constantly true)
+                         (fn [[x1 x2]]
+                           (and (<= x1 window-end)
+                                (>= x2 window-start))))
         walk
         (fn walk [path node & {:keys [collect-me?] :or {collect-me? true}}]
           (cond
             (leaf? node)   (let [sum       @sum-size
                                  leaf-size (leaf-size node)
                                  leaf-path (conj path node)
+                                 level     (count leaf-path)
                                  bounds    [sum (+ sum leaf-size)]]
                              (when (and (intersection? bounds) collect-me?)
-                               (collect! leaf-path))
+                               (collect-path! leaf-path)
+                               (collect-sum! sum)
+                               (collect-size! leaf-size)
+                               (collect-space! level sum))
                              (vreset! sum-size (+ sum leaf-size))
                              leaf-size)
             (branch? node) (let [sum        @sum-size
-                                 csize      (get @size-cache node)
+                                 csize      (lookup node)
                                  cbounds    (when csize [sum (+ sum csize)])
                                  skippable? (and csize (not (intersection? cbounds)))]
                              (if skippable?
                                (let [new-sum (+ sum csize)]
                                  (vreset! sum-size new-sum)
                                  csize)
-                               (let [own-path                 (conj path (first node))
-                                     own-size                 (walk path (own-leaf node) {:collect-me? false})
-                                     _                        (when :always (collect! own-path))
-                                     descend-tx               (map (partial walk own-path))
-                                     total-size (+ own-size
-                                                   (transduce descend-tx + (children node)))
+                               (let [own-path     (conj path (own-leaf node))
+                                     level        (count own-path)
+                                     own-size     (walk path (own-leaf node) {:collect-me? false})
+                                     _            (collect-path! own-path)
+                                     _            (collect-size! own-size)
+                                     _            (collect-sum!  sum)
+                                     descend-tx   (map (partial walk own-path))
+                                     total-size   (+ own-size
+                                                     (transduce descend-tx + (children node)))
                                      total-bounds [sum (+ sum total-size)]]
-                                 (when-not (intersection? total-bounds)
-                                   (vswap! windowed-nodes pop))
+                                 (if (intersection? total-bounds)
+                                   (collect-space! level sum)
+                                   (do
+                                     (forget-path!)
+                                     (forget-sum!)
+                                     (forget-size!)))
                                  (when-not csize (cache! node total-size))
                                  total-size)))))]
     (walk [] tree)
     {:sum-size       @sum-size
-     :windowed-nodes @windowed-nodes}))
+     :level->space   (into (sorted-map) @level->space)
+     :windowed-sums  @windowed-sums
+     :windowed-paths @windowed-paths
+     :windowed-sizes @windowed-sizes
+     :window-start   window-start
+     :window-end     window-end}))
 
-(def test-tree [:a
+(def test-tree [:z
                 [:g
                  [:x 20]
                  [:y 40]
@@ -131,3 +187,40 @@
               :window-end   472
               :size-cache   (volatile! {})
               :tree         test-tree})
+
+(def td {:level->space   {1 0, 2 180, 3 240, 4 260},
+         :sum-size       660,
+         :window-end     342,
+         :window-start   242,
+         :windowed-paths [[:z] [:z :h] [:z :h :y] [:z :h :y 40] [:z :h :z] [:z :h :z 20]
+                          [:z :i]],
+         :windowed-sizes [20 20  20  40  20  20  20],
+         :windowed-sums  [0  180 240 260 300 320 340]})
+
+(defn lazy-grid-template
+  [{:keys [windowed-paths windowed-sizes windowed-sums sum-size]}]
+  (let [grid-line (fn [path] (str "[line__" (hash path) "-start]"))]
+    (str/join " "
+              (loop [[path & rest-paths]              windowed-paths
+                     [size & rest-sizes]              windowed-sizes
+                     [sum & [next-sum :as rest-sums]] (conj windowed-sums sum-size)
+                     result                           []]
+                (let [spacer? (not= next-sum (+ sum size))
+                      next-result (if spacer?
+                                    (conj result
+                                          (grid-line path)
+                                          (str size "px")
+                                          "[spacer]"
+                                          (str (- next-sum size sum) "px"))
+                                    (conj result
+                                          (grid-line path)
+                                          (str size "px")))]
+                  (if (empty? rest-sizes)
+                    (conj next-result "[end]")
+                    (recur rest-paths rest-sizes rest-sums next-result)))))))
+
+
+
+
+
+
