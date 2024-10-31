@@ -90,32 +90,35 @@
                                 (keyword? node) 20)))
 
 (defn walk-size [{:keys [window-start window-end tree size-cache]}]
-  (let [sum-size       (volatile! 0)
-        level->space   (volatile! {})
-        windowed-paths (volatile! [])
-        windowed-sizes (volatile! [])
-        windowed-sums  (volatile! [])
-        collect-space! (fn [level space]
-                         (vswap! level->space
-                                 (fn [m] (cond-> m
-                                           (not (get m level)) (assoc level space)))))
-        collect-size!  (fn [size] (vswap! windowed-sizes conj size))
-        forget-size!   #(vswap! windowed-sizes pop)
-        collect-sum!   (fn [sum]  (vswap! windowed-sums conj sum))
-        forget-sum!    #(vswap! windowed-sums pop)
-        collect-path!  (fn [size] (vswap! windowed-paths conj size))
-        forget-path!   #(vswap! windowed-paths pop)
-        cache!         (if-not size-cache
-                         (constantly nil)
-                         (fn [node size] (vswap! size-cache assoc node size)))
-        lookup         (if-not size-cache
-                         (constantly nil)
-                         #(get @size-cache %))
-        intersection?  (if-not (and window-start window-end)
-                         (constantly true)
-                         (fn [[x1 x2]]
-                           (and (<= x1 window-end)
-                                (>= x2 window-start))))
+  (let [sum-size            (volatile! 0)
+        level->space        (volatile! {})
+        windowed-paths      (volatile! [])
+        windowed-leaf-paths (volatile! [])
+        windowed-sizes      (volatile! [])
+        windowed-sums       (volatile! [])
+        collect-space!      (fn [level space]
+                              (vswap! level->space
+                                      (fn [m] (cond-> m
+                                                (not (get m level)) (assoc level space)))))
+        collect-size!       (fn [size] (vswap! windowed-sizes conj size))
+        forget-size!        #(vswap! windowed-sizes pop)
+        collect-leaf-path!  (fn [path]  (vswap! windowed-leaf-paths conj path))
+        forget-leaf-path!   #(vswap! windowed-leaf-paths pop)
+        collect-sum!        (fn [sum]  (vswap! windowed-sums conj sum))
+        forget-sum!         #(vswap! windowed-sums pop)
+        collect-path!       (fn [size] (vswap! windowed-paths conj size))
+        forget-path!        #(vswap! windowed-paths pop)
+        cache!              (if-not size-cache
+                              (constantly nil)
+                              (fn [node size] (vswap! size-cache assoc node size)))
+        lookup              (if-not size-cache
+                              (constantly nil)
+                              #(get @size-cache %))
+        intersection?       (if-not (and window-start window-end)
+                              (constantly true)
+                              (fn [[x1 x2]]
+                                (and (<= x1 window-end)
+                                     (>= x2 window-start))))
         walk
         (fn walk [path node & {:keys [collect-me?] :or {collect-me? true}}]
           (cond
@@ -124,6 +127,8 @@
                                  leaf-path (conj path node)
                                  level     (count leaf-path)
                                  bounds    [sum (+ sum leaf-size)]]
+                             (when (intersection? bounds)
+                               (collect-leaf-path! leaf-path))
                              (when (and (intersection? bounds) collect-me?)
                                (collect-path! leaf-path)
                                (collect-sum! sum)
@@ -153,18 +158,20 @@
                                    (collect-space! level sum)
                                    (do
                                      (forget-path!)
+
                                      (forget-sum!)
                                      (forget-size!)))
                                  (when-not csize (cache! node total-size))
                                  total-size)))))]
     (walk [] tree)
-    {:sum-size       @sum-size
-     :level->space   (into (sorted-map) @level->space)
-     :windowed-sums  @windowed-sums
-     :windowed-paths @windowed-paths
-     :windowed-sizes @windowed-sizes
-     :window-start   window-start
-     :window-end     window-end}))
+    {:sum-size            @sum-size
+     :level->space        (into (sorted-map) @level->space)  ;;TODO remove this.
+     :windowed-sums       @windowed-sums
+     :windowed-paths      @windowed-paths
+     :windowed-sizes      @windowed-sizes
+     :windowed-leaf-paths @windowed-leaf-paths
+     :window-start        window-start
+     :window-end          window-end}))
 
 (def test-tree [:z
                 [:g
