@@ -996,12 +996,13 @@
                                       children))))))
 
 (def scroll-top (r/atom 0))
+(def scroll-left (r/atom 0))
 
 (defn window-search-test [{:keys [tree]}]
   (let [container-ref      (r/atom nil)
         set-container-ref! (partial reset! container-ref)
         #_#_scroll-top         (r/atom nil)
-        scroll-left        (r/atom nil)
+        #_#_scroll-left        (r/atom nil)
         on-scroll!         #(do (reset! scroll-top (.-scrollTop (.-target %)))
                                 (reset! scroll-left (.-scrollLeft (.-target %))))
         window-size        100
@@ -1062,6 +1063,8 @@
 (defn new-nested-grid [{:keys [row-tree column-tree]}]
   (let [internal-row-tree    (r/atom (u/deref-or-value row-tree))
         internal-column-tree (r/atom (u/deref-or-value column-tree))
+        wx                   (r/reaction @scroll-left)
+        ww                   (r/atom 50)
         wy                   (r/reaction @scroll-top)
         wh                   (r/atom 100)
         row-traversal        (r/reaction (ngu/walk-size {:tree @internal-row-tree :window-start (* @wy 2) :window-end (+ (* @wy 2) @wh)}))
@@ -1075,58 +1078,61 @@
       (fn [{:keys [row-tree column-tree cell row-header-width column-header-height]
             :or   {row-header-width     40
                    column-header-height 25
-                   cell                 [:div {:style {:border "thin solid grey"}}]}}]
+                   cell                 (fn [{:keys [row-path column-path]}]
+                                          [:div {:style {:border            "thin solid grey"
+                                                         :grid-row-start    (ngu/path->grid-line-name row-path)
+                                                         :grid-column-start (ngu/path->grid-line-name column-path)}}])}}]
         (u/deref-or-value row-tree)
         (u/deref-or-value column-tree)
         (let [{row-space          :level->space
                row-height-total   :sum-size
-               windowed-row-paths :windowed-paths
-               windowed-row-sizes :windowed-sizes
-               windowed-row-sums  :windowed-sums}     #p @row-traversal
+               windowed-row-paths :windowed-paths}    @row-traversal
               {column-space          :level->space
                column-width-total    :sum-size
-               windowed-column-paths :windowed-paths
-               windowed-column-sizes :windowed-sizes} @column-traversal
+               windowed-column-paths :windowed-paths} @column-traversal
               column-depth                            (count column-space)
               column-header-heights                   (repeat column-depth column-header-height)
               column-header-height-total              (apply + column-header-heights)
               row-depth                               (count row-space)
               row-header-widths                       (repeat row-depth row-header-width)
               row-header-width-total                  (apply + row-header-widths)
+              row-tokens                              (ngu/lazy-grid-tokens @row-traversal)
+              row-template                            (ngu/lazy-grid-template row-tokens)
+              row-spans                               (ngu/grid-spans row-tokens)
+              column-tokens                           (ngu/lazy-grid-tokens @column-traversal)
+              column-template                         (ngu/lazy-grid-template column-tokens)
               spacer-container                        [:div {:style {:border "thin solid lightblue"}} "spacer"]
               column-header-container                 [:div {:style {:border "thin solid lightblue"}} "column"]
               row-header-container                    [:div {:style {:display               :grid
-                                                                     :grid-template-rows    (ngu/grid-template (interleave (vec (concat [[:start]] windowed-row-paths [[:end]]))
-                                                                                                                           (differences (conj windowed-row-sums row-height-total))))
+                                                                     :grid-template-rows    row-template
                                                                      :grid-template-columns (ngu/grid-template row-header-widths)}}]
               row-header-cells                        (for [path windowed-row-paths]
                                                         [:div {:style {:grid-row-start    (ngu/path->grid-line-name path)
+                                                                       :grid-row-end      (str "span " (get row-spans path))
                                                                        :grid-column-start (count path)
-                                                                       :border            "thin solid green"
+                                                                       :grid-column-end   (str "span " (+ 1 (- row-depth (count path))))
+                                                                       :border-top        "thin solid green"
+                                                                       :border-left       "thin solid green"
                                                                        :overflow          :hidden
-                                                                       :font-size 8}}
+                                                                       :font-size         8}}
 
                                                          (pr-str path)])
-              main-container                          [:div
-                                                       {:style {:flex                  "0 0 auto"
-                                                                :display               :grid
-                                                                :grid-template-rows    (ngu/grid-template [column-header-height-total row-height-total])
-                                                                :grid-template-columns (ngu/grid-template [row-header-width-total column-width-total])}}]
-              cell-grid-container                     [:div {:style {:display               :grid
-                                                                     :grid-template-rows    (ngu/grid-template (interleave (vec (concat [[:start]] windowed-row-paths [[:end]]))
-                                                                                                                           (differences (conj windowed-row-sums row-height-total))))
-                                                                     :grid-template-columns (ngu/grid-template (interleave windowed-column-paths
-                                                                                                                           windowed-column-sizes))}}]
-              top-spacer-cells                        (for [column-path windowed-column-paths]
-                                                        [:div])
-              cells                                   (for [row-path    windowed-row-paths
-                                                            column-path windowed-column-paths]
-                                                        (u/part cell {:row-path row-path :column-path column-path}))]
+              main-container      [:div
+                                   {:style {:flex                  "0 0 auto"
+                                            :display               :grid
+                                            :grid-template-rows    (ngu/grid-template [column-header-height-total row-height-total])
+                                            :grid-template-columns (ngu/grid-template [row-header-width-total column-width-total])}}]
+              cell-grid-container [:div {:style {:display               :grid
+                                                 :grid-template-rows    row-template
+                                                 :grid-template-columns column-template}}]
+              cells               (for [row-path    windowed-row-paths
+                                        column-path windowed-column-paths]
+                                    (u/part cell {:row-path row-path :column-path column-path}))]
           (conj main-container
                 spacer-container
                 column-header-container
                 (into row-header-container row-header-cells)
-                (into cell-grid-container (concat top-spacer-cells cells)))))})))
+                (into cell-grid-container cells))))})))
 
 (def row-tree (r/atom ngu/test-tree))
 

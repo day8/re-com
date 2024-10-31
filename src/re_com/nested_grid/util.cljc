@@ -1,7 +1,8 @@
 (ns re-com.nested-grid.util
   (:require [clojure.string :as str]
             #?@(:cljs [[reagent.core :as r]
-                       [re-com.util :as u]])))
+                       [re-com.util :as u]
+                       goog.string])))
 
 (defn path->grid-line-name [path]
   (str "line__" (hash path) "-start"))
@@ -197,27 +198,58 @@
          :windowed-sizes [20 20  20  40  20  20  20],
          :windowed-sums  [0  180 240 260 300 320 340]})
 
-(defn lazy-grid-template
+(defn lazy-grid-tokens
   [{:keys [windowed-paths windowed-sizes windowed-sums sum-size]}]
-  (let [grid-line (fn [path] (str "[line__" (hash path) "-start]"))]
-    (str/join " "
-              (loop [[path & rest-paths]              windowed-paths
-                     [size & rest-sizes]              windowed-sizes
-                     [sum & [next-sum :as rest-sums]] (conj windowed-sums sum-size)
-                     result                           []]
-                (let [spacer? (not= next-sum (+ sum size))
-                      next-result (if spacer?
-                                    (conj result
-                                          (grid-line path)
-                                          (str size "px")
-                                          "[spacer]"
-                                          (str (- next-sum size sum) "px"))
-                                    (conj result
-                                          (grid-line path)
-                                          (str size "px")))]
-                  (if (empty? rest-sizes)
-                    (conj next-result "[end]")
-                    (recur rest-paths rest-sizes rest-sums next-result)))))))
+  (into ["[start]"]
+        (loop [[path & rest-paths]              windowed-paths
+               [size & rest-sizes]              windowed-sizes
+               [sum & [next-sum :as rest-sums]] (conj windowed-sums sum-size)
+               result                           []]
+          (let [spacer? (not= next-sum (+ sum size))
+                next-result (if spacer?
+                              (conj result
+                                    path
+                                    size
+                                    "[spacer]"
+                                    (- next-sum size sum))
+                              (conj result
+                                    path
+                                    size))]
+            (if (empty? rest-sizes)
+              (conj next-result "[end]")
+              (recur rest-paths rest-sizes rest-sums next-result))))))
+
+(defn lazy-grid-template [grid-tokens]
+  (str/replace
+   (str/join " "
+             (map #(cond (string? %) %
+                         (vector? %) (str "[" (path->grid-line-name %) "]")
+                         (number? %) (str % "px"))
+                  grid-tokens))
+   "] [" " "))
+
+(defn ancestry [path]
+  (take (count path) (iterate pop path)))
+
+#?(:cljs
+   (defn grid-spans [grid-tokens]
+     (let [results (volatile! {})
+           spacer? #{"[spacer]"}]
+       (->> grid-tokens
+            (drop-while (complement vector?))
+            (partition-by vector?)
+            (partition-all 2)
+            (mapv (fn [[[path] children]]
+                    (vswap! results update path + (count (filter spacer? children)))
+                    (doseq [p (ancestry path)]
+                      (vswap! results update p + 1 (count (filter spacer? children)))))))
+       @results)))
+
+
+
+
+
+
 
 
 
