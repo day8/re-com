@@ -91,19 +91,15 @@
 
 (defn walk-size [{:keys [window-start window-end tree size-cache]}]
   (let [sum-size            (volatile! 0)
-        level->space        (volatile! {})
+        depth               (volatile! 0)
         windowed-paths      (volatile! [])
         windowed-leaf-paths (volatile! [])
         windowed-sizes      (volatile! [])
         windowed-sums       (volatile! [])
-        collect-space!      (fn [level space]
-                              (vswap! level->space
-                                      (fn [m] (cond-> m
-                                                (not (get m level)) (assoc level space)))))
+        collect-depth!      (fn [n] (vswap! depth max n))
         collect-size!       (fn [size] (vswap! windowed-sizes conj size))
         forget-size!        #(vswap! windowed-sizes pop)
         collect-leaf-path!  (fn [path]  (vswap! windowed-leaf-paths conj path))
-        forget-leaf-path!   #(vswap! windowed-leaf-paths pop)
         collect-sum!        (fn [sum]  (vswap! windowed-sums conj sum))
         forget-sum!         #(vswap! windowed-sums pop)
         collect-path!       (fn [size] (vswap! windowed-paths conj size))
@@ -132,8 +128,7 @@
                              (when (and (intersection? bounds) collect-me?)
                                (collect-path! leaf-path)
                                (collect-sum! sum)
-                               (collect-size! leaf-size)
-                               (collect-space! level sum))
+                               (collect-size! leaf-size))
                              (vreset! sum-size (+ sum leaf-size))
                              leaf-size)
             (branch? node) (let [sum        @sum-size
@@ -150,22 +145,20 @@
                                      _            (collect-path! own-path)
                                      _            (collect-size! own-size)
                                      _            (collect-sum!  sum)
+                                     _            (collect-depth! (count own-path))
                                      descend-tx   (map (partial walk own-path))
                                      total-size   (+ own-size
                                                      (transduce descend-tx + (children node)))
                                      total-bounds [sum (+ sum total-size)]]
-                                 (if (intersection? total-bounds)
-                                   (collect-space! level sum)
-                                   (do
-                                     (forget-path!)
-
-                                     (forget-sum!)
-                                     (forget-size!)))
+                                 (when-not (intersection? total-bounds)
+                                   (forget-path!)
+                                   (forget-sum!)
+                                   (forget-size!))
                                  (when-not csize (cache! node total-size))
                                  total-size)))))]
     (walk [] tree)
     {:sum-size            @sum-size
-     :level->space        (into (sorted-map) @level->space)  ;;TODO remove this.
+     :depth               (inc @depth)
      :windowed-sums       @windowed-sums
      :windowed-paths      @windowed-paths
      :windowed-sizes      @windowed-sizes
@@ -196,8 +189,7 @@
               :size-cache   (volatile! {})
               :tree         test-tree})
 
-(def td {:level->space   {1 0, 2 180, 3 240, 4 260},
-         :sum-size       660,
+(def td {:sum-size       660,
          :window-end     342,
          :window-start   242,
          :windowed-paths [[:z] [:z :h] [:z :h :y] [:z :h :y 40] [:z :h :z] [:z :h :z 20]

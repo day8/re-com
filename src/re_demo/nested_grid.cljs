@@ -1069,12 +1069,12 @@
   (let [internal-row-tree    (r/atom (u/deref-or-value row-tree))
         internal-column-tree (r/atom (u/deref-or-value column-tree))
 
-        row-traversal        (r/reaction (ngu/walk-size {:tree         @internal-row-tree
-                                                         :window-start (* 2 @wy)
-                                                         :window-end   (+ (* 2 @wy) @wh)}))
-        column-traversal     (r/reaction (ngu/walk-size {:tree         @internal-column-tree
-                                                         :window-start @wx
-                                                         :window-end   (+ @wx @ww)}))]
+        row-traversal    (r/reaction (ngu/walk-size {:tree         @internal-row-tree
+                                                     :window-start (* 2 @wy)
+                                                     :window-end   (+ (* 2 @wy) @wh)}))
+        column-traversal (r/reaction (ngu/walk-size {:tree         @internal-column-tree
+                                                     :window-start @wx
+                                                     :window-end   (+ @wx @ww)}))]
     (r/create-class
      {:component-did-update
       #(let [[_ {:keys [row-tree column-tree]}] (r/argv %)]
@@ -1090,65 +1090,67 @@
                                                          :grid-column-start (ngu/path->grid-line-name column-path)}}])}}]
         (u/deref-or-value row-tree)
         (u/deref-or-value column-tree)
-        (let [{row-space               :level->space
+        (let [{row-depth               :depth
+               row-space               :level->space
                row-height-total        :sum-size
                windowed-row-paths      :windowed-paths
-               windowed-row-leaf-paths :windowed-leaf-paths}    @row-traversal
-              {column-space               :level->space
+               windowed-row-leaf-paths :windowed-leaf-paths}
+              @row-traversal
+              {column-depth               :depth
+               column-space               :level->space
                column-width-total         :sum-size
                windowed-column-paths      :windowed-paths
-               windowed-column-leaf-paths :windowed-leaf-paths} @column-traversal
-              column-depth                                      (count column-space)
-              column-header-heights                             (repeat column-depth column-header-height)
-              column-header-height-total                        (apply + column-header-heights)
-              row-depth                                         (count row-space)
-              row-header-widths                                 (repeat row-depth row-header-width)
-              row-header-width-total                            (apply + row-header-widths)
-              row-tokens                                        (ngu/lazy-grid-tokens @row-traversal)
-              row-template                                      (ngu/lazy-grid-template row-tokens)
-              row-spans                                         (ngu/grid-spans row-tokens)
-              column-tokens                                     (ngu/lazy-grid-tokens @column-traversal)
-              column-template                                   (ngu/lazy-grid-template column-tokens)
-              column-spans                                      (ngu/grid-spans column-tokens)
-              spacer-container                                  [:div {:style {:border "thin solid lightblue"}}]
-              row-header-container                              [:div {:style {:display               :grid
-                                                                               :grid-template-rows    row-template
-                                                                               :grid-template-columns (ngu/grid-template row-header-widths)}}]
-              row-header-cells                                  (for [path windowed-row-paths]
-                                                                  [:div {:style {:grid-row-start    (ngu/path->grid-line-name path)
-                                                                                 :grid-row-end      (str "span " (get row-spans path))
-                                                                                 :grid-column-start (count path)
-                                                                                 :grid-column-end   (str "span " (+ 1 (- row-depth (count path))))
-                                                                                 :border-top        "thin solid green"
-                                                                                 :border-left       "thin solid green"
-                                                                                 :overflow          :hidden
-                                                                                 :font-size         8}}
-                                                                   (pr-str path)])
-              column-header-container                           [:div {:style {:display               :grid
-                                                                               :grid-template-rows    (ngu/grid-template column-header-heights)
-                                                                               :grid-template-columns column-template}}]
-              column-header-cells                               (for [path windowed-column-paths]
-                                                                  [:div {:style {:grid-column-start (ngu/path->grid-line-name path)
-                                                                                 :grid-column-end   (str "span " (get column-spans path))
-                                                                                 :grid-row-start    (count path)
-                                                                                 :grid-row-end      (str "span " (+ 1 (- column-depth (count path))))
-                                                                                 :border-top        "thin solid green"
-                                                                                 :border-left       "thin solid green"
-                                                                                 :overflow          :hidden
-                                                                                 :font-size         8}}
-                                                                   (pr-str path)])
-              main-container                                    [:div
-                                                                 {:style {:flex                  "0 0 auto"
-                                                                          :border                "2px solid grey"
-                                                                          :display               :grid
-                                                                          :grid-template-rows    (ngu/grid-template [column-header-height-total row-height-total])
-                                                                          :grid-template-columns (ngu/grid-template [row-header-width-total column-width-total])}}]
-              cell-grid-container                               [:div {:style {:display               :grid
-                                                                               :grid-template-rows    row-template
-                                                                               :grid-template-columns column-template}}]
-              cells                                             (for [row-path    windowed-row-leaf-paths
-                                                                      column-path windowed-column-leaf-paths]
-                                                                  (u/part cell {:row-path row-path :column-path column-path}))]
+               windowed-column-leaf-paths :windowed-leaf-paths}
+              @column-traversal
+              column-header-heights      (repeat column-depth column-header-height)
+              column-header-height-total (apply + column-header-heights)
+              row-header-widths          (repeat row-depth row-header-width)
+              row-header-width-total     (apply + row-header-widths)
+              row-tokens                 (ngu/lazy-grid-tokens @row-traversal)
+              row-template               (ngu/lazy-grid-template row-tokens)
+              row-spans                  (ngu/grid-spans row-tokens)
+              column-tokens              (ngu/lazy-grid-tokens @column-traversal)
+              column-template            (ngu/lazy-grid-template column-tokens)
+              column-spans               (ngu/grid-spans column-tokens)
+              spacer-container           [:div {:style {:border "thin solid lightblue"}}]
+              row-header-container       [:div {:style {:display               :grid
+                                                        :grid-template-rows    row-template
+                                                        :grid-template-columns (ngu/grid-template row-header-widths)}}]
+              row-header-cells           (for [path windowed-row-paths]
+                                           [:div {:style {:grid-row-start    (ngu/path->grid-line-name path)
+                                                          :grid-row-end      (str "span " (get row-spans path))
+                                                          :grid-column-start (count path)
+                                                          :grid-column-end   (str "span " (+ 1 (- row-depth (count path))))
+                                                          :border-top        "thin solid green"
+                                                          :border-left       "thin solid green"
+                                                          :overflow          :hidden
+                                                          :font-size         8}}
+                                            (pr-str path)])
+              column-header-container    [:div {:style {:display               :grid
+                                                        :grid-template-rows    (ngu/grid-template column-header-heights)
+                                                        :grid-template-columns column-template}}]
+              column-header-cells        (for [path windowed-column-paths]
+                                           [:div {:style {:grid-column-start (ngu/path->grid-line-name path)
+                                                          :grid-column-end   (str "span " (get column-spans path))
+                                                          :grid-row-start    (count path)
+                                                          :grid-row-end      (str "span " (+ 1 (- column-depth (count path))))
+                                                          :border-top        "thin solid green"
+                                                          :border-left       "thin solid green"
+                                                          :overflow          :hidden
+                                                          :font-size         8}}
+                                            (pr-str path)])
+              main-container             [:div
+                                          {:style {:flex                  "0 0 auto"
+                                                   :border                "2px solid grey"
+                                                   :display               :grid
+                                                   :grid-template-rows    (ngu/grid-template [column-header-height-total row-height-total])
+                                                   :grid-template-columns (ngu/grid-template [row-header-width-total column-width-total])}}]
+              cell-grid-container        [:div {:style {:display               :grid
+                                                        :grid-template-rows    row-template
+                                                        :grid-template-columns column-template}}]
+              cells                      (for [row-path    windowed-row-leaf-paths
+                                               column-path windowed-column-leaf-paths]
+                                           (u/part cell {:row-path row-path :column-path column-path}))]
           [rc/v-box
            :style {:position :relative}
            :children
