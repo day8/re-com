@@ -278,20 +278,31 @@
         hi-y         (- b-h)
         lo-y         a-h
         best-x       (min left-bound right-bound)
-        best-y       (case v-pos :low lo-y :high hi-y)]
-    [best-x (case direction :up hi-y :down lo-y best-y)]))
+        best-y       (case v-pos :low lo-y :high hi-y)
+        best-y       (case direction :up hi-y :down lo-y best-y)]
+    (->> [best-x best-y]
+         (mapv + [a-x a-y]))))
 
-(defn body-wrapper [{:keys [state theme anchor-ref body-ref anchor-position direction]} & children]
+(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction]} & _]
   (let [set-body-ref!      #(reset! body-ref %)
-        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @body-ref
-                                                                        {:direction direction}))
+        optimize-position! #(reset! anchor-position
+                                    (optimize-position! @anchor-ref @body-ref
+                                                        {:direction direction}))
+        animation-id       (atom nil)
+        start-loop         (fn start-loop []
+                             (reset! animation-id
+                                     (js/requestAnimationFrame
+                                      (fn []
+                                        (optimize-position!)
+                                        (start-loop)))))
+        stop-loop          #(when-let [id @animation-id]
+                              (js/cancelAnimationFrame id)
+                              (reset! animation-id nil))
         mounted!           #(do
                               (optimize-position!)
-                              (js/window.addEventListener "resize" optimize-position!)
-                              (js/window.addEventListener "scroll" optimize-position!))
+                              (start-loop))
         unmounted!         #(do
-                              (js/window.removeEventListener "resize" optimize-position!)
-                              (js/window.removeEventListener "scroll" optimize-position!)
+                              (stop-loop)
                               (reset! anchor-position nil))]
     (reagent/create-class
      {:component-did-mount    mounted!
@@ -303,7 +314,8 @@
            [:div
             (theme/apply
               {}
-              {:state (merge state {:anchor-top  top
+              {:state (merge state {:position    :fixed
+                                    :anchor-top  top
                                     :anchor-left left
                                     :top         top
                                     :left        left
@@ -322,12 +334,12 @@
 
 (defn dropdown
   "A clickable anchor above an openable, floating body."
-  [& {:keys [model] :or {model (reagent/atom nil)}}]
-  (let [default-model                                     model
+  [& {:keys [model no-clip?] :or {model (reagent/atom nil)}}]
+  (let [default-model                                  model
         [focused? anchor-ref body-ref anchor-position] (repeatedly #(reagent/atom nil))
-        anchor-ref!                                       #(reset! anchor-ref %)
-        transitionable                                    (reagent/atom
-                                                           (if (deref-or-value model) :in :out))]
+        anchor-ref!                                    #(reset! anchor-ref %)
+        transitionable                                 (reagent/atom
+                                                        (if (deref-or-value model) :in :out))]
     (fn dropdown-render
       [& {:keys [disabled? on-change tab-index direction
                  anchor-height anchor-width

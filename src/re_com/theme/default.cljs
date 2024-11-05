@@ -144,7 +144,7 @@
 
          ::dropdown/body-wrapper
          {:ref   (:ref state)
-          :style {:position   "absolute"
+          :style {:position   (:position state)
                   :top        (px (:top state))
                   :left       (px (:left state))
                   :opacity    (when-not (:anchor-top state) 0)
