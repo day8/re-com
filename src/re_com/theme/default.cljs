@@ -85,20 +85,25 @@
 (defmethod base ::nested-grid/column-header-wrapper [props _]
   (update props :style merge
           {:user-select "none"
-           :width      "100%"
-           :height "100%"}))
+           :width       "100%"
+           :height      "100%"}))
 
 (defmethod base ::nested-grid/row-header
   [props {{:keys [sticky? sticky-top]} :state}]
   (update props :style merge {:width         "100%"
                               :text-overflow :ellipsis
                               :overflow      :hidden
+                              :white-space   :nowrap
                               :position      :sticky
                               :top           sticky-top}))
 
 (defmethod base ::nested-grid/column-header
   [props _]
-  (update props :style merge {:height "100%"}))
+  (update props :style merge {:height        "100%"
+                              :text-overflow :ellipsis
+                              :overflow      :hidden
+                              :whitespace    :nowrap}))
+
 
 (defmethod base :default [props {:keys                   [state part transition!]
                                  {:keys [sm-2]}          :variables
@@ -295,6 +300,9 @@
            {:style {:padding-top      sm-3
                     :padding-right    sm-4
                     :padding-left     sm-4
+                    :white-space      :nowrap
+                    :text-overflow    :ellipsis
+                    :overflow         :hidden
                     :background-color light-background
                     :color            "#666"
                     :text-align       (or align-column-header align-column align :center)
