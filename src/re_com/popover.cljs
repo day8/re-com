@@ -91,7 +91,7 @@
                      :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}]
     [:svg
      (merge
-      {:class (str "popover-arrow rc-popover-arrow " (get-in parts [:arrow :class]))
+      {:class (str "popover-arrow rc-popover-arrow " (get-in parts [:arrow :class] ""))
        :style (merge {:position "absolute"
                       (case orientation ;; Connect arrow to edge of popover
                         :left  :right
@@ -205,6 +205,7 @@
        :src      (at)
        :class    (get-in parts [:container :class] "")
        :style    (get-in parts [:container :style])
+       :attr     (get-in parts [:container :attr])
        :justify  :between
        :align    :center
        :children [title
@@ -380,7 +381,7 @@
              (when title title)
              (into [:div
                     (merge
-                     {:class (str "popover-content rc-popover-content " (get-in parts [:content :class]))
+                     {:class (str "popover-content rc-popover-content " (get-in parts [:content :class] ""))
                       :style (merge {:padding padding} (get-in parts [:content :style]))}
                      (get-in parts [:content :attr]))]
                    children)])))}))))
@@ -568,17 +569,21 @@
                       (->attr args)
                       attr)
                [:div                                ;; Wrapper around the anchor and the "point"
-                {:class (str "display-inline-flex rc-point-wrapper " (get-in parts [:point-wrapper :class]))
+                {:class (str "display-inline-flex rc-point-wrapper " (get-in parts [:point-wrapper :class] ""))
                  :style (merge (flex-child-style "auto")
                                (flex-flow-style flex-flow)
-                               (align-style :align-items :center))}
+                               (align-style :align-items :center)
+                               (get-in parts [:point-wrapper :style]))
+                 :attr  (get-in parts [:point-wrapper :attr])}
                 (when place-anchor-before? anchor)
                 (when (deref-or-value showing?)
                   [:div                             ;; The "point" that connects the anchor to the popover
-                   {:class (str "display-inline-flex rc-popover-point " (get-in parts [:point :class]))
+                   {:class (str "display-inline-flex rc-popover-point " (get-in parts [:point :class] ""))
                     :style (merge (flex-child-style "auto")
                                   {:position "relative"
-                                   :z-index  4})}
+                                   :z-index  4}
+                                  (get-in parts [:point :style]))
+                    :attr  (get-in parts [:point :attr])}
                    (into popover [:showing-injected? showing? :position-injected internal-position])]) ;; NOTE: Inject showing? and position to the popover
                 (when-not place-anchor-before? anchor)]]))))}))))
 
@@ -588,11 +593,11 @@
 
 (def popover-tooltip-parts-desc
   (when include-args-desc?
-    [{:type :legacy                 :level 0 :class "rc-popover-anchor-wrapper"                 :impl "[popover-anchor-wrapper]"  :notes "Outer wrapper of the popover tooltip."}
-     {:name :content-wrapper        :level 1 :class ""                                          :impl "[popover-content-wrapper]" :notes ""}
-     {:name :v-box                  :level 2 :class ""                                          :impl "[v-box]"                   :notes ""}
-     {:name :close-button-container :level 3 :class "rc-popover-tooltip-close-button-container" :impl "[box]"                     :notes ""}
-     {:name :close-button           :level 4 :class "rc-popover-tooltip-close-button"           :impl "[close-button]"            :notes ""}]))
+    [{:type :legacy :level 0 :class "rc-popover-anchor-wrapper" :impl "[popover-anchor-wrapper]" :notes "Outer wrapper of the popover tooltip."}
+     {:name :content-wrapper :level 1 :class "" :impl "[popover-content-wrapper]" :notes ""}
+     {:name :v-box :level 2 :class "" :impl "[v-box]" :notes ""}
+     {:name :close-button-container :level 3 :class "rc-popover-tooltip-close-button-container" :impl "[box]" :notes ""}
+     {:name :close-button :level 4 :class "rc-popover-tooltip-close-button" :impl "[close-button]" :notes ""}]))
 
 (def popover-tooltip-parts
   (when include-args-desc?
@@ -600,11 +605,11 @@
 
 (def popover-tooltip-args-desc
   (when include-args-desc?
-    [{:name :label         :required true                         :type "string | hiccup | r/atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
-     {:name :showing?      :required true                         :type "boolean r/atom"                                             :description "an atom. When the value is true, the tooltip shows"}
-     {:name :on-cancel     :required false                        :type "-> nil"                   :validate-fn fn?                  :description "a function which takes no params and returns nothing. Called when the popover is cancelled (e.g. user clicks away)"}
-     {:name :close-button? :required false :default false         :type "boolean"                                                    :description "when true, displays the close button"}
-     {:name :status        :required false                        :type "keyword"                  :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list " (although " [:code ":validating"] " is only used by the input-text component)"]}
+    [{:name :label :required true :type "string | hiccup | r/atom" :validate-fn string-or-hiccup? :description "the text (or component) for the tooltip"}
+     {:name :showing? :required true :type "boolean r/atom" :description "an atom. When the value is true, the tooltip shows"}
+     {:name :on-cancel :required false :type "-> nil" :validate-fn fn? :description "a function which takes no params and returns nothing. Called when the popover is cancelled (e.g. user clicks away)"}
+     {:name :close-button? :required false :default false :type "boolean" :description "when true, displays the close button"}
+     {:name :status :required false :type "keyword" :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list " (although " [:code ":validating"] " is only used by the input-text component)"]}
      {:name :anchor        :required true                         :type "hiccup"                   :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
      {:name :position      :required false :default :below-center :type "keyword"                  :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :no-clip?      :required false :default true          :type "boolean"                                                    :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
@@ -667,7 +672,7 @@
                 :arrow-gap      4
                 :body           [v-box
                                  :src   (at)
-                                 :class (get-in parts [:v-box :class])
+                                 :class (get-in parts [:v-box :class] "")
                                  :style (merge
                                          (if (= status :info)
                                            {:color       "white"
@@ -678,16 +683,17 @@
                                             :font-weight "bold"
                                             :text-align  "center"})
                                          (get-in parts [:v-box :style]))
+                                 :attr   (get-in parts [:v-box :attr])
                                  :children [(when close-button?
                                               [box
                                                :src        (at)
-                                               :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class]))
+                                               :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class] ""))
                                                :style      (get-in parts [:close-button-container :style])
                                                :attr       (get-in parts [:close-button-container :attr])
                                                :align-self :end
                                                :child      [close-button
                                                             :src         (at)
-                                                            :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class]))
+                                                            :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class] ""))
                                                             :style       (get-in parts [:close-button :style])
                                                             :attr        (get-in parts [:close-button :attr])
                                                             :on-click    #(if on-cancel
