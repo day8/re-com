@@ -58,7 +58,7 @@ which will take you to the associated source code.  That's a convenient way to n
 the components themselves or the demo code.
 
 When browsing more generally, look in the `src` directory or this repo, you'll notice
-two sub-directories:
+two subdirectories:
 
   - re-com - the library itself - the components
   - re-demo - the demo app, which shows how to use the components
@@ -77,12 +77,17 @@ two sub-directories:
    ```
 
 2. Compiling And Running The Demo
-   
+
+   Install dependencies (CONFIRM if this only needs to be run once or every time the deps change):   
    ```shell
-   lein watch
+   npm install
    ```
    
-   This will run the demo, by doing:
+   ```shell
+   npx shadow-cljs watch demo
+   ```
+   
+   This will prepare the demo, by doing:
      - a clean
      - a compile
    
@@ -92,7 +97,7 @@ two sub-directories:
    Now you can open [`http://localhost:3449/`](http://localhost:3449/) in your
    browser.
 
-4. Run The (erm, modest) Tests
+3. Run The (erm, modest) Tests
    
    ```shell
    lein ci
@@ -103,13 +108,13 @@ two sub-directories:
      - compile the tests
      - compile in release mode as a basic optimized build check
 
-5. Run or Debug the tests:
+4. Run or Debug the tests:
    
    ```shell
    lein watch
    ```
 
-6. Deploy The Demo App To S3 bucket
+5. Deploy The Demo App To S3 bucket
    
    This will only work if you have the right credentials in your env:
    ```shell
