@@ -930,11 +930,11 @@
                                          ^{:key [::column (or path (gensym))]}
                                          [:div {:style {:grid-column-start (path->grid-line-name path)
                                                         :grid-column-end   (str "span " (cond-> path
-                                                                                          :do         (header-cross-span column-paths)
+                                                                                          :do         (header-cross-span showing-column-paths)
                                                                                           (not show?) dec))
                                                         :grid-row-start    (count path)
                                                         :grid-row-end      (str "span " (cond-> path
-                                                                                          :do         (header-main-span column-paths)
+                                                                                          :do         (header-main-span showing-column-paths)
                                                                                           (not show?) dec))
                                                         :position          "relative"}}
                                           (u/part column-header-wrapper
