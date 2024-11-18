@@ -626,17 +626,19 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled? parts]
       (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
             text (if (some? @internal-model)
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
                    placeholder)]
-        [:a.chosen-single.chosen-default
-         {:style (merge {:display "flex"
-                         :justify-content :space-between
-                         :width "100%"}
-                        (when disabled?
-                          {:background-color "#EEE"}))
+        [:a.chosen-single.chosen-default.rc-dropddown-chosen-single
+         {:style         (merge {:display         "flex"
+                                 :justify-content :space-between
+                                 :width           "100%"}
+                                (when disabled?
+                                  {:background-color "#EEE"})
+                                (get-in parts [:chosen-single :style]))
+          :class         (get-in parts [:chosen-single :class])
           :tab-index     (or tab-index 0)
           :on-click      (handler-fn
                           (if @ignore-click
@@ -655,7 +657,7 @@
          (when (not disabled?)
            [re-com.dropdown/indicator
             {:style {:margin-right "8px"
-                     :margin-top "0.5px"}
+                     :margin-top   "0.5px"}
              :state {:openable (if @drop-showing? :open :closed)}}])]))))
 
 (defn handle-free-text-insertion
@@ -789,6 +791,7 @@
 (def single-dropdown-parts-desc  (when include-args-desc?
                                    [{:name :tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
                                     {:type :legacy             :level 1 :class "rc-dropdown"                    :impl "[:div]"            :notes "The container for the rest of the dropdown."}
+                                    {:name :chosen-single      :level 1 :class "rc-dropdown-chosen-single"      :impl "[:div]"}
                                     {:name :chosen-drop        :level 2 :class "rc-dropdown-chosen-drop"        :impl "[:div]"}
                                     {:name :chosen-results     :level 3 :class "rc-dropdown-chosen-results"     :impl "[:ul]"}
                                     {:name :choices-loading    :level 4 :class "rc-dropdown-choices-loading"    :impl "[:li]"}
@@ -1037,7 +1040,7 @@
                                      "End"       (press-end)
                                      (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
               anchor            [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler
-                                 filter-box? drop-showing? title? disabled?]
+                                 filter-box? drop-showing? title? disabled? parts]
               dropdown          [:div
                                  (merge
                                   {:class (str "rc-dropdown chosen-container "
