@@ -1185,7 +1185,7 @@
                                                    zebra-stripes
                                                    []))
                                            (conj (when show-selection-box? box-selector)))]
-        [:div (debug/->attr
+        [:div (merge
                (themed ::wrapper
                        {:src src
                         :style (merge {:flex-direction :column}
@@ -1195,7 +1195,8 @@
                                         (when remove-empty-column-space?
                                           {:max-width :fit-content})
                                         (when remove-empty-row-space?
-                                          {:max-height :fit-content}))))}))
+                                           {:max-height :fit-content}))))})
+               (debug/->attr props))
          (when show-export-button? control-panel)
          (conj
           outer-grid-container
