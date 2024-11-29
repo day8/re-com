@@ -969,6 +969,7 @@
                                                           :show?       show?
                                                           :sticky?     sticky?
                                                           :sticky-top  (cond-> column-header-total-height
+                                                                         :do                               (+ sticky-top)
                                                                          (and sticky? show-export-button?) (+ 25))}
                                                    theme (update theme :user-variables
                                                                  conj (theme/with-state state))
