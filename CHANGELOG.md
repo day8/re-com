@@ -2,6 +2,10 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+#### Added
+
+- `popover-content-wrapper`: Added `:optimize-position?` prop.
+
 ## 2.22.8 (2024-10-10)
 
 #### Changed
