@@ -15,7 +15,8 @@
 (def nested-grid-parts-desc
   (when include-args-desc?
     [{:name :wrapper :level 1 :impl "[:div]"}
-     {:name :export-button :level 2 :impl "[:div]"}
+     {:name :header :level 2 :impl "[h-box]"}
+     {:name :export-button :level 3 :impl "[:div]"}
      {:name :outer-grid-container :level 2 :impl "[:div]"}
      {:name :header-spacer-grid-container :level 3 :impl "[:div]"}
      {:name :header-spacer-wrapper :level 4 :impl "[:div]"}
@@ -623,6 +624,17 @@
                                :right      -6
                                :bottom     -6}}]]))])))))
 
+(defn header [{:keys [max-width height sticky? sticky-top children]}]
+  [box/h-box
+   :style (merge {:max-width max-width
+                  :height height
+                  :background-color :white
+                  :z-index 2}
+                 (when sticky?
+                   {:position :sticky
+                    :top sticky-top}))
+   :children children])
+
 (defn nested-grid [& {:keys [column-width row-height theme parts]
                       :or   {column-width 60
                              row-height   30}}]
@@ -682,6 +694,7 @@
              :keys [column-tree row-tree
                     cell cell-value column-header row-header header-spacer
                     cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
+                    header
                     theme-cells?
                     show-branch-paths?
                     max-height max-width
@@ -1111,24 +1124,13 @@
             native-height              (+ u/scrollbar-thickness
                                           column-header-total-height
                                           row-header-total-height)
-            control-panel              [:div {:style (merge {:display          :flex
-                                                             :max-width        native-width
-                                                             :justify-content  :end
-                                                             :height           25
-                                                             :background-color :white
-                                                             :z-index          2}
-                                                            (when sticky?
-                                                              {:position :sticky
-                                                               :top      sticky-top}))}
-                                        [box/v-box {:align    :center
-                                                    :justify  :center
-                                                    :style    {:position         :sticky
-                                                               :background-color :white
-                                                               :right            0
-                                                               :width            25
-                                                               :height           25
-                                                               :margin-right     10}
-                                                    :children [export-button]}]]
+            control-panel              (u/part header {:max-width  native-width
+                                                       :height     25
+                                                       :sticky?    sticky?
+                                                       :sticky-top sticky-top
+                                                       :children   [[box/gap :size "1"]
+                                                                    export-button]}
+                                               :default re-com.nested-grid/header)
             outer-grid-container       [:div
                                         (themed ::outer-grid-container
                                           {:on-mouse-enter #(reset! hover? true)
@@ -1188,14 +1190,14 @@
                                            (conj (when show-selection-box? box-selector)))]
         [:div (merge
                (themed ::wrapper
-                       {:src src
-                        :style (merge {:flex-direction :column}
-                               (when-not sticky?
-                                 (merge {:flex    "0 0 auto"
-                                         :display :flex}
-                                        (when remove-empty-column-space?
-                                          {:max-width :fit-content})
-                                        (when remove-empty-row-space?
+                 {:src   src
+                  :style (merge {:flex-direction :column}
+                                (when-not sticky?
+                                  (merge {:flex    "0 0 auto"
+                                          :display :flex}
+                                         (when remove-empty-column-space?
+                                           {:max-width :fit-content})
+                                         (when remove-empty-row-space?
                                            {:max-height :fit-content}))))})
                (debug/->attr props))
          (when show-export-button? control-panel)

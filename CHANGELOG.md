@@ -4,6 +4,7 @@
 
 #### Added
 
+- `nested-grid`: Added `:header` part
 - `popover-content-wrapper`: Added `:optimize-position?` prop.
 
 ## 2.22.8 (2024-10-10)
