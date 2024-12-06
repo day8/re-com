@@ -124,11 +124,11 @@
                                  level     (count leaf-path)
                                  bounds    [sum (+ sum leaf-size)]]
                              (when (intersection? bounds)
-                               (collect-leaf-path! leaf-path))
-                             (when (and (intersection? bounds) collect-me?)
-                               (collect-path! leaf-path)
-                               (collect-sum! sum)
-                               (collect-size! leaf-size))
+                               (collect-leaf-path! leaf-path)
+                               (when collect-me?
+                                 (collect-path! leaf-path)
+                                 (collect-sum! sum)
+                                 (collect-size! leaf-size)))
                              (vreset! sum-size (+ sum leaf-size))
                              leaf-size)
             (branch? node) (let [sum        @sum-size
