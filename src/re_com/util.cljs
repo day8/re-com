@@ -243,15 +243,18 @@
 
 (defn default-part   [{:keys [class style attr children]}]
   (into [:div (merge {:class class :style style} attr)]
-        children))
+        (into [(str (gensym))] children)))
 
-(defn part [x props & {:keys [default]}]
+(defn part [x props & {:keys [default key]}]
   (cond
-    (string? x) x
+    (ifn? x)    (cond-> [x props]
+                  key (with-meta {:key key}))
     (hiccup? x) x
-    (ifn? x)    [x props]
-    default     [part default props]
-    :else       [default-part props]))
+    (string? x) x
+    default     (cond-> [part default props]
+                  key (with-meta {:key key}))
+    :else       (cond-> [default-part props]
+                  key (with-meta {:key key}))))
 
 (defn themed-part [x props & [default]]
   [x props default])

@@ -6,7 +6,7 @@
    [re-com.theme :as theme]
    [re-com.nested-grid.util :as ngu]
    [reagent.core :as r]
-   [re-com.nested-grid  :as grid :refer [nested-grid nested-grid-args-desc nested-grid-parts-desc]]
+   [re-com.nested-grid  :as grid :refer [nested-grid nested-v-grid nested-grid-args-desc nested-grid-parts-desc]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
@@ -1061,136 +1061,35 @@
         (map (fn [[a b]] (- b a)) (partition 2 1 v))))
 
 (def        wx                   (r/reaction @scroll-left))
-(def        ww                   (r/atom 100))
+(def        ww                   (r/atom 500))
 (def        wy                   (r/reaction @scroll-top))
-(def        wh                   (r/atom 100))
+(def        wh                   (r/atom 500))
 
-(defn new-nested-grid [{:keys [row-tree column-tree]}]
-  (let [internal-row-tree    (r/atom (u/deref-or-value row-tree))
-        internal-column-tree (r/atom (u/deref-or-value column-tree))
+(def rhw (r/reaction (repeat 5 (/ @ww 10))))
 
-        row-traversal    (r/reaction (ngu/walk-size {:tree         @internal-row-tree
-                                                     :window-start (* 2 @wy)
-                                                     :window-end   (+ (* 2 @wy) @wh)}))
-        column-traversal (r/reaction (ngu/walk-size {:tree         @internal-column-tree
-                                                     :window-start @wx
-                                                     :window-end   (+ @wx @ww)}))]
-    (r/create-class
-     {:component-did-update
-      #(let [[_ {:keys [row-tree column-tree]}] (r/argv %)]
-         (reset! internal-row-tree (u/deref-or-value row-tree))
-         (reset! internal-column-tree (u/deref-or-value column-tree)))
-      :reagent-render
-      (fn [{:keys [row-tree column-tree cell row-header-width column-header-height]
-            :or   {row-header-width     40
-                   column-header-height 25
-                   cell                 (fn [{:keys [row-path column-path]}]
-                                          [:div {:style {:border            "thin solid grey"
-                                                         :grid-row-start    (ngu/path->grid-line-name row-path)
-                                                         :grid-column-start (ngu/path->grid-line-name column-path)}}])}}]
-        (u/deref-or-value row-tree)
-        (u/deref-or-value column-tree)
-        (let [{row-depth               :depth
-               row-space               :level->space
-               row-height-total        :sum-size
-               windowed-row-paths      :windowed-paths
-               windowed-row-leaf-paths :windowed-leaf-paths}
-              @row-traversal
-              {column-depth               :depth
-               column-space               :level->space
-               column-width-total         :sum-size
-               windowed-column-paths      :windowed-paths
-               windowed-column-leaf-paths :windowed-leaf-paths}
-              @column-traversal
-              column-header-heights      (repeat column-depth column-header-height)
-              column-header-height-total (apply + column-header-heights)
-              row-header-widths          (repeat row-depth row-header-width)
-              row-header-width-total     (apply + row-header-widths)
-              row-tokens                 (ngu/lazy-grid-tokens @row-traversal)
-              row-template               (ngu/lazy-grid-template row-tokens)
-              row-spans                  (ngu/grid-spans row-tokens)
-              column-tokens              (ngu/lazy-grid-tokens @column-traversal)
-              column-template            (ngu/lazy-grid-template column-tokens)
-              column-spans               (ngu/grid-spans column-tokens)
-              spacer-container           [:div {:style {:border "thin solid lightblue"}}]
-              row-header-container       [:div {:style {:display               :grid
-                                                        :grid-template-rows    row-template
-                                                        :grid-template-columns (ngu/grid-template row-header-widths)}}]
-              row-header-cells           (for [path windowed-row-paths]
-                                           [:div {:style {:grid-row-start    (ngu/path->grid-line-name path)
-                                                          :grid-row-end      (str "span " (get row-spans path))
-                                                          :grid-column-start (count path)
-                                                          :grid-column-end   (str "span " (+ 1 (- row-depth (count path))))
-                                                          :border-top        "thin solid green"
-                                                          :border-left       "thin solid green"
-                                                          :overflow          :hidden
-                                                          :font-size         8}}
-                                            (pr-str path)])
-              column-header-container    [:div {:style {:display               :grid
-                                                        :grid-template-rows    (ngu/grid-template column-header-heights)
-                                                        :grid-template-columns column-template}}]
-              column-header-cells        (for [path windowed-column-paths]
-                                           [:div {:style {:grid-column-start (ngu/path->grid-line-name path)
-                                                          :grid-column-end   (str "span " (get column-spans path))
-                                                          :grid-row-start    (count path)
-                                                          :grid-row-end      (str "span " (+ 1 (- column-depth (count path))))
-                                                          :border-top        "thin solid green"
-                                                          :border-left       "thin solid green"
-                                                          :overflow          :hidden
-                                                          :font-size         8}}
-                                            (pr-str path)])
-              main-container             [:div
-                                          {:style {:flex                  "0 0 auto"
-                                                   :border                "2px solid grey"
-                                                   :display               :grid
-                                                   :grid-template-rows    (ngu/grid-template [column-header-height-total row-height-total])
-                                                   :grid-template-columns (ngu/grid-template [row-header-width-total column-width-total])}}]
-              cell-grid-container        [:div {:style {:display               :grid
-                                                        :grid-template-rows    row-template
-                                                        :grid-template-columns column-template}}]
-              cells                      (for [row-path    windowed-row-leaf-paths
-                                               column-path windowed-column-leaf-paths]
-                                           (u/part cell {:row-path row-path :column-path column-path}))]
-          [rc/v-box
-           :style {:position :relative}
-           :children
-           [(conj main-container
-                  spacer-container
-                  (into column-header-container column-header-cells)
-                  (into row-header-container row-header-cells)
-                  (into cell-grid-container cells))
-            [:div {:style {:position :absolute
-                           :top      (+ (* 2 @wy) column-header-height-total)
-                           :left     (+ @wx row-header-width-total)
-                           :width    @ww
-                           :height   @wh
-                           :border   "2px solid red"}}]]]))})))
+(def seqseq (r/atom [1 2 3 4]))
 
-(def row-tree (r/atom ngu/test-tree))
+(defn upd! [] (swap! seqseq
+                     (fn [ss]
+                       (conj (vec (rest ss)) (inc (last ss))))))
 
 (defn panel []
-
   [rc/h-box
    :gap "50px"
    :children
    [[rc/v-box
      :children
-     [[new-nested-grid {:row-tree    row-tree
-                        :column-tree [:a [:b 30 :d 40] [:e 30 :g 35] [:h 10 :j] [:k 20]]}]
+     [[rc/gap :size "50px"]
+      [nested-v-grid {:row-tree              ngu/huge-test-tree
+                      :row-tree-depth        5
+                      :column-tree-depth     4
+                      :row-header-widths     [10 20 30 40 50]
+                      :column-header-heights [10 20 30 40]
+                      :column-tree           ngu/test-tree
+                      :style                 {:max-height @wh :max-width @ww}
+                      :parts                 {:wrapper {:style {:height @wh
+                                                                :width  @ww}}}}]
       "Window width"
-      [rc/slider {:model ww :on-change (partial reset! ww) :min 50 :max 200}]
+      [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
       "Window height"
-      [rc/slider {:model wh :on-change (partial reset! wh) :min 50 :max 200}]]]
-    [rc/box
-     :style {:margin-top 50}
-     :size "400px"
-     :child [window-search-test {:tree ngu/test-tree}]]
-    #_[:<> [linear-search-infinite-scroll-test
-            {:row-height   25
-             :column-width 100
-             :max-height   "80vh"
-             :max-width    "80vw"
-             :row-seq      row-seq
-             :column-seq   column-seq
-             :cell         test-cell}]
-       [:div "rows loaded:" @rows-loaded]]]])
+      [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]]]]])

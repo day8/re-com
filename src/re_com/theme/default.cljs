@@ -5,6 +5,7 @@
    [re-com.theme.util :refer [merge-props]]
    [re-com.dropdown :as-alias dropdown]
    [re-com.error-modal :as-alias error-modal]
+   [re-com.nested-grid-old :as-alias nested-grid-old]
    [re-com.nested-grid :as-alias nested-grid]
    [re-com.tree-select :as-alias tree-select]))
 
@@ -73,22 +74,31 @@
                         :overflow           "hidden"
                         :position           "relative"})
 
-(defmethod base ::nested-grid/cell-wrapper [props _]
-  (update props :style merge cell-wrapper-base))
+(defn style [props & ms] (apply update props :style merge ms))
 
-(def row-header-wrapper-base {:user-select        "none"
-                              :height             "100%"})
+(defmethod base ::nested-grid/wrapper [props _]
+  (style props {:height   300
+                :width    500
+                :overflow :auto
+                :flex     "0 0 auto"
+                :display  :grid}))
 
-(defmethod base ::nested-grid/row-header-wrapper [props _]
+(defmethod base ::nested-grid-old/cell-wrapper [props _]
+  (style props cell-wrapper-base))
+
+(def row-header-wrapper-base {:user-select "none"
+                              :height      "100%"})
+
+(defmethod base ::nested-grid-old/row-header-wrapper [props _]
   (update props :style merge row-header-wrapper-base))
 
 (defmethod base ::nested-grid/column-header-wrapper [props _]
   (update props :style merge
           {:user-select "none"
-           :width      "100%"
-           :height "100%"}))
+           :width       "100%"
+           :height      "100%"}))
 
-(defmethod base ::nested-grid/row-header
+(defmethod base ::nested-grid-old/row-header
   [props {{:keys [sticky? sticky-top]} :state}]
   (update props :style merge {:width         "100%"
                               :text-overflow :ellipsis
@@ -96,7 +106,7 @@
                               :position      :sticky
                               :top           sticky-top}))
 
-(defmethod base ::nested-grid/column-header
+(defmethod base ::nested-grid-old/column-header
   [props _]
   (update props :style merge {:height "100%"}))
 
@@ -152,12 +162,12 @@
                   :overflow-x "visible"
                   :z-index    30}}
 
-         ::nested-grid/cell-grid-container
+         ::nested-grid-old/cell-grid-container
          {:style {:position "relative"
 
                   :gap "0px"}}
 
-         ::nested-grid/cell-wrapper
+         ::nested-grid-old/cell-wrapper
          {:style {#_#_:pointer-events "none"
                   :user-select        "none"
                   :overflow           "hidden"
@@ -180,7 +190,7 @@
      :border-right "thin solid #ccc"
      :border-bottom "thin solid #ccc"}))
 
-(defmethod main ::nested-grid/cell-wrapper
+(defmethod main ::nested-grid-old/cell-wrapper
   [props {{:keys [edge value column-path]} :state}]
   (let [align (some :align column-path)]
     (update props :style merge
@@ -210,12 +220,13 @@
      :background-color light-background
      :color            "#666"
      :text-align       "left"
-     :font-size        "13px"
+     #_#_:font-size        "13px"
+     :font-size 6
      :white-space      "nowrap"
      :border-left      "thin solid #ccc"
      :border-bottom    "thin solid #ccc"}))
 
-(defmethod main ::nested-grid/row-header-wrapper
+(defmethod main ::nested-grid-old/row-header-wrapper
   [props {{:keys [edge]} :state}]
   (update props :style merge
           row-header-wrapper-main
@@ -225,6 +236,11 @@
             {:border-left "thin solid #aaa"})
           (when (contains? edge :bottom)
             {:border-bottom "thin solid #aaa"})))
+
+(defmethod main ::nested-grid/row-header-wrapper [props _]
+  (style props
+         row-header-wrapper-main
+         {#_#_:border "thin solid #aaa"}))
 
 (defmethod main :default [props {:keys                [state part]
                                  {:as   $
@@ -275,11 +291,11 @@
                    (-> state :enable (= :disabled))
                    (merge {:background-color (:background-disabled $)}))}
 
-         ::nested-grid/cell-grid-container
+         ::nested-grid-old/cell-grid-container
          {:style {:padding          "0px"
                   :background-color "transparent"}}
 
-         ::nested-grid/header-spacer-wrapper
+         ::nested-grid-old/header-spacer-wrapper
          {:style {:border-left      (when (contains? (:edge state) :left)
                                       (str "thin" " solid " border-dark))
                   :border-top       (when (get (:edge state) :top)
@@ -290,7 +306,7 @@
                                       (str "thin" " solid " border))
                   :background-color light-background}}
 
-         ::nested-grid/column-header-wrapper
+         ::nested-grid-old/column-header-wrapper
          (let [{:keys [align-column align-column-header align]} (:header-spec state)]
            {:style {:padding-top      sm-3
                     :padding-right    sm-4
@@ -308,6 +324,18 @@
                                         (str "thin" " solid " border-dark)
                                         :else
                                         (str "thin" " solid " border))}})
+
+         ::nested-grid/column-header-wrapper
+         (let [{:keys [align-column align-column-header align]} (:header-spec state)]
+           {:style {:padding-top      sm-3
+                    :padding-right    sm-4
+                    :padding-left     sm-4
+                    :background-color light-background
+                    :color            "#666"
+                    :text-align       (or align-column-header align-column align :center)
+                    #_#_:font-size        "13px"
+                    :font-size 6
+                    :border    (str "thin solid " border)}})
 
          ::tree-select/dropdown-anchor
          {:style {:padding  "0 0 0 0"
