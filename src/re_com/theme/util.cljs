@@ -1,5 +1,11 @@
-(ns re-com.theme.util
-  (:require [re-com.util :as u]))
+(ns re-com.theme.util)
+
+;;FIXME: this is just here to avoid circular imports with re-com.util
+;; really, re-com.util/part should be here, and ->v should be there.
+(defn ->v [x] (cond (vector? x)     x
+                    (sequential? x) (vec x)
+                    (nil? x)        nil
+                    :else           [x]))
 
 #_(defn merge-props [& ms]
     (let [ms (remove nil? ms)
@@ -14,10 +20,12 @@
 (defn rf [acc {:keys [class attr style] :as m}]
   (merge acc (cond-> (if-not (string? m) m {:style [m]})
                class
-               (assoc :class (into (u/->v (:class acc)) (u/->v class)))
+               (assoc :class (into (->v (:class acc)) (->v class)))
                attr
                (assoc :attr (merge (:attr acc) attr))
                style
                (assoc :style (merge (:style acc) style)))))
+
+(defn merge-class [x & classes] (into (->v x) classes))
 
 (defn merge-props [& ms] (reduce rf {} ms))

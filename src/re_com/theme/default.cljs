@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [re-com.util :as ru :refer [px]]
-   [re-com.theme.util :refer [merge-props]]
+   [re-com.theme.util :refer [merge-props merge-class]]
    [re-com.dropdown :as-alias dropdown]
    [re-com.error-modal :as-alias error-modal]
    [re-com.nested-grid-old :as-alias nested-grid-old]
@@ -76,12 +76,7 @@
 
 (defn style [props & ms] (apply update props :style merge ms))
 
-(defmethod base ::nested-grid/wrapper [props _]
-  (style props {:height   300
-                :width    500
-                :overflow :auto
-                :flex     "0 0 auto"
-                :display  :grid}))
+(defn class [props & ss] (apply update props :class merge-class ss))
 
 (defmethod base ::nested-grid-old/cell-wrapper [props _]
   (style props cell-wrapper-base))
@@ -91,12 +86,6 @@
 
 (defmethod base ::nested-grid-old/row-header-wrapper [props _]
   (update props :style merge row-header-wrapper-base))
-
-(defmethod base ::nested-grid/column-header-wrapper [props _]
-  (update props :style merge
-          {:user-select "none"
-           :width       "100%"
-           :height      "100%"}))
 
 (defmethod base ::nested-grid-old/row-header
   [props {{:keys [sticky? sticky-top]} :state}]
@@ -211,37 +200,6 @@
                                 "thin solid #aaa"
                                 "thin solid #ccc")}))))
 
-(def row-header-wrapper-main
-  (let [{:keys [sm-3 sm-6]}               golden-section-50
-        {:keys [border light-background]} colors]
-    {:padding-top      sm-3
-     :padding-right    sm-3
-     :padding-left     sm-6
-     :background-color light-background
-     :color            "#666"
-     :text-align       "left"
-     #_#_:font-size        "13px"
-     :font-size 6
-     :white-space      "nowrap"
-     :border-left      "thin solid #ccc"
-     :border-bottom    "thin solid #ccc"}))
-
-(defmethod main ::nested-grid-old/row-header-wrapper
-  [props {{:keys [edge]} :state}]
-  (update props :style merge
-          row-header-wrapper-main
-          (when (contains? edge :right)
-            {:border-right "thin solid #aaa"})
-          (when (contains? edge :left)
-            {:border-left "thin solid #aaa"})
-          (when (contains? edge :bottom)
-            {:border-bottom "thin solid #aaa"})))
-
-(defmethod main ::nested-grid/row-header-wrapper [props _]
-  (style props
-         row-header-wrapper-main
-         {#_#_:border "thin solid #aaa"}))
-
 (defmethod main :default [props {:keys                [state part]
                                  {:as   $
                                   :keys [sm-1 sm-2 sm-3 sm-4 sm-5 sm-6 md-1 md-2
@@ -324,18 +282,6 @@
                                         (str "thin" " solid " border-dark)
                                         :else
                                         (str "thin" " solid " border))}})
-
-         ::nested-grid/column-header-wrapper
-         (let [{:keys [align-column align-column-header align]} (:header-spec state)]
-           {:style {:padding-top      sm-3
-                    :padding-right    sm-4
-                    :padding-left     sm-4
-                    :background-color light-background
-                    :color            "#666"
-                    :text-align       (or align-column-header align-column align :center)
-                    #_#_:font-size        "13px"
-                    :font-size 6
-                    :border    (str "thin solid " border)}})
 
          ::tree-select/dropdown-anchor
          {:style {:padding  "0 0 0 0"

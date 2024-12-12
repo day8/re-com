@@ -907,171 +907,11 @@
                                            "thin solid black")}}
          (str row-index " // " column-index)])})))
 
-(defn linear-search-infinite-scroll-test [{:keys [cell row-height column-seq row-seq row-heights column-width column-widths] :as props}]
-  (let [_ (load-row-chunk!)
-        cell-container-ref  (r/atom nil)
-        cell-container-ref! (partial reset! cell-container-ref)
-        scroll-top          (r/atom 0)
-        scroll-left         (r/atom 0)
-        container-height    (r/atom nil)
-        container-width     (r/atom nil)
-        container-right     (r/reaction (+ @scroll-left @container-width))
-        container-bottom    (r/reaction (+ @scroll-top @container-height))
-        on-scroll!          #(do (reset! scroll-top (.-scrollTop (.-target %)))
-                                 (reset! scroll-left (.-scrollLeft (.-target %))))
-        on-resize!          #(do (reset! container-height (.-height (.-contentRect (aget % 0))))
-                                 (reset! container-width (.-width (.-contentRect (aget % 0)))))
-        path-fn             vector
-        size-fn             :cell-size
-        column-v-margin     100
-        row-v-margin        100
-        left-bound          (r/reaction (max 0 (- @scroll-left column-v-margin)))
-        right-bound         (r/reaction (+ @container-right column-v-margin))
-        top-bound           (r/reaction (max 0 (- @scroll-top row-v-margin)))
-        bottom-bound        (r/reaction (+ @container-bottom row-v-margin))
-        column-window       (r/reaction (ngu/cumulative-sum-window @left-bound @right-bound size-fn (u/deref-or-value column-seq)))
-        row-window          (r/reaction (ngu/cumulative-sum-window @top-bound @bottom-bound size-fn (u/deref-or-value row-seq)))]
-    (r/create-class
-     {:component-did-mount
-      (fn [_]
-        (.addEventListener @cell-container-ref "scroll" on-scroll!)
-        (.observe (js/ResizeObserver. on-resize!) @cell-container-ref))
-      :reagent-render
-      (fn [{:keys [row-seq column-seq row-tree column-tree row-height column-width max-height max-width]}]
-
-        (let [[column-num-left column-space-left columns-left
-               column-num-within column-space-within columns-within
-               column-num-right column-space-right columns-right] @column-window
-              [row-num-top row-space-top rows-top
-               row-num-within row-space-within rows-within
-               row-num-bottom row-space-bottom rows-bottom]       @row-window
-              grid-container                                      [:div {:ref   cell-container-ref!
-                                                                         :style {:max-height            max-height
-                                                                                 :max-width             max-width
-                                                                                 :min-width             100
-                                                                                 :min-height            100
-                                                                                 :overflow              :auto
-                                                                                 :width                 :fit-content
-                                                                                 :display               :grid
-                                                                                 :grid-template-columns (ngu/grid-template (concat [column-space-left]
-                                                                                                                                   (interleave (map path-fn columns-within)
-                                                                                                                                               (map size-fn columns-within))
-                                                                                                                                   [column-space-right]))
-                                                                                 :grid-template-rows    (ngu/grid-template (concat [row-space-top]
-                                                                                                                                   (interleave (map path-fn rows-within)
-                                                                                                                                               (map size-fn rows-within))
-                                                                                                                                   [row-space-bottom]))}}]]
-          (into grid-container
-                (for [column-path (map path-fn columns-within)
-                      row-path    (map path-fn rows-within)
-                      :let        [props {:row-path    row-path
-                                          :column-path column-path}]]
-                  ^{:key [column-path row-path]}
-                  [cell props]))))})))
-
-(defn node->div [node {:keys [traversal path] :or {path []}}]
-  (let [style {:border-top       "thin solid black"
-               :border-left      "thin solid black"
-               :margin-left      50
-               :background-color :lightgreen}]
-    (cond
-      (ngu/leaf? node)   (let [leaf-path (conj path node)]
-                           [:div {:style (merge style
-                                                {:height     (ngu/leaf-size node)
-                                                 :background (if (contains? (set (some-> traversal deref :windowed-paths)) leaf-path)
-                                                               :lightgreen
-                                                               :white)})}
-                            (str leaf-path)])
-      (ngu/branch? node) (let [[own-node & children] node
-                               this-path             (conj path (first node))]
-                           (into [:div {:style (merge style
-                                                      {:position   :relative
-                                                       :height     :fit-content
-                                                       :background (if (contains? (set (some-> traversal deref :windowed-paths)) this-path)
-                                                                     :lightgreen
-                                                                     :white)})}
-                                  [:div {:style {:height (ngu/leaf-size own-node)}}
-                                   (str this-path)]]
-                                 (map #(do [node->div % {:traversal traversal :path (conj path own-node)}])
-                                      children))))))
-
-(def scroll-top (r/atom 0))
-(def scroll-left (r/atom 0))
-
-(defn window-search-test [{:keys [tree]}]
-  (let [container-ref      (r/atom nil)
-        set-container-ref! (partial reset! container-ref)
-        #_#_scroll-top         (r/atom nil)
-        #_#_scroll-left        (r/atom nil)
-        on-scroll!         #(do (reset! scroll-top (.-scrollTop (.-target %)))
-                                (reset! scroll-left (.-scrollLeft (.-target %))))
-        window-size        100
-        window-ratio       0.5
-        window-start       (r/reaction (* 2 @scroll-top))
-        window-end         (r/reaction (+ window-size (* 2 @scroll-top)))
-        height-cache       (volatile! {})
-        path-seq           (def node-seq (:windowed-paths (ngu/walk-size {:window-start 0
-                                                                          :window-end   999999
-                                                                          :tree         tree
-                                                                          :size-cache   (volatile! {})})))
-        {:keys [sum-size]} (ngu/walk-size {:window-start 0
-                                           :window-end   100000
-                                           :tree         tree
-                                           :size-cache   (volatile! {})})
-        traversal          (r/reaction (ngu/walk-size {:window-start @window-start
-                                                       :window-end   @window-end
-                                                       :tree         tree
-                                                       :size-cache   height-cache}))]
-    (r/create-class
-     {:component-did-mount
-      (fn [_] (.addEventListener @container-ref "scroll" on-scroll!))
-      :reagent-render (fn []
-                        [:div
-                         [:div {:ref   set-container-ref!
-                                :style {:width      400
-                                        :overflow-y :auto
-                                        :position   :relative
-                                        :height     sum-size}}
-                          [:div {:style {:position           :fixed
-                                         :margin-left        420
-                                         :display            :grid
-                                         :grid-template-rows (str/join " " (->> path-seq
-                                                                                (map last)
-                                                                                (map ngu/leaf-size)
-                                                                                (map u/px)))}}
-                           (node->div tree {:traversal traversal})]
-                          [:div {:style {:position   :fixed
-                                         :height     window-size
-                                         :width      220
-                                         :margin-left "470px"
-                                         :border-top "thick solid red"
-                                         :border-bottom "thick solid red"
-                                         :margin-top (* 2 @scroll-top)
-                                         :background "rgba(0,0,1,0.2)"}}
-                           (str (* 2 @scroll-top))]
-                          [:div {:style {:width      600
-                                         :height     (* sum-size (+ 1 window-ratio))}}
-                           (str sum-size)]]
-                         [:br]
-                         [:pre
-                          (str @traversal)]])})))
-
-(defn differences [v]
-  (into [(first v)]
-        (map (fn [[a b]] (- b a)) (partition 2 1 v))))
-
-(def        wx                   (r/reaction @scroll-left))
 (def        ww                   (r/atom 500))
-(def        wy                   (r/reaction @scroll-top))
 (def        wh                   (r/atom 500))
 
-(def rhw (r/reaction (repeat 5 (/ @ww 10))))
-
-(def seqseq (r/atom [1 2 3 4]))
-
-(defn upd! [] (swap! seqseq
-                     (fn [ss]
-                       (conj (vec (rest ss)) (inc (last ss))))))
+(def row-header-widths (r/atom [30 20 30 20 40]))
+(def column-header-widths @row-header-widths)
 
 (defn panel []
   [rc/h-box
@@ -1082,13 +922,13 @@
      [[rc/gap :size "50px"]
       [nested-v-grid {:row-tree              ngu/huge-test-tree
                       :row-tree-depth        5
-                      :column-tree-depth     4
-                      :row-header-widths     [10 20 30 40 50]
-                      :column-header-heights [10 20 30 40]
-                      :column-tree           ngu/test-tree
-                      :style                 {:max-height @wh :max-width @ww}
-                      :parts                 {:wrapper {:style {:height @wh
-                                                                :width  @ww}}}}]
+                      :column-tree-depth     5
+                      :row-header-widths     row-header-widths
+                      :column-header-heights column-header-widths
+                      :column-tree           ngu/huge-test-tree
+                      :style                 {:height @wh :width @ww}
+                      #_#_:parts                 {:wrapper {:style {:height @wh
+                                                                    :width  @ww}}}}]
       "Window width"
       [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
       "Window height"

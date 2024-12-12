@@ -21,6 +21,8 @@
 
 (def merge-props tu/merge-props)
 
+(def merge-class tu/merge-class)
+
 (defn merge [a {:re-com/keys [system] :keys [base main user main-variables user-variables base-variables] :as b}]
   (cond-> a
     base-variables (assoc  :base-variables      base-variables)

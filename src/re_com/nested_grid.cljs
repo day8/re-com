@@ -11,6 +11,7 @@
    [re-com.config      :as config :refer [include-args-desc?]]
    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part?]]
    [re-com.theme :as theme]
+   [re-com.nested-grid.theme]
    [re-com.box :as box]
    [re-com.buttons :as buttons]))
 
@@ -1250,75 +1251,78 @@
          (reset! internal-row-tree (u/deref-or-value row-tree))
          (reset! internal-column-tree (u/deref-or-value column-tree)))
       :reagent-render
-      (fn [{:keys [row-tree column-tree
-                   cell
-                   row-header-cell column-header-cell]
-            :as   props}]
+      (fn [{:keys          [row-tree column-tree
+                            cell-value
+                            theme-cells?]
+            {::keys [cell row-header-cell column-header-cell
+                     row-header-grid column-header-grid
+                     cell-grid]
+             :as    parts} :parts
+            :as            props}]
         (u/deref-or-value row-tree)
         (u/deref-or-value row-header-widths)
         (u/deref-or-value column-header-heights)
         (u/deref-or-value column-tree)
-        (let [theme                   (theme/defaults
-                                       props
-                                       {:user [(theme/<-props props {:part    ::wrapper
-                                                                     :include [:style :class]})]})
-              themed                  (fn [part props] (theme/apply props {:part part} theme))
-              spacer-container        [:div {:style {:position          :sticky
-                                                     :grid-row-start    1
-                                                     :grid-column-start 1
-                                                     :left              0
-                                                     :top               0
-                                                     :background-color  :white}}]
-              row-header-container    [:div {:style {:display               :grid
-                                                     :grid-template-rows    @row-template
-                                                     :grid-template-columns @row-header-template
-                                                     :position              :sticky
-                                                     :left                  0}}]
-              row-header-cells        (for [row-path @row-windowed-paths
-                                            :let     [props (themed ::row-header-wrapper
-                                                              {:style {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                                                       :grid-row-end      (str "span " (get @row-spans row-path))
-                                                                       :grid-column-start (count row-path)
-                                                                       :grid-column-end   (str "span " (inc (- @row-depth (count row-path))))
-                                                                       :font-size         8}
-                                                               :edge  #{:start}})]]
-                                        (u/part row-header-cell props {:key     row-path
-                                                                       :default ngp/row-header-wrapper}))
-              column-header-container [:div {:style {:display               :grid
-                                                     :grid-template-rows    @column-header-template
-                                                     :grid-template-columns @column-template
-                                                     :position              :sticky
-                                                     :top                   0}}]
-              column-header-cells     (for [column-path @column-windowed-paths
-                                            :let        [props (themed ::column-header-wrapper
-                                                                 {:style    {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                                             :grid-column-end   (str "span " (get @column-spans column-path))
-                                                                             :grid-row-start    (count column-path)
-                                                                             :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))
-                                                                             :overflow          :hidden
-                                                                             :font-size         8}
-                                                                  :children [(pr-str column-path)]})]]
-                                        (u/part column-header-cell props {:key column-path}))
-              main-container          [:div
-                                       (themed ::wrapper
-                                         {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
-                                                  :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
-                                          :ref   wrapper-ref!})]
-              cell-grid-container     [:div (themed ::cell-grid
-                                              {:style {:display               :grid
-                                                       :grid-column-start     2
-                                                       :grid-row-start        2
-                                                       :grid-template-rows    @row-template
-                                                       :grid-template-columns @column-template}})]
-              cells                   (for [row-path    @row-windowed-leaf-paths
-                                            column-path @column-windowed-leaf-paths
-                                            :let        [props {:row-path    row-path
-                                                                :column-path column-path}]]
-                                        (u/part cell props {:key     [row-path column-path]
-                                                            :default ngp/cell}))]
+        (let [theme               (theme/defaults
+                                   props
+                                   {:user [(theme/<-props props {:part    ::wrapper
+                                                                 :include [:style :class]})]})
+              themed              (fn [part props] (theme/apply props {:part part} theme))
+              spacer-container    [:div {:style {:position          :sticky
+                                                 :grid-row-start    1
+                                                 :grid-column-start 1
+                                                 :left              0
+                                                 :top               0
+                                                 :background-color  :white}}]
+              row-header-cells    (for [row-path @row-windowed-paths
+                                        :let     [props (themed ::row-header
+                                                          {:style    {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                                                      :grid-row-end      (str "span " (get @row-spans row-path))
+                                                                      :grid-column-start (count row-path)
+                                                                      :grid-column-end   (str "span " (inc (- @row-depth (count row-path))))}
+                                                           :children [(pr-str row-path)]})]]
+                                    (u/part row-header-cell props {:key row-path}))
+              column-header-cells (for [column-path @column-windowed-paths
+                                        :let        [props (themed ::column-header
+                                                             {:style    {:grid-column-start (ngu/path->grid-line-name column-path)
+                                                                         :grid-column-end   (str "span " (get @column-spans column-path))
+                                                                         :grid-row-start    (count column-path)
+                                                                         :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))
+                                                                         :overflow          :hidden}
+                                                              :children [(pr-str column-path)]})]]
+                                    (u/part column-header-cell props {:key column-path}))
+              main-container      [:div
+                                   (themed ::wrapper
+                                     {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
+                                              :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
+                                      :ref   wrapper-ref!})]
+              cells               (for [row-path    @row-windowed-leaf-paths
+                                        column-path @column-windowed-leaf-paths
+                                        :let        [props {:row-path    row-path
+                                                            :column-path column-path}
+                                                     props (cond-> props
+                                                             cell-value   (assoc :cell-value
+                                                                                 (cell-value props))
+                                                             theme-cells? (->> (themed ::cell-wrapper)))]]
+                                    (u/part cell props {:key     [row-path column-path]
+                                                        :default ngp/cell-wrapper}))]
           (conj main-container
-                (into cell-grid-container cells)
-                (into column-header-container column-header-cells)
-                (into row-header-container row-header-cells)
+                (u/part cell-grid
+                        (themed ::cell-grid
+                          {:children cells
+                           :style    {:display               :grid
+                                      :grid-column-start     2
+                                      :grid-row-start        2
+                                      :grid-template-rows    @row-template
+                                      :grid-template-columns @column-template}}))
+                (u/part column-header-grid
+                        (themed ::column-header-grid
+                          {:children column-header-cells
+                           :style    {:grid-template-rows    @column-header-template
+                                      :grid-template-columns @column-template}}))
+                (u/part row-header-grid
+                        (themed ::row-header-grid
+                          {:children row-header-cells
+                           :style    {:grid-template-rows    @row-template
+                                      :grid-template-columns @row-header-template}}))
                 spacer-container)))})))
-

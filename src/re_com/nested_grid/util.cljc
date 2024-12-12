@@ -208,7 +208,8 @@
                (repeatedly 10000 #(do [(keyword (gensym))
                                        [:x 20]
                                        [:y 40]
-                                       [:z 20]])))]))
+                                       [:z 20]
+                                       [:h 10]])))]))
 
 #_(walk-size {:window-start 372
               :window-end   472

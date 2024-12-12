@@ -2,6 +2,7 @@
   (:require
    [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
    [reagent.core :as r]
+   [re-com.theme.util :as tu]
    [goog.date.DateTime]
    [goog.date.UtcDateTime]
    [clojure.string :as str]))
@@ -243,16 +244,17 @@
 
 (defn default-part   [{:keys [class style attr children]}]
   (into [:div (merge {:class class :style style} attr)]
-        (into [(str (gensym))] children)))
+        children))
 
-(defn part [x props & {:keys [default key]}]
+(defn part [x props & {:keys [default key] :as opts}]
   (cond
     (ifn? x)    (cond-> [x props]
                   key (with-meta {:key key}))
     (hiccup? x) x
     (string? x) x
-    default     (cond-> [part default props]
+    (map? x)    (cond-> [(or default default-part) (tu/merge-props props x)]
                   key (with-meta {:key key}))
+    default     (part default props opts)
     :else       (cond-> [default-part props]
                   key (with-meta {:key key}))))
 
