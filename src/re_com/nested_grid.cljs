@@ -1113,7 +1113,7 @@
                                           row-header-total-height)
             control-panel              [:div {:style (merge {:display          :flex
                                                              :max-width        native-width
-                                                             :justify-content  :end
+                                                             :justify-content  :flex-end
                                                              :height           25
                                                              :background-color :white
                                                              :z-index          2}
