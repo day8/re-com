@@ -79,17 +79,20 @@
                  (inc num-above) (+ total-above value) (conj items-above i)))))))
 
 (def children (comp seq rest))
+
 (def own-leaf first)
+
 (def leaf? (some-fn keyword? map? number?))
+
 (defn branch? [node]
   (and (vector? node)
        (leaf? (first node))))
-(def invalid? (complement (some-fn leaf? branch?)))
-(def leaf-size (fn [node] (cond (number? node)  node
-                                (map? node)     (:size node)
-                                (keyword? node) 20)))
 
-(defn walk-size [{:keys [window-start window-end tree size-cache dimension tree-depth]}]
+(def invalid? (complement (some-fn leaf? branch?)))
+
+(def leaf-size #(get % :size))
+
+(defn walk-size [{:keys [window-start window-end tree size-cache dimension tree-depth default-size]}]
   (let [sum-size            (volatile! 0)
         depth               (volatile! 0)
         tree-hash           (hash tree)
@@ -127,7 +130,7 @@
                 passed-tail? (and tail-cached? (> sum window-end))]
             (cond
               passed-tail?   :exit
-              (leaf? node)   (let [leaf-size (leaf-size node)
+              (leaf? node)   (let [leaf-size (or (leaf-size node) default-size)
                                    leaf-path (conj path node)
                                    bounds    [sum (+ sum leaf-size)]]
                                (when (intersection? bounds)

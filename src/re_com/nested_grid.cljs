@@ -1189,11 +1189,12 @@
 
 (defn nested-v-grid [{:keys [row-tree column-tree
                              row-tree-depth column-tree-depth
-                             column-header-heights
-                             row-header-widths
+                             row-header-widths column-header-heights
+                             row-height column-width
                              theme
                              row-header-width column-header-height]
-                      :or   {row-header-width 40 column-header-height 40}}]
+                      :or   {row-header-width 40 column-header-height 40
+                             row-height 20 column-width 40}}]
   (let [[wx wy wh ww !wrapper-ref scroll-listener resize-observer]
         (repeatedly #(r/atom nil))
         wrapper-ref!               (partial reset! !wrapper-ref)
@@ -1210,14 +1211,16 @@
                                                                :size-cache   size-cache
                                                                :dimension    :row
                                                                :tree-depth   (u/deref-or-value
-                                                                              row-tree-depth)}))
+                                                                              row-tree-depth)
+                                                               :default-size (u/deref-or-value row-height)}))
         column-traversal           (r/reaction (ngu/walk-size {:tree         @internal-column-tree
                                                                :window-start (or @wx 0)
                                                                :window-end   (+ @wx @ww)
                                                                :size-cache   size-cache
                                                                :dimension    :column
                                                                :tree-depth   (u/deref-or-value
-                                                                              column-tree-depth)}))
+                                                                              column-tree-depth)
+                                                               :default-size (u/deref-or-value column-width)}))
         column-depth               (r/reaction (:depth @column-traversal))
         column-header-heights      (r/reaction (or (u/deref-or-value column-header-heights)
                                                    (repeat @column-depth column-header-height)))
@@ -1256,13 +1259,12 @@
                             theme-cells?]
             {::keys [cell row-header-cell column-header-cell
                      row-header-grid column-header-grid
+                     row-height column-width
                      cell-grid]
              :as    parts} :parts
-            :as            props}]
-        (u/deref-or-value row-tree)
-        (u/deref-or-value row-header-widths)
-        (u/deref-or-value column-header-heights)
-        (u/deref-or-value column-tree)
+           :as            props}]
+        (mapv u/deref-or-value [row-tree row-header-widths row-height
+                                column-tree column-header-heights column-width])
         (let [theme               (theme/defaults
                                    props
                                    {:user [(theme/<-props props {:part    ::wrapper

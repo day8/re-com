@@ -920,15 +920,15 @@
    [[rc/v-box
      :children
      [[rc/gap :size "50px"]
-      [nested-v-grid {:row-tree              ngu/huge-test-tree
-                      :row-tree-depth        5
-                      :column-tree-depth     5
-                      :row-header-widths     row-header-widths
-                      :column-header-heights column-header-widths
-                      :column-tree           ngu/huge-test-tree
+      [nested-v-grid {:row-tree              [:a 100 :c]
+                      :row-tree-depth        2
+                      :column-tree-depth     2
+                      :row-header-widths     [30 20]
+                      :column-header-heights [30 20]
+                      :column-tree           [:a 100 :c]
                       :style                 {:height @wh :width @ww}
-                      #_#_:parts                 {:wrapper {:style {:height @wh
-                                                                    :width  @ww}}}}]
+                      #_#_:parts             {:wrapper {:style {:height @wh
+                                                                :width  @ww}}}}]
       "Window width"
       [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
       "Window height"
