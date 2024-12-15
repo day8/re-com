@@ -5,7 +5,7 @@
                        goog.string])))
 
 (defn path->grid-line-name [path]
-  (str "line__" (hash path) "-start"))
+  (str "rc" (hash path)))
 
 #?(:cljs
    (defn grid-template
