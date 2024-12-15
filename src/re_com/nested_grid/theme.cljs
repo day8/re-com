@@ -23,10 +23,14 @@
 (defmethod base ::ng/column-header-grid
   [props _]
   (-> props
-      (default/class "rc-nested-v-grid-row-header-grid")
+      (default/class "rc-nested-v-grid-column-header-grid")
       (style {:display  :grid
               :position :sticky
               :top      0})))
+
+(defmethod main ::ng/column-header-grid
+  [props _]
+  (style props {:box-shadow "1px 0 0 #ccc"}))
 
 (defmethod base ::ng/row-header-grid
   [props _]
@@ -36,12 +40,34 @@
               :position :sticky
               :left      0})))
 
+(defmethod main ::ng/row-header-grid
+  [props _]
+  (style props {:box-shadow "0 1px 0 #ccc"}))
+
 (defmethod base ::ng/column-header
   [props _]
   (update props :style merge
           {:user-select "none"
            :width       "100%"
            :height      "100%"}))
+
+(def column-header-main
+  (let [{:keys [sm-3 sm-4]}               default/golden-section-50
+        {:keys [border light-background]} default/colors]
+    {:padding-top      sm-3
+     :padding-right    sm-4
+     :padding-left     sm-4
+     :background-color light-background
+     :color            "#666"
+     :font-size        "13px"
+     :border-top      "thin solid #ccc"
+     :border-left       "thin solid #ccc"}))
+
+(defmethod main ::ng/column-header
+  [props {:keys [state]}]
+  (let [{:keys [align-column align-column-header align]} (:header-spec state)]
+    (style props column-header-main
+           {:text-align (or align-column-header align-column align :center)})))
 
 (def row-header-main
   (let [{:keys [sm-3 sm-6]}               default/golden-section-50
@@ -64,24 +90,6 @@
              {:border-left "thin solid #aaa"})
          #_(when (contains? edge :bottom)
              {:border-bottom "thin solid #aaa"})))
-
-(def column-header-main
-  (let [{:keys [sm-3 sm-4]}               default/golden-section-50
-        {:keys [border light-background]} default/colors]
-    {:padding-top      sm-3
-     :padding-right    sm-4
-     :padding-left     sm-4
-     :background-color light-background
-     :color            "#666"
-     :font-size        "13px"
-     :border-left      "thin solid #ccc"
-     :border-top       "thin solid #ccc"}))
-
-(defmethod main ::ng/column-header
-  [props {:keys [state]}]
-  (let [{:keys [align-column align-column-header align]} (:header-spec state)]
-    (style props column-header-main
-           {:text-align (or align-column-header align-column align :center)})))
 
 (def cell-wrapper-main
   (let [{:keys [sm-3]} default/golden-section-50]
