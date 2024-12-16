@@ -910,8 +910,10 @@
 (def        ww                   (r/atom 500))
 (def        wh                   (r/atom 500))
 
-(def row-header-widths (r/atom [30 20 30 20 40]))
-(def column-header-widths @row-header-widths)
+(def row-header-widths (r/atom [20 30]))
+(def column-header-heights (r/atom [40 50]))
+(def row-tree (r/atom [:a 100 :c]))
+(def column-tree (r/atom [:a 100 :c]))
 
 (defn panel []
   [rc/h-box
@@ -920,12 +922,18 @@
    [[rc/v-box
      :children
      [[rc/gap :size "50px"]
-      [nested-v-grid {:row-tree              [:a 100 :c]
+      [nested-v-grid {:row-tree              row-tree
+                      :column-tree           column-tree
                       :row-tree-depth        2
                       :column-tree-depth     2
-                      :row-header-widths     [30 20]
-                      :column-header-heights [30 20]
-                      :column-tree           [:a 100 :c]
+                      :row-header-widths     row-header-widths
+                      :column-header-heights column-header-heights
+                      :on-resize             (fn [{:keys [dimension value cross-size?]}]
+                                               (case dimension
+                                                 :column-header-width  (reset! column-tree value)
+                                                 :column-header-height (reset! column-header-heights value)
+                                                 :row-header-width     (reset! row-header-widths value)
+                                                 :row-header-height    (reset! column-tree value)))
                       :style                 {:height @wh :width @ww}
                       #_#_:parts             {:wrapper {:style {:height @wh
                                                                 :width  @ww}}}}]

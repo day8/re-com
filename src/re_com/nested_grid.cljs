@@ -533,21 +533,6 @@
 (assert (= 1 (quantize [10 10 10] 30)))
 (assert (= 2 (quantize [10 10 10] 31)))
 
-(defn drag-overlay [{:keys [drag selection? mouse-x mouse-y]}]
-  [:div {:on-mouse-up   #(reset! drag nil)
-         :on-mouse-move #(do
-                           (reset! selection? true)
-                           (.preventDefault %)
-                           (reset! mouse-x (.-clientX %))
-                           (reset! mouse-y (.-clientY %)))
-         :style         {:position             "fixed"
-                         :top                  0
-                         :left                 0
-                         :z-index              2147483647
-                         :height               "100%"
-                         :width                "100%"
-                         #_#_:background-color "rgba(255,0,0,0.4)"}}])
-
 (defn selection-part [_]
   (fn [_]
     (let [!ref       (r/atom nil)
@@ -1069,14 +1054,14 @@
                                          :mouse-down-y        mouse-down-y
                                          :selection-grid-spec selection-grid-spec}]
             overlays                   [:<> (when (= ::selection @drag)
-                                              [drag-overlay {:drag         drag
-                                                             :grid-columns cell-grid-columns
-                                                             :grid-rows    cell-grid-rows
-                                                             :selection?   selection?
-                                                             :mouse-x      mouse-x
-                                                             :mouse-y      mouse-y
-                                                             :mouse-down-x mouse-down-x
-                                                             :mouse-down-y mouse-down-y}])
+                                              [ngp/drag-overlay {:drag         drag
+                                                                 :grid-columns cell-grid-columns
+                                                                 :grid-rows    cell-grid-rows
+                                                                 :selection?   selection?
+                                                                 :mouse-x      mouse-x
+                                                                 :mouse-y      mouse-y
+                                                                 :mouse-down-x mouse-down-x
+                                                                 :mouse-down-y mouse-down-y}])
                                         (when (#{::column ::row} @drag)
                                           [resize-overlay {:drag         drag
                                                            :mouse-x      mouse-x
@@ -1169,7 +1154,7 @@
                                            (conj (when show-selection-box? box-selector)))]
         [:div (debug/->attr
                (themed ::wrapper
-                 {:src src
+                 {:src   src
                   :style (merge {:flex-direction :column}
                                 (when-not sticky?
                                   (merge {:flex    "0 0 auto"
@@ -1194,8 +1179,9 @@
                              theme
                              row-header-width column-header-height]
                       :or   {row-header-width 40 column-header-height 40
-                             row-height 20 column-width 40}}]
-  (let [[wx wy wh ww !wrapper-ref scroll-listener resize-observer]
+                             row-height       20 column-width         40}}]
+  (let [[wx wy wh ww !wrapper-ref scroll-listener resize-observer overlay
+         column-header-heights-internal row-header-widths-internal]
         (repeatedly #(r/atom nil))
         wrapper-ref!               (partial reset! !wrapper-ref)
         on-scroll!                 #(do (reset! wx (.-scrollLeft (.-target %)))
@@ -1222,8 +1208,15 @@
                                                                               column-tree-depth)
                                                                :default-size (u/deref-or-value column-width)}))
         column-depth               (r/reaction (:depth @column-traversal))
-        column-header-heights      (r/reaction (or (u/deref-or-value column-header-heights)
-                                                   (repeat @column-depth column-header-height)))
+        row-depth                  (r/reaction (:depth @row-traversal))
+        column-header-heights      (r/reaction (or
+                                                (u/deref-or-value column-header-heights-internal)
+                                                (u/deref-or-value column-header-heights)
+                                                (repeat @column-depth column-header-height)))
+        row-header-widths          (r/reaction (or
+                                                (u/deref-or-value row-header-widths-internal)
+                                                (u/deref-or-value row-header-widths)
+                                                (repeat @row-depth row-header-width)))
         column-header-height-total (r/reaction (apply + @column-header-heights))
         column-width-total         (r/reaction (:sum-size @column-traversal))
         column-windowed-paths      (r/reaction (:windowed-paths @column-traversal))
@@ -1232,7 +1225,6 @@
         column-template            (r/reaction (ngu/lazy-grid-template @column-tokens))
         column-header-template     (r/reaction (ngu/grid-template @column-header-heights))
         column-spans               (r/reaction (ngu/grid-spans @column-tokens))
-        row-depth                  (r/reaction (:depth @row-traversal))
         row-header-widths          (r/reaction (or (u/deref-or-value row-header-widths)
                                                    (repeat @row-depth row-header-width)))
         row-header-width-total     (r/reaction (apply + @row-header-widths))
@@ -1256,13 +1248,19 @@
       :reagent-render
       (fn [{:keys          [row-tree column-tree
                             cell-value
-                            theme-cells?]
-            {::keys [cell row-header-cell column-header-cell
+                            theme-cells?
+                            on-resize]
+            {::keys [cell
+                     row-header-cell column-header-cell
+                     row-header-resizer column-header-resizer
                      row-header-grid column-header-grid
                      row-height column-width
                      cell-grid]
              :as    parts} :parts
-           :as            props}]
+            :as            props
+            :or            {on-resize (fn [{:keys [value dimension]}]
+                                        (case dimension
+                                          :column-header-height (reset! column-header-heights-internal value)))}}]
         (mapv u/deref-or-value [row-tree row-header-widths row-height
                                 column-tree column-header-heights column-width])
         (let [theme               (theme/defaults
@@ -1293,6 +1291,82 @@
                                                                          :overflow          :hidden}
                                                               :children [(pr-str column-path)]})]]
                                     (u/part column-header-cell props {:key column-path}))
+              column-header-resizers
+              (for [column-path @column-windowed-paths
+                    :let        [level (count column-path)]
+                    #_#_:when (> level 1)
+                    :let        [grid-style {:grid-column-start (ngu/path->grid-line-name column-path)
+                                             :grid-column-end   (str "span " (get @column-spans column-path))
+                                             :grid-row-start    (count column-path)
+                                             :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))}]]
+                ^{:key [::column-header-resizer column-path]}
+                [:div {:style (merge {:position :relative} grid-style)}
+                 (when (> level 1)
+                   [ngp/grid-line-button {:position      :top
+                                          :on-mouse-down (fn [e] (let [heights (u/deref-or-value column-header-heights)]
+                                                                   (reset! overlay [ngp/drag-overlay
+                                                                                    {:x-start       (.-clientX e)
+                                                                                     :y-start       (.-clientY e)
+                                                                                     :on-mouse-up   #(reset! overlay nil)
+                                                                                     :on-mouse-move (fn [{:keys [dy]}]
+                                                                                                      (let [new-value (-> heights
+                                                                                                                          (update (- level 2) + dy)
+                                                                                                                          (update (- level 2) max 10))]
+                                                                                                        (on-resize {:dimension :column-header-height
+                                                                                                                    :value     new-value
+                                                                                                                    :key       :column-header-heights})))}])))}])
+                 [ngp/grid-line-button {:position      :bottom
+                                        :on-mouse-down (fn [e]
+                                                         (let [heights (u/deref-or-value column-header-heights)]
+                                                           (reset! overlay [ngp/drag-overlay
+                                                                            {:x-start       (.-clientX e)
+                                                                             :y-start       (.-clientY e)
+                                                                             :on-mouse-up   #(reset! overlay nil)
+                                                                             :on-mouse-move (fn [{:keys [dy]}]
+                                                                                              (let [new-value (-> heights
+                                                                                                                  (update (- level 1) + dy)
+                                                                                                                  (update (- level 1) max 10))]
+                                                                                                (on-resize {:dimension :column-header-height
+                                                                                                            :value     new-value
+                                                                                                            :key       :column-header-heights})))}])))}]])
+              row-header-resizers
+              (for [row-path @row-windowed-paths
+                    :let     [level (count row-path)]
+                    #_#_:when (> level 1)
+                    :let     [grid-style {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                          :grid-row-end      (str "span " (get @row-spans row-path))
+                                          :grid-column-start (count row-path)
+                                          :grid-column-end   (str "span " (inc (- @row-depth (count row-path))))}]]
+                ^{:key [::row-header-resizer row-path]}
+                [:div {:style (merge {:position :relative} grid-style)}
+                 (when (> level 1)
+                   [ngp/grid-line-button {:position      :left
+                                          :on-mouse-down (fn [e] (let [widths (u/deref-or-value row-header-widths)]
+                                                                   (reset! overlay [ngp/drag-overlay
+                                                                                    {:x-start       (.-clientX e)
+                                                                                     :y-start       (.-clientY e)
+                                                                                     :on-mouse-up   #(reset! overlay nil)
+                                                                                     :on-mouse-move (fn [{:keys [dx]}]
+                                                                                                      (let [new-value (-> widths
+                                                                                                                          (update (- level 2) + dx)
+                                                                                                                          (update (- level 2) max 10))]
+                                                                                                        (on-resize {:dimension :row-header-width
+                                                                                                                    :value     new-value
+                                                                                                                    :key       :row-header-widths})))}])))}])
+                 [ngp/grid-line-button {:position      :right
+                                        :on-mouse-down (fn [e]
+                                                         (let [widths (u/deref-or-value row-header-widths)]
+                                                           (reset! overlay [ngp/drag-overlay
+                                                                            {:x-start       (.-clientX e)
+                                                                             :y-start       (.-clientY e)
+                                                                             :on-mouse-up   #(reset! overlay nil)
+                                                                             :on-mouse-move (fn [{:keys [dx]}]
+                                                                                              (let [new-value (-> widths
+                                                                                                                  (update (- level 1) + dx)
+                                                                                                                  (update (- level 1) max 10))]
+                                                                                                (on-resize {:dimension :row-header-width
+                                                                                                            :value     new-value
+                                                                                                            :key       :row-headaer-widths})))}])))}]])
               main-container      [:div
                                    (themed ::wrapper
                                      {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
@@ -1305,7 +1379,7 @@
                                                      props (cond-> props
                                                              cell-value   (assoc :cell-value
                                                                                  (cell-value props))
-                                                             theme-cells? (->> (themed ::cell-wrapper)))]]
+                                                             theme-cells? (->> (theme ::cell-wrapper)))]]
                                     (u/part cell props {:key     [row-path column-path]
                                                         :default ngp/cell-wrapper}))]
           (conj main-container
@@ -1319,12 +1393,13 @@
                                       :grid-template-columns @column-template}}))
                 (u/part column-header-grid
                         (themed ::column-header-grid
-                          {:children column-header-cells
+                          {:children (concat column-header-cells column-header-resizers)
                            :style    {:grid-template-rows    @column-header-template
                                       :grid-template-columns @column-template}}))
                 (u/part row-header-grid
                         (themed ::row-header-grid
-                          {:children row-header-cells
+                          {:children (concat row-header-cells row-header-resizers)
                            :style    {:grid-template-rows    @row-template
                                       :grid-template-columns @row-header-template}}))
-                spacer-container)))})))
+                spacer-container
+                [:<> (u/deref-or-value overlay)])))})))

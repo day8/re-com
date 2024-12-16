@@ -1548,7 +1548,6 @@ code {
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 12;
-    background-color: white;
     color: #777;
     padding-top: 3px;
     padding-right: 3px;
@@ -1562,7 +1561,6 @@ code {
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 12;
-    background-color: white;
     color: #777;
     padding-top: 3px;
     padding-right: 3px;
