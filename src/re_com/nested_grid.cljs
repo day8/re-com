@@ -286,6 +286,10 @@
          [:code "nested-grid"] "'s default function for " [:code ":on-export"] ". "
          "This joins the rows into a single string of tab-separated values, then "
          "writes that string to the clipboard."]]]}
+     {:name :on-init-export-fn
+      :type "function"
+      :validate-fn ifn?
+      :description "Called whenever nested-grid's internal export function changes."}
      {:name :on-export-cell
       :required false
       :type "{:keys [row-path column-path]} -> string"
@@ -689,6 +693,7 @@
                     column-width column-header-height row-header-width row-height
                     show-export-button? on-export export-button
                     on-export-cell on-export-column-header on-export-row-header
+                    on-init-export-fn
                     show-zebra-stripes?
                     show-selection-box? resize-columns? resize-rows?
                     sticky? sticky-left sticky-top
@@ -870,36 +875,38 @@
                                                           :padding-bottom 0}
                                            :attr         {:title "Copy to Clipboard"}
                                            :on-click     on-click}])
+            export-fn                  #(let [column-headers (export-column-headers)
+                                              row-headers    (export-row-headers)
+                                              spacers        (export-spacers)
+                                              cells          (export-cells)
+                                              header-rows    (mapv into spacers column-headers)
+                                              main-rows      (mapv into row-headers cells)
+                                              rows           (concat header-rows main-rows)]
+                                          (on-export
+                                           {:column-headers column-headers
+                                            :row-headers    row-headers
+                                            :spacers        spacers
+                                            :cells          cells
+                                            :header-rows    header-rows
+                                            :main-rows      main-rows
+                                            :rows           rows
+                                            :default        default-on-export}))
+            _                          (when on-init-export-fn (on-init-export-fn export-fn))
             export-button              (u/part export-button
                                                (themed ::export-button
-                                                 {:style    {:position :fixed
-                                                             :right    10}
-                                                  :on-click #(let [column-headers (export-column-headers)
-                                                                   row-headers    (export-row-headers)
-                                                                   spacers        (export-spacers)
-                                                                   cells          (export-cells)
-                                                                   header-rows    (mapv into spacers column-headers)
-                                                                   main-rows      (mapv into row-headers cells)
-                                                                   rows           (concat header-rows main-rows)]
-                                                               (on-export
-                                                                {:column-headers column-headers
-                                                                 :row-headers    row-headers
-                                                                 :spacers        spacers
-                                                                 :cells          cells
-                                                                 :header-rows    header-rows
-                                                                 :main-rows      main-rows
-                                                                 :rows           rows
-                                                                 :default        default-on-export}))})
+                                                       {:style    {:position :fixed
+                                                                   :right    10}
+                                                        :on-click export-fn})
                                                :default default-export-button)
             cell-grid-container        [:div
                                         (themed ::cell-grid-container
-                                          {:style {:max-height            max-height
-                                                   :max-width             max-width
-                                                   :display               :grid
-                                                   :grid-column-start     2
-                                                   :grid-row-start        2
-                                                   :grid-template-columns (grid-template cell-grid-columns)
-                                                   :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                                {:style {:max-height            max-height
+                                                         :max-width             max-width
+                                                         :display               :grid
+                                                         :grid-column-start     2
+                                                         :grid-row-start        2
+                                                         :grid-template-columns (grid-template cell-grid-columns)
+                                                         :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells        (for [path column-paths
                                              :let [edge (cond-> #{}
                                                           (start-branch? path column-paths) (conj :left)
