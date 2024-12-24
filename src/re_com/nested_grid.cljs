@@ -1225,7 +1225,7 @@
         column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal))
         column-template            (r/reaction (ngu/lazy-grid-template @column-tokens))
         column-header-template     (r/reaction (ngu/grid-template @column-header-heights))
-        column-spans               (r/reaction (ngu/grid-spans @column-tokens))
+        column-spans               (r/reaction (ngu/grid-spans @column-windowed-paths))
         row-header-widths          (r/reaction (or (u/deref-or-value row-header-widths)
                                                    (repeat @row-depth row-header-width)))
         row-header-width-total     (r/reaction (apply + @row-header-widths))
@@ -1237,7 +1237,7 @@
         row-tokens                 (r/reaction (ngu/lazy-grid-tokens @row-traversal))
         row-template               (r/reaction (ngu/lazy-grid-template @row-tokens))
         row-header-template        (r/reaction (ngu/grid-template @row-header-widths))
-        row-spans                  (r/reaction (ngu/grid-spans @row-tokens))]
+        row-spans                  (r/reaction (ngu/grid-spans @row-windowed-paths))]
     (r/create-class
      {:component-did-mount
       #(do (reset! scroll-listener

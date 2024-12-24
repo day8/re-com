@@ -276,24 +276,12 @@
 
 #?(:cljs
    (defn grid-spans [grid-tokens]
-     (let [results (volatile! {})
-           spacer? #{"[spacer]"}]
-       (->> grid-tokens
-            (drop-while (complement vector?))
-            (partition-by vector?)
-            (partition-all 2)
-            (mapv (fn [[[path] children]]
-                    (vswap! results update path + (count (filter spacer? children)))
-                    (doseq [p (ancestry path)]
-                      (vswap! results update p + 1 (count (filter spacer? children)))))))
+     (let [results (volatile! {})]
+       (mapv (fn [path]
+               (doseq [p (ancestry path)]
+                 (vswap! results update p inc)))
+             grid-tokens)
        @results)))
-
-
-
-
-
-
-
 
 
 
