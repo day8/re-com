@@ -19,13 +19,14 @@
 
 (defn grid-line-button [_]
   (let [hover? (r/atom nil)]
-    (fn [{:keys [on-mouse-down position]}]
+    (fn [{:keys [on-mouse-down position style]}]
       [:div {:style         (merge {:position   :absolute
                                     :cursor     :grab
-                                    :background "rgba(0,0,0,0.1)"
+                                    :background :orange #_"rgba(0,0,0,0.1)"
                                     :box-shadow "0 0 4px rgba(0,0,0,0.1)"
-                                    :opacity    (if @hover? 1 0)}
-                                   (box-style position))
+                                    :opacity    (if @hover? 1 0.5)}
+                                   (box-style position)
+                                   style)
              :on-mouse-down on-mouse-down
              :on-mouse-over #(reset! hover? true)
              :on-mouse-out  #(reset! hover? false)}])))
