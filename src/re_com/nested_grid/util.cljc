@@ -92,6 +92,9 @@
 
 (def leaf-size #(get % :size 20))
 
+(defn remove-size [m]
+  (cond-> m (map? m) (dissoc :size)))
+
 (defn walk-size [{:keys [window-start window-end tree size-cache dimension tree-depth default-size]}]
   (let [sum-size            (volatile! 0)
         depth               (volatile! 0)
@@ -187,10 +190,10 @@
     {:sum-size            (or cached-sum-size @sum-size)
      :depth               (or tree-depth (inc cached-depth) (inc @depth))
      :windowed-sums       @windowed-sums
-     :windowed-paths      @windowed-paths
+     :windowed-paths      (mapv #(mapv remove-size %) @windowed-paths)
      :windowed-keypaths   @windowed-keypaths
      :windowed-sizes      @windowed-sizes
-     :windowed-leaf-paths @windowed-leaf-paths
+     :windowed-leaf-paths (mapv #(mapv remove-size %) @windowed-leaf-paths)
      :window-start        window-start
      :window-end          window-end}))
 
