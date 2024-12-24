@@ -19,8 +19,10 @@
 
 (defn grid-line-button [_]
   (let [hover? (r/atom nil)]
-    (fn [{:keys [on-mouse-down position style]}]
-      [:div {:style         (merge {:position   :absolute
+    (fn [{:keys [on-mouse-down position style index]}]
+      [:div {:title (str index)
+             :alt (str index)
+             :style         (merge {:position   :absolute
                                     :cursor     :grab
                                     :background :orange #_"rgba(0,0,0,0.1)"
                                     :box-shadow "0 0 4px rgba(0,0,0,0.1)"
