@@ -910,10 +910,10 @@
 (def        ww                   (r/atom 500))
 (def        wh                   (r/atom 500))
 
-(def row-header-widths (r/atom [20 30]))
+(def row-header-widths (r/atom [20 30 40 50]))
 (def column-header-heights (r/atom [40 50]))
-(def row-tree (r/atom [:a 100 :c]))
-(def column-tree (r/atom [:a 100 :c]))
+(def row-tree (r/atom [{:id :a :size 45} 100 {:id :c :size 49} [99 98 [97 88]] [96 95]]))
+(def column-tree (r/atom [:a 100 {:id :c :size 89}]))
 
 (defn panel []
   [rc/h-box
@@ -924,16 +924,17 @@
      [[rc/gap :size "50px"]
       [nested-v-grid {:row-tree              row-tree
                       :column-tree           column-tree
-                      :row-tree-depth        2
+                      :row-tree-depth        4
                       :column-tree-depth     2
                       :row-header-widths     row-header-widths
                       :column-header-heights column-header-heights
-                      :on-resize             (fn [{:keys [dimension value cross-size?]}]
+                      :on-resize             (fn [{:keys [dimension value cross-size? keypath size]}]
                                                (case dimension
                                                  :column-header-width  (reset! column-tree value)
                                                  :column-header-height (reset! column-header-heights value)
                                                  :row-header-width     (reset! row-header-widths value)
-                                                 :row-header-height    (reset! column-tree value)))
+                                                 :row-height           (swap! row-tree update-in keypath assoc :size size)
+                                                 :column-width         (swap! column-tree update-in keypath assoc :size size)))
                       :style                 {:height @wh :width @ww}
                       #_#_:parts             {:wrapper {:style {:height @wh
                                                                 :width  @ww}}}}]

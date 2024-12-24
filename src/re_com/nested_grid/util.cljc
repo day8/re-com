@@ -103,12 +103,15 @@
         tail-cached?        (and cached-depth cached-sum-size)
         windowed-paths      (volatile! [])
         windowed-leaf-paths (volatile! [])
+        windowed-keypaths   (volatile! [])
         windowed-sizes      (volatile! [])
         windowed-sums       (volatile! [])
         collect-depth!      (fn [n] (vswap! depth max n))
         collect-size!       (fn [size] (vswap! windowed-sizes conj size))
         forget-size!        #(vswap! windowed-sizes pop)
         collect-leaf-path!  (fn [path]  (vswap! windowed-leaf-paths conj path))
+        collect-keypath!    (fn [keypath] (vswap! windowed-keypaths conj keypath))
+        forget-keypath!     #(vswap! windowed-keypaths pop)
         collect-sum!        (fn [sum]  (vswap! windowed-sums conj sum))
         forget-sum!         #(vswap! windowed-sums pop)
         collect-path!       (fn [size] (vswap! windowed-paths conj size))
@@ -125,12 +128,13 @@
                                 (and (<= x1 window-end)
                                      (>= x2 window-start))))
         walk
-        (fn walk [path node & {:keys [collect-me?] :or {collect-me? true}}]
+        (fn walk [path node & {:keys [collect-me? keypath] :or {collect-me? true}}]
           (let [sum          @sum-size
                 passed-tail? (and tail-cached? (> sum window-end))]
             (cond
               passed-tail?   :exit
-              (leaf? node)   (let [leaf-size (or (leaf-size node) default-size)
+              (leaf? node)   (let [leaf-size (or (leaf-size node)
+                                                 default-size)
                                    leaf-path (conj path node)
                                    bounds    [sum (+ sum leaf-size)]]
                                (when (intersection? bounds)
@@ -138,12 +142,14 @@
                                  (when collect-me?
                                    (collect-path! leaf-path)
                                    (collect-sum! sum)
-                                   (collect-size! leaf-size)))
+                                   (collect-size! leaf-size)
+                                   (collect-keypath! keypath)))
                                (vreset! sum-size (+ sum leaf-size))
                                leaf-size)
-              (branch? node) (let [csize      (lookup node)
-                                   cbounds    (when csize [sum (+ sum csize)])
-                                   skippable? (and csize (not (intersection? cbounds)))]
+              (branch? node) (let [csize       (lookup node)
+                                   new-keypath (conj keypath 0)
+                                   cbounds     (when csize [sum (+ sum csize)])
+                                   skippable?  (and csize (not (intersection? cbounds)))]
                                (if skippable?
                                  (let [new-sum (+ sum csize)]
                                    (vreset! sum-size new-sum)
@@ -153,20 +159,27 @@
                                        _            (collect-path! own-path)
                                        _            (collect-size! own-size)
                                        _            (collect-sum!  sum)
+                                       _            (collect-keypath! new-keypath)
                                        _            (when-not (or tree-depth
                                                                   cached-depth)
                                                       (collect-depth! (count own-path)))
-                                       descend-tx   (map (partial walk own-path))
+                                       descend-tx   (map-indexed
+                                                     (fn [i subtree]
+                                                       (walk own-path
+                                                             subtree
+                                                             {:keypath
+                                                              (conj keypath (inc i))})))
                                        total-size   (+ own-size
                                                        (transduce descend-tx + (children node)))
                                        total-bounds [sum (+ sum total-size)]]
                                    (when-not (intersection? total-bounds)
                                      (forget-path!)
                                      (forget-sum!)
-                                     (forget-size!))
+                                     (forget-size!)
+                                     (forget-keypath!))
                                    (when-not csize (cache! node total-size))
                                    total-size))))))]
-    (walk [] tree)
+    (walk [] tree {:keypath []})
     (when-not cached-depth
       (vswap! size-cache assoc-in [dimension tree-hash ::depth] @depth))
     (when-not cached-sum-size
@@ -175,6 +188,7 @@
      :depth               (or tree-depth (inc cached-depth) (inc @depth))
      :windowed-sums       @windowed-sums
      :windowed-paths      @windowed-paths
+     :windowed-keypaths   @windowed-keypaths
      :windowed-sizes      @windowed-sizes
      :windowed-leaf-paths @windowed-leaf-paths
      :window-start        window-start
