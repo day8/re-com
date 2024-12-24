@@ -24,7 +24,7 @@
          (->> tokens
               (partition-by (some-fn number? string?))
               (reduce rf ""))
-         " [end]")))))
+         #_" [end]")))))
 
 (def spec? (some-fn vector? seq?))
 (def item? (complement spec?))
