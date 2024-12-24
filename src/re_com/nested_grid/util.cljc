@@ -90,7 +90,7 @@
 
 (def invalid? (complement (some-fn leaf? branch?)))
 
-(def leaf-size #(get % :size))
+(def leaf-size #(get % :size 20))
 
 (defn walk-size [{:keys [window-start window-end tree size-cache dimension tree-depth default-size]}]
   (let [sum-size            (volatile! 0)
