@@ -1297,16 +1297,15 @@
               row-width-resizers
               (for [i    (range @row-depth)
                     :let [cross-sizes @row-header-widths
-                          cross-size (get cross-sizes i)
-                          grid-style {:grid-column-start (inc i)
-                                      :grid-row-start    1
-                                      :grid-row-end      "end"}]]
+                          cross-size (get cross-sizes i)]]
                 ^{:key [::row-width-resizer i]}
                 [:div {:class "resizer"
-                       :style (merge {:position    :relative
-                                      :width       0
-                                      :margin-left cross-size}
-                                     grid-style)}
+                       :style {:grid-column-start (inc i)
+                               :grid-row-start    1
+                               :grid-row-end      "end"
+                               :position          :relative
+                               :width             0
+                               :margin-left       cross-size}}
                  [ngp/grid-line-button
                   {:position      :right
                    :on-mouse-down (fn [e]
@@ -1314,41 +1313,36 @@
                                                      {:x-start       (.-clientX e)
                                                       :y-start       (.-clientY e)
                                                       :on-mouse-up   #(reset! overlay nil)
-                                                      :on-mouse-move (fn [{:keys [dx]}]
-                                                                       (let [new-cross-size (max 10 (+ cross-size dx))]
-                                                                         (on-resize {:dimension :row-header-width
-                                                                                     :value     (assoc cross-sizes i new-cross-size)
-                                                                                     :size      new-cross-size
-                                                                                     :key       :row-header-widths})))}]))}]])
+                                                      :on-mouse-move #(on-resize {:dimension :row-header-width
+                                                                                  :keypath   [i]
+                                                                                  :size      (max 10 (+ cross-size (:dx %)))
+                                                                                  :key       :row-header-widths})}]))}]])
               row-height-resizers
-              (for [i    (range (count @row-windowed-paths))
-                    :let [row-path (get @row-windowed-paths i)]
+              (for [i     (range (count @row-windowed-paths))
+                    :let  [row-path (get @row-windowed-paths i)]
                     :when (map? (peek row-path))
-                    :let [keypath  (get @row-windowed-keypaths i)
-                          size     (get @row-windowed-sizes i)
-                          grid-style {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                      :grid-column-start (count row-path)
-                                      :grid-column-end   (inc @row-depth)}]]
+                    :let  [keypath  (get @row-windowed-keypaths i)
+                           size     (get @row-windowed-sizes i)]]
                 ^{:key [::row-height-resizer i]}
                 [:div {:class "resizer"
-                       :style (merge {:position    :relative
-                                      :height      0
-                                      :margin-top  size}
-                                     grid-style)}
+                       :style {:grid-row-start    (ngu/path->grid-line-name row-path)
+                               :grid-column-start (count row-path)
+                               :grid-column-end   (inc @row-depth)
+                               :position          :relative
+                               :height            0
+                               :margin-top        size}}
                  [ngp/grid-line-button
                   {:position      :top
-                   :index i
+                   :index         i
                    :on-mouse-down (fn [e]
                                     (reset! overlay [ngp/drag-overlay
                                                      {:x-start       (.-clientX e)
                                                       :y-start       (.-clientY e)
                                                       :on-mouse-up   #(reset! overlay nil)
-                                                      :on-mouse-move (fn [{:keys [dy]}]
-                                                                       (let [new-size (max 10 (+ size dy))]
-                                                                         (on-resize {:dimension :row-height
-                                                                                     :keypath   keypath
-                                                                                     :size      new-size
-                                                                                     :key       :row-tree})))}]))}]])
+                                                      :on-mouse-move #(on-resize {:dimension :row-height
+                                                                                  :keypath   keypath
+                                                                                  :size      (max 10 (+ size (:dy %)))
+                                                                                  :key       :row-tree})}]))}]])
               main-container      [:div
                                    (themed ::wrapper
                                      {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])

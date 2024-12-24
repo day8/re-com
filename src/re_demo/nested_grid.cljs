@@ -928,15 +928,13 @@
                       :column-tree-depth     2
                       :row-header-widths     row-header-widths
                       :column-header-heights column-header-heights
-                      :on-resize             (fn [{:keys [dimension value cross-size? keypath size]}]
+                      :on-resize             (fn [{:keys [dimension value keypath size]}]
                                                (case dimension
-                                                 :column-header-width  (reset! column-tree value)
-                                                 :column-header-height (reset! column-header-heights value)
-                                                 :row-header-width     (reset! row-header-widths value)
+                                                 :column-header-height (swap! column-header-heights assoc-in keypath value)
+                                                 :row-header-width     (swap! row-header-widths assoc-in keypath size)
                                                  :row-height           (swap! row-tree update-in keypath assoc :size size)
                                                  :column-width         (swap! column-tree update-in keypath assoc :size size)))
-                      :style                 {:height @wh :width @ww}
-                      #_#_:parts             {:wrapper {:style {:height @wh
+                      :parts                 {:wrapper {:style {:height @wh
                                                                 :width  @ww}}}}]
       "Window width"
       [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
