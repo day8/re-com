@@ -197,10 +197,10 @@
      :window-start        window-start
      :window-end          window-end}))
 
-(def test-tree [:z
+(def test-tree [{:id :z :label "ZZ"}
                 [:g
-                 [:x 20]
-                 [:y 40]
+                 [{:id :x :label "HIHI"} {:size 20}]
+                 [{:id :y :label "HIHI"} {:size 40}]
                  [:z 20]]
                 [:h
                  [:x 20]

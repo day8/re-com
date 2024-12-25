@@ -1544,7 +1544,7 @@ code {
     background-color: #ddd;
 }
 
-.rc-nested-v-grid-cell-grid > div {
+.rc-nested-v-grid-cell-grid > div:not(.resizer) {
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 12;

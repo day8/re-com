@@ -1192,7 +1192,7 @@
         internal-column-tree       (r/atom (u/deref-or-value column-tree))
         size-cache                 (volatile! {})
         row-traversal              (r/reaction (ngu/walk-size {:tree         @internal-row-tree
-                                                               :window-start (or @wy 0)
+                                                               :window-start (- (or @wy 0) 20)
                                                                :window-end   (+ @wy @wh)
                                                                :size-cache   size-cache
                                                                :dimension    :row
@@ -1200,7 +1200,7 @@
                                                                               row-tree-depth)
                                                                :default-size (u/deref-or-value row-height)}))
         column-traversal           (r/reaction (ngu/walk-size {:tree         @internal-column-tree
-                                                               :window-start (or @wx 0)
+                                                               :window-start (- (or @wx 0) 20)
                                                                :window-end   (+ @wx @ww)
                                                                :size-cache   size-cache
                                                                :dimension    :column
@@ -1221,6 +1221,7 @@
         column-width-total         (r/reaction (:sum-size @column-traversal))
         column-windowed-paths      (r/reaction (:windowed-paths @column-traversal))
         column-windowed-leaf-paths (r/reaction (:windowed-leaf-paths @column-traversal))
+        column-windowed-keypaths   (r/reaction (:windowed-keypaths @column-traversal))
         column-windowed-sizes      (r/reaction (:windowed-sizes @column-traversal))
         column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal))
         column-template            (r/reaction (ngu/lazy-grid-template @column-tokens))
@@ -1249,51 +1250,54 @@
          (reset! internal-row-tree (u/deref-or-value row-tree))
          (reset! internal-column-tree (u/deref-or-value column-tree)))
       :reagent-render
-      (fn [{:keys          [row-tree column-tree
-                            cell-value
-                            theme-cells?
-                            on-resize]
-            {::keys [cell
-                     row-header-cell column-header-cell
-                     row-header-resizer column-header-resizer
-                     row-header-grid column-header-grid
-                     row-height column-width
-                     cell-grid]
-             :as    parts} :parts
-            :as            props
-            :or            {on-resize (fn [{:keys [value dimension]}]
-                                        (case dimension
-                                          :column-header-height (reset! column-header-heights-internal value)))}}]
+      (fn [{:keys         [row-tree column-tree
+                           cell-value
+                           theme-cells?
+                           on-resize]
+            {:keys [cell
+                    row-header column-header
+                    row-header-label column-header-label
+                    row-header-grid column-header-grid
+                    row-height column-width
+                    cell-grid]
+             :as   parts} :parts
+            :as           props
+            :or           {on-resize (fn [{:keys [value dimension]}]
+                                       (case dimension
+                                         :column-header-height (reset! column-header-heights-internal value)))}}]
         (mapv u/deref-or-value [row-tree row-header-widths row-height
                                 column-tree column-header-heights column-width])
-        (let [theme               (theme/defaults
-                                   props
-                                   {:user [(theme/<-props props {:part    ::wrapper
-                                                                 :include [:style :class]})]})
-              themed              (fn [part props] (theme/apply props {:part part} theme))
-              spacer-container    [:div {:style {:position          :sticky
-                                                 :grid-row-start    1
-                                                 :grid-column-start 1
-                                                 :left              0
-                                                 :top               0
-                                                 :background-color  :white}}]
-              row-header-cells    (for [row-path @row-windowed-paths
-                                        :let     [props (themed ::row-header
-                                                          {:style    {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                                                      :grid-row-end      (str "span " (get @row-spans row-path))
-                                                                      :grid-column-start (count row-path)
-                                                                      :grid-column-end   (str "span " (inc (- @row-depth (count row-path))))}
-                                                           :children [(pr-str row-path)]})]]
-                                    (u/part row-header-cell props {:key row-path}))
-              column-header-cells (for [column-path @column-windowed-paths
-                                        :let        [props (themed ::column-header
-                                                             {:style    {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                                         :grid-column-end   (str "span " (get @column-spans column-path))
-                                                                         :grid-row-start    (count column-path)
-                                                                         :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))
-                                                                         :overflow          :hidden}
-                                                              :children [(pr-str column-path)]})]]
-                                    (u/part column-header-cell props {:key column-path}))
+        (let [theme            (theme/defaults
+                                props
+                                {:user [(theme/<-props props {:part    ::wrapper
+                                                              :include [:style :class]})]})
+              themed           (fn [part props] (theme/apply props {:part part} theme))
+              spacer-container [:div {:style {:position          :sticky
+                                              :grid-row-start    1
+                                              :grid-column-start 1
+                                              :left              0
+                                              :top               0
+                                              :background-color  :white}}]
+              row-headers      (for [row-path @row-windowed-paths
+                                     :let     [props {:row-path row-path
+                                                      :style    {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                                                 :grid-row-end      (str "span " (get @row-spans row-path))
+                                                                 :grid-column-start (count row-path)
+                                                                 :grid-column-end   (str "span " (inc (- @row-depth (count row-path))))}}
+                                               props (assoc props :children [(u/part row-header-label props
+                                                                                     :default ngp/row-header-label)])
+                                               props (themed ::row-header props)]]
+                                 (u/part row-header props {:key row-path}))
+              column-headers   (for [column-path @column-windowed-paths
+                                     :let        [props (themed ::column-header
+                                                          {:style    {:grid-column-start (ngu/path->grid-line-name column-path)
+                                                                      :grid-column-end   (str "span " (get @column-spans column-path))
+                                                                      :grid-row-start    (count column-path)
+                                                                      :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))
+                                                                      :overflow          :hidden}
+                                                           :children [(u/part column-header-label props
+                                                                              :default ngp/column-header-label)]})]]
+                                 (u/part column-header props {:key column-path}))
               row-width-resizers
               (for [i    (range @row-depth)
                     :let [cross-sizes @row-header-widths
@@ -1317,51 +1321,106 @@
                                                                                   :keypath   [i]
                                                                                   :size      (max 10 (+ cross-size (:dx %)))
                                                                                   :key       :row-header-widths})}]))}]])
-              row-height-resizers
-              (for [i     (range (count @row-windowed-paths))
-                    :let  [row-path (get @row-windowed-paths i)]
-                    :when (map? (peek row-path))
-                    :let  [keypath  (get @row-windowed-keypaths i)
-                           size     (get @row-windowed-sizes i)]]
-                ^{:key [::row-height-resizer i]}
+              column-height-resizers
+              (for [i    (range @column-depth)
+                    :let [cross-sizes @column-header-heights
+                          cross-size (get cross-sizes i)]]
+                ^{:key [::column-height-resizer i]}
                 [:div {:class "resizer"
-                       :style {:grid-row-start    (ngu/path->grid-line-name row-path)
-                               :grid-column-start (count row-path)
-                               :grid-column-end   (inc @row-depth)
+                       :style {:grid-row-start    (inc i)
+                               :grid-column-start 1
+                               :grid-column-end   "end"
                                :position          :relative
                                :height            0
-                               :margin-top        size}}
+                               :margin-top        cross-size}}
                  [ngp/grid-line-button
                   {:position      :top
-                   :index         i
                    :on-mouse-down (fn [e]
                                     (reset! overlay [ngp/drag-overlay
                                                      {:x-start       (.-clientX e)
                                                       :y-start       (.-clientY e)
                                                       :on-mouse-up   #(reset! overlay nil)
-                                                      :on-mouse-move #(on-resize {:dimension :row-height
-                                                                                  :keypath   keypath
-                                                                                  :size      (max 10 (+ size (:dy %)))
-                                                                                  :key       :row-tree})}]))}]])
-              main-container      [:div
-                                   (themed ::wrapper
-                                     {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
-                                              :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
-                                      :ref   wrapper-ref!})]
-              cells               (for [row-path    @row-windowed-leaf-paths
-                                        column-path @column-windowed-leaf-paths
-                                        :let        [props {:row-path    row-path
-                                                            :column-path column-path}
-                                                     props (cond-> props
-                                                             cell-value   (assoc :cell-value
-                                                                                 (cell-value props))
-                                                             theme-cells? (->> (theme ::cell-wrapper)))]]
-                                    (u/part cell props {:key     [row-path column-path]
-                                                        :default ngp/cell-wrapper}))]
+                                                      :on-mouse-move #(on-resize {:dimension :column-header-height
+                                                                                  :keypath   [i]
+                                                                                  :size      (max 10 (+ cross-size (:dy %)))
+                                                                                  :key       :column-header-heights})}]))}]])
+              row-height-resizers
+              (fn [& {:keys [offset]}]
+                (for [i     (range (count @row-windowed-paths))
+                      :let  [row-path (get @row-windowed-paths i)]
+                      :when (map? (peek row-path))
+                      :let  [keypath  (get @row-windowed-keypaths i)
+                             size     (get @row-windowed-sizes i)]]
+                  ^{:key [::row-height-resizer i]}
+                  [:div {:class "resizer"
+                         :style {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                 :grid-column-start 1
+                                 :grid-column-end   -1
+                                 :position          :relative
+                                 :height            0
+                                 :margin-top        (+ size offset)}}
+                   [ngp/grid-line-button
+                    {:position      :top
+                     :index         i
+                     :on-mouse-down (fn [e]
+                                      (reset! overlay [ngp/drag-overlay
+                                                       {:x-start       (.-clientX e)
+                                                        :y-start       (.-clientY e)
+                                                        :on-mouse-up   #(reset! overlay nil)
+                                                        :on-mouse-move #(on-resize {:dimension :row-height
+                                                                                    :keypath   keypath
+                                                                                    :size      (max 10 (+ size (:dy %)))
+                                                                                    :key       :row-tree})}]))}]]))
+              column-width-resizers
+              (fn [& {:keys [offset style]}]
+                (for [i     (range (count @column-windowed-paths))
+                      :let  [column-path (get @column-windowed-paths i)]
+                      :when (map? (peek column-path))
+                      :let  [keypath  (get @column-windowed-keypaths i)
+                             size     (get @column-windowed-sizes i)]]
+                  ^{:key [::column-width-resizer i]}
+                  [:div {:class "resizer"
+                         :style (merge {:grid-column-start (ngu/path->grid-line-name column-path)
+                                        :grid-row-start    1
+                                        :grid-row-end      -1
+                                        :position          :relative
+                                        :width             0
+                                        :margin-left       (+ size offset)}
+                                       style)}
+                   [ngp/grid-line-button
+                    {:position      :right
+                     :index         i
+                     :on-mouse-down (fn [e]
+                                      (reset! overlay [ngp/drag-overlay
+                                                       {:x-start       (.-clientX e)
+                                                        :y-start       (.-clientY e)
+                                                        :on-mouse-up   #(reset! overlay nil)
+                                                        :on-mouse-move #(on-resize {:dimension :column-width
+                                                                                    :keypath   keypath
+                                                                                    :size      (max 10 (+ size (:dx %)))
+                                                                                    :key       :column-tree})}]))}]]))
+              main-container   [:div
+                                (themed ::wrapper
+                                  {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
+                                           :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
+                                   :ref   wrapper-ref!})]
+              cells            (for [row-path    @row-windowed-leaf-paths
+                                     column-path @column-windowed-leaf-paths
+                                     :let        [props {:row-path    row-path
+                                                         :column-path column-path}
+                                                  props (cond-> props
+                                                          cell-value   (assoc :cell-value
+                                                                              (cell-value props))
+                                                          theme-cells? (->> (theme ::cell-wrapper)))]]
+                                 (u/part cell props {:key     [row-path column-path]
+                                                     :default ngp/cell-wrapper}))]
           (conj main-container
                 (u/part cell-grid
                         (themed ::cell-grid
-                          {:children cells
+                          {:children (concat cells
+                                             (row-height-resizers {:offset -1})
+                                             (column-width-resizers {:style  {:grid-row-end -1}
+                                                                     :offset -1}))
                            :style    {:display               :grid
                                       :grid-column-start     2
                                       :grid-row-start        2
@@ -1369,12 +1428,12 @@
                                       :grid-template-columns @column-template}}))
                 (u/part column-header-grid
                         (themed ::column-header-grid
-                          {:children column-header-cells
+                          {:children (concat column-headers column-height-resizers (column-width-resizers))
                            :style    {:grid-template-rows    @column-header-template
                                       :grid-template-columns @column-template}}))
                 (u/part row-header-grid
                         (themed ::row-header-grid
-                          {:children (concat row-header-cells row-width-resizers row-height-resizers)
+                          {:children (concat row-headers row-width-resizers (row-height-resizers))
                            :style    {:grid-template-rows    @row-template
                                       :grid-template-columns @row-header-template}}))
                 spacer-container

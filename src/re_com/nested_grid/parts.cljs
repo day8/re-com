@@ -17,6 +17,10 @@
    :left   {:top    0  :left  -2 :width  5 :height "100%"}
    :right  {:top    0  :right -3 :width  5 :height "100%"}})
 
+(def column-header-label (comp :label peek :column-path))
+
+(def row-header-label (comp :label peek :row-path))
+
 (defn grid-line-button [_]
   (let [hover? (r/atom nil)]
     (fn [{:keys [on-mouse-down position style index]}]
@@ -24,9 +28,9 @@
              :alt (str index)
              :style         (merge {:position   :absolute
                                     :cursor     :grab
-                                    :background :orange #_"rgba(0,0,0,0.1)"
+                                    :background "rgba(0,0,0,0.1)"
                                     :box-shadow "0 0 4px rgba(0,0,0,0.1)"
-                                    :opacity    (if @hover? 1 0.5)}
+                                    :opacity    (if @hover? 1 0)}
                                    (box-style position)
                                    style)
              :on-mouse-down on-mouse-down

@@ -912,8 +912,8 @@
 
 (def row-header-widths (r/atom [20 30 40 50]))
 (def column-header-heights (r/atom [40 50]))
-(def row-tree (r/atom [{:id :a :size 45} 100 {:id :c :size 49} [99 98 [97 88]] [96 95]]))
-(def column-tree (r/atom [:a 100 {:id :c :size 89}]))
+(def row-tree (r/atom ngu/big-test-tree #_[{:id :a :size 45} 100 {:id :c :size 49} [99 98 [97 88]] [96 95]]))
+(def column-tree (r/atom [{:id :a :size 120} {:id :n :size 100} {:id :c :size 89}]))
 
 (defn panel []
   [rc/h-box
@@ -928,9 +928,9 @@
                       :column-tree-depth     2
                       :row-header-widths     row-header-widths
                       :column-header-heights column-header-heights
-                      :on-resize             (fn [{:keys [dimension value keypath size]}]
+                      :on-resize             (fn [{:keys [dimension keypath size]}]
                                                (case dimension
-                                                 :column-header-height (swap! column-header-heights assoc-in keypath value)
+                                                 :column-header-height (swap! column-header-heights assoc-in keypath size)
                                                  :row-header-width     (swap! row-header-widths assoc-in keypath size)
                                                  :row-height           (swap! row-tree update-in keypath assoc :size size)
                                                  :column-width         (swap! column-tree update-in keypath assoc :size size)))
