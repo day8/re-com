@@ -44,14 +44,21 @@
   [props _]
   (style props {:box-shadow "0 1px 0 #ccc"}))
 
-(defmethod base ::ng/column-header
+(defmethod base ::ng/corner-header-grid
   [props _]
-  (update props :style merge
-          {:user-select "none"
-           :width       "100%"
-           :height      "100%"}))
+  (style props {:position          :sticky
+                :display           :grid
+                :grid-row-start    1
+                :grid-column-start 1
+                :left              0
+                :top               0}))
 
-(def column-header-main
+(defmethod main ::ng/corner-header-grid
+  [props _]
+  (style props {:border-right "thin solid #ccc"
+                :border-bottom "thin solid #ccc"}))
+
+(def header-main
   (let [{:keys [sm-3 sm-4]}               default/golden-section-50
         {:keys [border light-background]} default/colors]
     {:padding-top      sm-3
@@ -60,13 +67,24 @@
      :background-color light-background
      :color            "#666"
      :font-size        "13px"
-     :border-top      "thin solid #ccc"
-     :border-left       "thin solid #ccc"}))
+     :border-top       "thin solid #ccc"
+     :border-left      "thin solid #ccc"}))
+
+(defmethod main ::ng/corner-header
+  [props _]
+  (style props header-main))
+
+(defmethod base ::ng/column-header
+  [props _]
+  (update props :style merge
+          {:user-select "none"
+           :width       "100%"
+           :height      "100%"}))
 
 (defmethod main ::ng/column-header
   [props {:keys [state]}]
   (let [{:keys [align-column align-column-header align]} (:header-spec state)]
-    (style props column-header-main
+    (style props header-main
            {:text-align (or align-column-header align-column align :center)})))
 
 (def row-header-main
