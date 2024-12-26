@@ -17,13 +17,15 @@
    :left   {:top    0  :left  -2 :width  5 :height "100%"}
    :right  {:top    0  :right -3 :width  5 :height "100%"}})
 
-(defn row-header-label [{:keys [row-path]}]
-  (let [spec (peek row-path)]
-    (:label spec (when spec (pr-str spec)))))
+(defn header-label [{:keys [path]}]
+  (let [spec (peek path)]
+    (or (:label spec)
+        (some-> spec :id str)
+        (some-> spec pr-str))))
 
-(defn column-header-label [{:keys [column-path]}]
-  (let [spec (peek column-path)]
-    (:label spec (when spec (pr-str spec)))))
+(def row-header-label header-label)
+
+(def column-header-label header-label)
 
 (defn grid-line-button [_]
   (let [hover? (r/atom nil)]

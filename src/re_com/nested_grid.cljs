@@ -1349,16 +1349,16 @@
 
               column-headers
               (for [column-path @column-windowed-paths
-                    :let        [props (themed ::column-header
-                                         {:column-path column-path
-                                          :path        column-path
-                                          :style       {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                        :grid-column-end   (str "span " (get @column-spans column-path))
-                                                        :grid-row-start    (count column-path)
-                                                        :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))
-                                                        :overflow          :hidden}
-                                          :children    [(u/part column-header-label props
-                                                                :default ngp/column-header-label)]})]]
+                    :let        [props {:column-path column-path
+                                        :path        column-path
+                                        :style       {:grid-column-start (ngu/path->grid-line-name column-path)
+                                                      :grid-column-end   (str "span " (get @column-spans column-path))
+                                                      :grid-row-start    (count column-path)
+                                                      :grid-row-end      (str "span " (inc (- @column-depth (count column-path))))
+                                                      :overflow          :hidden}}
+                                 props (assoc props :children    [(u/part column-header-label props
+                                                                          :default ngp/column-header-label)])
+                                 props (themed ::column-header props)]]
                 (u/part column-header props {:key column-path}))
 
               corner-headers
@@ -1368,8 +1368,7 @@
                                           {:row-index    row-index
                                            :column-index column-index
                                            :style        {:grid-row-start    (inc row-index)
-                                                          :grid-column-start (inc column-index)}
-                                           :children     [[:div "HI"]]})]]
+                                                          :grid-column-start (inc column-index)}})]]
                 (u/part corner-header props {:key [::corner-header row-index column-index]}))
 
               cells
