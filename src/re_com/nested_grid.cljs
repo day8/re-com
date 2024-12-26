@@ -1175,7 +1175,7 @@
 (defn nested-v-grid [{:keys [row-tree column-tree
                              row-tree-depth column-tree-depth
                              row-header-widths column-header-heights
-                             row-height column-width
+                             row-height column-width column-depth
                              theme
                              row-header-width column-header-height]
                       :or   {row-header-width 40 column-header-height 40
@@ -1191,24 +1191,24 @@
         internal-row-tree          (r/atom (u/deref-or-value row-tree))
         internal-column-tree       (r/atom (u/deref-or-value column-tree))
         size-cache                 (volatile! {})
+        column-depth               (r/reaction (or (u/deref-or-value column-tree-depth)
+                                                   (count (u/deref-or-value column-header-heights))))
+        row-depth                  (r/reaction (or (u/deref-or-value row-tree-depth)
+                                                   (count (u/deref-or-value row-header-widths))))
         row-traversal              (r/reaction (ngu/walk-size {:tree         @internal-row-tree
                                                                :window-start (- (or @wy 0) 20)
                                                                :window-end   (+ @wy @wh)
                                                                :size-cache   size-cache
                                                                :dimension    :row
-                                                               :tree-depth   (u/deref-or-value
-                                                                              row-tree-depth)
+                                                               :tree-depth   @row-depth
                                                                :default-size (u/deref-or-value row-height)}))
         column-traversal           (r/reaction (ngu/walk-size {:tree         @internal-column-tree
                                                                :window-start (- (or @wx 0) 20)
-                                                               :window-end   (+ @wx @ww)
+                                                               :window-end   (+ @wx @ww 50)
                                                                :size-cache   size-cache
                                                                :dimension    :column
-                                                               :tree-depth   (u/deref-or-value
-                                                                              column-tree-depth)
+                                                               :tree-depth   @column-depth
                                                                :default-size (u/deref-or-value column-width)}))
-        column-depth               (r/reaction (:depth @column-traversal))
-        row-depth                  (r/reaction (:depth @row-traversal))
         column-header-heights      (r/reaction (or
                                                 (u/deref-or-value column-header-heights-internal)
                                                 (u/deref-or-value column-header-heights)
@@ -1223,7 +1223,8 @@
         column-windowed-leaf-paths (r/reaction (:windowed-leaf-paths @column-traversal))
         column-windowed-keypaths   (r/reaction (:windowed-keypaths @column-traversal))
         column-windowed-sizes      (r/reaction (:windowed-sizes @column-traversal))
-        column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal))
+        column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal
+                                                                     @column-depth))
         column-template            (r/reaction (ngu/lazy-grid-template @column-tokens))
         column-header-template     (r/reaction (ngu/grid-template @column-header-heights))
         column-spans               (r/reaction (ngu/grid-spans @column-windowed-paths))
@@ -1235,7 +1236,8 @@
         row-windowed-leaf-paths    (r/reaction (:windowed-leaf-paths @row-traversal))
         row-windowed-keypaths      (r/reaction (:windowed-keypaths @row-traversal))
         row-windowed-sizes         (r/reaction (:windowed-sizes @row-traversal))
-        row-tokens                 (r/reaction (ngu/lazy-grid-tokens @row-traversal))
+        row-tokens                 (r/reaction (ngu/lazy-grid-tokens @row-traversal
+                                                                     @row-depth))
         row-template               (r/reaction (ngu/lazy-grid-template @row-tokens))
         row-header-template        (r/reaction (ngu/grid-template @row-header-widths))
         row-spans                  (r/reaction (ngu/grid-spans @row-windowed-paths))]
@@ -1280,6 +1282,7 @@
                                               :background-color  :white}}]
               row-headers      (for [row-path @row-windowed-paths
                                      :let     [props {:row-path row-path
+                                                      :path     row-path
                                                       :style    {:grid-row-start    (ngu/path->grid-line-name row-path)
                                                                  :grid-row-end      (str "span " (get @row-spans row-path))
                                                                  :grid-column-start (count row-path)
@@ -1303,13 +1306,13 @@
               row-width-resizers
               (for [i (range @row-depth)]
                 ^{:key [::row-width-resizer i]}
-                [ngp/resizer {:path      (get @column-windowed-paths i)
-                              :on-resize on-resize
+                [ngp/resizer {:on-resize on-resize
                               :overlay   overlay
                               :dimension :row-header-width
                               :keypath   [i]
                               :index     i
                               :size      (get @row-header-widths i)}])
+
               column-height-resizers
               (for [i (range @column-depth)]
                 ^{:key [::column-height-resizer i]}
@@ -1319,12 +1322,15 @@
                               :dimension :column-header-height
                               :keypath   [i]
                               :index     i
-                              :size      (get  @column-header-heights i)}])
+                              :size      (get @column-header-heights i)}])
+
               row-height-resizers
               (fn [& {:keys [offset]}]
                 (for [i     (range (count @row-windowed-paths))
-                      :let  [row-path (get @row-windowed-paths i)]
-                      :when (map? (peek row-path))
+                      :let  [row-path (get @row-windowed-paths i)
+                             size (get @row-windowed-sizes i)]
+                      :when (and (pos? size)
+                                 (map? (peek row-path)))
                       :let  []]
                   ^{:key [::row-height-resizer i]}
                   [ngp/resizer {:path      row-path
@@ -1332,8 +1338,9 @@
                                 :on-resize on-resize
                                 :overlay   overlay
                                 :keypath   (get @row-windowed-keypaths i)
-                                :size      (get @row-windowed-sizes i)
+                                :size      size
                                 :dimension :row-height}]))
+
               column-width-resizers
               (fn [& {:keys [offset style]}]
                 (for [i     (range (count @column-windowed-paths))
@@ -1348,21 +1355,21 @@
                                 :keypath   (get @column-windowed-keypaths i)
                                 :size      (get @column-windowed-sizes i)
                                 :dimension :column-width}]))
-              main-container   [:div
-                                (themed ::wrapper
-                                  {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
-                                           :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
-                                   :ref   wrapper-ref!})]
-              cells            (for [row-path    @row-windowed-leaf-paths
-                                     column-path @column-windowed-leaf-paths
-                                     :let        [props {:row-path    row-path
-                                                         :column-path column-path}
-                                                  props (cond-> props
-                                                          cell-value   (assoc :cell-value
-                                                                              (cell-value props))
-                                                          theme-cells? (->> (theme ::cell-wrapper)))]]
-                                 (u/part cell props {:key     [row-path column-path]
-                                                     :default ngp/cell-wrapper}))]
+              main-container [:div
+                              (themed ::wrapper
+                                {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
+                                         :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
+                                 :ref   wrapper-ref!})]
+              cells          (for [row-path    @row-windowed-leaf-paths
+                                   column-path @column-windowed-leaf-paths
+                                   :let        [props {:row-path    row-path
+                                                       :column-path column-path}
+                                                props (cond-> props
+                                                        cell-value   (assoc :cell-value
+                                                                            (cell-value props))
+                                                        theme-cells? (->> (theme ::cell-wrapper)))]]
+                               (u/part cell props {:key     [row-path column-path]
+                                                   :default ngp/cell-wrapper}))]
           (conj main-container
                 (u/part cell-grid
                         (themed ::cell-grid
