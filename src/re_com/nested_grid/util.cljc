@@ -78,15 +78,15 @@
                  num-within      total-within          items-within
                  (inc num-above) (+ total-above value) (conj items-above i)))))))
 
+(def header-spec? sequential?)
+
+(def branch? header-spec?)
+
 (def children (comp seq rest))
 
 (def own-leaf first)
 
-(def leaf? (some-fn keyword? map? number?))
-
-(defn branch? [node]
-  (and (vector? node)
-       (leaf? (first node))))
+(def leaf? (complement header-spec?))
 
 (def invalid? (complement (some-fn leaf? branch?)))
 
@@ -96,52 +96,60 @@
   (cond-> m (map? m) (dissoc :size)))
 
 (defn walk-size [{:keys [window-start window-end tree size-cache dimension tree-depth default-size]}]
-  (let [sum-size            (volatile! 0)
-        depth               (volatile! 0)
-        tree-hash           (hash tree)
-        cached-depth        (and size-cache
-                                 (get-in @size-cache [dimension tree-hash ::depth]))
-        cached-sum-size     (and size-cache
-                                 (get-in @size-cache [dimension tree-hash ::sum-size]))
-        tail-cached?        (and cached-depth cached-sum-size)
-        windowed-paths      (volatile! [])
-        windowed-leaf-paths (volatile! [])
-        windowed-keypaths   (volatile! [])
-        windowed-sizes      (volatile! [])
-        windowed-sums       (volatile! [])
-        collect-depth!      (fn [n] (vswap! depth max n))
-        collect-size!       (fn [size] (vswap! windowed-sizes conj size))
-        forget-size!        #(vswap! windowed-sizes pop)
-        collect-leaf-path!  (fn [path]  (vswap! windowed-leaf-paths conj path))
-        collect-keypath!    (fn [keypath] (vswap! windowed-keypaths conj keypath))
-        forget-keypath!     #(vswap! windowed-keypaths pop)
-        collect-sum!        (fn [sum]  (vswap! windowed-sums conj sum))
-        forget-sum!         #(vswap! windowed-sums pop)
-        collect-path!       (fn [size] (vswap! windowed-paths conj size))
-        forget-path!        #(vswap! windowed-paths pop)
-        cache!              (if-not size-cache
-                              (constantly nil)
-                              (fn [node size] (vswap! size-cache assoc node size)))
-        lookup              (if-not size-cache
-                              (constantly nil)
-                              #(get @size-cache %))
-        intersection?       (if-not (and window-start window-end)
-                              (constantly true)
-                              (fn [[x1 x2]]
-                                (and (<= x1 window-end)
-                                     (>= x2 window-start))))
+  (let [sum-size               (volatile! 0)
+        depth                  (volatile! 0)
+        tree-hash              (hash tree)
+        cached-depth           (and size-cache
+                                    (get-in @size-cache [dimension tree-hash ::depth]))
+        cached-sum-size        (and size-cache
+                                    (get-in @size-cache [dimension tree-hash ::sum-size]))
+        tail-cached?           (and cached-depth cached-sum-size)
+        windowed-paths         (volatile! [])
+        windowed-leaf-paths    (volatile! [])
+        windowed-keypaths      (volatile! [])
+        windowed-leaf-keypaths (volatile! [])
+        windowed-sizes         (volatile! [])
+        windowed-sums          (volatile! [])
+        collect-depth!         (fn [n] (vswap! depth max n))
+        collect-size!          (fn [size] (vswap! windowed-sizes conj size))
+        forget-size!           #(vswap! windowed-sizes pop)
+        collect-leaf-path!     (fn [path]  (vswap! windowed-leaf-paths conj path))
+        collect-keypath!       (fn [keypath] (vswap! windowed-keypaths conj keypath))
+        collect-leaf-keypath!  (fn [keypath] (vswap! windowed-leaf-keypaths conj keypath))
+        forget-keypath!        #(vswap! windowed-keypaths pop)
+        collect-sum!           (fn [sum]  (vswap! windowed-sums conj sum))
+        forget-sum!            #(vswap! windowed-sums pop)
+        collect-path!          (fn [size] (vswap! windowed-paths conj size))
+        forget-path!           #(vswap! windowed-paths pop)
+        cache!                 (if-not size-cache
+                                 (constantly nil)
+                                 (fn [node size] (vswap! size-cache assoc node size)))
+        lookup                 (if-not size-cache
+                                 (constantly nil)
+                                 #(get @size-cache %))
+        intersection?          (if-not (and window-start window-end)
+                                 (constantly true)
+                                 (fn [[x1 x2]]
+                                   (and (<= x1 window-end)
+                                        (>= x2 window-start))))
         walk
-        (fn walk [path node & {:keys [collect-me? keypath] :or {collect-me? true}}]
+        (fn walk [path node & {:keys [collect-me? keypath]
+                               :or   {collect-me? true}}]
           (let [sum          @sum-size
                 passed-tail? (and tail-cached? (> sum window-end))]
             (cond
               passed-tail?   :exit
-              (leaf? node)   (let [leaf-size (or (leaf-size node)
-                                                 default-size)
-                                   leaf-path (conj path node)
+              (leaf? node)   (let [leaf-path (conj path node)
+                                   show?     (get node :show?
+                                                  (= tree-depth (count leaf-path))) ;;TODO counting is slow, even at O(1)! maybe accumulate the depth instead of counting it.
+                                   leaf-size (when show?
+                                               (or (leaf-size node)
+                                                   default-size))
                                    bounds    [sum (+ sum leaf-size)]]
                                (when (intersection? bounds)
-                                 (collect-leaf-path! leaf-path)
+                                 (when show?
+                                   (collect-leaf-path! leaf-path)
+                                   (collect-leaf-keypath! keypath))
                                  (when collect-me?
                                    (collect-path! leaf-path)
                                    (collect-sum! sum)
@@ -187,23 +195,31 @@
       (vswap! size-cache assoc-in [dimension tree-hash ::depth] @depth))
     (when-not cached-sum-size
       (vswap! size-cache assoc-in [dimension tree-hash ::sum-size] @sum-size))
-    {:sum-size            (or cached-sum-size @sum-size)
-     :depth               (or tree-depth (inc cached-depth) (inc @depth))
-     :windowed-sums       @windowed-sums
-     :windowed-paths      (mapv #(mapv remove-size %) @windowed-paths)
-     :windowed-keypaths   @windowed-keypaths
-     :windowed-sizes      @windowed-sizes
-     :windowed-leaf-paths (mapv #(mapv remove-size %) @windowed-leaf-paths)
-     :window-start        window-start
-     :window-end          window-end}))
+    {:sum-size               (or cached-sum-size @sum-size)
+     :depth                  (or tree-depth (inc cached-depth) (inc @depth))
+     :windowed-sums          @windowed-sums
+     :windowed-paths         (mapv #(mapv remove-size %) @windowed-paths)
+     :windowed-keypaths      @windowed-keypaths
+     :windowed-leaf-keypaths @windowed-leaf-keypaths
+     :windowed-sizes         @windowed-sizes
+     :windowed-leaf-paths    (mapv #(mapv remove-size %) @windowed-leaf-paths)
+     :window-start           window-start
+     :window-end             window-end}))
 
-(def test-tree [{:id :z :label "ZZ"}
+(walk-size {:window-start 0
+            :window-end   999
+            :size-cache   (volatile! {})
+            :tree         [{:show? false}]})
+
+(def test-tree [{:id :z :label "ZZ" :show? false}
                 [:g
-                 [{:id :x :label "HIHI"} {:size 20}]
-                 [{:id :y :label "HIHI"} {:size 40}]
-                 [:z 20]]
+                 [{:id :x :label "HIHI" :size 99}
+                  {:label "something" :size 20}]
+                 [{:id :y :label "HIHI"}
+                  [{:label "sometihng-else" :size 40}]]
+                 [:z {:size 20}]]
                 [:h
-                 [:x 20]
+                 [:x {:id 20}]
                  [:y 40]
                  [:z 20]]
                 [:i
@@ -231,7 +247,7 @@
                                        [:z 20]
                                        [:h 10]])))]))
 
-#_(walk-size {:window-start 372
+#_(walk-size {:window-start 0
               :window-end   472
               :size-cache   (volatile! {})
               :tree         test-tree})
@@ -245,22 +261,21 @@
          :windowed-sums  [0  180 240 260 300 320 340]})
 
 (defn lazy-grid-tokens
-  [{:keys [windowed-paths windowed-sizes windowed-sums sum-size]}]
+  [{:keys [windowed-paths windowed-sizes windowed-sums sum-size]}
+   depth]
   (into ["[start]"]
         (loop [[path & rest-paths]              windowed-paths
                [size & rest-sizes]              windowed-sizes
                [sum & [next-sum :as rest-sums]] (conj windowed-sums sum-size)
                result                           []]
-          (let [spacer? (not= next-sum (+ sum size))
-                next-result (if spacer?
-                              (conj result
-                                    path
-                                    size
-                                    "[spacer]"
-                                    (- next-sum size sum))
-                              (conj result
-                                    path
-                                    size))]
+          (let [{:keys [show?] :or {show? (= depth (count path))}}
+                (peek path)
+                spacer?     (not= next-sum (+ sum size))
+                next-result (cond-> result
+                              :do     (conj path)
+                              show?   (conj size)
+                              spacer? (conj "[spacer]"
+                                            (- next-sum size sum)))]
             (if (empty? rest-sizes)
               (conj next-result "[end]")
               (recur rest-paths rest-sizes rest-sums next-result))))))
@@ -285,8 +300,4 @@
                  (vswap! results update p inc)))
              grid-tokens)
        @results)))
-
-
-
-
 

@@ -911,9 +911,9 @@
 (def        wh                   (r/atom 500))
 
 (def row-header-widths (r/atom [20 30 40 50]))
-(def column-header-heights (r/atom [40 50]))
+(def column-header-heights (r/atom [40 50 70]))
 (def row-tree (r/atom ngu/big-test-tree #_[{:id :a :size 45} 100 {:id :c :size 49} [99 98 [97 88]] [96 95]]))
-(def column-tree (r/atom [{:id :a :size 120} {:id :n :size 100} {:id :c :size 89}]))
+(def column-tree (r/atom [{:id :a :size 120} [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89} {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
 
 (defn panel []
   [rc/h-box
@@ -925,7 +925,6 @@
       [nested-v-grid {:row-tree              row-tree
                       :column-tree           column-tree
                       :row-tree-depth        4
-                      :column-tree-depth     2
                       :row-header-widths     row-header-widths
                       :column-header-heights column-header-heights
                       :on-resize             (fn [{:keys [dimension keypath size]}]
