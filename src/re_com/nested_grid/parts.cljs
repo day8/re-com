@@ -23,11 +23,11 @@
 
 (defn grid-line-button [_]
   (let [hover? (r/atom nil)]
-    (fn [{:keys [on-mouse-down position style index]}]
-      [:div {:title (str index)
-             :alt (str index)
-             :style         (merge {:position   :absolute
-                                    :cursor     :grab
+    (fn [{:keys [on-mouse-down position style]}]
+      [:div {:style         (merge {:position   :absolute
+                                    :cursor     (case position
+                                                  (:left :right) :col-resize
+                                                  (:top :bottom) :row-resize)
                                     :background "rgba(0,0,0,0.1)"
                                     :box-shadow "0 0 4px rgba(0,0,0,0.1)"
                                     :opacity    (if @hover? 1 0)}
@@ -37,7 +37,7 @@
              :on-mouse-over #(reset! hover? true)
              :on-mouse-out  #(reset! hover? false)}])))
 
-(defn drag-overlay [{:keys [x-start y-start on-mouse-move on-mouse-up]}]
+(defn drag-overlay [{:keys [x-start y-start on-mouse-move on-mouse-up dimension]}]
   (fn [_]
     [:div {:on-mouse-up   on-mouse-up
            :on-mouse-move #(let [x (.-clientX %)
@@ -53,5 +53,45 @@
                            :z-index              2147483647
                            :height               "100%"
                            :width                "100%"
-                           :cursor               :grab
+                           :cursor               (case dimension
+                                                   (:row-header-width :column-width) :col-resize
+                                                   (:column-header-height :row-height) :row-resize :grab)
                            #_#_:background-color "rgba(255,0,0,0.4)"}}]))
+
+(defn resizer [{:keys [path keypath size offset overlay on-resize index dimension style]}]
+  (let [resize-dimension (case dimension
+                           (:row-header-width :column-width)   :w
+                           (:row-height :column-header-height) :h)]
+    [:div {:class "rc-nested-v-grid-resizer"
+           :style (merge
+                   {:position :relative}
+                   (case resize-dimension
+                     :w {:grid-row-start 1
+                         :grid-row-end   -1
+                         :width          0
+                         :margin-left    (+ size offset)}
+                     :h {:grid-column-start 1
+                         :grid-column-end   -1
+                         :height            0
+                         :margin-top        (+ size offset)})
+                   (case dimension
+                     :column-width         {:grid-column-start (ngu/path->grid-line-name path)}
+                     :column-header-height {:grid-row-start (inc index)}
+                     :row-height           {:grid-row-start (ngu/path->grid-line-name path)}
+                     :row-header-width     {:grid-column-start (inc index)})
+                   style)}
+     [grid-line-button
+      {:position      (case resize-dimension :w :right :h :bottom)
+       :on-mouse-down (fn [e]
+                        (reset! overlay [drag-overlay
+                                         {:x-start       (.-clientX e)
+                                          :y-start       (.-clientY e)
+                                          :dimension     dimension
+                                          :on-mouse-up   #(reset! overlay nil)
+                                          :on-mouse-move (fn [{:keys [dx dy]}]
+                                                           (on-resize {:dimension dimension
+                                                                       :keypath   keypath
+                                                                       :size      (-> (case resize-dimension :w dx :h dy)
+                                                                                      (+ size)
+                                                                                      (max 10))
+                                                                       :key       :column-tree}))}]))}]]))
