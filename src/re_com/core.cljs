@@ -30,7 +30,8 @@
    [re-com.tree-select    :as tree-select]
    [re-com.v-table        :as v-table]
    [re-com.simple-v-table :as simple-v-table]
-   [re-com.nested-grid    :as nested-grid]))
+   [re-com.nested-grid    :as nested-grid]
+   re-com.nested-grid-old))
 
 ;; -----------------------------------------------------------------------------
 ;; re-com public API (see also re-com.util)
@@ -56,7 +57,7 @@
 (def v-table                    v-table/v-table)
 (def show-row-data-on-alt-click v-table/show-row-data-on-alt-click)
 (def simple-v-table             simple-v-table/simple-v-table)
-(def nested-grid                nested-grid/nested-grid)
+(def nested-grid                re-com.nested-grid-old/nested-grid)
 
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)

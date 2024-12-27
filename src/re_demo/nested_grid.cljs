@@ -6,7 +6,9 @@
    [re-com.theme :as theme]
    [re-com.nested-grid.util :as ngu]
    [reagent.core :as r]
-   [re-com.nested-grid  :as grid :refer [nested-grid nested-v-grid nested-grid-args-desc nested-grid-parts-desc]]
+   [re-com.nested-grid-old :refer [nested-grid leaf-paths header-spec->header-paths
+                                   nested-grid-args-desc nested-grid-parts-desc]]
+   [re-com.nested-grid  :as grid :refer [nested-v-grid]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
@@ -410,9 +412,9 @@
      :cell (fn [{:keys [column-path] [{:keys [tree]}] :row-path}]
              (case (:id (last column-path))
                "Tree"       (str tree)
-               "Leaf Paths" (str (vec (grid/leaf-paths
-                                       (grid/header-spec->header-paths tree))))
-               "All Paths"  (str (grid/header-spec->header-paths tree))))]
+               "Leaf Paths" (str (vec (leaf-paths
+                                       (header-spec->header-paths tree))))
+               "All Paths"  (str (header-spec->header-paths tree))))]
     [p "This table demonstrates how " [:code "nested-grid"] " derives a vector of " [:code ":column-path"] "s from a " [:code ":column-tree"] "."]
     [line]
     [h-box
@@ -910,9 +912,9 @@
 (def        ww                   (r/atom 500))
 (def        wh                   (r/atom 500))
 
-(def row-header-widths (r/atom [20 30 40 50]))
+(def row-header-widths (r/atom [20 30 40]))
 (def column-header-heights (r/atom [40 50 70]))
-(def row-tree (r/atom ngu/big-test-tree #_[{:id :a :size 45} 100 {:id :c :size 49} [99 98 [97 88]] [96 95]]))
+(def row-tree (r/atom ngu/small-test-tree))
 (def column-tree (r/atom [{:id :a :size 120} [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89} {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
 
 (defn panel []
@@ -924,7 +926,7 @@
      [[rc/gap :size "50px"]
       [nested-v-grid {:row-tree              row-tree
                       :column-tree           column-tree
-                      :row-tree-depth        4
+                      :row-tree-depth        3
                       :row-header-widths     row-header-widths
                       :column-header-heights column-header-heights
                       :on-resize             (fn [{:keys [dimension keypath size]}]
