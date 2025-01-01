@@ -168,16 +168,20 @@
                   :ref   wrapper-ref!})]
 
               row-headers
-              (for [row-path @row-paths
-                    :let     [props {:row-path row-path
+              (for [i (range (count  @row-paths))
+                    :let     [row-path (get @row-paths i)
+                              keypath (get @row-keypaths i)
+                              {:keys [is-after?]} (meta row-path)
+                              props {:row-path row-path
                                      :path     row-path
                                      :style    {:grid-row-start    (ngu/path->grid-line-name row-path)
                                                 :grid-row-end      (str "span " (get @row-spans row-path))
-                                                :grid-column-start (count row-path)
+                                                :grid-column-start (cond-> (count row-path) is-after? dec)
                                                 :grid-column-end   -1}}
                               props (assoc props :children [(u/part row-header-label props
-                                                                    :default ngp/row-header-label)])
-                              props (themed ::row-header props)]]
+                                                                    :default #(str (meta row-path)) #_ngp/row-header-label)])
+                              props (themed ::row-header props)
+                              props (cond-> props is-after? (assoc-in [:style :border-top] :unset))]]
                 (u/part row-header props {:key row-path}))
 
               column-headers
