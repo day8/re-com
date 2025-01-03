@@ -95,7 +95,7 @@
 (defn remove-size [m]
   (cond-> m (map? m) (dissoc :size)))
 
-(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size]}]
+(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size branches?]}]
   (let [sum-size         (volatile! 0)
         tree-hash        (hash tree)
         cached-sum-size  (and size-cache
@@ -125,7 +125,7 @@
                              (and (<= x1 window-end)
                                   (>= x2 window-start))))
         walk
-        (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? is-leaf-2? show-below? is-after? last-child?]
+        (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? is-after? last-child?]
                                :or   {is-leaf? true
                                       keypath  []}}]
           (let [sum          @sum-size
@@ -156,7 +156,7 @@
                                    cbounds      (when csize [sum (+ sum csize)])
                                    skippable?   (and csize (not (intersection? cbounds)))
                                    children     (vec (children node))
-                                   show-after?  (get (own-leaf node) :show-after?)
+                                   show-after?  (or branches? (get (own-leaf node) :show-after?))
                                    add-after?   (seq children)
                                    after-child  [(first node)]
                                    all-children (cond-> children
@@ -168,7 +168,8 @@
                                        own-size     (walk path (own-leaf node) {:collect-anyway? true
                                                                                 :is-leaf?        is-leaf?
                                                                                 :keypath         (conj keypath 0)
-                                                                                :is-after?       is-after?})
+                                                                                :is-after?       is-after?
+                                                                                :last-child?     last-child?})
                                        descend-tx   (map-indexed
                                                      (fn [i subtree]
                                                        (walk own-path
@@ -178,7 +179,8 @@
                                                                                   (conj (inc i)))
                                                                      :is-leaf?  true
                                                                      :is-after? (= after-child subtree)}
-                                                                    (when (= i (- (count children) 1)) {:last-child? true})))))
+                                                                    (when (= i (- (count children) (when add-after? 1)))
+                                                                      {:last-child? true})))))
                                        total-size   (+ own-size
                                                        (transduce descend-tx + all-children))
                                        total-bounds [sum (+ sum total-size)]]

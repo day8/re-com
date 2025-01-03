@@ -912,9 +912,9 @@
 (def        ww                   (r/atom 500))
 (def        wh                   (r/atom 500))
 
-(def row-header-widths (r/atom [20 30 40]))
+(def row-header-widths (r/atom [20 30 40 40 50]))
 (def column-header-heights (r/atom [40 50 70]))
-(def row-tree (r/atom ngu/small-test-tree))
+(def row-tree (r/atom ngu/huge-test-tree))
 (def column-tree (r/atom [{:id :a :size 120} [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89} {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
 
 (defn panel []
@@ -926,9 +926,11 @@
      [[rc/gap :size "50px"]
       [nested-v-grid {:row-tree              row-tree
                       :column-tree           column-tree
-                      :row-tree-depth        3
+                      :row-tree-depth        5
                       :row-header-widths     row-header-widths
                       :column-header-heights column-header-heights
+                      :show-row-branches?    true
+                      :show-column-branches? true
                       :on-resize             (fn [{:keys [dimension keypath size]}]
                                                (case dimension
                                                  :column-header-height (swap! column-header-heights assoc-in keypath size)

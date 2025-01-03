@@ -4,6 +4,8 @@
    [re-com.theme.util :refer [merge-props merge-class]]
    [re-com.nested-grid :as-alias ng]))
 
+(def light-border "thin solid #ccc")
+
 (defmethod base ::ng/wrapper [props _]
   (style props {:height   300
                 :width    500
@@ -17,8 +19,8 @@
 
 (defmethod main ::ng/cell-grid
   [props _]
-  (style props {:border-top  "thin solid #ccc"
-                :border-left "thin solid #ccc"}))
+  (style props {#_#_:border-top  light-border
+                #_#_:border-left light-border}))
 
 (defmethod base ::ng/column-header-grid
   [props _]
@@ -30,7 +32,8 @@
 
 (defmethod main ::ng/column-header-grid
   [props _]
-  (style props {:box-shadow "1px 0 0 #ccc"}))
+  (style props {:border-bottom light-border
+                #_#_:border-left light-border}))
 
 (defmethod base ::ng/row-header-grid
   [props _]
@@ -42,7 +45,8 @@
 
 (defmethod main ::ng/row-header-grid
   [props _]
-  (style props {:box-shadow "0 1px 0 #ccc"}))
+  (style props {:border-right light-border
+                #_#_:border-top light-border}))
 
 (defmethod base ::ng/corner-header-grid
   [props _]
@@ -55,8 +59,10 @@
 
 (defmethod main ::ng/corner-header-grid
   [props _]
-  (style props {:border-right "thin solid #ccc"
-                :border-bottom "thin solid #ccc"}))
+  (style props {:border-top light-border
+                :border-left light-border
+                :border-right "2px solid #ccc"
+                :border-bottom "2px solid #ccc"}))
 
 (def header-main
   (let [{:keys [sm-3 sm-4]}               default/golden-section-50
@@ -66,9 +72,7 @@
      :padding-left     sm-4
      :background-color light-background
      :color            "#666"
-     :font-size        "13px"
-     :border-top       "thin solid #ccc"
-     :border-left      "thin solid #ccc"}))
+     :font-size        "13px"}))
 
 (defmethod main ::ng/corner-header
   [props _]
@@ -118,8 +122,8 @@
      :padding-right    sm-3
      :padding-left     sm-3
      :text-align :right
-     :border-right "thin solid #ccc"
-     :border-bottom "thin solid #ccc"}))
+     :border-right light-border
+     :border-bottom light-border}))
 
 (defmethod main ::ng/cell-wrapper
   [props {{:keys [edge value column-path]} :state}]
@@ -137,7 +141,7 @@
                                   (contains? edge :right)
                                   "thin solid #aaa"
                                   :else
-                                  "thin solid #ccc")
+                                  light-border)
                  :border-bottom (if (contains? edge :bottom)
                                   "thin solid #aaa"
-                                  "thin solid #ccc")}))))
+                                  light-border)}))))
