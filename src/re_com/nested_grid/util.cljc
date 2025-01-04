@@ -95,7 +95,7 @@
 (defn remove-size [m]
   (cond-> m (map? m) (dissoc :size)))
 
-(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size branches?]}]
+(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size show-branch-cells?]}]
   (let [sum-size         (volatile! 0)
         tree-hash        (hash tree)
         cached-sum-size  (and size-cache
@@ -156,7 +156,7 @@
                                    cbounds      (when csize [sum (+ sum csize)])
                                    skippable?   (and csize (not (intersection? cbounds)))
                                    children     (vec (children node))
-                                   show-after?  (or branches? (get (own-leaf node) :show-after?))
+                                   show-after?  (or show-branch-cells? (get (own-leaf node) :show-after?))
                                    add-after?   (seq children)
                                    after-child  [(first node)]
                                    all-children (cond-> children

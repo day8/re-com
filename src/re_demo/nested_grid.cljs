@@ -4,6 +4,8 @@
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
    [re-com.util :as u]
    [re-com.theme :as theme]
+   [re-com.nested-grid.theme :as ng-theme]
+   [re-com.theme.default :as default]
    [re-com.nested-grid.util :as ngu]
    [reagent.core :as r]
    [re-com.nested-grid-old :refer [nested-grid leaf-paths header-spec->header-paths
@@ -915,7 +917,9 @@
 (def row-header-widths (r/atom [20 30 40 40 50]))
 (def column-header-heights (r/atom [40 50 70]))
 (def row-tree (r/atom ngu/huge-test-tree))
-(def column-tree (r/atom [{:id :a :size 120} [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89} {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
+(def column-tree (r/atom [{:id :a :size 120}
+                          [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
+                           {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
 
 (defn panel []
   [rc/h-box
@@ -938,7 +942,19 @@
                                                  :row-height           (swap! row-tree update-in keypath assoc :size size)
                                                  :column-width         (swap! column-tree update-in keypath assoc :size size)))
                       :parts                 {:wrapper {:style {:height @wh
-                                                                :width  @ww}}}}]
+                                                                :width  @ww}}
+                                              :row-header-label
+                                              (fn [{:keys [row-path]}]
+                                                (let [{:keys [is-after?]} (meta row-path)
+                                                      the-label (get (last row-path) :label "placeholder")]
+                                                  (if is-after?
+                                                    (str the-label " (Total)")
+                                                    the-label)))
+                                              :corner-header
+                                              (fn [{:keys [edge row-index column-index style class attr] :as props}]
+                                                [:div (merge {:style style :class class} attr)
+                                                 (when (= 2 row-index)
+                                                   (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
       "Window width"
       [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
       "Window height"

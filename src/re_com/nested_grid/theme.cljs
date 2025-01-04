@@ -4,7 +4,8 @@
    [re-com.theme.util :refer [merge-props merge-class]]
    [re-com.nested-grid :as-alias ng]))
 
-(def light-border "thin solid #ccc")
+(def border-light "thin solid #ccc")
+(def border-dark "thin solid #aaa")
 
 (defmethod base ::ng/wrapper [props _]
   (style props {:height   300
@@ -30,11 +31,6 @@
               :position :sticky
               :top      0})))
 
-(defmethod main ::ng/column-header-grid
-  [props _]
-  (style props {:border-bottom light-border
-                #_#_:border-left light-border}))
-
 (defmethod base ::ng/row-header-grid
   [props _]
   (-> props
@@ -42,11 +38,6 @@
       (style {:display  :grid
               :position :sticky
               :left      0})))
-
-(defmethod main ::ng/row-header-grid
-  [props _]
-  (style props {:border-right light-border
-                #_#_:border-top light-border}))
 
 (defmethod base ::ng/corner-header-grid
   [props _]
@@ -57,16 +48,9 @@
                 :left              0
                 :top               0}))
 
-(defmethod main ::ng/corner-header-grid
-  [props _]
-  (style props {:border-top light-border
-                :border-left light-border
-                :border-right "2px solid #ccc"
-                :border-bottom "2px solid #ccc"}))
-
 (def header-main
   (let [{:keys [sm-3 sm-4]}               default/golden-section-50
-        {:keys [border light-background]} default/colors]
+        {:keys [light-background]} default/colors]
     {:padding-top      sm-3
      :padding-right    sm-4
      :padding-left     sm-4
@@ -75,15 +59,20 @@
      :font-size        "13px"}))
 
 (defmethod main ::ng/corner-header
-  [props _]
-  (style props header-main))
+  [{:keys [edge] :as props} _]
+  (style props header-main
+         (when (edge :top) {:border-top border-light})
+         (when (edge :right) {:border-right border-light})
+         (when (edge :bottom) {:border-bottom border-light})
+         (when (edge :left) {:border-left border-light})))
 
 (defmethod base ::ng/column-header
   [props _]
   (update props :style merge
-          {:user-select "none"
-           :width       "100%"
-           :height      "100%"}))
+          {:user-select   "none"
+           :width         "100%"
+           :height        "100%"
+           :border-bottom border-dark}))
 
 (defmethod main ::ng/column-header
   [props {:keys [state]}]
@@ -106,12 +95,7 @@
 (defmethod main ::ng/row-header
   [props {{:keys [edge]} :state}]
   (style props row-header-main
-         #_(when (contains? edge :right)
-             {:border-right "thin solid #aaa"})
-         #_(when (contains? edge :left)
-             {:border-left "thin solid #aaa"})
-         #_(when (contains? edge :bottom)
-             {:border-bottom "thin solid #aaa"})))
+         {:border-right border-dark}))
 
 (def cell-wrapper-main
   (let [{:keys [sm-3]} default/golden-section-50]
@@ -122,8 +106,8 @@
      :padding-right    sm-3
      :padding-left     sm-3
      :text-align :right
-     :border-right light-border
-     :border-bottom light-border}))
+     :border-right border-light
+     :border-bottom border-light}))
 
 (defmethod main ::ng/cell-wrapper
   [props {{:keys [edge value column-path]} :state}]

@@ -30,22 +30,24 @@
                                                    (count (u/deref-or-value column-header-heights))))
         row-depth                  (r/reaction (or (u/deref-or-value row-tree-depth)
                                                    (count (u/deref-or-value row-header-widths))))
-        row-traversal              (r/reaction (ngu/walk-size {:tree         @internal-row-tree
-                                                               :window-start (- (or @wy 0) 20)
-                                                               :window-end   (+ @wy @wh)
-                                                               :size-cache   size-cache
-                                                               :dimension    :row
-                                                               :branches?    show-row-branches?
-                                                               :tree-depth   @row-depth
-                                                               :default-size (u/deref-or-value row-height)}))
-        column-traversal           (r/reaction (ngu/walk-size {:tree         @internal-column-tree
-                                                               :window-start (- (or @wx 0) 20)
-                                                               :window-end   (+ @wx @ww 50)
-                                                               :size-cache   size-cache
-                                                               :dimension    :column
-                                                               :branches?    show-column-branches?
-                                                               :tree-depth   @column-depth
-                                                               :default-size (u/deref-or-value column-width)}))
+        row-traversal              (r/reaction
+                                    (ngu/walk-size {:tree               @internal-row-tree
+                                                    :window-start       (- (or @wy 0) 20)
+                                                    :window-end         (+ @wy @wh)
+                                                    :size-cache         size-cache
+                                                    :dimension          :row
+                                                    :show-branch-cells? show-row-branches?
+                                                    :tree-depth         @row-depth
+                                                    :default-size       (u/deref-or-value row-height)}))
+        column-traversal           (r/reaction
+                                    (ngu/walk-size {:tree               @internal-column-tree
+                                                    :window-start       (- (or @wx 0) 20)
+                                                    :window-end         (+ @wx @ww 50)
+                                                    :size-cache         size-cache
+                                                    :dimension          :column
+                                                    :show-branch-cells? show-column-branches?
+                                                    :tree-depth         @column-depth
+                                                    :default-size       (u/deref-or-value column-width)}))
         column-header-heights      (r/reaction (or
                                                 (u/deref-or-value column-header-heights-internal)
                                                 (u/deref-or-value column-header-heights)
@@ -59,12 +61,9 @@
         column-paths               (r/reaction (:paths @column-traversal))
         column-keypaths            (r/reaction (:keypaths @column-traversal))
         column-sizes               (r/reaction (:sizes @column-traversal))
-        column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal
-                                                                     @column-depth))
+        column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal @column-depth))
         column-template            (r/reaction (ngu/lazy-grid-template @column-tokens))
-        column-header-template     (r/reaction (let [heights @column-header-heights
-                                                     heights (conj (vec (butlast heights)) (dec (last heights)))]
-                                                 (ngu/grid-template heights)))
+        column-header-template     (r/reaction (ngu/grid-template @column-header-heights))
         column-spans               (r/reaction (ngu/grid-spans @column-paths))
         row-header-widths          (r/reaction (or (u/deref-or-value row-header-widths)
                                                    (repeat @row-depth row-header-width)))
@@ -73,13 +72,9 @@
         row-paths                  (r/reaction (:paths @row-traversal))
         row-keypaths               (r/reaction (:keypaths @row-traversal))
         row-sizes                  (r/reaction (:sizes @row-traversal))
-        row-tokens                 (r/reaction (ngu/lazy-grid-tokens @row-traversal
-                                                                     @row-depth))
+        row-tokens                 (r/reaction (ngu/lazy-grid-tokens @row-traversal @row-depth))
         row-template               (r/reaction (ngu/lazy-grid-template @row-tokens))
-        row-header-template        (r/reaction
-                                    (let [widths @row-header-widths
-                                          widths (conj (vec (butlast widths)) (dec (last widths)))]
-                                      (ngu/grid-template widths)))
+        row-header-template        (r/reaction (ngu/grid-template @row-header-widths))
         row-spans                  (r/reaction (ngu/grid-spans @row-paths))]
     (r/create-class
      {:component-did-mount
@@ -103,9 +98,10 @@
                     corner-header-grid cell-grid
                     row-height column-width]} :parts
             :as                               props
-            :or                               {on-resize (fn [{:keys [value dimension]}]
-                                                           (case dimension
-                                                             :column-header-height (reset! column-header-heights-internal value)))}}]
+            :or
+            {on-resize (fn [{:keys [value dimension]}]
+                         (case dimension
+                           :column-header-height (reset! column-header-heights-internal value)))}}]
         (mapv u/deref-or-value [row-tree row-header-widths row-height
                                 column-tree column-header-heights column-width])
         (let [theme
@@ -167,18 +163,12 @@
                                 :size      (get @column-sizes i)
                                 :dimension :column-width}]))
 
-              main-container
-              [:div
-               (themed ::wrapper
-                 {:style {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
-                          :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
-                  :ref   wrapper-ref!})]
-
               row-headers
               (for [i    (range (count  @row-paths))
                     :let [row-path (get @row-paths i)
-                          {:keys [is-after?]} (meta row-path)
-                          props {:row-path row-path
+                          {:keys [is-after?]} (meta row-path)]
+                    #_#_:when (not is-after?)
+                    :let [props {:row-path row-path
                                  :path     row-path
                                  :keypath  (get @row-keypaths i)
                                  :style    {:grid-row-start    (ngu/path->grid-line-name row-path)
@@ -191,30 +181,38 @@
                 (u/part row-header props {:key row-path}))
 
               column-headers
-              (for [i    (range (count  @column-paths))
-                    :let [column-path (get @column-paths i)
-                          {:keys [is-after?]} (meta column-path)
-                          props {:column-path column-path
-                                 :path        column-path
-                                 :keypath     (get @column-keypaths i)
-                                 :style       {:grid-column-start (ngu/path->grid-line-name column-path)
-                                               :grid-column-end   (str "span " (get @column-spans column-path))
-                                               :grid-row-start    (cond-> (count column-path) is-after? dec)
-                                               :grid-row-end      -1
-                                               :overflow          :hidden}}
-                          props (assoc props :children    [(u/part column-header-label props
-                                                                   :default ngp/column-header-label)])
-                          props (themed ::column-header props)]]
+              (for [i     (range (count  @column-paths))
+                    :let  [column-path         (get @column-paths i)
+                           {:keys [is-after?]} (meta column-path)
+                           row-start           (cond-> (count column-path) is-after? dec)]
+                    #_#_:when (not is-after?)
+                    :let  [props {:column-path column-path
+                                  :path        column-path
+                                  :keypath     (get @column-keypaths i)
+                                  :style       {:grid-column-start (ngu/path->grid-line-name column-path)
+                                                :grid-column-end   (str "span " (get @column-spans column-path))
+                                                :grid-row-start    row-start
+                                                :grid-row-end      -1
+                                                :overflow          :hidden}}
+                           props (assoc props :children    [(u/part column-header-label props
+                                                                    :default ngp/column-header-label)])
+                           props (themed ::column-header props)]]
                 (u/part column-header props {:key column-path}))
 
               corner-headers
               (for [column-index (range @row-depth)
                     row-index    (range @column-depth)
-                    :let         [props (themed ::corner-header
-                                          {:row-index    row-index
-                                           :column-index column-index
-                                           :style        {:grid-row-start    (inc row-index)
-                                                          :grid-column-start (inc column-index)}})]]
+                    :let [props (themed ::corner-header
+                                  {:row-index    row-index
+                                   :column-index column-index
+                                   :edge
+                                   (cond-> #{}
+                                     (zero? row-index)                 (conj :top)
+                                     (= row-index (dec @column-depth)) (conj :bottom)
+                                     (zero? column-index)              (conj :left)
+                                     (= column-index (dec @row-depth)) (conj :right))
+                                   :style        {:grid-row-start    (inc row-index)
+                                                  :grid-column-start (inc column-index)}})]]
                 (u/part corner-header props {:key [::corner-header row-index column-index]}))
 
               cells
@@ -230,32 +228,37 @@
                                          theme-cells? (->> (theme ::cell-wrapper)))]]
                 (u/part cell props {:key     [row-path column-path]
                                     :default ngp/cell-wrapper}))]
-          (conj main-container
-                (u/part cell-grid
-                        (themed ::cell-grid
-                          {:children (concat cells
-                                             (row-height-resizers {:offset -1})
-                                             (column-width-resizers {:style  {:grid-row-end -1}
-                                                                     :offset -1}))
-                           :style    {:display               :grid
-                                      :grid-column-start     2
-                                      :grid-row-start        2
-                                      :grid-template-rows    @row-template
-                                      :grid-template-columns @column-template}}))
-                (u/part column-header-grid
-                        (themed ::column-header-grid
-                          {:children (concat column-headers column-height-resizers (column-width-resizers))
-                           :style    {:grid-template-rows    @column-header-template
-                                      :grid-template-columns @column-template}}))
-                (u/part row-header-grid
-                        (themed ::row-header-grid
-                          {:children (concat row-headers row-width-resizers (row-height-resizers))
-                           :style    {:grid-template-rows    @row-template
-                                      :grid-template-columns @row-header-template}}))
-                (u/part corner-header-grid
-                        (themed ::corner-header-grid
-                          {:children (concat corner-headers row-width-resizers column-height-resizers)
-                           :style    {:grid-template-rows    @column-header-template
-                                      :grid-template-columns @row-header-template}}))
-                (u/deref-or-value overlay))))})))
+          [:div
+           (themed ::wrapper
+             {:style
+              {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
+               :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
+              :ref wrapper-ref!})
+           (u/part cell-grid
+                   (themed ::cell-grid
+                     {:children (concat cells
+                                        (row-height-resizers {:offset -1})
+                                        (column-width-resizers {:style  {:grid-row-end -1}
+                                                                :offset -1}))
+                      :style    {:display               :grid
+                                 :grid-column-start     2
+                                 :grid-row-start        2
+                                 :grid-template-rows    @row-template
+                                 :grid-template-columns @column-template}}))
+           (u/part column-header-grid
+                   (themed ::column-header-grid
+                     {:children (concat column-headers column-height-resizers (column-width-resizers {:offset -1}))
+                      :style    {:grid-template-rows    @column-header-template
+                                 :grid-template-columns @column-template}}))
+           (u/part row-header-grid
+                   (themed ::row-header-grid
+                     {:children (concat row-headers row-width-resizers (row-height-resizers {:offset -1}))
+                      :style    {:grid-template-rows    @row-template
+                                 :grid-template-columns @row-header-template}}))
+           (u/part corner-header-grid
+                   (themed ::corner-header-grid
+                     {:children (concat corner-headers row-width-resizers column-height-resizers)
+                      :style    {:grid-template-rows    @column-header-template
+                                 :grid-template-columns @row-header-template}}))
+           (u/deref-or-value overlay)]))})))
 

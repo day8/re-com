@@ -13,10 +13,11 @@
 
 (defmethod template ::theme/parts
   [{[part->props] :args} props {:keys [part]}]
-  (if-let [v (or (get part->props part)
-                 (get part->props (keyword (name part))))]
-    (merge-props props v)
-    props))
+  (let [part-value (or (get part->props part)
+                       (get part->props (keyword (name part))))]
+    (cond-> props
+      (map? part-value)
+      (merge-props part-value))))
 
 (defn remove-keys [m ks]
   (select-keys m (remove (set ks) (keys m))))
