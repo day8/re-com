@@ -4,13 +4,13 @@
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
    [re-com.util :as u]
    [re-com.theme :as theme]
-   [re-com.nested-grid.theme :as ng-theme]
+   [re-com.nested-v-grid.theme :as ng-theme]
    [re-com.theme.default :as default]
-   [re-com.nested-grid.util :as ngu]
+   [re-com.nested-v-grid.util :as ngu]
    [reagent.core :as r]
-   [re-com.nested-grid-old :refer [nested-grid leaf-paths header-spec->header-paths
-                                   nested-grid-args-desc nested-grid-parts-desc]]
-   [re-com.nested-grid  :as grid :refer [nested-v-grid]]
+   [re-com.nested-grid :refer [nested-grid leaf-paths header-spec->header-paths
+                               nested-grid-args-desc nested-grid-parts-desc]]
+   [re-com.nested-v-grid  :as v-grid :refer [nested-v-grid]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
@@ -824,39 +824,39 @@
      "), we only store a " [:code ":width"] " key. "
      "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
-#_(defn panel
-    []
-    (let [tabs [{:id :intro :label "Introduction" :view intro-column}
-                {:id :concepts :label "Concepts" :view concepts-column}
-                {:id :more :label "More" :view more-column}
-                {:id :parameters :label "Parameters" :view args-column}]
-          !tab-id (r/atom (:id (first tabs)))
-          !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
-      (fn []
-        [v-box
+(defn panel
+  []
+  (let [tabs [{:id :intro :label "Introduction" :view intro-column}
+              {:id :concepts :label "Concepts" :view concepts-column}
+              {:id :more :label "More" :view more-column}
+              {:id :parameters :label "Parameters" :view args-column}]
+        !tab-id (r/atom (:id (first tabs)))
+        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
+    (fn []
+      [v-box
+       :src      (at)
+       :size     "auto"
+       :gap      "10px"
+       :children
+       [[panel-title "[nested-grid ... ]"
+         "src/re_com/nested_grid.cljs"
+         "src/re_demo/nested_grid.cljs"]
+        [h-box
          :src      (at)
-         :size     "auto"
-         :gap      "10px"
+         :gap      "50px"
          :children
-         [[panel-title "[nested-grid ... ]"
-           "src/re_com/nested_grid.cljs"
-           "src/re_demo/nested_grid.cljs"]
-          [h-box
+         [[v-box
            :src      (at)
-           :gap      "50px"
            :children
-           [[v-box
-             :src      (at)
-             :children
-             [[rc/horizontal-tabs
-               :src       (at)
-               :model     !tab-id
-               :tabs      tabs
-               :style     {:margin-top "12px"}
-               :on-change #(reset! !tab-id %)]
-              [(:view @!tab)]]]
-            [demos]]]
-          [parts-table "nested-grid" nested-grid-parts-desc]]])))
+           [[rc/horizontal-tabs
+             :src       (at)
+             :model     !tab-id
+             :tabs      tabs
+             :style     {:margin-top "12px"}
+             :on-change #(reset! !tab-id %)]
+            [(:view @!tab)]]]
+          [demos]]]
+        [parts-table "nested-grid" nested-grid-parts-desc]]])))
 
 (def row-seq (r/atom '()))
 
@@ -921,41 +921,38 @@
                           [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
                            {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
 
-(defn panel []
-  [rc/h-box
-   :gap "50px"
+(defn v-grid-demo []
+  [rc/v-box
    :children
-   [[rc/v-box
-     :children
-     [[rc/gap :size "50px"]
-      [nested-v-grid {:row-tree              row-tree
-                      :column-tree           column-tree
-                      :row-tree-depth        5
-                      :row-header-widths     row-header-widths
-                      :column-header-heights column-header-heights
-                      :show-row-branches?    true
-                      :show-column-branches? true
-                      :on-resize             (fn [{:keys [dimension keypath size]}]
-                                               (case dimension
-                                                 :column-header-height (swap! column-header-heights assoc-in keypath size)
-                                                 :row-header-width     (swap! row-header-widths assoc-in keypath size)
-                                                 :row-height           (swap! row-tree update-in keypath assoc :size size)
-                                                 :column-width         (swap! column-tree update-in keypath assoc :size size)))
-                      :parts                 {:wrapper {:style {:height @wh
-                                                                :width  @ww}}
-                                              :row-header-label
-                                              (fn [{:keys [row-path]}]
-                                                (let [{:keys [is-after?]} (meta row-path)
-                                                      the-label (get (last row-path) :label "placeholder")]
-                                                  (if is-after?
-                                                    (str the-label " (Total)")
-                                                    the-label)))
-                                              :corner-header
-                                              (fn [{:keys [edge row-index column-index style class attr] :as props}]
-                                                [:div (merge {:style style :class class} attr)
-                                                 (when (= 2 row-index)
-                                                   (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
-      "Window width"
-      [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
-      "Window height"
-      [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]]]]])
+   [[rc/gap :size "50px"]
+    [nested-v-grid {:row-tree              row-tree
+                    :column-tree           column-tree
+                    :row-tree-depth        5
+                    :row-header-widths     row-header-widths
+                    :column-header-heights column-header-heights
+                    :show-row-branches?    true
+                    :show-column-branches? true
+                    :on-resize             (fn [{:keys [dimension keypath size]}]
+                                             (case dimension
+                                               :column-header-height (swap! column-header-heights assoc-in keypath size)
+                                               :row-header-width     (swap! row-header-widths assoc-in keypath size)
+                                               :row-height           (swap! row-tree update-in keypath assoc :size size)
+                                               :column-width         (swap! column-tree update-in keypath assoc :size size)))
+                    :parts                 {:wrapper {:style {:height @wh
+                                                              :width  @ww}}
+                                            :row-header-label
+                                            (fn [{:keys [row-path]}]
+                                              (let [{:keys [is-after?]} (meta row-path)
+                                                    the-label (get (last row-path) :label "placeholder")]
+                                                (if is-after?
+                                                  (str the-label " (Total)")
+                                                  the-label)))
+                                            :corner-header
+                                            (fn [{:keys [edge row-index column-index style class attr] :as props}]
+                                              [:div (merge {:style style :class class} attr)
+                                               (when (= 2 row-index)
+                                                 (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
+    "Window width"
+    [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
+    "Window height"
+    [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]]])

@@ -2,10 +2,9 @@
   (:require
    [clojure.string :as str]
    [re-com.util :as ru :refer [px]]
-   [re-com.theme.util :refer [merge-props merge-class]]
+   [re-com.theme.util :refer [merge-props]]
    [re-com.dropdown :as-alias dropdown]
    [re-com.error-modal :as-alias error-modal]
-   [re-com.nested-grid-old :as-alias nested-grid-old]
    [re-com.nested-grid :as-alias nested-grid]
    [re-com.tree-select :as-alias tree-select]))
 
@@ -74,30 +73,37 @@
                         :overflow           "hidden"
                         :position           "relative"})
 
-(defn style [props & ms] (apply update props :style merge ms))
+(defmethod base ::nested-grid/cell-wrapper [props _]
+  (update props :style merge cell-wrapper-base))
 
-(defn class [props & ss] (apply update props :class merge-class ss))
+(def row-header-wrapper-base {:user-select        "none"
+                              :height             "100%"})
 
-(defmethod base ::nested-grid-old/cell-wrapper [props _]
-  (style props cell-wrapper-base))
-
-(def row-header-wrapper-base {:user-select "none"
-                              :height      "100%"})
-
-(defmethod base ::nested-grid-old/row-header-wrapper [props _]
+(defmethod base ::nested-grid/row-header-wrapper [props _]
   (update props :style merge row-header-wrapper-base))
 
-(defmethod base ::nested-grid-old/row-header
+(defmethod base ::nested-grid/column-header-wrapper [props _]
+  (update props :style merge
+          {:user-select "none"
+           :width       "100%"
+           :height      "100%"}))
+
+(defmethod base ::nested-grid/row-header
   [props {{:keys [sticky? sticky-top]} :state}]
   (update props :style merge {:width         "100%"
                               :text-overflow :ellipsis
                               :overflow      :hidden
+                              :white-space   :nowrap
                               :position      :sticky
                               :top           sticky-top}))
 
-(defmethod base ::nested-grid-old/column-header
+(defmethod base ::nested-grid/column-header
   [props _]
-  (update props :style merge {:height "100%"}))
+  (update props :style merge {:height        "100%"
+                              :text-overflow :ellipsis
+                              :overflow      :hidden
+                              :whitespace    :nowrap}))
+
 
 (defmethod base :default [props {:keys                   [state part transition!]
                                  {:keys [sm-2]}          :variables
@@ -143,7 +149,7 @@
 
          ::dropdown/body-wrapper
          {:ref   (:ref state)
-          :style {:position   "absolute"
+          :style {:position   (:position state)
                   :top        (px (:top state))
                   :left       (px (:left state))
                   :opacity    (when-not (:anchor-top state) 0)
@@ -151,12 +157,12 @@
                   :overflow-x "visible"
                   :z-index    30}}
 
-         ::nested-grid-old/cell-grid-container
+         ::nested-grid/cell-grid-container
          {:style {:position "relative"
 
                   :gap "0px"}}
 
-         ::nested-grid-old/cell-wrapper
+         ::nested-grid/cell-wrapper
          {:style {#_#_:pointer-events "none"
                   :user-select        "none"
                   :overflow           "hidden"
@@ -179,7 +185,7 @@
      :border-right "thin solid #ccc"
      :border-bottom "thin solid #ccc"}))
 
-(defmethod main ::nested-grid-old/cell-wrapper
+(defmethod main ::nested-grid/cell-wrapper
   [props {{:keys [edge value column-path]} :state}]
   (let [align (some :align column-path)]
     (update props :style merge
@@ -199,6 +205,31 @@
                :border-bottom (if (contains? edge :bottom)
                                 "thin solid #aaa"
                                 "thin solid #ccc")}))))
+
+(def row-header-wrapper-main
+  (let [{:keys [sm-3 sm-6]}               golden-section-50
+        {:keys [border light-background]} colors]
+    {:padding-top      sm-3
+     :padding-right    sm-3
+     :padding-left     sm-6
+     :background-color light-background
+     :color            "#666"
+     :text-align       "left"
+     :font-size        "13px"
+     :white-space      "nowrap"
+     :border-left      "thin solid #ccc"
+     :border-bottom    "thin solid #ccc"}))
+
+(defmethod main ::nested-grid/row-header-wrapper
+  [props {{:keys [edge]} :state}]
+  (update props :style merge
+          row-header-wrapper-main
+          (when (contains? edge :right)
+            {:border-right "thin solid #aaa"})
+          (when (contains? edge :left)
+            {:border-left "thin solid #aaa"})
+          (when (contains? edge :bottom)
+            {:border-bottom "thin solid #aaa"})))
 
 (defmethod main :default [props {:keys                [state part]
                                  {:as   $
@@ -249,11 +280,11 @@
                    (-> state :enable (= :disabled))
                    (merge {:background-color (:background-disabled $)}))}
 
-         ::nested-grid-old/cell-grid-container
+         ::nested-grid/cell-grid-container
          {:style {:padding          "0px"
                   :background-color "transparent"}}
 
-         ::nested-grid-old/header-spacer-wrapper
+         ::nested-grid/header-spacer-wrapper
          {:style {:border-left      (when (contains? (:edge state) :left)
                                       (str "thin" " solid " border-dark))
                   :border-top       (when (get (:edge state) :top)
@@ -264,11 +295,14 @@
                                       (str "thin" " solid " border))
                   :background-color light-background}}
 
-         ::nested-grid-old/column-header-wrapper
+         ::nested-grid/column-header-wrapper
          (let [{:keys [align-column align-column-header align]} (:header-spec state)]
            {:style {:padding-top      sm-3
                     :padding-right    sm-4
                     :padding-left     sm-4
+                    :white-space      :nowrap
+                    :text-overflow    :ellipsis
+                    :overflow         :hidden
                     :background-color light-background
                     :color            "#666"
                     :text-align       (or align-column-header align-column align :center)

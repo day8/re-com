@@ -1,45 +1,49 @@
-(ns re-com.nested-grid.theme
+(ns re-com.nested-v-grid.theme
   (:require
-   [re-com.theme.default :as default :refer [base main style]]
-   [re-com.theme.util :refer [merge-props merge-class]]
-   [re-com.nested-grid :as-alias ng]))
+   [re-com.theme.default :as default :refer [base main]]
+   [re-com.nested-v-grid :as-alias nvg]
+   [re-com.theme.util :refer [merge-props merge-class]]))
 
 (def border-light "thin solid #ccc")
 (def border-dark "thin solid #aaa")
 
-(defmethod base ::ng/wrapper [props _]
+(defn style [props & ms] (apply update props :style merge ms))
+
+(defn class [props & ss] (apply update props :class merge-class ss))
+
+(defmethod base ::nvg/wrapper [props _]
   (style props {:height   300
                 :width    500
                 :overflow :auto
                 :flex     "0 0 auto"
                 :display  :grid}))
 
-(defmethod base ::ng/cell-grid
+(defmethod base ::nvg/cell-grid
   [props _]
-  (default/class props "rc-nested-v-grid-cell-grid"))
+  (class props "rc-nested-v-grid-cell-grid"))
 
-(defmethod main ::ng/cell-grid
+(defmethod main ::nvg/cell-grid
   [props _]
   (style props {#_#_:border-top  light-border
                 #_#_:border-left light-border}))
 
-(defmethod base ::ng/column-header-grid
+(defmethod base ::nvg/column-header-grid
   [props _]
   (-> props
-      (default/class "rc-nested-v-grid-column-header-grid")
+      (class "rc-nested-v-grid-column-header-grid")
       (style {:display  :grid
               :position :sticky
               :top      0})))
 
-(defmethod base ::ng/row-header-grid
+(defmethod base ::nvg/row-header-grid
   [props _]
   (-> props
-      (default/class "rc-nested-v-grid-row-header-grid")
+      (class "rc-nested-v-grid-row-header-grid")
       (style {:display  :grid
               :position :sticky
               :left      0})))
 
-(defmethod base ::ng/corner-header-grid
+(defmethod base ::nvg/corner-header-grid
   [props _]
   (style props {:position          :sticky
                 :display           :grid
@@ -58,7 +62,7 @@
      :color            "#666"
      :font-size        "13px"}))
 
-(defmethod main ::ng/corner-header
+(defmethod main ::nvg/corner-header
   [{:keys [edge] :as props} _]
   (style props header-main
          (when (edge :top) {:border-top border-light})
@@ -66,7 +70,7 @@
          (when (edge :bottom) {:border-bottom border-light})
          (when (edge :left) {:border-left border-light})))
 
-(defmethod base ::ng/column-header
+(defmethod base ::nvg/column-header
   [props _]
   (update props :style merge
           {:user-select   "none"
@@ -74,7 +78,7 @@
            :height        "100%"
            :border-bottom border-dark}))
 
-(defmethod main ::ng/column-header
+(defmethod main ::nvg/column-header
   [props {:keys [state]}]
   (let [{:keys [align-column align-column-header align]} (:header-spec state)]
     (style props header-main
@@ -92,7 +96,7 @@
      :font-size        "13px"
      :white-space      "nowrap"}))
 
-(defmethod main ::ng/row-header
+(defmethod main ::nvg/row-header
   [props {{:keys [edge]} :state}]
   (style props row-header-main
          {:border-right border-dark}))
@@ -109,7 +113,7 @@
      :border-right border-light
      :border-bottom border-light}))
 
-(defmethod main ::ng/cell-wrapper
+(defmethod main ::nvg/cell-wrapper
   [props {{:keys [edge value column-path]} :state}]
   (let [align (some :align column-path)]
     (update props :style merge

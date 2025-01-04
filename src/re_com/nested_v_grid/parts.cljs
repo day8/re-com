@@ -1,8 +1,7 @@
-(ns re-com.nested-grid.parts
+(ns re-com.nested-v-grid.parts
   (:require
    [reagent.core :as r]
-   [re-com.nested-grid.util :as ngu]
-   [re-com.nested-grid :as-alias ng]))
+   [re-com.nested-v-grid.util :as ngu]))
 
 (defn cell-wrapper [{:keys [style class row-path column-path]}]
   [:div {:style (merge {:grid-row-start    (ngu/path->grid-line-name row-path)
@@ -102,3 +101,4 @@
                                                                                       (+ size)
                                                                                       (max 10))
                                                                        :key       :column-tree}))}]))}]]))
+
