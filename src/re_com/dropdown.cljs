@@ -278,20 +278,31 @@
         hi-y         (- b-h)
         lo-y         a-h
         best-x       (min left-bound right-bound)
-        best-y       (case v-pos :low lo-y :high hi-y)]
-    [best-x (case direction :up hi-y :down lo-y best-y)]))
+        best-y       (case v-pos :low lo-y :high hi-y)
+        best-y       (case direction :up hi-y :down lo-y best-y)]
+    (->> [best-x best-y]
+         (mapv + [a-x a-y]))))
 
-(defn body-wrapper [{:keys [state theme anchor-ref body-ref anchor-position direction]} & children]
+(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction]} & _]
   (let [set-body-ref!      #(reset! body-ref %)
-        optimize-position! #(reset! anchor-position (optimize-position! @anchor-ref @body-ref
-                                                                        {:direction direction}))
+        optimize-position! #(reset! anchor-position
+                                    (optimize-position! @anchor-ref @body-ref
+                                                        {:direction direction}))
+        animation-id       (atom nil)
+        start-loop         (fn start-loop []
+                             (reset! animation-id
+                                     (js/requestAnimationFrame
+                                      (fn []
+                                        (optimize-position!)
+                                        (start-loop)))))
+        stop-loop          #(when-let [id @animation-id]
+                              (js/cancelAnimationFrame id)
+                              (reset! animation-id nil))
         mounted!           #(do
                               (optimize-position!)
-                              (js/window.addEventListener "resize" optimize-position!)
-                              (js/window.addEventListener "scroll" optimize-position!))
+                              (start-loop))
         unmounted!         #(do
-                              (js/window.removeEventListener "resize" optimize-position!)
-                              (js/window.removeEventListener "scroll" optimize-position!)
+                              (stop-loop)
                               (reset! anchor-position nil))]
     (reagent/create-class
      {:component-did-mount    mounted!
@@ -303,7 +314,8 @@
            [:div
             (theme/apply
               {}
-              {:state (merge state {:anchor-top  top
+              {:state (merge state {:position    :fixed
+                                    :anchor-top  top
                                     :anchor-left left
                                     :top         top
                                     :left        left
@@ -322,12 +334,12 @@
 
 (defn dropdown
   "A clickable anchor above an openable, floating body."
-  [& {:keys [model] :or {model (reagent/atom nil)}}]
-  (let [default-model                                     model
+  [& {:keys [model no-clip?] :or {model (reagent/atom nil)}}]
+  (let [default-model                                  model
         [focused? anchor-ref body-ref anchor-position] (repeatedly #(reagent/atom nil))
-        anchor-ref!                                       #(reset! anchor-ref %)
-        transitionable                                    (reagent/atom
-                                                           (if (deref-or-value model) :in :out))]
+        anchor-ref!                                    #(reset! anchor-ref %)
+        transitionable                                 (reagent/atom
+                                                        (if (deref-or-value model) :in :out))]
     (fn dropdown-render
       [& {:keys [disabled? on-change tab-index direction
                  anchor-height anchor-width
@@ -614,17 +626,19 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled? parts]
       (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
             text (if (some? @internal-model)
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
                    placeholder)]
-        [:a.chosen-single.chosen-default
-         {:style (merge {:display "flex"
-                         :justify-content :space-between
-                         :width "100%"}
-                        (when disabled?
-                          {:background-color "#EEE"}))
+        [:a.chosen-single.chosen-default.rc-dropddown-chosen-single
+         {:style         (merge {:display         "flex"
+                                 :justify-content :space-between
+                                 :width           "100%"}
+                                (when disabled?
+                                  {:background-color "#EEE"})
+                                (get-in parts [:chosen-single :style]))
+          :class         (get-in parts [:chosen-single :class])
           :tab-index     (or tab-index 0)
           :on-click      (handler-fn
                           (if @ignore-click
@@ -643,7 +657,7 @@
          (when (not disabled?)
            [re-com.dropdown/indicator
             {:style {:margin-right "8px"
-                     :margin-top "0.5px"}
+                     :margin-top   "0.5px"}
              :state {:openable (if @drop-showing? :open :closed)}}])]))))
 
 (defn handle-free-text-insertion
@@ -777,6 +791,7 @@
 (def single-dropdown-parts-desc  (when include-args-desc?
                                    [{:name :tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
                                     {:type :legacy             :level 1 :class "rc-dropdown"                    :impl "[:div]"            :notes "The container for the rest of the dropdown."}
+                                    {:name :chosen-single      :level 1 :class "rc-dropdown-chosen-single"      :impl "[:div]"}
                                     {:name :chosen-drop        :level 2 :class "rc-dropdown-chosen-drop"        :impl "[:div]"}
                                     {:name :chosen-results     :level 3 :class "rc-dropdown-chosen-results"     :impl "[:ul]"}
                                     {:name :choices-loading    :level 4 :class "rc-dropdown-choices-loading"    :impl "[:li]"}
@@ -1025,7 +1040,7 @@
                                      "End"       (press-end)
                                      (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
               anchor            [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler
-                                 filter-box? drop-showing? title? disabled?]
+                                 filter-box? drop-showing? title? disabled? parts]
               dropdown          [:div
                                  (merge
                                   {:class (str "rc-dropdown chosen-container "

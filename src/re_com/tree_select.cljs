@@ -557,6 +557,10 @@
     (let [item-label-fn #((if (group? %) group-label-fn label-fn) %)]
       (str/join ", " (map item-label-fn items)))))
 
+(defn distinct-by-id [id-fn coll]
+  (let [ids (map id-fn coll)]
+    (map u/item-for-id (distinct ids) (repeat coll) (repeat {:id-fn id-fn}))))
+
 (defn labelable-items [model choices & {:keys [id-fn] :or {id-fn :id}}]
   (let [current-choices           (into #{} (filter (comp model id-fn) choices))
         current-groups            (infer-groups* current-choices)
@@ -617,7 +621,7 @@
             group-label-fn    (or group-label-fn (comp name last :group))
             field-label-fn    (or field-label-fn field-label)
             labelable-items   (labelable-items (deref-or-value model) (deref-or-value choices) {:id-fn id-fn})
-            anchor-label      (field-label-fn {:items          labelable-items
+            anchor-label      (field-label-fn {:items          (distinct-by-id id-fn labelable-items)
                                                :label-fn       label-fn
                                                :group-label-fn group-label-fn})
             anchor-label-part [:span (themed ::label {:title (alt-text-fn {:items          labelable-items

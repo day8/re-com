@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+#### Added
+
+- `tree-select`: When multiple items with the same id are selected, the anchor label now only shows one.
+- `nested-grid`: Add :on-init-export-fn
+- `popover-content-wrapper`: Added `:optimize-position?` prop.
+
 ## 2.22.8 (2024-10-10)
 
 #### Changed
