@@ -26,58 +26,6 @@
               (reduce rf ""))
          #_" [end]")))))
 
-(def spec? (some-fn vector? seq?))
-(def item? (complement spec?))
-(def ascend pop)
-(def descend conj)
-
-(defn header-spec->header-paths
-  ([spec]
-   (header-spec->header-paths [] [] spec))
-  ([path acc [left & [right :as remainder]]]
-   (let [item-left?  (item? left)
-         spec-left?  (spec? left)
-         descending? (and item-left? (spec? right))
-         ascending?  (and spec-left? (item? right) (seq path))
-         next-acc    (cond item-left? (conj acc (descend path left))
-                           spec-left? (header-spec->header-paths path acc left))
-         next-path   (cond descending? (descend path left)
-                           ascending?  (ascend path)
-                           :else       path)]
-     (if (empty? remainder)
-       next-acc
-       (recur next-path next-acc remainder)))))
-
-(defn cumulative-sum-window [low high value-fn coll]
-  (loop [coll       coll
-         sum        0
-         num-below  0 total-below  0 items-below  []
-         num-within 0 total-within 0 items-within []
-         num-above  0 total-above  0 items-above  []]
-    (if (empty? coll)
-      [num-below  total-below  items-below
-       num-within total-within items-within
-       num-above  total-above  items-above]
-      (let [[i & remainder] coll
-            value           (value-fn i)
-            new-sum         (+ sum value)]
-        (cond
-          (< new-sum low)
-          (recur remainder       new-sum
-                 (inc num-below) (+ total-below value) (conj items-below i)
-                 num-within      total-within          items-within
-                 num-above       total-above           items-above)
-          (<= low new-sum high)
-          (recur remainder        new-sum
-                 num-below        total-below            items-below
-                 (inc num-within) (+ total-within value) (conj items-within i)
-                 num-above        total-above            items-above)
-          (> new-sum high)
-          (recur remainder       new-sum
-                 num-below       total-below           items-below
-                 num-within      total-within          items-within
-                 (inc num-above) (+ total-above value) (conj items-above i)))))))
-
 (def header-spec? sequential?)
 
 (def branch? header-spec?)
@@ -87,8 +35,6 @@
 (def own-leaf first)
 
 (def leaf? (complement header-spec?))
-
-(def invalid? (complement (some-fn leaf? branch?)))
 
 (def leaf-size #(get % :size 20))
 
@@ -202,10 +148,10 @@
      :window-start window-start
      :window-end   window-end}))
 
-(walk-size {:window-start 0
-            :window-end   999
-            :size-cache   (volatile! {})
-            :tree         [{:show? false}]})
+#_(walk-size {:window-start 0
+              :window-end   999
+              :size-cache   (volatile! {})
+              :tree         [{:show? false}]})
 
 (def small-test-tree
   [{:id :a}
@@ -249,11 +195,6 @@
                                        [:z 20]
                                        [:h 10]])))]))
 
-#_(walk-size {:window-start 0
-              :window-end   472
-              :size-cache   (volatile! {})
-              :tree         test-tree})
-
 (def td {:sum-size       660,
          :window-end     342,
          :window-start   242,
@@ -262,9 +203,8 @@
          :sizes [20 20  20  40  20  20  20],
          :sums  [0  180 240 260 300 320 340]})
 
-(defn lazy-grid-tokens
-  [{:keys [paths sizes sums sum-size]}
-   depth]
+(defn grid-tokens
+  [{:keys [paths sizes sums sum-size]}]
   (into ["[start]"]
         (loop [[path & rest-paths]              paths
                [size & rest-sizes]              sizes
@@ -282,13 +222,13 @@
               (conj next-result "[end]")
               (recur rest-paths rest-sizes rest-sums next-result))))))
 
-(defn lazy-grid-template [grid-tokens]
+(defn lazy-grid-template [header-traversal]
   (str/replace
    (str/join " "
              (map #(cond (string? %) %
                          (vector? %) (str "[" (path->grid-line-name %) "]")
                          (number? %) (str % "px"))
-                  grid-tokens))
+                  (grid-tokens header-traversal)))
    "] [" " "))
 
 (defn ancestry [path]

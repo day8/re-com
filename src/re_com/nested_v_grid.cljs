@@ -61,8 +61,7 @@
         column-paths               (r/reaction (:paths @column-traversal))
         column-keypaths            (r/reaction (:keypaths @column-traversal))
         column-sizes               (r/reaction (:sizes @column-traversal))
-        column-tokens              (r/reaction (ngu/lazy-grid-tokens @column-traversal @column-depth))
-        column-template            (r/reaction (ngu/lazy-grid-template @column-tokens))
+        column-template            (r/reaction (ngu/lazy-grid-template @column-traversal))
         column-header-template     (r/reaction (ngu/grid-template @column-header-heights))
         column-spans               (r/reaction (ngu/grid-spans @column-paths))
         row-header-widths          (r/reaction (or (u/deref-or-value row-header-widths)
@@ -72,8 +71,7 @@
         row-paths                  (r/reaction (:paths @row-traversal))
         row-keypaths               (r/reaction (:keypaths @row-traversal))
         row-sizes                  (r/reaction (:sizes @row-traversal))
-        row-tokens                 (r/reaction (ngu/lazy-grid-tokens @row-traversal @row-depth))
-        row-template               (r/reaction (ngu/lazy-grid-template @row-tokens))
+        row-template               (r/reaction (ngu/lazy-grid-template @row-traversal))
         row-header-template        (r/reaction (ngu/grid-template @row-header-widths))
         row-spans                  (r/reaction (ngu/grid-spans @row-paths))]
     (r/create-class
