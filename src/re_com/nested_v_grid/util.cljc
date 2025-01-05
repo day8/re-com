@@ -41,7 +41,7 @@
 (defn remove-size [m]
   (cond-> m (map? m) (dissoc :size)))
 
-(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size show-branch-cells?]}]
+(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size show-branch-cells? hide-root?]}]
   (let [sum-size         (volatile! 0)
         tree-hash        (hash tree)
         cached-sum-size  (and size-cache
@@ -71,7 +71,7 @@
                              (and (<= x1 window-end)
                                   (>= x2 window-start))))
         walk
-        (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? is-after? last-child?]
+        (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? is-after? last-child? hide?]
                                :or   {is-leaf? true
                                       keypath  []}}]
           (let [sum          @sum-size
@@ -85,25 +85,26 @@
                                                (or (leaf-size node)
                                                    default-size))
                                    bounds    [sum (+ sum leaf-size)]]
-                               (when (or (intersection? bounds) collect-anyway?)
-                                 (collect-path! (cond-> (mapv remove-size leaf-path)
-                                                  (or is-leaf? show?)
-                                                  (vary-meta merge {}
-                                                             (when is-leaf? {:leaf? true})
-                                                             (when is-after? {:is-after? true})
-                                                             (when show? {:show-above? true})
-                                                             (when last-child? {:last-child? true}))))
-                                 (collect-sum! sum)
-                                 (collect-size! leaf-size)
-                                 (collect-keypath! keypath))
-                               (vswap! sum-size + leaf-size)
+                               (when-not hide?
+                                 (when (or (intersection? bounds) collect-anyway?)
+                                   (collect-path! (cond-> (mapv remove-size leaf-path)
+                                                    (or is-leaf? show?)
+                                                    (vary-meta merge {}
+                                                               (when is-leaf? {:leaf? true})
+                                                               (when is-after? {:is-after? true})
+                                                               (when show? {:show-above? true})
+                                                               (when last-child? {:last-child? true}))))
+                                   (collect-sum! sum)
+                                   (collect-size! leaf-size)
+                                   (collect-keypath! keypath))
+                                 (vswap! sum-size + leaf-size))
                                leaf-size)
               (branch? node) (let [csize        (lookup node)
                                    cbounds      (when csize [sum (+ sum csize)])
                                    skippable?   (and csize (not (intersection? cbounds)))
                                    children     (vec (children node))
                                    show-after?  (or show-branch-cells? (get (own-leaf node) :show-after?))
-                                   add-after?   (seq children)
+                                   add-after?   (and (not hide?) (seq children))
                                    after-child  [(first node)]
                                    all-children (cond-> children
                                                   (and show-after? add-after?) (conj after-child))]
@@ -112,6 +113,7 @@
                                  (let [is-leaf?     (not (seq all-children))
                                        own-path     (conj path (own-leaf node))
                                        own-size     (walk path (own-leaf node) {:collect-anyway? true
+                                                                                :hide?           hide?
                                                                                 :is-leaf?        is-leaf?
                                                                                 :keypath         (conj keypath 0)
                                                                                 :is-after?       is-after?
@@ -137,7 +139,7 @@
                                      (forget-keypath!))
                                    (when-not csize (cache! node total-size))
                                    total-size))))))]
-    (walk [] tree)
+    (walk [] tree {:hide? hide-root?})
     (when-not cached-sum-size
       (vswap! size-cache assoc-in [dimension tree-hash ::sum-size] @sum-size))
     {:sum-size     (or cached-sum-size @sum-size)

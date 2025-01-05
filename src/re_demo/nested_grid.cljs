@@ -860,26 +860,31 @@
 
 (def        wh                   (r/atom 500))
 
-(def row-header-widths (r/atom [20 30 40 40 50]))
+(def row-header-widths (r/atom [40 40 50]))
 (def column-header-heights (r/atom [40 50 70]))
 
-(def row-tree (r/atom ngu/huge-test-tree))
+(def row-tree (r/atom ngu/small-test-tree))
 (def column-tree (r/atom [{:id :a :size 120}
                           [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
-                           {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
+                           {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]
+                          [{:id :x}
+                           {:id :y}]]))
 (defn v-grid-demo []
   [rc/v-box
    :children
    [[nested-v-grid
      {:row-tree              row-tree
       :column-tree           column-tree
-      :row-tree-depth        5
+      :row-tree-depth        3
+      :column-tree-depth     3
+      :row-header-width      30
+      :column-header-height  20
       :row-header-widths     row-header-widths
       :column-header-heights column-header-heights
       :show-row-branches?    true
       :show-column-branches? true
       :on-resize
-      (fn [{:keys [dimension keypath size]}]
+      (fn [{:keys [dimension keypath size] :as props}]
         (case dimension
           :column-header-height (swap! column-header-heights assoc-in keypath size)
           :row-header-width     (swap! row-header-widths assoc-in keypath size)
@@ -911,21 +916,24 @@
     [rc/p "Some key differences:"]
     [:ul {:style {:width 500}}
      [:li [:strong "Trees are hiccup-like."]
-      [rc/p " The tree " [:code "[:a :b :c]"]
-       "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
-       " is the parent, and " [:code ":b :c"] " are children."]]
+      " The tree " [:code "[:a :b :c]"]
+      "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
+      " is the parent, and " [:code ":b :c"] " are children."]
      [:li " " [:strong "Header main-size can only declared in the tree."]
-      [rc/p [:code ":row-height"] " and " [:code ":column-width"]
-       " are the main-sizes."]
-      [rc/p " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
-       " makes three rows. The first two have a default height, and the third has "
-       "a height of 45."]]
+      [:code ":row-height"] " and " [:code ":column-width"]
+      " are the main-sizes."
+      " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
+      " makes three rows. The first two have a default height, and the third has "
+      "a height of 45."]
      [:li [:strong "Header cross-size can be declared as a vector of integers."]
-      [rc/p [:code ":row-header-width"] " and " [:code ":column-header-height"]
-       " are cross-sizes."]]
+      [:code ":row-header-width"] " and " [:code ":column-header-height"]
+      " are cross-sizes."]
      [:li [:strong "Tree depth must be specified."]
       [:strong [:code ":row-tree-depth"] " and " [:code ":column-tree-depth"]]
-      [rc/p "are required props."]]
+      "are required props."]
+     [:li [:strong "Tree roots are hidden by default."] " For instance, " [:code ":row-tree [:a [:b 1 2] [:c 8 9]]"]
+      " displays " [:code ":b :c"] " as two top-level headers, each with two children."
+      "The root node, " [:code ":a"] ", is hidden."]
      #_[:li "B"]]]])
 
 (defn demos []
