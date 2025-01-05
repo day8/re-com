@@ -1152,7 +1152,7 @@
                                               {:max-width  (or max-width (when remove-empty-column-space? native-width))
                                                :max-height (or max-height
                                                                (when remove-empty-row-space? native-height))
-                                               :flex       1
+                                               :flex       "1 1 auto"
                                                :overflow   :auto}))})]
             header-spacers             (into [:div (themed ::header-spacer-grid-container
                                                      {:style {:display               :grid
