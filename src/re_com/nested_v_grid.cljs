@@ -85,11 +85,8 @@
          (reset! internal-row-tree (u/deref-or-value row-tree))
          (reset! internal-column-tree (u/deref-or-value column-tree)))
       :reagent-render
-      (fn [{:keys                             [row-tree column-tree
-                                               cell-value
-                                               theme-cells?
-                                               on-resize]
-            {:keys [cell corner-header
+      (fn [{:keys                             [row-tree column-tree theme-cells? on-resize]
+            {:keys [cell corner-header cell-value
                     row-header column-header
                     row-header-label column-header-label
                     row-header-grid column-header-grid
@@ -221,11 +218,10 @@
                     :let        [props {:row-path    row-path
                                         :column-path column-path}
                                  props (cond-> props
-                                         cell-value   (assoc :cell-value
-                                                             (cell-value props))
-                                         theme-cells? (->> (theme ::cell-wrapper)))]]
+                                         cell-value (merge {:cell-value cell-value})
+                                         theme-cells? (->> (theme ::cell)))]]
                 (u/part cell props {:key     [row-path column-path]
-                                    :default ngp/cell-wrapper}))]
+                                    :default ngp/cell}))]
           [:div
            (themed ::wrapper
              {:style

@@ -97,11 +97,11 @@
      :white-space      "nowrap"}))
 
 (defmethod main ::nvg/row-header
-  [props {{:keys [edge]} :state}]
+  [props _]
   (style props row-header-main
          {:border-right border-dark}))
 
-(def cell-wrapper-main
+(def cell-main
   (let [{:keys [sm-3]} default/golden-section-50]
     {:font-size        12
      :background-color "white"
@@ -113,23 +113,7 @@
      :border-right border-light
      :border-bottom border-light}))
 
-(defmethod main ::nvg/cell-wrapper
+(defmethod main ::nvg/cell
   [props {{:keys [edge value column-path]} :state}]
-  (let [align (some :align column-path)]
-    (update props :style merge
-            cell-wrapper-main
-            #_#_(cond align
-                      {:text-align align}
-                      (string? value)
-                      {:text-align :left})
-              (when (seq edge)
-                {:border-right  (cond
-                                  (contains? edge :column-section-right)
-                                  "thin solid #aaa"
-                                  (contains? edge :right)
-                                  "thin solid #aaa"
-                                  :else
-                                  light-border)
-                 :border-bottom (if (contains? edge :bottom)
-                                  "thin solid #aaa"
-                                  light-border)}))))
+  (let [align (some :align (reverse column-path))]
+    (update props :style merge cell-main)))

@@ -3,12 +3,12 @@
    [reagent.core :as r]
    [re-com.nested-v-grid.util :as ngu]))
 
-(defn cell-wrapper [{:keys [style class row-path column-path]}]
-  [:div {:style (merge {:grid-row-start    (ngu/path->grid-line-name row-path)
-                        :grid-column-start (ngu/path->grid-line-name column-path)}
-                       style)
-         :class class}
-   (str (gensym))])
+(defn cell [{:keys [style class row-path column-path children cell-value] :as props}]
+  (into [:div {:style (merge {:grid-row-start    (ngu/path->grid-line-name row-path)
+                              :grid-column-start (ngu/path->grid-line-name column-path)}
+                             style)
+               :class class}]
+        (when cell-value (cell-value props))))
 
 (def box-style
   {:top    {:top    -2 :left  0  :height 5 :width  "100%"}

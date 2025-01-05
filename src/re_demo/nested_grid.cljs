@@ -716,27 +716,6 @@
      " is responsible for choosing an item of the source data, and "
      [:code ":cell"] " is responsible for styling the resulting " [:code ":value."]]]])
 
-(defn demos []
-  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
-              {:id :internals  :label "Internals"  :view internals-demo}
-              {:id :multimodal :label "Multimodal" :view multimodal-demo}
-              {:id :app        :label "Applications" :view app-demo}
-              #_{:id :style      :label "Style" :view style-demo}]
-        !tab-id  (r/atom (:id (first tabs)))
-        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
-    (fn []
-      (let [{:keys [view label]} @!tab]
-        [v-box
-         :children
-         [[rc/horizontal-tabs
-           :src       (at)
-           :model     !tab-id
-           :tabs      tabs
-           :style     {:margin-top "12px"}
-           :on-change #(reset! !tab-id %)]
-          [title2 label]
-          [view]]]))))
-
 (defn args-column []
   [args-table
    nested-grid-args-desc
@@ -824,40 +803,6 @@
      "), we only store a " [:code ":width"] " key. "
      "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
-(defn panel
-  []
-  (let [tabs [{:id :intro :label "Introduction" :view intro-column}
-              {:id :concepts :label "Concepts" :view concepts-column}
-              {:id :more :label "More" :view more-column}
-              {:id :parameters :label "Parameters" :view args-column}]
-        !tab-id (r/atom (:id (first tabs)))
-        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
-    (fn []
-      [v-box
-       :src      (at)
-       :size     "auto"
-       :gap      "10px"
-       :children
-       [[panel-title "[nested-grid ... ]"
-         "src/re_com/nested_grid.cljs"
-         "src/re_demo/nested_grid.cljs"]
-        [h-box
-         :src      (at)
-         :gap      "50px"
-         :children
-         [[v-box
-           :src      (at)
-           :children
-           [[rc/horizontal-tabs
-             :src       (at)
-             :model     !tab-id
-             :tabs      tabs
-             :style     {:margin-top "12px"}
-             :on-change #(reset! !tab-id %)]
-            [(:view @!tab)]]]
-          [demos]]]
-        [parts-table "nested-grid" nested-grid-parts-desc]]])))
-
 (def row-seq (r/atom '()))
 
 (def rows-loaded (r/atom 0))
@@ -912,47 +857,132 @@
          (str row-index " // " column-index)])})))
 
 (def        ww                   (r/atom 500))
+
 (def        wh                   (r/atom 500))
 
 (def row-header-widths (r/atom [20 30 40 40 50]))
 (def column-header-heights (r/atom [40 50 70]))
+
 (def row-tree (r/atom ngu/huge-test-tree))
 (def column-tree (r/atom [{:id :a :size 120}
                           [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
                            {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
-
 (defn v-grid-demo []
   [rc/v-box
    :children
-   [[rc/gap :size "50px"]
-    [nested-v-grid {:row-tree              row-tree
-                    :column-tree           column-tree
-                    :row-tree-depth        5
-                    :row-header-widths     row-header-widths
-                    :column-header-heights column-header-heights
-                    :show-row-branches?    true
-                    :show-column-branches? true
-                    :on-resize             (fn [{:keys [dimension keypath size]}]
-                                             (case dimension
-                                               :column-header-height (swap! column-header-heights assoc-in keypath size)
-                                               :row-header-width     (swap! row-header-widths assoc-in keypath size)
-                                               :row-height           (swap! row-tree update-in keypath assoc :size size)
-                                               :column-width         (swap! column-tree update-in keypath assoc :size size)))
-                    :parts                 {:wrapper {:style {:height @wh
-                                                              :width  @ww}}
-                                            :row-header-label
-                                            (fn [{:keys [row-path]}]
-                                              (let [{:keys [is-after?]} (meta row-path)
-                                                    the-label (get (last row-path) :label "placeholder")]
-                                                (if is-after?
-                                                  (str the-label " (Total)")
-                                                  the-label)))
-                                            :corner-header
-                                            (fn [{:keys [edge row-index column-index style class attr] :as props}]
-                                              [:div (merge {:style style :class class} attr)
-                                               (when (= 2 row-index)
-                                                 (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
+   [[nested-v-grid
+     {:row-tree              row-tree
+      :column-tree           column-tree
+      :row-tree-depth        5
+      :row-header-widths     row-header-widths
+      :column-header-heights column-header-heights
+      :show-row-branches?    true
+      :show-column-branches? true
+      :on-resize
+      (fn [{:keys [dimension keypath size]}]
+        (case dimension
+          :column-header-height (swap! column-header-heights assoc-in keypath size)
+          :row-header-width     (swap! row-header-widths assoc-in keypath size)
+          :row-height           (swap! row-tree update-in keypath assoc :size size)
+          :column-width         (swap! column-tree update-in keypath assoc :size size)))
+      :parts
+      {:wrapper {:style {:height @wh
+                         :width  @ww}}
+       :cell-value #(str (gensym))
+       :row-header-label
+       (fn [{:keys [row-path]}]
+         (let [{:keys [is-after?]} (meta row-path)
+               the-label (get (last row-path) :label "placeholder")]
+           (if is-after?
+             (str the-label " (Total)")
+             the-label)))
+       :corner-header
+       (fn [{:keys [edge row-index column-index style class attr] :as props}]
+         [:div (merge {:style style :class class} attr)
+          (when (= 2 row-index)
+            (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
+    [source-reference
+     "for above nested-grid"
+     "src/re_demo/nested_grid.cljs"]
     "Window width"
     [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
     "Window height"
-    [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]]])
+    [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]
+    [rc/p "Some key differences:"]
+    [:ul {:style {:width 500}}
+     [:li [:strong "Trees are hiccup-like."]
+      [rc/p " The tree " [:code "[:a :b :c]"]
+       "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
+       " is the parent, and " [:code ":b :c"] " are children."]]
+     [:li " " [:strong "Header main-size can only declared in the tree."]
+      [rc/p [:code ":row-height"] " and " [:code ":column-width"]
+       " are the main-sizes."]
+      [rc/p " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
+       " makes three rows. The first two have a default height, and the third has "
+       "a height of 45."]]
+     [:li [:strong "Header cross-size can be declared as a vector of integers."]
+      [rc/p [:code ":row-header-width"] " and " [:code ":column-header-height"]
+       " are cross-sizes."]]
+     [:li [:strong "Tree depth must be specified."]
+      [:strong [:code ":row-tree-depth"] " and " [:code ":column-tree-depth"]]
+      [rc/p "are required props."]]
+     #_[:li "B"]]]])
+
+(defn demos []
+  (let [tabs [(when goog/DEBUG
+                {:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo})
+              {:id :basic      :label "Basic Demo" :view basic-demo}
+              {:id :internals  :label "Internals"  :view internals-demo}
+              {:id :multimodal :label "Multimodal" :view multimodal-demo}
+              {:id :app        :label "Applications" :view app-demo}
+              (when-not goog/DEBUG
+                {:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo})
+              #_{:id :style      :label "Style" :view style-demo}]
+        !tab-id  (r/atom (:id (first tabs)))
+        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
+    (fn []
+      (let [{:keys [view label]} @!tab]
+        [v-box
+         :children
+         [[rc/horizontal-tabs
+           :src       (at)
+           :model     !tab-id
+           :tabs      tabs
+           :style     {:margin-top "12px"}
+           :on-change #(reset! !tab-id %)]
+          [title2 label]
+          [view]]]))))
+
+(defn panel
+  []
+  (let [tabs [{:id :intro :label "Introduction" :view intro-column}
+              {:id :concepts :label "Concepts" :view concepts-column}
+              {:id :more :label "More" :view more-column}
+              {:id :parameters :label "Parameters" :view args-column}]
+        !tab-id (r/atom (:id (first tabs)))
+        !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
+    (fn []
+      [v-box
+       :src      (at)
+       :size     "auto"
+       :gap      "10px"
+       :children
+       [[panel-title "[nested-grid ... ]"
+         "src/re_com/nested_grid.cljs"
+         "src/re_demo/nested_grid.cljs"]
+        [h-box
+         :src      (at)
+         :gap      "50px"
+         :children
+         [[v-box
+           :src      (at)
+           :children
+           [[rc/horizontal-tabs
+             :src       (at)
+             :model     !tab-id
+             :tabs      tabs
+             :style     {:margin-top "12px"}
+             :on-change #(reset! !tab-id %)]
+            [(:view @!tab)]]]
+          [demos]]]
+        [parts-table "nested-grid" nested-grid-parts-desc]]])))
