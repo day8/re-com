@@ -886,13 +886,13 @@
           :row-height           (swap! row-tree update-in keypath assoc :size size)
           :column-width         (swap! column-tree update-in keypath assoc :size size)))
       :parts
-      {:wrapper {:style {:height @wh
-                         :width  @ww}}
+      {:wrapper    {:style {:height @wh
+                            :width  @ww}}
        :cell-value #(str (gensym))
        :row-header-label
        (fn [{:keys [row-path]}]
          (let [{:keys [is-after?]} (meta row-path)
-               the-label (get (last row-path) :label "placeholder")]
+               the-label           (get (last row-path) :label "placeholder")]
            (if is-after?
              (str the-label " (Total)")
              the-label)))

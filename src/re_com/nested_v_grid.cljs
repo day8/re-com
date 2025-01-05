@@ -37,7 +37,6 @@
                                                     :size-cache         size-cache
                                                     :dimension          :row
                                                     :show-branch-cells? show-row-branches?
-                                                    :tree-depth         @row-depth
                                                     :default-size       (u/deref-or-value row-height)}))
         column-traversal           (r/reaction
                                     (ngu/walk-size {:tree               @internal-column-tree
@@ -46,7 +45,6 @@
                                                     :size-cache         size-cache
                                                     :dimension          :column
                                                     :show-branch-cells? show-column-branches?
-                                                    :tree-depth         @column-depth
                                                     :default-size       (u/deref-or-value column-width)}))
         column-header-heights      (r/reaction (or
                                                 (u/deref-or-value column-header-heights-internal)
@@ -114,7 +112,7 @@
                               :dimension :row-header-width
                               :keypath   [i]
                               :index     i
-                              :size      (get @row-header-widths i)}])
+                              :size      (get @row-header-widths i row-header-width)}])
 
               column-height-resizers
               (for [i (range @column-depth)]
@@ -125,7 +123,7 @@
                               :dimension :column-header-height
                               :keypath   [i]
                               :index     i
-                              :size      (get @column-header-heights i)}])
+                              :size      (get @column-header-heights i column-header-height)}])
 
               row-height-resizers
               (fn [& {:keys [offset]}]
@@ -159,55 +157,55 @@
                                 :dimension :column-width}]))
 
               row-headers
-              (for [i    (range (count  @row-paths))
-                    :let [row-path (get @row-paths i)
-                          {:keys [is-after?]} (meta row-path)]
+              (for [i         (range (count  @row-paths))
+                    :let      [row-path (get @row-paths i)
+                               {:keys [is-after?]} (meta row-path)]
                     #_#_:when (not is-after?)
-                    :let [props {:row-path row-path
-                                 :path     row-path
-                                 :keypath  (get @row-keypaths i)
-                                 :style    {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                            :grid-row-end      (str "span " (get @row-spans row-path))
-                                            :grid-column-start (cond-> (count row-path) is-after? dec)
-                                            :grid-column-end   -1}}
-                          props (assoc props :children [(u/part row-header-label props
-                                                                :default ngp/row-header-label)])
-                          props (themed ::row-header props)]]
+                    :let      [props {:row-path row-path
+                                      :path     row-path
+                                      :keypath  (get @row-keypaths i)
+                                      :style    {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                                 :grid-row-end      (str "span " (get @row-spans row-path))
+                                                 :grid-column-start (cond-> (count row-path) is-after? dec)
+                                                 :grid-column-end   -1}}
+                               props (assoc props :children [(u/part row-header-label props
+                                                                     :default ngp/row-header-label)])
+                               props (themed ::row-header props)]]
                 (u/part row-header props {:key row-path}))
 
               column-headers
-              (for [i     (range (count  @column-paths))
-                    :let  [column-path         (get @column-paths i)
-                           {:keys [is-after?]} (meta column-path)
-                           row-start           (cond-> (count column-path) is-after? dec)]
+              (for [i         (range (count  @column-paths))
+                    :let      [column-path         (get @column-paths i)
+                               {:keys [is-after?]} (meta column-path)
+                               row-start           (cond-> (count column-path) is-after? dec)]
                     #_#_:when (not is-after?)
-                    :let  [props {:column-path column-path
-                                  :path        column-path
-                                  :keypath     (get @column-keypaths i)
-                                  :style       {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                :grid-column-end   (str "span " (get @column-spans column-path))
-                                                :grid-row-start    row-start
-                                                :grid-row-end      -1
-                                                :overflow          :hidden}}
-                           props (assoc props :children    [(u/part column-header-label props
-                                                                    :default ngp/column-header-label)])
-                           props (themed ::column-header props)]]
+                    :let      [props {:column-path column-path
+                                      :path        column-path
+                                      :keypath     (get @column-keypaths i)
+                                      :style       {:grid-column-start (ngu/path->grid-line-name column-path)
+                                                    :grid-column-end   (str "span " (get @column-spans column-path))
+                                                    :grid-row-start    row-start
+                                                    :grid-row-end      -1
+                                                    :overflow          :hidden}}
+                               props (assoc props :children    [(u/part column-header-label props
+                                                                        :default ngp/column-header-label)])
+                               props (themed ::column-header props)]]
                 (u/part column-header props {:key column-path}))
 
               corner-headers
               (for [column-index (range @row-depth)
                     row-index    (range @column-depth)
-                    :let [props (themed ::corner-header
-                                  {:row-index    row-index
-                                   :column-index column-index
-                                   :edge
-                                   (cond-> #{}
-                                     (zero? row-index)                 (conj :top)
-                                     (= row-index (dec @column-depth)) (conj :bottom)
-                                     (zero? column-index)              (conj :left)
-                                     (= column-index (dec @row-depth)) (conj :right))
-                                   :style        {:grid-row-start    (inc row-index)
-                                                  :grid-column-start (inc column-index)}})]]
+                    :let         [props (themed ::corner-header
+                                          {:row-index    row-index
+                                           :column-index column-index
+                                           :edge
+                                           (cond-> #{}
+                                             (zero? row-index)                 (conj :top)
+                                             (= row-index (dec @column-depth)) (conj :bottom)
+                                             (zero? column-index)              (conj :left)
+                                             (= column-index (dec @row-depth)) (conj :right))
+                                           :style        {:grid-row-start    (inc row-index)
+                                                          :grid-column-start (inc column-index)}})]]
                 (u/part corner-header props {:key [::corner-header row-index column-index]}))
 
               cells
@@ -218,7 +216,7 @@
                     :let        [props {:row-path    row-path
                                         :column-path column-path}
                                  props (cond-> props
-                                         cell-value (merge {:cell-value cell-value})
+                                         cell-value   (merge {:cell-value cell-value})
                                          theme-cells? (->> (theme ::cell)))]]
                 (u/part cell props {:key     [row-path column-path]
                                     :default ngp/cell}))]

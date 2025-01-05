@@ -36,7 +36,7 @@
 
 (def leaf? (complement header-spec?))
 
-(def leaf-size #(get % :size 20))
+(def leaf-size #(get % :size))
 
 (defn remove-size [m]
   (cond-> m (map? m) (dissoc :size)))
