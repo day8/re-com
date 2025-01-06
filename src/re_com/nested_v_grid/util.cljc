@@ -71,7 +71,7 @@
                              (and (<= x1 window-end)
                                   (>= x2 window-start))))
         walk
-        (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? is-after? last-child? hide?]
+        (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? branch-end? last-child? hide?]
                                :or   {is-leaf? true
                                       keypath  []}}]
           (let [sum          @sum-size
@@ -90,7 +90,7 @@
                                                   (or is-leaf? show?)
                                                   (vary-meta merge {}
                                                              (when is-leaf? {:leaf? true})
-                                                             (when is-after? {:is-after? true})
+                                                             (when branch-end? {:branch-end? true})
                                                              (when show? {:show-above? true})
                                                              (when last-child? {:last-child? true}))))
                                  (collect-sum! sum)
@@ -114,17 +114,17 @@
                                        own-size     (walk path (own-leaf node) {:collect-anyway? true
                                                                                 :is-leaf?        is-leaf?
                                                                                 :keypath         (conj keypath 0)
-                                                                                :is-after?       is-after?
+                                                                                :branch-end?     branch-end?
                                                                                 :last-child?     last-child?})
                                        descend-tx   (map-indexed
                                                      (fn [i subtree]
                                                        (walk own-path
                                                              subtree
-                                                             (merge {:keypath   (cond-> keypath
-                                                                                  (not= after-child subtree)
-                                                                                  (conj (inc i)))
-                                                                     :is-leaf?  true
-                                                                     :is-after? (= after-child subtree)}
+                                                             (merge {:keypath     (cond-> keypath
+                                                                                    (not= after-child subtree)
+                                                                                    (conj (inc i)))
+                                                                     :is-leaf?    true
+                                                                     :branch-end? (= after-child subtree)}
                                                                     (when (= i (- (count children) (when add-after? 1)))
                                                                       {:last-child? true})))))
                                        total-size   (+ own-size
