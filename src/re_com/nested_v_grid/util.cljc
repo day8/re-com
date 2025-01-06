@@ -85,19 +85,18 @@
                                                (or (leaf-size node)
                                                    default-size))
                                    bounds    [sum (+ sum leaf-size)]]
-                               (when-not hide?
-                                 (when (or (intersection? bounds) collect-anyway?)
-                                   (collect-path! (cond-> (mapv remove-size leaf-path)
-                                                    (or is-leaf? show?)
-                                                    (vary-meta merge {}
-                                                               (when is-leaf? {:leaf? true})
-                                                               (when is-after? {:is-after? true})
-                                                               (when show? {:show-above? true})
-                                                               (when last-child? {:last-child? true}))))
-                                   (collect-sum! sum)
-                                   (collect-size! leaf-size)
-                                   (collect-keypath! keypath))
-                                 (vswap! sum-size + leaf-size))
+                               (when (or (intersection? bounds) collect-anyway?)
+                                 (collect-path! (cond-> (mapv remove-size leaf-path)
+                                                  (or is-leaf? show?)
+                                                  (vary-meta merge {}
+                                                             (when is-leaf? {:leaf? true})
+                                                             (when is-after? {:is-after? true})
+                                                             (when show? {:show-above? true})
+                                                             (when last-child? {:last-child? true}))))
+                                 (collect-sum! sum)
+                                 (collect-size! leaf-size)
+                                 (collect-keypath! keypath))
+                               (vswap! sum-size + leaf-size)
                                leaf-size)
               (branch? node) (let [csize        (lookup node)
                                    cbounds      (when csize [sum (+ sum csize)])
@@ -113,7 +112,6 @@
                                  (let [is-leaf?     (not (seq all-children))
                                        own-path     (conj path (own-leaf node))
                                        own-size     (walk path (own-leaf node) {:collect-anyway? true
-                                                                                :hide?           hide?
                                                                                 :is-leaf?        is-leaf?
                                                                                 :keypath         (conj keypath 0)
                                                                                 :is-after?       is-after?

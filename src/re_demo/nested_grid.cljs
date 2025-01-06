@@ -860,52 +860,44 @@
 
 (def        wh                   (r/atom 500))
 
-(def row-header-widths (r/atom [40 40 50]))
-(def column-header-heights (r/atom [40 50 70]))
-
-(def row-tree (r/atom ngu/small-test-tree))
+(def row-header-widths (r/atom [20 30 40 40 50]))
+(def column-header-heights (r/atom [20 50 70]))
+(def row-tree (r/atom ngu/huge-test-tree))
 (def column-tree (r/atom [{:id :a :size 120}
                           [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
-                           {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]
-                          [{:id :x}
-                           {:id :y}]]))
+                           {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
+
 (defn v-grid-demo []
   [rc/v-box
    :children
-   [[nested-v-grid
-     {:row-tree              row-tree
-      :column-tree           column-tree
-      :row-tree-depth        3
-      :column-tree-depth     3
-      :row-header-width      30
-      :column-header-height  20
-      :row-header-widths     row-header-widths
-      :column-header-heights column-header-heights
-      :show-row-branches?    true
-      :show-column-branches? true
-      :on-resize
-      (fn [{:keys [dimension keypath size] :as props}]
-        (case dimension
-          :column-header-height (swap! column-header-heights assoc-in keypath size)
-          :row-header-width     (swap! row-header-widths assoc-in keypath size)
-          :row-height           (swap! row-tree update-in keypath assoc :size size)
-          :column-width         (swap! column-tree update-in keypath assoc :size size)))
-      :parts
-      {:wrapper    {:style {:height @wh
-                            :width  @ww}}
-       :cell-value #(str (gensym))
-       :row-header-label
-       (fn [{:keys [row-path]}]
-         (let [{:keys [is-after?]} (meta row-path)
-               the-label           (get (last row-path) :label "placeholder")]
-           (if is-after?
-             (str the-label " (Total)")
-             the-label)))
-       :corner-header
-       (fn [{:keys [edge row-index column-index style class attr] :as props}]
-         [:div (merge {:style style :class class} attr)
-          (when (= 2 row-index)
-            (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
+   [[nested-v-grid {:row-tree              row-tree
+                    :column-tree           column-tree
+                    :row-tree-depth        5
+                    :row-header-widths     row-header-widths
+                    :column-header-heights column-header-heights
+                    :show-row-branches?    true
+                    :show-column-branches? true
+                    :on-resize             (fn [{:keys [dimension keypath size]}]
+                                             (case dimension
+                                               :column-header-height (swap! column-header-heights assoc-in keypath size)
+                                               :row-header-width     (swap! row-header-widths assoc-in keypath size)
+                                               :row-height           (swap! row-tree update-in keypath assoc :size size)
+                                               :column-width         (swap! column-tree update-in keypath assoc :size size)))
+                    :parts                 {:wrapper {:style {:height @wh
+                                                              :width  @ww}}
+                                            :cell-value #(str (gensym))
+                                            :row-header-label
+                                            (fn [{:keys [row-path]}]
+                                              (let [{:keys [is-after?]} (meta row-path)
+                                                    the-label (get (last row-path) :label "placeholder")]
+                                                (if is-after?
+                                                  (str the-label " (Total)")
+                                                  the-label)))
+                                            :corner-header
+                                            (fn [{:keys [edge row-index column-index style class attr] :as props}]
+                                              [:div (merge {:style style :class class} attr)
+                                               (when (= 2 row-index)
+                                                 (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
     [source-reference
      "for above nested-grid"
      "src/re_demo/nested_grid.cljs"]
