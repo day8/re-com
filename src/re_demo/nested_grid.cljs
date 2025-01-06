@@ -908,11 +908,17 @@
     [rc/title :level :level2 :label "Key differences:"]
     [:div {:style {:width 500}}
      [rc/title :level :level3 :label "Trees are hiccup-like."]
-     " The tree " [:code "[:a :b :c]"]
-     "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
-     " is the parent, and " [:code ":b :c"] " are children. Explicitly, "
-     "the branch function is " [:code "sequential?"]
-     " and the children function is " [:code "rest"] "."
+     [:p
+      " The tree " [:code "[:a :b :c]"]
+      "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
+      " is the parent, and " [:code ":b :c"] " are children. Explicitly, "
+      "the branch function is " [:code "sequential?"]
+      " and the children function is " [:code "rest"] "."]
+     [rc/title :level :level3 :label "Root headers are hidden by default."]
+     [:p
+      " For instance, " [:code ":row-tree [:a [:b 1 2] [:c 8 9]]"]
+      " displays " [:code ":b :c"] " as two top-level headers, each with two children."
+      "The root header, " [:code ":a"] ", does not appear."]
      [rc/title :level :level3 :label "Header main-size can only declared in the tree."]
      [:code ":row-height"] " and " [:code ":column-width"]
      " are the main-sizes."
@@ -932,26 +938,22 @@
       "Note that keywords appear at tree depths 1 and 2, and numbers at a depth of 3. "
       "In this case, you can pass " [:code " :row-header-widths [40 40 20]"] ". "
       "This would make the keyword headers 40-wide, and the number headers 20-wide."
-      [rc/title :level :level3 :label [:span "To handle header size changes, use " [:code ":on-resize"] "."]]
+      [rc/title :level :level3 :label [:span "To handle header size changes, pass a function to " [:code ":on-resize"] "."]]
       [:p [:code ":on-resize"] " takes keyword arguments:"
        [:ul
-        [:li [:code ":dimension"] " - which sort of ]]]"]]]
-      [:strong [:code ":row-tree-depth"] " and " [:code ":column-tree-depth"]]
-      "are required props."
-      [rc/title :level :level3 :label "Tree roots are hidden by default."]
-      " For instance, " [:code ":row-tree [:a [:b 1 2] [:c 8 9]]"]
-      " displays " [:code ":b :c"] " as two top-level headers, each with two children."
-      "The root node, " [:code ":a"] ", is hidden."]]]])
+        [:li [:code ":header-dimension"] " - either " [:code ":row"] " or " [:code ":column"]]
+        [:li [:code ":size-dimension"] " - either " [:code ":width"] " or " [:code ":height"]]
+        [:li [:code ":cross-size?"] " - True when you change column-header height or row-header width."]
+        [:li [:code ":keypath"] " - Vector of indices. Points to a location in a header-tree when resizing a main-size."
+         " Points to a location in " [:code ":row-header-widths"] " or " [:code ":column-header-heights"]
+         " when resizing a cross-size."]]]]]]])
 
 (defn demos []
-  (let [tabs [(when goog/DEBUG
-                {:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo})
-              {:id :basic      :label "Basic Demo" :view basic-demo}
+  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
               {:id :app        :label "Applications" :view app-demo}
-              (when-not goog/DEBUG
-                {:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo})
+              {:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo}
               #_{:id :style      :label "Style" :view style-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
