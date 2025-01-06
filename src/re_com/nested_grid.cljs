@@ -780,71 +780,19 @@
                                                         (if (show? path :row)
                                                           [path height]
                                                           [path])))))
-            spacer?                    number?
-            export-column-headers      #(let [{:keys [grid-column-start
-                                                      grid-column-end]}
-                                              @selection-grid-spec
-                                              selection? (and grid-column-start grid-column-end)
-                                              crop       (fn [row]
-                                                           (let [raw-row     (subvec row
-                                                                                     (dec grid-column-start)
-                                                                                     (dec grid-column-end))
-                                                                 last-header (some identity
-                                                                                   (reverse
-                                                                                    (take grid-column-start row)))]
-                                                             (into [last-header] (rest raw-row))))
-                                              y-size     column-depth
-                                              x-size     (count (filter spacer? cell-grid-columns))
-                                              result     (vec (repeat y-size (vec (repeat x-size nil))))
-                                              ->y        (comp dec count)
-                                              ->x        (reduce
-                                                          (fn [m item]
-                                                            (if (spacer? item)
-                                                              (update m ::count inc)
-                                                              (assoc m item (or (::count m) 0))))
-                                                          {}
-                                                          cell-grid-columns)
-                                              insert     (fn [result path]
-                                                           (assoc-in result
-                                                                     [(->y path) (->x path)]
-                                                                     (on-export-column-header {:path        path
-                                                                                               :column-path path})))]
-                                          (cond->> column-paths
-                                            :do        (reduce insert result)
-                                            selection? (mapv crop)))
-            export-row-headers         #(let [{:keys [grid-row-start
-                                                      grid-row-end]}
-                                              @selection-grid-spec
-                                              selection? (and grid-row-start grid-row-end)
-                                              crop       (fn [row]
-                                                           (let [raw-row     (subvec row
-                                                                                     (dec grid-row-start)
-                                                                                     (dec grid-row-end))
-                                                                 last-header (some identity
-                                                                                   (reverse
-                                                                                    (take grid-row-start row)))]
-                                                             (into [last-header] (rest raw-row))))
-                                              transpose  (partial apply mapv vector)
-                                              y-size     (count (filter spacer? cell-grid-rows))
-                                              x-size     row-depth
-                                              result     (vec (repeat y-size (vec (repeat x-size nil))))
-                                              ->y        (reduce
-                                                          (fn [m item]
-                                                            (if (spacer? item)
-                                                              (update m ::count inc)
-                                                              (assoc m item (or (::count m) 0))))
-                                                          {}
-                                                          cell-grid-rows)
-                                              ->x        (comp dec count)
-                                              insert     (fn [result path]
-                                                           (assoc-in result
-                                                                     [(->y path) (->x path)]
-                                                                     (on-export-row-header {:path     path
-                                                                                            :row-path path})))
-                                              all        (reduce insert result row-paths)]
-                                          (if-not selection?
-                                            all
-                                            (transpose (mapv crop (transpose all)))))
+            ancestry                   (fn ancestry [path]
+                                         (reverse
+                                          (take (count path)
+                                                (iterate pop path))))
+            transpose                  (partial apply mapv vector)
+            export-column-headers      #(let [export-path (fn [path]
+                                                            (on-export-row-header {:path path :row-path path}))]
+                                          (transpose (mapv (fn [path] (mapv export-path (ancestry path)))
+                                                           showing-row-paths)))
+            export-row-headers         #(let [export-path (fn [path]
+                                                            (on-export-row-header {:path path :row-path path}))]
+                                          (mapv (fn [path] (mapv export-path (ancestry path)))
+                                                showing-column-paths))
             export-cells               #(let [{:keys [grid-row-start grid-row-end grid-column-start grid-column-end]
                                                :as   selection-grid-spec}
                                               @selection-grid-spec
@@ -1195,7 +1143,7 @@
                                            (conj (when show-selection-box? box-selector)))]
         [:div (merge
                (themed ::wrapper
-                 {:src src
+                 {:src   src
                   :style (merge {:flex-direction :column}
                                 (when-not sticky?
                                   (merge {:flex    "0 0 auto"
