@@ -248,9 +248,9 @@
 
 (defn part [x props & {:keys [default key] :as opts}]
   (cond
+    (hiccup? x) x
     (ifn? x)    (cond-> [x props]
                   key (with-meta {:key key}))
-    (hiccup? x) x
     (string? x) x
     (map? x)    (cond-> [(or default default-part) (tu/merge-props props x)]
                   key (with-meta {:key key}))
