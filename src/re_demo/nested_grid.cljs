@@ -877,19 +877,19 @@
                     :column-header-heights column-header-heights
                     :show-row-branches?    true
                     :show-column-branches? true
-                    :on-resize             (fn [{:keys [dimension keypath size]}]
-                                             (case dimension
-                                               :column-header-height (swap! column-header-heights assoc-in keypath size)
-                                               :row-header-width     (swap! row-header-widths assoc-in keypath size)
-                                               :row-height           (swap! row-tree update-in keypath assoc :size size)
-                                               :column-width         (swap! column-tree update-in keypath assoc :size size)))
-                    :parts                 {:wrapper {:style {:height @wh
-                                                              :width  @ww}}
+                    :on-resize             (fn [{:keys [header-dimension size-dimension keypath size]}]
+                                             (case [header-dimension size-dimension]
+                                               [:column :height] (swap! column-header-heights assoc-in keypath size)
+                                               [:row :width]     (swap! row-header-widths assoc-in keypath size)
+                                               [:row :height]    (swap! row-tree update-in keypath assoc :size size)
+                                               [:column :width]  (swap! column-tree update-in keypath assoc :size size)))
+                    :parts                 {:wrapper    {:style {:height @wh
+                                                                 :width  @ww}}
                                             :cell-value #(str (gensym))
                                             :row-header-label
                                             (fn [{:keys [row-path]}]
                                               (let [{:keys [is-after?]} (meta row-path)
-                                                    the-label (get (last row-path) :label "placeholder")]
+                                                    the-label           (get (last row-path) :label "placeholder")]
                                                 (if is-after?
                                                   (str the-label " (Total)")
                                                   the-label)))
@@ -913,29 +913,35 @@
      " is the parent, and " [:code ":b :c"] " are children. Explicitly, "
      "the branch function is " [:code "sequential?"]
      " and the children function is " [:code "rest"] "."
-     [:li " " [:strong "Header main-size can only declared in the tree."]
-      [:code ":row-height"] " and " [:code ":column-width"]
-      " are the main-sizes."
-      " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
-      " makes three rows. The first two have a default height, and the third has "
-      "a height of 45."]
-     [:li [:strong "Header cross-size can be declared as a prop."]
-      [:code ":row-header-width"] " and " [:code ":column-header-height"]
-      " are the cross-sizes. You can pass an integer for either key, to control the "
-      " default cross-size. There are also plural props, "
+     [rc/title :level :level3 :label "Header main-size can only declared in the tree."]
+     [:code ":row-height"] " and " [:code ":column-width"]
+     " are the main-sizes."
+     " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
+     " makes three rows. The first two have a default height, and the third has "
+     "a height of 45."
+     [rc/title :level :level3 :label "Header cross-size can be declared as a prop."]
+     [:p [:code ":row-header-width"] " and " [:code ":column-header-height"]
+      " are the cross-sizes. To control the default cross-size, pass an integer for either key. "]
+     [:p
+      "There are also plural props, "
       [:code ":row-header-widths"] " and " [:code ":column-header-heights"] ". "
-      "You can pass a vector of integers (or a reagent/atom), to control individual cross-sizes. "
-      "Each vector must be as long (or longer) than the corresponding maximum tree-depth. "
+      "To control each header's cross-size individually, pass a vector of integers (or a reagent/atom). "
+      "Each vector must be as long (or longer) than the corresponding maximum tree-depth. "]
+     [:p
       "For instance, " [:code ":row-tree [:apple [:banana 1 2] [:coconut 8 9]]"] " has a max depth of 3. "
+      "Note that keywords appear at tree depths 1 and 2, and numbers at a depth of 3. "
       "In this case, you can pass " [:code " :row-header-widths [40 40 20]"] ". "
-      "This would make the keyword headers 40-wide, and the number headers 20-wide."]
-     [:li [:strong "Tree depth must be specified."]
+      "This would make the keyword headers 40-wide, and the number headers 20-wide."
+      [rc/title :level :level3 :label [:span "To handle header size changes, use " [:code ":on-resize"] "."]]
+      [:p [:code ":on-resize"] " takes keyword arguments:"
+       [:ul
+        [:li [:code ":dimension"] " - which sort of ]]]"]]]
       [:strong [:code ":row-tree-depth"] " and " [:code ":column-tree-depth"]]
-      "are required props."]
-     [:li [:strong "Tree roots are hidden by default."] " For instance, " [:code ":row-tree [:a [:b 1 2] [:c 8 9]]"]
+      "are required props."
+      [rc/title :level :level3 :label "Tree roots are hidden by default."]
+      " For instance, " [:code ":row-tree [:a [:b 1 2] [:c 8 9]]"]
       " displays " [:code ":b :c"] " as two top-level headers, each with two children."
-      "The root node, " [:code ":a"] ", is hidden."]
-     #_[:li "B"]]]])
+      "The root node, " [:code ":a"] ", is hidden."]]]])
 
 (defn demos []
   (let [tabs [(when goog/DEBUG

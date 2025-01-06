@@ -99,9 +99,10 @@
             :as                               props
             :or
             {hide-root? true
-             on-resize  (fn [{:keys [value dimension]}]
-                          (case dimension
-                            :column-header-height (reset! column-header-heights-internal value)))}}]
+             on-resize  (fn [{:keys [header-dimension size-dimension keypath size]}]
+                          (case [header-dimension size-dimension]
+                            [:column :height] (swap! column-header-heights-internal assoc-in keypath size)
+                            [:row :width]     (swap! row-header-widths-internal assoc-in keypath size)))}}]
         (mapv u/deref-or-value [row-tree row-header-widths row-height
                                 column-tree column-header-heights column-width])
         (let [theme
@@ -114,23 +115,27 @@
               row-width-resizers
               (for [i (range (if hide-root? 1 0) @row-depth)]
                 ^{:key [::row-width-resizer i]}
-                [ngp/resizer {:on-resize on-resize
-                              :overlay   overlay
-                              :dimension :row-header-width
-                              :keypath   [i]
-                              :index     i
-                              :size      (get @row-header-widths i row-header-width)}])
+                [ngp/resizer {:on-resize        on-resize
+                              :overlay          overlay
+                              :header-dimension :row
+                              :size-dimension   :width
+                              :dimension        :row-header-width
+                              :keypath          [i]
+                              :index            i
+                              :size             (get @row-header-widths i row-header-width)}])
 
               column-height-resizers
               (for [i (range (if hide-root? 1 0) @column-depth)]
                 ^{:key [::column-height-resizer i]}
-                [ngp/resizer {:path      (get @column-paths i)
-                              :on-resize on-resize
-                              :overlay   overlay
-                              :dimension :column-header-height
-                              :keypath   [i]
-                              :index     i
-                              :size      (get @column-header-heights i column-header-height)}])
+                [ngp/resizer {:path             (get @column-paths i)
+                              :on-resize        on-resize
+                              :overlay          overlay
+                              :header-dimension :column
+                              :size-dimension   :height
+                              :dimension        :column-header-height
+                              :keypath          [i]
+                              :index            i
+                              :size             (get @column-header-heights i column-header-height)}])
 
               row-height-resizers
               (fn [& {:keys [offset]}]
@@ -140,13 +145,15 @@
                       :when (and (pos? size)
                                  (map? (peek row-path)))]
                   ^{:key [::row-height-resizer i]}
-                  [ngp/resizer {:path      row-path
-                                :offset    offset
-                                :on-resize on-resize
-                                :overlay   overlay
-                                :keypath   (get @row-keypaths i)
-                                :size      size
-                                :dimension :row-height}]))
+                  [ngp/resizer {:path             row-path
+                                :offset           offset
+                                :on-resize        on-resize
+                                :overlay          overlay
+                                :keypath          (get @row-keypaths i)
+                                :size             size
+                                :header-dimension :row
+                                :size-dimension   :height
+                                :dimension        :row-height}]))
 
               column-width-resizers
               (fn [& {:keys [offset style]}]
@@ -154,14 +161,16 @@
                       :let  [column-path (get @column-paths i)]
                       :when (map? (peek column-path))]
                   ^{:key [::column-width-resizer i]}
-                  [ngp/resizer {:path      column-path
-                                :offset    offset
-                                :style     style
-                                :on-resize on-resize
-                                :overlay   overlay
-                                :keypath   (get @column-keypaths i)
-                                :size      (get @column-sizes i)
-                                :dimension :column-width}]))
+                  [ngp/resizer {:path             column-path
+                                :offset           offset
+                                :style            style
+                                :on-resize        on-resize
+                                :overlay          overlay
+                                :keypath          (get @column-keypaths i)
+                                :size             (get @column-sizes i)
+                                :header-dimension :column
+                                :size-dimension   :width
+                                :dimension        :column-width}]))
 
               row-headers
               (for [i         (range (count @row-paths))
