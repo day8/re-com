@@ -913,21 +913,30 @@
     [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
     "Window height"
     [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]
-    [rc/p "Some key differences:"]
-    [:ul {:style {:width 500}}
-     [:li [:strong "Trees are hiccup-like."]
-      " The tree " [:code "[:a :b :c]"]
-      "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
-      " is the parent, and " [:code ":b :c"] " are children."]
+    [rc/title :level :level2 :label "Key differences:"]
+    [:div {:style {:width 500}}
+     [rc/title :level :level3 :label "Trees are hiccup-like."]
+     " The tree " [:code "[:a :b :c]"]
+     "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
+     " is the parent, and " [:code ":b :c"] " are children. Explicitly, "
+     "the branch function is " [:code "sequential?"]
+     " and the children function is " [:code "rest"] "."
      [:li " " [:strong "Header main-size can only declared in the tree."]
       [:code ":row-height"] " and " [:code ":column-width"]
       " are the main-sizes."
       " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
       " makes three rows. The first two have a default height, and the third has "
       "a height of 45."]
-     [:li [:strong "Header cross-size can be declared as a vector of integers."]
+     [:li [:strong "Header cross-size can be declared as a prop."]
       [:code ":row-header-width"] " and " [:code ":column-header-height"]
-      " are cross-sizes."]
+      " are the cross-sizes. You can pass an integer for either key, to control the "
+      " default cross-size. There are also plural props, "
+      [:code ":row-header-widths"] " and " [:code ":column-header-heights"] ". "
+      "You can pass a vector of integers (or a reagent/atom), to control individual cross-sizes. "
+      "Each vector must be as long (or longer) than the corresponding maximum tree-depth. "
+      "For instance, " [:code ":row-tree [:apple [:banana 1 2] [:coconut 8 9]]"] " has a max depth of 3. "
+      "In this case, you can pass " [:code " :row-header-widths [40 40 20]"] ". "
+      "This would make the keyword headers 40-wide, and the number headers 20-wide."]
      [:li [:strong "Tree depth must be specified."]
       [:strong [:code ":row-tree-depth"] " and " [:code ":column-tree-depth"]]
       "are required props."]
