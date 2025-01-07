@@ -801,8 +801,8 @@
                                           (take (count path)
                                                 (iterate pop path))))
             transpose                  (partial apply mapv vector)
-            export-corner-headers      #(mapv (fn [column-index]
-                                                (mapv (fn [row-index]
+            export-corner-headers      #(mapv (fn [row-index]
+                                                (mapv (fn [column-index]
                                                         (on-export-corner-header {:row-index    row-index
                                                                                   :column-index column-index
                                                                                   :edge
@@ -1001,8 +1001,8 @@
                                                                                     :grid-row    (inc y)}
                                                                     :attr          {:on-click (debug/log-on-alt-click props)}
                                                                     :theme         theme
-                                                                    :row-index     y
                                                                     :column-index  x
+                                                                    :row-index     y
                                                                     :x             x
                                                                     :y             y
                                                                     :corner-header corner-header})

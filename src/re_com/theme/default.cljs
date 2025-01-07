@@ -285,6 +285,9 @@
 
          ::nested-grid/corner-header-wrapper
          {:style (merge row-header-wrapper-main
+                        {:overflow "hidden"
+                         :text-overflow "ellipsis"
+                         :white-space "nowrap"}
                         {:border-left      (when (contains? (:edge state) :left)
                                              (str "thin" " solid " border-dark))
                          :border-top       (when (get (:edge state) :top)
