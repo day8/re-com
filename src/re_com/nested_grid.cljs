@@ -804,8 +804,8 @@
             export-corner-headers      #(mapv (fn [x]
                                                 (mapv (fn [y]
                                                         (on-export-corner-header {:row-index y :column-index x}))
-                                                      (range @row-depth)))
-                                                (range @column-depth))
+                                                      (range row-depth)))
+                                                (range column-depth))
             export-column-headers      #(let [export-path (fn [path]
                                                             (on-export-column-header {:path path :row-path path}))]
                                           (transpose (mapv (fn [path] (mapv export-path (ancestry path)))

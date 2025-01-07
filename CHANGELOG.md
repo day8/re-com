@@ -2,6 +2,13 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.23.1 (2025-01-07)
+
+#### Fixed
+
+- `nested-grid`: Fixed crash when exporting
+
+
 ## 2.23.0 (2025-01-07)
 
 #### Changed
