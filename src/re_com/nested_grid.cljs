@@ -801,18 +801,16 @@
                                           (take (count path)
                                                 (iterate pop path))))
             transpose                  (partial apply mapv vector)
-            export-corner-headers      #(mapv (fn [x]
-                                                (mapv (fn [y]
-                                                        (let [row-index    y
-                                                              column-index x]
-                                                          (on-export-corner-header {:row-index    y
-                                                                                    :column-index x
-                                                                                    :edge
-                                                                                    (cond-> #{}
-                                                                                      (= column-index 0)                  (conj :top)
-                                                                                      (= column-index (dec row-depth)) (conj :bottom)
-                                                                                      (= row-index 0)               (conj :left)
-                                                                                      (= row-index (dec column-depth)) (conj :right))})))
+            export-corner-headers      #(mapv (fn [column-index]
+                                                (mapv (fn [row-index]
+                                                        (on-export-corner-header {:row-index    row-index
+                                                                                  :column-index column-index
+                                                                                  :edge
+                                                                                  (cond-> #{}
+                                                                                    (= row-index 0)                  (conj :top)
+                                                                                    (= row-index (dec column-depth)) (conj :bottom)
+                                                                                    (= column-index 0)               (conj :left)
+                                                                                    (= column-index (dec row-depth)) (conj :right))}))
                                                       (range row-depth)))
                                               (range column-depth))
             export-column-headers      #(let [export-path (fn [path]
