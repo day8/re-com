@@ -786,13 +786,13 @@
                                                 (iterate pop path))))
             transpose                  (partial apply mapv vector)
             export-column-headers      #(let [export-path (fn [path]
-                                                            (on-export-row-header {:path path :row-path path}))]
+                                                            (on-export-column-header {:path path :row-path path}))]
                                           (transpose (mapv (fn [path] (mapv export-path (ancestry path)))
-                                                           showing-row-paths)))
+                                                           showing-column-paths)))
             export-row-headers         #(let [export-path (fn [path]
                                                             (on-export-row-header {:path path :row-path path}))]
                                           (mapv (fn [path] (mapv export-path (ancestry path)))
-                                                showing-column-paths))
+                                                showing-row-paths))
             export-cells               #(let [{:keys [grid-row-start grid-row-end grid-column-start grid-column-end]
                                                :as   selection-grid-spec}
                                               @selection-grid-spec
