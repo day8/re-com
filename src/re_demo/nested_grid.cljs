@@ -89,9 +89,9 @@
     [p "Everything described above applies to rows, as well. " [:code ":row-spec"] ", " [:code ":row-tree"] " and " [:code ":row-path"]
      " have all the same properties as their column equivalents."]
     [title2 "Cell & Header Functions"]
-    [p [:code "nested-grid"] " accepts " [:code ":column-header"] ", " [:code ":row-header"] ", " [:code ":header-spacer"] " and " [:code ":cell"] " props. Each is a function." [:code "nested-grid"] " calls each function to render the following locations:"
+    [p [:code "nested-grid"] " accepts " [:code ":column-header"] ", " [:code ":row-header"] ", " [:code ":corner-header"] " and " [:code ":cell"] " props. Each is a function." [:code "nested-grid"] " calls each function to render the following locations:"
      [nested-grid
-      :header-spacer (constantly [:div {:style {:color "grey"}} ":header-spacer"])
+      :corner-header (constantly [:div {:style {:color "grey"}} ":corner-header"])
       :column-width 100
       :column-tree [":column-header" [{:id (gensym) :label ":column-header"}
                                       {:id (gensym) :label ":column-header"}]]
@@ -332,7 +332,7 @@
                 :background-color "#99a"
                 :color            ($ :white)}}
 
-       :re-com.nested-grid/header-spacer-wrapper
+       :re-com.nested-grid/corner-header-wrapper
        {:style {:border-left      "none"
                 :border-bottom    "none"
                 :border-right     "none"
@@ -360,7 +360,7 @@
             :background-color "#768895"
             :color            :white}}
 
-   :re-com.nested-grid/header-spacer-wrapper
+   :re-com.nested-grid/corner-header-wrapper
    {:style {:border-right     "none"
             :padding-left     "10px"
             :padding-top      1
@@ -375,7 +375,7 @@
      {:theme                rf8-grid-theme
       #_#_:parts            rf8-grid-parts
       #_#_:row-header-width 0
-      :header-spacer        (fn [{:keys [x]}]
+      :corner-header        (fn [{:keys [x]}]
                               (get ["Market" "Network"] x))
       :column-tree          (->> [{:id "Align Column" :width 120 :align-column :left}
                                   {:id "Default Alignment" :width 120}

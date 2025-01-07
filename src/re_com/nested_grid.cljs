@@ -17,9 +17,9 @@
     [{:name :wrapper :level 1 :impl "[:div]"}
      {:name :export-button :level 2 :impl "[:div]"}
      {:name :outer-grid-container :level 2 :impl "[:div]"}
-     {:name :header-spacer-grid-container :level 3 :impl "[:div]"}
-     {:name :header-spacer-wrapper :level 4 :impl "[:div]"}
-     {:name :header-spacer :level 5 :impl "[:div]"}
+     {:name :corner-header-grid-container :level 3 :impl "[:div]"}
+     {:name :corner-header-wrapper :level 4 :impl "[:div]"}
+     {:name :corner-header :level 5 :impl "[:div]"}
      {:name :column-header-grid-container :level 3 :impl "[:div]"}
      {:name :column-header-wrapper :level 4 :impl "[:div]"}
      {:name :column-header :level 5 :impl "[:div]"}
@@ -107,11 +107,11 @@
       :description
       [:span "A wrapper div, responsible for positioning one " [:code ":row-header"]
        " within the css grid."]}
-     {:name :header-spacer-wrapper
+     {:name :corner-header-wrapper
       :type "part"
       :validate-fn part?
       :description
-      [:span "A wrapper responsible for positioning one " [:code ":header-spacer"]
+      [:span "A wrapper responsible for positioning one " [:code ":corner-header"]
        " within the css grid."]}
      {:name :export-button
       :type "part"
@@ -684,8 +684,8 @@
     (fn [& {:as passed-in-props}]
       (let [{:as   props
              :keys [column-tree row-tree
-                    cell cell-value column-header row-header header-spacer
-                    cell-wrapper column-header-wrapper row-header-wrapper header-spacer-wrapper
+                    cell cell-value column-header row-header corner-header
+                    cell-wrapper column-header-wrapper row-header-wrapper corner-header-wrapper
                     theme-cells?
                     show-branch-paths?
                     max-height max-width
@@ -960,7 +960,7 @@
                                                                          :drag           drag
                                                                          :dimension      :row
                                                                          :path           path})])])
-            header-spacer-cells        (for [y    (range column-depth)
+            corner-header-cells        (for [y    (range column-depth)
                                              x    (range row-depth)
                                              :let [state {:edge (cond-> #{}
                                                                   (zero? y)                (conj :top)
@@ -976,10 +976,10 @@
                                                                  :theme         theme
                                                                  :x             x
                                                                  :y             y
-                                                                 :header-spacer header-spacer})
-                                                   children [(u/part header-spacer props)]]]
-                                         (u/part header-spacer-wrapper
-                                                 (theme/apply (merge props {:children children}) {:part ::header-spacer-wrapper} theme)))
+                                                                 :corner-header corner-header})
+                                                   children [(u/part corner-header props)]]]
+                                         (u/part corner-header-wrapper
+                                                 (theme/apply (merge props {:children children}) {:part ::corner-header-wrapper} theme)))
             cells                      (if-not theme-cells?
                                          (for [row-path    showing-row-paths
                                                column-path showing-column-paths]
@@ -1102,7 +1102,7 @@
                                                                (when remove-empty-row-space? native-height))
                                                :flex       "1 1 auto"
                                                :overflow   :auto}))})]
-            header-spacers             (into [:div (themed ::header-spacer-grid-container
+            corner-headers             (into [:div (themed ::corner-header-grid-container
                                                      {:style {:display               :grid
                                                               :box-sizing            :border-box
                                                               :position              :sticky
@@ -1113,7 +1113,7 @@
                                                               :z-index               3
                                                               :grid-template-columns (grid-template max-row-widths)
                                                               :grid-template-rows    (grid-template max-column-heights)}})]
-                                             header-spacer-cells)
+                                             corner-header-cells)
             column-headers             (into [:div (themed ::column-header-grid-container
                                                      {:style {:position              :sticky
                                                               :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
@@ -1156,7 +1156,7 @@
          (when show-export-button? control-panel)
          (conj
           outer-grid-container
-          header-spacers
+          corner-headers
           column-headers
           row-headers
           cells)

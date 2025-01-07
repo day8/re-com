@@ -284,7 +284,7 @@
          {:style {:padding          "0px"
                   :background-color "transparent"}}
 
-         ::nested-grid/header-spacer-wrapper
+         ::nested-grid/corner-header-wrapper
          {:style {:border-left      (when (contains? (:edge state) :left)
                                       (str "thin" " solid " border-dark))
                   :border-top       (when (get (:edge state) :top)
