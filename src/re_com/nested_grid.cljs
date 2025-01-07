@@ -729,7 +729,7 @@
                     show-zebra-stripes?        true
                     on-export-column-header    header-label
                     on-export-row-header       header-label
-                    on-export-corner-header    header-label
+                    on-export-corner-header    (constantly nil)
                     resize-columns?            true
                     resize-rows?               false
                     theme-cells?               true
