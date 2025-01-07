@@ -104,7 +104,6 @@
                               :overflow      :hidden
                               :whitespace    :nowrap}))
 
-
 (defmethod base :default [props {:keys                   [state part transition!]
                                  {:keys [sm-2]}          :variables
                                  {:keys [anchor-height]} :component-props
@@ -285,15 +284,16 @@
                   :background-color "transparent"}}
 
          ::nested-grid/corner-header-wrapper
-         {:style {:border-left      (when (contains? (:edge state) :left)
-                                      (str "thin" " solid " border-dark))
-                  :border-top       (when (get (:edge state) :top)
-                                      (str "thin solid " border-dark))
-                  :border-bottom    (when (get (:edge state) :bottom)
-                                      (str "thin solid " border))
-                  :border-right     (when (get (:edge state) :right)
-                                      (str "thin" " solid " border))
-                  :background-color light-background}}
+         {:style (merge row-header-wrapper-main
+                        {:border-left      (when (contains? (:edge state) :left)
+                                             (str "thin" " solid " border-dark))
+                         :border-top       (when (get (:edge state) :top)
+                                             (str "thin solid " border-dark))
+                         :border-bottom    (when (get (:edge state) :bottom)
+                                             (str "thin solid " border))
+                         :border-right     (when (get (:edge state) :right)
+                                             (str "thin" " solid " border))
+                         :background-color light-background})}
 
          ::nested-grid/column-header-wrapper
          (let [{:keys [align-column align-column-header align]} (:header-spec state)]
