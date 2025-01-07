@@ -89,6 +89,12 @@
        " By default, returns the " [:code ":label"] ", " [:code ":id"]
        ", or else a string of the entire value of the last item in "
        [:code ":row-path"] "."]}
+     {:name :corner-header
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A string, hiccup, or function of " [:code "{:keys [row-index column-index]}"] "."
+       " Both row-index and column-index are integers. By default, returns " [:code "nil"] "."]}
      {:name :cell-wrapper
       :type "part"
       :validate-fn part?
@@ -318,7 +324,16 @@
       [:span "Similar to " [:code ":column-header"]
        ", but it should return a string value only."
        " After the export button is clicked, " [:code "nested-grid"] " maps "
-       [:code ":on-export-column-header"] "over any cells marked for export, passing the "
+       [:code ":on-export-column-header"] "over any column-headers marked for export, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}
+     {:name :on-export-corner-header
+      :type "{:keys [row-index column-index]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":corner-header"]
+       ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-column-header"] " over all the top-left corner cells, passing the "
        "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}
      {:name :show-selection-box?
       :default false
@@ -692,7 +707,7 @@
                     remove-empty-row-space? remove-empty-column-space?
                     column-width column-header-height row-header-width row-height
                     show-export-button? on-export export-button
-                    on-export-cell on-export-column-header on-export-row-header
+                    on-export-cell on-export-column-header on-export-row-header on-export-corner-header
                     on-init-export-fn
                     show-zebra-stripes?
                     show-selection-box? resize-columns? resize-rows?
@@ -714,6 +729,7 @@
                     show-zebra-stripes?        true
                     on-export-column-header    header-label
                     on-export-row-header       header-label
+                    on-export-corner-header    header-label
                     resize-columns?            true
                     resize-rows?               false
                     theme-cells?               true
@@ -785,6 +801,11 @@
                                           (take (count path)
                                                 (iterate pop path))))
             transpose                  (partial apply mapv vector)
+            export-corner-headers      #(mapv (fn [x]
+                                                (mapv (fn [y]
+                                                        (on-export-corner-header {:row-index y :column-index x}))
+                                                      (range @row-depth)))
+                                                (range @column-depth))
             export-column-headers      #(let [export-path (fn [path]
                                                             (on-export-column-header {:path path :row-path path}))]
                                           (transpose (mapv (fn [path] (mapv export-path (ancestry path)))
@@ -813,7 +834,6 @@
                                                                      props (cond-> props cell-value (merge {:value (cell-value props)}))]
                                                                  (on-export-cell props)))
                                                              column-paths)))))
-            export-spacers             #(vec (repeat column-depth (vec (repeat row-depth nil))))
             default-export-button      (fn [{:keys [on-click]}]
                                          [buttons/md-icon-button
                                           {:md-icon-name "zmdi zmdi-copy"
@@ -825,15 +845,15 @@
                                            :on-click     on-click}])
             export-fn                  #(let [column-headers (export-column-headers)
                                               row-headers    (export-row-headers)
-                                              spacers        (export-spacers)
+                                              corner-headers (export-corner-headers)
                                               cells          (export-cells)
-                                              header-rows    (mapv into spacers column-headers)
+                                              header-rows    (mapv into corner-headers column-headers)
                                               main-rows      (mapv into row-headers cells)
                                               rows           (concat header-rows main-rows)]
                                           (on-export
                                            {:column-headers column-headers
                                             :row-headers    row-headers
-                                            :spacers        spacers
+                                            :corner-headers corner-headers
                                             :cells          cells
                                             :header-rows    header-rows
                                             :main-rows      main-rows
@@ -842,19 +862,19 @@
             _                          (when on-init-export-fn (on-init-export-fn export-fn))
             export-button              (u/part export-button
                                                (themed ::export-button
-                                                 {:style    {:position :fixed
-                                                             :right    10}
-                                                  :on-click export-fn})
+                                                       {:style    {:position :fixed
+                                                                   :right    10}
+                                                        :on-click export-fn})
                                                :default default-export-button)
             cell-grid-container        [:div
                                         (themed ::cell-grid-container
-                                          {:style {:max-height            max-height
-                                                   :max-width             max-width
-                                                   :display               :grid
-                                                   :grid-column-start     2
-                                                   :grid-row-start        2
-                                                   :grid-template-columns (grid-template cell-grid-columns)
-                                                   :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                                {:style {:max-height            max-height
+                                                         :max-width             max-width
+                                                         :display               :grid
+                                                         :grid-column-start     2
+                                                         :grid-row-start        2
+                                                         :grid-template-columns (grid-template cell-grid-columns)
+                                                         :grid-template-rows    (grid-template cell-grid-rows)}})]
             column-header-cells        (for [path column-paths
                                              :let [edge (cond-> #{}
                                                           (start-branch? path column-paths) (conj :left)
@@ -1024,14 +1044,14 @@
                                          ^{:key [::zebra-stripe i]}
                                          [:div
                                           (themed ::zebra-stripe
-                                            {:style
-                                             {:grid-column-start 1
-                                              :grid-column-end   "end"
-                                              :grid-row          i
-                                              :background-color  "#999"
-                                              :opacity           0.05
-                                              :z-index           1
-                                              :pointer-events    "none"}})])
+                                                  {:style
+                                                   {:grid-column-start 1
+                                                    :grid-column-end   "end"
+                                                    :grid-row          i
+                                                    :background-color  "#999"
+                                                    :opacity           0.05
+                                                    :z-index           1
+                                                    :pointer-events    "none"}})])
             box-selector               [selection-part
                                         {:drag                drag
                                          :grid-columns        cell-grid-columns
@@ -1086,54 +1106,54 @@
                                                     :children [export-button]}]]
             outer-grid-container       [:div
                                         (themed ::outer-grid-container
-                                          {:on-mouse-enter #(reset! hover? true)
-                                           :on-mouse-leave #(reset! hover? false)
-                                           :style
-                                           (merge
-                                            {:position              :relative
-                                             :display               :grid
-                                             :grid-template-columns (grid-template [(px row-header-total-width)
-                                                                                    (px column-header-total-width)])
-                                             :grid-template-rows    (grid-template [(px column-header-total-height)
-                                                                                    "1fr"])}
-                                            (when-not sticky?
-                                              {:max-width  (or max-width (when remove-empty-column-space? native-width))
-                                               :max-height (or max-height
-                                                               (when remove-empty-row-space? native-height))
-                                               :flex       "1 1 auto"
-                                               :overflow   :auto}))})]
+                                                {:on-mouse-enter #(reset! hover? true)
+                                                 :on-mouse-leave #(reset! hover? false)
+                                                 :style
+                                                 (merge
+                                                  {:position              :relative
+                                                   :display               :grid
+                                                   :grid-template-columns (grid-template [(px row-header-total-width)
+                                                                                          (px column-header-total-width)])
+                                                   :grid-template-rows    (grid-template [(px column-header-total-height)
+                                                                                          "1fr"])}
+                                                  (when-not sticky?
+                                                    {:max-width  (or max-width (when remove-empty-column-space? native-width))
+                                                     :max-height (or max-height
+                                                                     (when remove-empty-row-space? native-height))
+                                                     :flex       "1 1 auto"
+                                                     :overflow   :auto}))})]
             corner-headers             (into [:div (themed ::corner-header-grid-container
-                                                     {:style {:display               :grid
-                                                              :box-sizing            :border-box
-                                                              :position              :sticky
-                                                              :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
-                                                              :left                  (if sticky? sticky-left 0)
-                                                              :grid-column-start     1
-                                                              :grid-row-start        1
-                                                              :z-index               3
-                                                              :grid-template-columns (grid-template max-row-widths)
-                                                              :grid-template-rows    (grid-template max-column-heights)}})]
+                                                           {:style {:display               :grid
+                                                                    :box-sizing            :border-box
+                                                                    :position              :sticky
+                                                                    :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
+                                                                    :left                  (if sticky? sticky-left 0)
+                                                                    :grid-column-start     1
+                                                                    :grid-row-start        1
+                                                                    :z-index               3
+                                                                    :grid-template-columns (grid-template max-row-widths)
+                                                                    :grid-template-rows    (grid-template max-column-heights)}})]
                                              corner-header-cells)
             column-headers             (into [:div (themed ::column-header-grid-container
-                                                     {:style {:position              :sticky
-                                                              :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
-                                                              :width                 :fit-content
-                                                              :z-index               2
-                                                              :display               :grid
-                                                              :grid-column-start     2
-                                                              :grid-row-start        1
-                                                              :grid-template-columns (grid-template cell-grid-columns)
-                                                              :grid-template-rows    (grid-template max-column-heights)}})]
+                                                           {:style {:position              :sticky
+                                                                    :top                   (cond-> sticky-top (and sticky? show-export-button?) (+ 25))
+                                                                    :width                 :fit-content
+                                                                    :z-index               2
+                                                                    :display               :grid
+                                                                    :grid-column-start     2
+                                                                    :grid-row-start        1
+                                                                    :grid-template-columns (grid-template cell-grid-columns)
+                                                                    :grid-template-rows    (grid-template max-column-heights)}})]
                                              column-header-cells)
             row-headers                (into [:div (themed ::row-header-grid-container
-                                                     {:style {:position              :sticky
-                                                              :left                  (if sticky? sticky-left 0)
-                                                              :z-index               1
-                                                              :display               :grid
-                                                              :grid-column-start     1
-                                                              :grid-row-start        2
-                                                              :grid-template-columns (grid-template max-row-widths)
-                                                              :grid-template-rows    (grid-template cell-grid-rows)}})]
+                                                           {:style {:position              :sticky
+                                                                    :left                  (if sticky? sticky-left 0)
+                                                                    :z-index               1
+                                                                    :display               :grid
+                                                                    :grid-column-start     1
+                                                                    :grid-row-start        2
+                                                                    :grid-template-columns (grid-template max-row-widths)
+                                                                    :grid-template-rows    (grid-template cell-grid-rows)}})]
                                              row-header-cells)
             cells                      (-> cell-grid-container
                                            (into cells)
@@ -1143,15 +1163,15 @@
                                            (conj (when show-selection-box? box-selector)))]
         [:div (merge
                (themed ::wrapper
-                 {:src   src
-                  :style (merge {:flex-direction :column}
-                                (when-not sticky?
-                                  (merge {:flex    "0 0 auto"
-                                          :display :flex}
-                                         (when remove-empty-column-space?
-                                           {:max-width :fit-content})
-                                         (when remove-empty-row-space?
-                                           {:max-height :fit-content}))))})
+                       {:src   src
+                        :style (merge {:flex-direction :column}
+                                      (when-not sticky?
+                                        (merge {:flex    "0 0 auto"
+                                                :display :flex}
+                                               (when remove-empty-column-space?
+                                                 {:max-width :fit-content})
+                                               (when remove-empty-row-space?
+                                                 {:max-height :fit-content}))))})
                (debug/->attr props))
          (when show-export-button? control-panel)
          (conj
