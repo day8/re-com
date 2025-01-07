@@ -2,11 +2,37 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.22.12 (2025-01-07)
+
+#### Changed
+
+- `nested-grid`: Renamed :header-spacer to :corner-header
+- `nested-grid`: Use available flex cross-size (don't shrink to 0)
+
 #### Added
 
+- `nested-grid`: Add `:on-export-corner-header` prop.
+- `popover`: Add :optimize-position? prop
+- `dropdown`: Add :chosen-single part
 - `tree-select`: When multiple items with the same id are selected, the anchor label now only shows one.
 - `nested-grid`: Add :on-init-export-fn
 - `popover-content-wrapper`: Added `:optimize-position?` prop.
+
+## 2.22.11 (2024-12-01)
+
+#### Changed
+
+- `dropdown`: Now uses fixed positioning to position the body
+
+#### Fixed
+
+- `popover`: was missing code to apply quite a number of :parts overrides, for both :style and :attr
+- `nested-grid`: Fix ellipsis overflow for row-headers
+- `error-modal`: Fix react errors when x-button is mounted
+
+#### Added
+
+- Argument validation now gives a warning when you use a camel-cased prop key.
 
 ## 2.22.8 (2024-10-10)
 
