@@ -104,6 +104,10 @@
                               :overflow      :hidden
                               :whitespace    :nowrap}))
 
+(defmethod base ::nested-grid/corner-header-wrapper
+  [props _]
+   (update props :style merge row-header-wrapper-base))
+
 (defmethod base :default [props {:keys                   [state part transition!]
                                  {:keys [sm-2]}          :variables
                                  {:keys [anchor-height]} :component-props
@@ -285,9 +289,9 @@
 
          ::nested-grid/corner-header-wrapper
          {:style (merge row-header-wrapper-main
-                        {:overflow "hidden"
-                         :text-overflow "ellipsis"
-                         :white-space "nowrap"}
+                        {:overflow       "hidden"
+                         :text-overflow  "ellipsis"
+                         :white-space    "nowrap"}
                         {:border-left      (when (contains? (:edge state) :left)
                                              (str "thin" " solid " border-dark))
                          :border-top       (when (get (:edge state) :top)
