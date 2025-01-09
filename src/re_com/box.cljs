@@ -6,6 +6,7 @@
    [clojure.string   :as    string]
    [re-com.config    :refer [include-args-desc?]]
    [re-com.debug     :refer [->attr]]
+   [re-com.theme     :as    theme]
    [re-com.util      :as    u]
    [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
                              scroll-options-list string-or-hiccup? css-style? css-class? html-attr? part?]]))
@@ -149,7 +150,7 @@
     [:div
      (merge
       (->attr args)
-      {:class (str class-name "display-flex " class) :style s}
+      {:class (theme/merge-class "display-flex" class-name class) :style s}
       attr)
      child]))
 
@@ -183,7 +184,7 @@
      [:div
       (merge
        (->attr args)
-       {:class (str "rc-gap " class) :style s}
+       {:class (theme/merge-class "rc-gap" class) :style s}
        attr)])))
 
 ;; ------------------------------------------------------------------------------------
@@ -215,7 +216,7 @@
      [:div
       (merge
        (->attr args)
-       {:class (str "rc-line " class) :style s}
+       {:class (theme/merge-class "rc-line" class) :style s}
        attr)])))
 
 ;; ------------------------------------------------------------------------------------
@@ -279,7 +280,7 @@
      (into [:div
             (merge
              (->attr args)
-             {:class (str "rc-h-box display-flex " class) :style s}
+             {:class (theme/merge-class "rc-h-box" "display-flex" class) :style s}
              attr)]
            children))))
 
@@ -346,7 +347,7 @@
      (into [:div
             (merge
              (->attr args)
-             {:class (str "rc-v-box display-flex " class) :style s}
+             {:class (theme/merge-class "rc-v-box" "display-flex" class) :style s}
              attr)]
            children))))
 

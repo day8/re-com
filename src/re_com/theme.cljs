@@ -1,6 +1,7 @@
 (ns re-com.theme
   (:refer-clojure :exclude [apply merge])
   (:require
+   [clojure.string :as str]
    [reagent.core :as r]
    [re-com.theme.util :as tu]
    [re-com.theme.template :as template]
@@ -61,15 +62,17 @@
     theme (re-com.theme/apply {:part part} theme)
     theme (merge props)))
 
-(defn add-parts-path [path]
-  (fn parts-pather [props {:keys [part] :as ctx}]
-    [(update props :theme conj (add-parts-path (conj path part)))
-     (assoc ctx :parts-path (conj path part))]))
+(defn part-class [props {:keys [part]}]
+  (update props :class merge-class
+          (str (str/replace (namespace part) "re-com." "rc-")
+               "-" (name part))))
 
 (defn defaults [{:keys [theme-vars base-theme main-theme theme parts]} & themes]
   (re-com.theme/merge
    {:variables     theme-vars
     :base          base-theme
     :main          main-theme
-    :user          [theme (re-com.theme/parts parts)]}
+    :user          [theme
+                    (re-com.theme/parts parts)
+                    part-class]}
    themes))
