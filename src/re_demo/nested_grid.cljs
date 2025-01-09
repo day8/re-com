@@ -877,6 +877,7 @@
                     :column-header-heights column-header-heights
                     :show-row-branches?    true
                     :show-column-branches? true
+                    :cell-value            #(str (gensym))
                     :on-resize             (fn [{:keys [header-dimension size-dimension keypath size]}]
                                              (case [header-dimension size-dimension]
                                                [:column :height] (swap! column-header-heights assoc-in keypath size)
@@ -885,7 +886,7 @@
                                                [:column :width]  (swap! column-tree update-in keypath assoc :size size)))
                     :parts                 {:wrapper    {:style {:height @wh
                                                                  :width  @ww}}
-                                            :cell-value #(str (gensym))
+
                                             :row-header-label
                                             (fn [{:keys [row-path]}]
                                               (let [{:keys [is-after?]} (meta row-path)

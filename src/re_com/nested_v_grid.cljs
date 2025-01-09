@@ -89,8 +89,11 @@
          (reset! internal-row-tree (u/deref-or-value row-tree))
          (reset! internal-column-tree (u/deref-or-value column-tree)))
       :reagent-render
-      (fn [{:keys                             [row-tree column-tree theme-cells? on-resize hide-root?]
-            {:keys [cell corner-header cell-value
+      (fn [{:keys
+           [row-tree column-tree theme-cells? on-resize hide-root?
+            cell-value]
+           {:keys
+            [cell corner-header
                     row-header column-header
                     row-header-label column-header-label
                     row-header-grid column-header-grid
