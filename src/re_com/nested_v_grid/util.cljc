@@ -7,25 +7,6 @@
 (defn path->grid-line-name [path]
   (str "rc" (hash path)))
 
-#?(:cljs
-   (defn grid-template
-     ([tokens & more-tokens]
-      (grid-template (apply concat tokens more-tokens)))
-     ([tokens]
-      (let [rf (fn [s group]
-                 (str s " "
-                      (cond (number? (first group))
-                            (str/join " " (map u/px group))
-                            (string? (first group))
-                            (str/join " " group)
-                            :else
-                            (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
-        (str
-         (->> tokens
-              (partition-by (some-fn number? string?))
-              (reduce rf ""))
-         #_" [end]")))))
-
 (def header-spec? sequential?)
 
 (def branch? header-spec?)
@@ -223,7 +204,7 @@
               (conj next-result "[end]")
               (recur rest-paths rest-sizes rest-sums next-result))))))
 
-(defn lazy-grid-template [header-traversal]
+(defn grid-template [header-traversal]
   (str/replace
    (str/join " "
              (map #(cond (string? %) %
@@ -231,6 +212,24 @@
                          (number? %) (str % "px"))
                   (grid-tokens header-traversal)))
    "] [" " "))
+
+(defn grid-cross-template
+  ([tokens & more-tokens]
+   (grid-cross-template (apply concat tokens more-tokens)))
+  ([tokens]
+   (let [rf (fn [s group]
+              (str s " "
+                   (cond (number? (first group))
+                         (str/join " " (map u/px group))
+                         (string? (first group))
+                         (str/join " " group)
+                         :else
+                         (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
+     (str
+      (->> tokens
+           (partition-by (some-fn number? string?))
+           (reduce rf ""))
+      #_" [end]"))))
 
 (defn ancestry [path]
   (take (count path) (iterate pop path)))

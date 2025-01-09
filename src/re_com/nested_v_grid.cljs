@@ -164,16 +164,16 @@
         column-paths                     (r/reaction (:paths @column-traversal))
         column-keypaths                  (r/reaction (:keypaths @column-traversal))
         column-sizes                     (r/reaction (:sizes @column-traversal))
-        column-template                  (r/reaction (ngu/lazy-grid-template @column-traversal))
-        column-header-template           (r/reaction (ngu/grid-template @column-header-heights))
+        column-template                  (r/reaction (ngu/grid-template @column-traversal))
+        column-cross-template           (r/reaction (ngu/grid-cross-template @column-header-heights))
         column-spans                     (r/reaction (ngu/grid-spans @column-paths))
         row-header-width-total           (r/reaction (apply + @row-header-widths))
         row-height-total                 (r/reaction (:sum-size @row-traversal))
         row-paths                        (r/reaction (:paths @row-traversal))
         row-keypaths                     (r/reaction (:keypaths @row-traversal))
         row-sizes                        (r/reaction (:sizes @row-traversal))
-        row-template                     (r/reaction (ngu/lazy-grid-template @row-traversal))
-        row-header-template              (r/reaction (ngu/grid-template @row-header-widths))
+        row-template                     (r/reaction (ngu/grid-template @row-traversal))
+        row-cross-template              (r/reaction (ngu/grid-cross-template @row-header-widths))
         row-spans                        (r/reaction (ngu/grid-spans @row-paths))]
     (r/create-class
      {:component-did-mount
@@ -349,8 +349,8 @@
           [:div
            (themed ::wrapper
              {:style
-              {:grid-template-rows    (ngu/grid-template [@column-header-height-total @row-height-total])
-               :grid-template-columns (ngu/grid-template [@row-header-width-total @column-width-total])}
+              {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
+               :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
               :ref wrapper-ref!})
            (u/part cell-grid
                    (themed ::cell-grid
@@ -366,17 +366,17 @@
            (u/part column-header-grid
                    (themed ::column-header-grid
                      {:children (concat column-headers column-height-resizers (column-width-resizers {:offset -1}))
-                      :style    {:grid-template-rows    @column-header-template
+                      :style    {:grid-template-rows    @column-cross-template
                                  :grid-template-columns @column-template}}))
            (u/part row-header-grid
                    (themed ::row-header-grid
                      {:children (concat row-headers row-width-resizers (row-height-resizers {:offset -1}))
                       :style    {:grid-template-rows    @row-template
-                                 :grid-template-columns @row-header-template}}))
+                                 :grid-template-columns @row-cross-template}}))
            (u/part corner-header-grid
                    (themed ::corner-header-grid
                      {:children (concat corner-headers row-width-resizers column-height-resizers)
-                      :style    {:grid-template-rows    @column-header-template
-                                 :grid-template-columns @row-header-template}}))
+                      :style    {:grid-template-rows    @column-cross-template
+                                 :grid-template-columns @row-cross-template}}))
            (u/deref-or-value overlay)]))})))
 
