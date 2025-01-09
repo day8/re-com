@@ -954,16 +954,16 @@
       "For instance, " [:code ":row-tree [:apple [:banana 1 2] [:coconut 8 9]]"] " has a max depth of 3. "
       "Note that keywords appear at tree depths 1 and 2, and numbers at a depth of 3. "
       "In this case, you can pass " [:code " :row-header-widths [40 40 20]"] ". "
-      "This would make the keyword headers 40-wide, and the number headers 20-wide."
-      [rc/title :level :level3 :label [:span "To handle header size changes, pass a function to " [:code ":on-resize"] "."]]
-      [:p [:code ":on-resize"] " takes keyword arguments:"
-       [:ul
-        [:li [:code ":header-dimension"] " - either " [:code ":row"] " or " [:code ":column"]]
-        [:li [:code ":size-dimension"] " - either " [:code ":width"] " or " [:code ":height"]]
-        [:li [:code ":cross-size?"] " - True when you change column-header height or row-header width."]
-        [:li [:code ":keypath"] " - Vector of indices. Points to a location in a header-tree when resizing a main-size."
-         " Points to a location in " [:code ":row-header-widths"] " or " [:code ":column-header-heights"]
-         " when resizing a cross-size."]]]]]]])
+      "This would make the keyword headers 40-wide, and the number headers 20-wide."]
+     [rc/title :level :level3 :label [:span "To handle header size changes, pass a function to " [:code ":on-resize"] "."]]
+     [:p [:code ":on-resize"] " takes keyword arguments:"]
+     [:ul
+      [:li [:code ":header-dimension"] " - either " [:code ":row"] " or " [:code ":column"]]
+      [:li [:code ":size-dimension"] " - either " [:code ":width"] " or " [:code ":height"]]
+      [:li [:code ":cross-size?"] " - True when you change column-header height or row-header width."]
+      [:li [:code ":keypath"] " - Vector of indices. Points to a location in a header-tree when resizing a main-size."
+       " Points to a location in " [:code ":row-header-widths"] " or " [:code ":column-header-heights"]
+       " when resizing a cross-size."]]]]])
 
 (defn demos []
   (let [tabs [{:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo}
