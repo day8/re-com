@@ -1,15 +1,12 @@
 (ns re-com.nested-v-grid.theme
   (:require
    [re-com.theme.default :as default :refer [base main]]
-   [re-com.nested-v-grid :as-alias nvg]
-   [re-com.theme.util :refer [merge-props merge-class]]))
+   [re-com.nested-v-grid :as-alias nvg]))
 
 (def border-light "thin solid #ccc")
 (def border-dark "thin solid #aaa")
 
 (defn style [props & ms] (apply update props :style merge ms))
-
-(defn class [props & ss] (apply update props :class merge-class ss))
 
 (defmethod base ::nvg/wrapper [props _]
   (style props {:height   300
@@ -20,28 +17,21 @@
 
 (defmethod base ::nvg/cell-grid
   [props _]
-  (class props "rc-nested-v-grid-cell-grid"))
-
-(defmethod main ::nvg/cell-grid
-  [props _]
-  (style props {#_#_:border-top  light-border
-                #_#_:border-left light-border}))
+  (style props {:display           :grid
+                :grid-row-start    2
+                :grid-column-start 2}))
 
 (defmethod base ::nvg/column-header-grid
   [props _]
-  (-> props
-      (class "rc-nested-v-grid-column-header-grid")
-      (style {:display  :grid
-              :position :sticky
-              :top      0})))
+  (style props {:display  :grid
+                :position :sticky
+                :top      0}))
 
 (defmethod base ::nvg/row-header-grid
   [props _]
-  (-> props
-      (class "rc-nested-v-grid-row-header-grid")
-      (style {:display  :grid
-              :position :sticky
-              :left      0})))
+  (style props {:display  :grid
+                :position :sticky
+                :left      0}))
 
 (defmethod base ::nvg/corner-header-grid
   [props _]
@@ -53,14 +43,17 @@
                 :top               0}))
 
 (def header-main
-  (let [{:keys [sm-3 sm-4]}               default/golden-section-50
+  (let [{:keys [sm-3 sm-4]}        default/golden-section-50
         {:keys [light-background]} default/colors]
     {:padding-top      sm-3
      :padding-right    sm-4
      :padding-left     sm-4
      :background-color light-background
      :color            "#666"
-     :font-size        "13px"}))
+     :font-size        "13px"
+     :text-overflow    :ellipsis
+     :overflow         :hidden
+     :white-space      :nowrap}))
 
 (defmethod main ::nvg/corner-header
   [{:keys [edge] :as props} _]
@@ -79,27 +72,17 @@
            :border-bottom border-dark}))
 
 (defmethod main ::nvg/column-header
-  [props {:keys [state]}]
-  (let [{:keys [align-column align-column-header align]} (:header-spec state)]
+  [{:keys [column-path] :as props} _]
+  (let [{:keys [align-column align-column-header align]} (peek column-path)]
     (style props header-main
            {:text-align (or align-column-header align-column align :center)})))
 
-(def row-header-main
-  (let [{:keys [sm-3 sm-6]}               default/golden-section-50
-        {:keys [border light-background]} default/colors]
-    {:padding-top      sm-3
-     :padding-right    sm-3
-     :padding-left     sm-6
-     :background-color light-background
-     :color            "#666"
-     :text-align       "left"
-     :font-size        "13px"
-     :white-space      "nowrap"}))
-
 (defmethod main ::nvg/row-header
   [props _]
-  (style props row-header-main
-         {:border-right border-dark}))
+  (style props header-main
+         {:border-right border-dark
+          :font-size    "13px"
+          :text-align   "left"}))
 
 (def cell-main
   (let [{:keys [sm-3]} default/golden-section-50]
@@ -109,9 +92,9 @@
      :padding-top      sm-3
      :padding-right    sm-3
      :padding-left     sm-3
-     :text-align :right
-     :border-right border-light
-     :border-bottom border-light}))
+     :text-align       :right
+     :border-right     border-light
+     :border-bottom    border-light}))
 
 (defmethod main ::nvg/cell
   [props {{:keys [edge value column-path]} :state}]

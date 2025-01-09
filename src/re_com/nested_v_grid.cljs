@@ -358,10 +358,7 @@
                                         (row-height-resizers {:offset -1})
                                         (column-width-resizers {:style  {:grid-row-end -1}
                                                                 :offset -1}))
-                      :style    {:display               :grid
-                                 :grid-column-start     2
-                                 :grid-row-start        2
-                                 :grid-template-rows    @row-template
+                      :style    {:grid-template-rows    @row-template
                                  :grid-template-columns @column-template}}))
            (u/part column-header-grid
                    (themed ::column-header-grid
