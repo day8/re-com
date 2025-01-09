@@ -9,7 +9,8 @@
    [re-com.checkbox     :refer [checkbox]]
    [re-com.radio-button :refer [radio-button]]
    [re-com.box          :refer [box border h-box v-box]]
-   [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
+   [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts? css-class?]]
+   [re-com.theme        :as theme]
    [re-com.util         :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -33,7 +34,10 @@
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   (let [item-id (id-fn item)]
     [box
-     :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
+     :class (theme/merge-class "list-group-item"
+                               "compact"
+                               "rc-selection-list-group-item"
+                               (get-in parts [:list-group-item :class]))
      :style (get-in parts [:list-group-item :style] {})
      :attr  (merge
              {:on-click (handler-fn
@@ -64,7 +68,10 @@
   [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
   (let [item-id (id-fn item)]
     [box
-     :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
+     :class (theme/merge-class "list-group-item"
+                               "compact"
+                               "rc-selection-list-group-item"
+                               (get-in parts [:list-group-item :class]))
      :style (get-in parts [:list-group-item :style] {})
      :attr  (merge {:on-click (handler-fn (when-not disabled?
                                             ;; prevents on-change from firing if unselect is disabled (required?)
@@ -135,7 +142,7 @@
      {:name :disabled?      :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the time input will be disabled. Can be atom or value"}
      {:name :hide-border?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the list will be displayed without a border"}
      {:name :item-renderer  :required false                 :type "choice, id-fn, selected, on-change, disabled?, label-fn, required?, as-exclusions? -> hiccup | r/atom"                      :validate-fn fn?                           :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
-     {:name :class          :required false                 :type "string"                               :validate-fn string?                       :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class          :required false                 :type "string"                               :validate-fn css-class?                       :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style          :required false                 :type "CSS style map"                        :validate-fn css-style?                    :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr           :required false                 :type "HTML attr map"                        :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts          :required false                 :type "map"                                  :validate-fn (parts? selection-list-parts) :description "See Parts section below."}
@@ -194,7 +201,10 @@
       :border   (when hide-border? "none")
       :child    (into [:div
                        (merge
-                        {:class (str "list-group noselect rc-selection-list-group " (get-in parts [:list-group :class]))
+                        {:class (theme/merge-class "list-group"
+                                                   "noselect"
+                                                   "rc-selection-list-group"
+                                                   (get-in parts [:list-group :class]))
                          :style (merge
                                  list-style
                                  bounds

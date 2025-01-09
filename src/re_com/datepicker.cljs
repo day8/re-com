@@ -5,10 +5,11 @@
    [reagent.core         :as reagent]
    [cljs-time.core       :as cljs-time]
    [re-com.config        :refer [include-args-desc?]]
-   [re-com.validate      :refer [date-like? css-style? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
+   [re-com.validate      :refer [date-like? css-style? css-class? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
    [cljs-time.predicates :refer [sunday?]]
    [cljs-time.format     :refer [parse unparse formatters formatter]]
    [re-com.box           :refer [border gap box line h-box flex-child-style]]
+   [re-com.theme         :as theme]
    [re-com.util          :as u :refer [deref-or-value now->utc]]
    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
    [clojure.string       :as string])
@@ -178,7 +179,7 @@
                :border (when hide-border? "none")
                :child  [:div
                         (merge
-                         {:class (str "datepicker noselect rc-datepicker " class)
+                         {:class (theme/merge-class "datepicker" "noselect" "rc-datepicker" class)
                            ;; override inherited body larger 14px font-size
                            ;; override position from css because we are inline
                           :style (merge {:font-size "13px"
@@ -372,7 +373,9 @@
      (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
        [:th
         (merge
-         {:class (str "rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
+         {:class (theme/merge-class "rc-datepicker-day"
+                                    (str "rc-datepicker-day-" (string/lower-case (:name day)))
+                                    (get-in parts [:day :class]))
           :style (get-in parts [:day :style] {})}
          (get-in parts [:day :attr]))
         (str (:name day))]))))
@@ -383,7 +386,8 @@
   (let [template-row (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
      (merge
-      {:class (str "rc-datepicker-header " (get-in parts [:header :class]))
+      {:class (theme/merge-class "rc-datepicker-header "
+                                 (get-in parts [:header :class]))
        :style (get-in parts [:header :style] {})}
       (get-in parts [:header :attr]))
      (conj template-row
@@ -468,7 +472,8 @@
         current-start (previous (is-day-pred start-of-week) display-month)]
     (into [:tbody
            (merge
-            {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
+            {:class (theme/merge-class "rc-datepicker-dates"
+                                       (get-in parts [:dates :class]))
              :style (get-in parts [:dates :style])}
             (get-in parts [:dates :attr]))]
           (->> (range 6)
@@ -543,7 +548,7 @@
      {:name :hide-border? :required false :default false :type "boolean" :description "when true, the border is not displayed"}
      {:name :i18n :required false :type "map" :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
      {:name :date-cell :type "part" :description "Optional part to use for each date cell. Should be implemented using [:td]."}
-     {:name :class :required false :type "string" :validate-fn string? :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
+     {:name :class :required false :type "string" :validate-fn css-class? :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
      {:name :style :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
      {:name :attr :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
      {:name :parts :required false :type "map" :validate-fn (parts? datepicker-parts) :description "See Parts section below."}
@@ -576,7 +581,9 @@
           [main-div-with
            [:table
             (merge
-             {:class (str "table-condensed rc-datepicker-table " (get-in parts [:table :class]))
+             {:class (theme/merge-class "table-condensed"
+                                        "rc-datepicker-table"
+                                        (get-in parts [:table :class]))
               :style (get-in parts [:table :style])}
              (get-in parts [:table :attr]))
             [table-thead display-month configuration disabled? parts]
@@ -620,7 +627,10 @@
                        goog?                                     (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
                        :else                                     (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
                 [:span
-                 {:class (str "dropdown-button activator input-group-addon" (when (deref-or-value disabled?) " dropdown-button-disabled"))
+                 {:class (theme/merge-class "dropdown-button activator"
+                                            "input-group-addon"
+                                            (when (deref-or-value disabled?)
+                                              "dropdown-button-disabled"))
                   :style {:padding "3px 0px 0px 0px"}}
                  [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
 

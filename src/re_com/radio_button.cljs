@@ -9,7 +9,7 @@
    [re-com.popover  :refer [popover-tooltip]]
    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list css-class?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: radio-button
@@ -35,7 +35,7 @@
      {:name :disabled?   :required false :default false :type "boolean | r/atom"                                :description "if true, the user can't click the radio button"}
      {:name :label-class :required false                :type "string"           :validate-fn string?           :description "CSS class names (applies to the label)"}
      {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the label)"}
-     {:name :class       :required false                :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the radio-button, not the wrapping div)"}
+     {:name :class       :required false                :type "string"           :validate-fn css-class?           :description "CSS class names, space separated (applies to the radio-button, not the wrapping div)"}
      {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the radio-button, not the wrapping div)"}
      {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the radio-button, not the wrapping div)"]}
      {:name :parts       :required false                :type "map"              :validate-fn (parts? radio-button-parts) :description "See Parts section below."}

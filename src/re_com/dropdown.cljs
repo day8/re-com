@@ -7,7 +7,7 @@
    [re-com.theme    :as    theme]
    [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id ->v]]
    [re-com.box      :refer [align-style flex-child-style v-box h-box box gap]]
-   [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
+   [re-com.validate :refer [vector-of-maps? css-style? css-class? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list part?] :refer-macros [validate-args-macro]]
    [re-com.popover  :refer [popover-tooltip]]
    [clojure.string  :as    string]
@@ -839,7 +839,7 @@
      {:name :repeat-change?     :required false :default false         :type "boolean"                                                                   :description [:span "repeat " [:code ":on-change"] " events if an already selected item is selected again"]}
      {:name :i18n               :required false                        :type "map"                                                                       :description [:span "internationalization map with optional keys " [:code ":loading"] ", " [:code ":no-results"] " and " [:code ":no-results-match"]]}
      {:name :on-drop            :required false                        :type "() -> nil"                     :validate-fn fn?                            :description "called when the dropdown part is displayed"}
-     {:name :class              :required false                        :type "string"                        :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class              :required false                        :type "string"                        :validate-fn css-class?                        :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?                     :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts              :required false                        :type "map"                           :validate-fn (parts? single-dropdown-parts) :description "See Parts section below."}
@@ -1043,12 +1043,17 @@
                                  filter-box? drop-showing? title? disabled? parts]
               dropdown          [:div
                                  (merge
-                                  {:class (str "rc-dropdown chosen-container "
-                                               (if free-text? "chosen-container-multi " "chosen-container-single ")
-                                               "noselect "
-                                               (when (or @drop-showing? @free-text-focused?) "chosen-container-active ")
-                                               (when @drop-showing? "chosen-with-drop ")
-                                               class)          ;; Prevent user text selection
+                                  {:class (theme/merge-class "rc-dropdown"
+                                                             "chosen-container"
+                                                             (if free-text?
+                                                               "chosen-container-multi"
+                                                               "chosen-container-single")
+                                                             "noselect"
+                                                             (when (or @drop-showing? @free-text-focused?)
+                                                               "chosen-container-active")
+                                                             (when @drop-showing?
+                                                               "chosen-with-drop")
+                                                             class)          ;; Prevent user text selection
                                    :style (merge (flex-child-style (if width "0 0 auto" "auto"))
                                                  #_(align-style :align-self :start)
                                                  {:width width}
@@ -1062,7 +1067,9 @@
                                  (when (and @drop-showing? (not disabled?))
                                    [:div
                                     (merge
-                                     {:class (str "chosen-drop rc-dropdown-chosen-drop " (get-in parts [:chosen-drop :class]))
+                                     {:class (theme/merge-class "chosen-drop"
+                                                                "rc-dropdown-chosen-drop"
+                                                                (get-in parts [:chosen-drop :class]))
                                       :style (merge (when (deref-or-value drop-above?) {:transform (gstring/format "translate3d(0px, -%ipx, 0px)"
                                                                                                                    (+ top-height @drop-height -2))})
                                                     (get-in parts [:chosen-drop :style]))
@@ -1073,7 +1080,9 @@
                                       [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
                                     [:ul
                                      (merge
-                                      {:class (str "chosen-results rc-dropdown-chosen-results " (get-in parts [:chosen-results :class]))
+                                      {:class (theme/merge-class "chosen-results"
+                                                                 "rc-dropdown-chosen-results"
+                                                                 (get-in parts [:chosen-results :class]))
                                        :style (merge (when max-height {:max-height max-height})
                                                      (get-in parts [:chosen-results :style]))}
                                       (get-in parts [:chosen-results :attr]))
@@ -1081,14 +1090,18 @@
                                        (and choices-fn? (:loading? @choices-state))
                                        [:li
                                         (merge
-                                         {:class (str "loading rc-dropdown-choices-loading " (get-in parts [:choices-loading :class]))
+                                         {:class (theme/merge-class "loading"
+                                                                    "rc-dropdown-choices-loading"
+                                                                    (get-in parts [:choices-loading :class]))
                                           :style (get-in parts [:choices-loading :style] {})}
                                          (get-in parts [:choices-loading :attr]))
                                         (get i18n :loading "Loading...")]
                                        (and choices-fn? (:error @choices-state))
                                        [:li
                                         (merge
-                                         {:class (str "error rc-dropdown-choices-error " (get-in parts [:choices-error :class]))
+                                         {:class (theme/merge-class "error"
+                                                                    "rc-dropdown-choices-error"
+                                                                    (get-in parts [:choices-error :class]))
                                           :style (get-in parts [:choices-error :style] {})}
                                          (get-in parts [:choices-error :attr]))
                                         (:error @choices-state)]

@@ -5,10 +5,11 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
+   [re-com.theme    :as    theme]
    [re-com.util     :refer [deref-or-value]]
    [re-com.box      :refer [flex-child-style]]
    [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps?
-                            position? position-options-list]]
+                            position? position-options-list css-class?]]
    [re-com.popover  :refer [popover-tooltip]]
    [reagent.core    :as    reagent]))
 
@@ -36,7 +37,7 @@
      {:name :on-change        :required true                  :type "unique-id -> nil"        :validate-fn fn?                            :description "called when user alters the selection. Passed the unique identifier of the selection"}
      {:name :id-fn            :required false :default :id    :type "tab -> anything"         :validate-fn ifn?                           :description [:span "given an element of " [:code ":tabs"] ", returns its unique identifier (aka id)"]}
      {:name :label-fn         :required false :default :label :type "tab -> string | hiccup"  :validate-fn ifn?                           :description [:span "given an element of " [:code ":tabs"] ", returns its displayable label"]}
-     {:name :class            :required false                 :type "string"                  :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class            :required false                 :type "string"                  :validate-fn css-class?                        :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style            :required false                 :type "CSS style map"           :validate-fn css-style?                     :description [:span "CSS styles to add or override (aplies to " [:span.bold "each individual tab"] " rather than the container)"]}
      {:name :attr             :required false                 :type "HTML attr map"           :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts            :required false                 :type "map"                     :validate-fn (parts? horizontal-tabs-parts) :description "See Parts section below."}
@@ -54,7 +55,7 @@
          disabled? (deref-or-value disabled?)
          _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
      [:ul
-      (merge {:class (str "nav nav-tabs noselect rc-tabs " class)
+      (merge {:class (theme/merge-class "nav" "nav-tabs" "noselect" "rc-tabs" class)
               :style (merge (flex-child-style "none")
                             (get-in parts [:wrapper :style]))}
              (->attr args)
@@ -66,9 +67,9 @@
               selected? (= id current)]                   ;; must use current instead of @model to avoid reagent warnings
           [:li
            (merge
-            {:class (str (when disabled? "disabled ")
-                         (when selected? "active rc-tab ")
-                         (get-in parts [:tab :class]))
+            {:class (theme/merge-class (when disabled? "disabled")
+                                       (when selected? ["active" "rc-tab"])
+                                       (get-in parts [:tab :class]))
              :style (get-in parts [:tab :style])
              :key   (str id)}
             (get-in parts [:tab :attr]))
@@ -118,7 +119,11 @@
             _        (assert (or (not validate?) (not-empty (filter #(= current (id-fn %)) tabs))) "model not found in tabs vector")]
         (into [:div
                (merge
-                {:class (str "noselect btn-group" (when vertical? "-vertical") " rc-tabs " class)
+                {:class (theme/merge-class "noselect"
+                                           "btn-group"
+                                           (when vertical? "-vertical")
+                                           "rc-tabs "
+                                           class)
                  :style (merge (flex-child-style "none")
                                (get-in parts [:wrapper :style]))}
                 (->attr args)
@@ -237,7 +242,12 @@
         _         (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
     [:ul
      (merge
-      {:class (str "rc-tabs noselect nav nav-pills" (when vertical? " nav-stacked") " " class)
+      {:class (theme/merge-class "rc-tabs"
+                                 "noselect"
+                                 "nav"
+                                 "nav-pills"
+                                 (when vertical? " nav-stacked")
+                                 class)
        :style (merge (flex-child-style "none")
                      (get-in parts [:wrapper :style]))
        :role  "tabslist"}
@@ -250,10 +260,10 @@
              selected? (= id current)]                   ;; must use 'current' instead of @model to avoid reagent warnings
          [:li
           (merge
-           {:class (str "rc-tabs-pill "
-                        (when disabled? "disabled ")
-                        (when selected? "active ")
-                        (get-in parts [:tab :class]))
+           {:class (theme/merge-class "rc-tabs-pill"
+                                      (when disabled? "disabled")
+                                      (when selected? "active")
+                                      (get-in parts [:tab :class]))
             :style (get-in parts [:tab :style])
             :key   (str id)}
            (get-in parts [:tab :attr]))

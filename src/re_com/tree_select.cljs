@@ -10,7 +10,7 @@
    [re-com.util           :refer [deref-or-value remove-id-item ->v] :as u]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
-   [re-com.validate       :as validate :refer [css-style? html-attr? parts? part?] :refer-macros [validate-args-macro]]
+   [re-com.validate       :as validate :refer [css-style? html-attr? parts? part? css-class?] :refer-macros [validate-args-macro]]
    [re-com.theme :as theme]))
 
 (def tree-select-dropdown-parts-desc
@@ -200,7 +200,7 @@
      {:name :class
       :required false
       :type "string | vector"
-      :validate-fn string?
+      :validate-fn css-class?
       :description "CSS class string, or vector of class strings (applies to the outer container)."}
      {:name :style
       :required false
@@ -298,7 +298,7 @@
   [box
    :src (at)
    :style (into {:visibility "hidden"} (get-in parts [:offset :style]))
-   :class (str "rc-tree-select-offset " (get-in parts [:offset :class]))
+   :class (theme/merge-class "rc-tree-select-offset " (get-in parts [:offset :class]))
    :attr (get-in parts [:offset :attr])
    :child (apply str (repeat level "⯈"))])
 
@@ -312,7 +312,8 @@
    [[checkbox
      :src (at)
      :style (get-in parts [:checkbox :style])
-     :class (str "rc-tree-select-choice " (get-in parts [:checkbox :class]))
+     :class (theme/merge-class "rc-tree-select-choice"
+                               (get-in parts [:checkbox :class]))
      :attr  (into attr (get-in parts [:checkbox :attr]))
      :model checked?
      :on-change toggle!
@@ -340,7 +341,8 @@
     [h-box
      :src (at)
      :style (get-in parts [:group :style])
-     :class (str "rc-tree-select-group " (get-in parts [:group :class]))
+     :class (theme/merge-class "rc-tree-select-group"
+                               (get-in parts [:group :class]))
      :attr  (get-in parts [:group :attr])
      :children
      [" "
@@ -366,7 +368,8 @@
             :justify :center
             :attr (into {:on-click hide-show!} (get-in parts [:expander :attr]))
             :style (into {:cursor "pointer" :height "100%"} (get-in parts [:expander :style]))
-            :class (str "rc-tree-select-expander " (get-in parts [:expander :class]))
+            :class (theme/merge-class "rc-tree-select-expander"
+                                      (get-in parts [:expander :class]))
             :child
             [u/triangle {:direction (if open? :down :right)}]]
            [u/part re-com.tree-select/group-item props :default re-com.tree-select/group-item]

@@ -6,7 +6,8 @@
    [re-com.debug    :refer [->attr]]
    [re-com.util     :refer [get-element-by-id sum-scroll-offsets]]
    [re-com.box      :refer [flex-child-style flex-flow-style]]
-   [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
+   [re-com.theme    :as    theme]
+   [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts? css-class?] :refer-macros [validate-args-macro]]
    [reagent.core    :as    reagent]))
 
 (defn drag-handle
@@ -24,7 +25,8 @@
         flex-flow (str (if vertical? "row" "column") " nowrap")]
     [:div
      (merge
-      {:class (str "rc-" (if vertical? "v" "h") "-split-handle display-flex " (get-in parts [:handle :class]))
+      {:class (theme/merge-class (str "rc-" (if vertical? "v" "h") "-split-handle display-flex ")
+                                 (get-in parts [:handle :class]))
        :style (merge (flex-flow-style flex-flow)
                      {:width  (if vertical? width length)
                       :height (if vertical? length width)
@@ -33,7 +35,8 @@
       (get-in parts [:handle :attr]))
      [:div
       (merge
-       {:class (str "rc-" (if vertical? "v" "h") "-split-handle-bar-1 " (get-in parts [:handle-bar-1 :class]))
+       {:class (theme/merge-class (str "rc-" (if vertical? "v" "h") "-split-handle-bar-1")
+                                  (get-in parts [:handle-bar-1 :class]))
         :style (merge
                 (if vertical?
                   {:width pos1   :height length :border-right  border}
@@ -42,7 +45,8 @@
        (get-in parts [:handle-bar-1 :attr]))]
      [:div
       (merge
-       {:class (str "rc-" (if vertical? "v" "h") "-split-handle-bar-2 " (get-in parts [:handle-bar-2 :class]))
+       {:class (theme/merge-class (str "rc-" (if vertical? "v" "h") "-split-handle-bar-2")
+                                  (get-in parts [:handle-bar-2 :class]))
         :style (merge
                 (if vertical?
                   {:width pos2   :height length :border-right  border}
@@ -87,7 +91,7 @@
      {:name :on-split-change :required false                 :type "double -> nil"   :validate-fn fn?                     :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
      {:name :splitter-size   :required false :default "8px"  :type "string"          :validate-fn string?                 :description "thickness of the splitter"}
      {:name :margin          :required false :default "8px"  :type "string"          :validate-fn string?                 :description "thickness of the margin around the panels"}
-     {:name :class           :required false                 :type "string"          :validate-fn string?                 :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class           :required false                 :type "string"          :validate-fn css-class?                 :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?              :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?              :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts           :required false                 :type "map"             :validate-fn (parts? hv-split-parts) :description "See Parts section below."}
@@ -137,7 +141,7 @@
          mouseout-split       #(reset! over? false)
 
          make-container-attrs (fn [class style attr in-drag?]
-                                (merge {:class (str "rc-h-split display-flex " class)
+                                (merge {:class (theme/merge-class "rc-h-split" "display-flex" class)
                                         :id    container-id
                                         :style (merge (flex-child-style size)
                                                       (flex-flow-style "row nowrap")
@@ -154,7 +158,7 @@
 
          make-panel-attrs     (fn [class style attr in-drag? percentage]
                                 (merge
-                                 {:class (str "display-flex " class)
+                                 {:class (theme/merge-class "display-flex" class)
                                   :style (merge (flex-child-style (if split-is-px?
                                                                     (if (pos? percentage)
                                                                       (str "0 0 " percentage "px") ;; flex for panel-1
@@ -248,7 +252,7 @@
          mouseout-split       #(reset! over? false)
 
          make-container-attrs (fn [class style attr in-drag?]
-                                (merge {:class (str "rc-v-split display-flex " class)
+                                (merge {:class (theme/merge-class "rc-v-split" "display-flex" class)
                                         :id    container-id
                                         :style (merge (flex-child-style size)
                                                       (flex-flow-style "column nowrap")
@@ -265,7 +269,7 @@
 
          make-panel-attrs     (fn [class style attr in-drag? percentage]
                                 (merge
-                                 {:class (str "display-flex " class)
+                                 {:class (theme/merge-class "display-flex" class)
                                   :style (merge (flex-child-style (if split-is-px?
                                                                     (if (pos? percentage)
                                                                       (str "0 0 " percentage "px") ;; flex for panel-1

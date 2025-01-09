@@ -6,7 +6,7 @@
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.theme    :as    theme]
-   [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
+   [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? css-class? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
@@ -29,7 +29,7 @@
      {:name :backdrop-color    :required false :default "black" :type "string"          :validate-fn string?                    :description "CSS color of backdrop"}
      {:name :backdrop-opacity  :required false :default 0.6     :type "double | string" :validate-fn number-or-string?          :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
      {:name :backdrop-on-click :required false :default nil     :type "-> nil"          :validate-fn fn?                        :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
-     {:name :class             :required false                  :type "string"          :validate-fn string?                    :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class             :required false                  :type "string"          :validate-fn css-class?                    :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style             :required false                  :type "CSS style map"   :validate-fn css-style?                 :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr              :required false                  :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts             :required false                  :type "map"             :validate-fn (parts? modal-panel-parts) :description "See Parts section below."}
@@ -47,7 +47,9 @@
   (or
    (validate-args-macro modal-panel-args-desc args)
    [:div    ;; Containing div
-    (merge {:class  (str "display-flex rc-modal-panel " class)
+    (merge {:class (theme/merge-class "display-flex"
+                                      "rc-modal-panel"
+                                      class)
             :style (merge {:position "fixed"
                            :left     "0px"
                            :top      "0px"
@@ -73,7 +75,8 @@
       (get-in parts [:backdrop :attr]))]
     [:div    ;; Child container
      (merge
-      {:class (str  "rc-modal-panel-child-container " (get-in parts [:child-container :class]))
+      {:class (theme/merge-class "rc-modal-panel-child-container"
+                                 (get-in parts [:child-container :class]))
        :style (merge {:margin  "auto"
                       :z-index 2}
                      (get-in parts [:child-container :style])

@@ -7,7 +7,8 @@
    [re-com.config     :refer [include-args-desc?]]
    [re-com.box        :refer [line border flex-child-style]]
    [re-com.core       :refer [at v-box h-box box popover-anchor-wrapper popover-content-wrapper]]
-   [re-com.validate   :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+   [re-com.validate   :refer [date-like? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]
+   [re-com.theme      :as theme]
    [re-com.util       :refer [deref-or-value now->utc]]
    [cljs-time.format  :refer [parse unparse formatter]]
    [cljs-time.core    :as cljs-time]
@@ -80,7 +81,8 @@
 (defn- prev-year-nav [current-month-atom parts]
   (let [prev-year (dec-year (deref-or-value current-month-atom))]
     [box :src (at)
-     :class (str "rc-daterange-nav-button " (get-in parts [:prev-year :class]))
+     :class (theme/merge-class "rc-daterange-nav-button"
+                               (get-in parts [:prev-year :class]))
      :style (get-in parts [:prev-year :style])
      :attr (merge
             {:on-click #(reset! current-month-atom prev-year)}
@@ -90,7 +92,8 @@
 (defn- prev-month-nav [current-month-atom parts]
   (let [prev-month (dec-month (deref-or-value current-month-atom))]
     [box :src (at)
-     :class (str "rc-daterange-nav-button " (get-in parts [:prev-month :class]))
+     :class (theme/merge-class "rc-daterange-nav-button"
+                               (get-in parts [:prev-month :class]))
      :style (get-in parts [:prev-month :style])
      :attr (merge
             {:on-click #(reset! current-month-atom prev-month)}
@@ -100,7 +103,8 @@
 (defn- next-year-nav [current-month-atom parts]
   (let [next-year (plus-year (deref-or-value current-month-atom))]
     [box :src (at)
-     :class (str "rc-daterange-nav-button " (get-in parts [:next-year :class]))
+     :class (theme/merge-class "rc-daterange-nav-button"
+                               (get-in parts [:next-year :class]))
      :style (get-in parts [:next-year :style])
      :attr (merge
             {:on-click #(reset! current-month-atom next-year)}
@@ -110,7 +114,8 @@
 (defn- next-month-nav [current-month-atom parts]
   (let [next-month (plus-month (deref-or-value current-month-atom))]
     [box :src (at)
-     :class (str "rc-daterange-nav-button " (get-in parts [:next-month :class]))
+     :class (theme/merge-class "rc-daterange-nav-button"
+                               (get-in parts [:next-month :class]))
      :style (get-in parts [:next-month :stlye])
      :attr (merge
             {:on-click #(reset! current-month-atom next-month)}
@@ -120,7 +125,8 @@
 (defn- prev-nav [current-month-atom parts i18n]
   [h-box :src (at)
    :align-self :stretch
-   :class (str "rc-daterange-prev-nav" (get-in parts [:prev-nav :class]))
+   :class (theme/merge-class "rc-daterange-prev-nav"
+                             (get-in parts [:prev-nav :class]))
    :style (get-in parts [:prev-nav :style])
    :attr (get-in parts [:prev-nav :attr])
    :children [[prev-year-nav current-month-atom parts]
@@ -131,7 +137,8 @@
                :justify :center
                :children [[box
                            :src (at)
-                           :class (str "rc-daterange-month-title" (get-in parts [:month-title :class]))
+                           :class (theme/merge-class "rc-daterange-month-title"
+                                                     (get-in parts [:month-title :class]))
                            :style (get-in parts [:month-title :style])
                            :attr (get-in parts [:month-title :attr])
                            :child (month-label (deref-or-value current-month-atom) i18n)]]]
@@ -139,7 +146,8 @@
                :align-self :end
                :justify :end
                :width "49px"
-               :class (str "rc-daterange-year-title " (get-in parts [:year-title :class]))
+               :class (theme/merge-class  "rc-daterange-year-title"
+                                          (get-in parts [:year-title :class]))
                :style (get-in parts [:year-title :style])
                :attr (get-in parts [:year-title :attr])
                :child (str (unparse (formatter "YYYY") (deref-or-value current-month-atom)))]]])
@@ -147,14 +155,16 @@
 (defn- next-nav [current-month-atom parts i18n]
   [h-box :src (at)
    :align-self :stretch
-   :class (str "rc-daterange-next-nav" (get-in parts [:next-nav :class]))
+   :class (theme/merge-class "rc-daterange-next-nav"
+                             (get-in parts [:next-nav :class]))
    :style (get-in parts [:next-nav :style])
    :attr (get-in parts [:next-nav :attr])
    :children [[box
                :align-self :end
                :justify :start
                :width "49px"
-               :class (str "rc-daterange-year-title " (get-in parts [:year-title :class]))
+               :class (theme/merge-class "rc-daterange-year-title"
+                                         (get-in parts [:year-title :class]))
                :style (get-in parts [:year-title :style])
                :attr (get-in parts [:year-title :attr])
                :child (str (unparse (formatter "YYYY") (plus-month (deref-or-value current-month-atom))))]
@@ -163,7 +173,8 @@
                :justify :center
                :children [[box
                            :src (at)
-                           :class (str "rc-daterange-month-title " (get-in parts [:month-title :class]))
+                           :class (theme/merge-class "rc-daterange-month-title"
+                                                     (get-in parts [:month-title :class]))
                            :style (get-in parts [:month-title :style])
                            :attr (get-in parts [:month-title :attr])
                            :child (month-label (plus-month (deref-or-value current-month-atom)) i18n)]]]
@@ -182,7 +193,9 @@
    :class "rc-daterange-wrapper"
    :children [[border
                :src (at)
-               :class (str "rc-daterange-border noselect" (get-in parts [:border :class]))
+               :class (theme/merge-class "rc-daterange-border"
+                                         "noselect"
+                                         (get-in parts [:border :class]))
                :style (get-in parts [:border :style])
                :attr (get-in parts [:border :attr])
                :radius "5px"
@@ -279,7 +292,9 @@
                       (str (cljs-time/day day))))))))
 
 (defn week-td [week-number]
-  [:td {:class (str "daterange-td-basic " "daterange-week")} week-number])
+  [:td {:class (theme/merge-class "daterange-td-basic"
+                                  "daterange-week")}
+   week-number])
 
 (defn week-of-year-calc [days-list]
   (cljs-time/week-number-of-year (last days-list)))
@@ -328,7 +343,8 @@
                              days-vec)
         add-parts          (fn [[td day-string]]
                              (vector td
-                                     (merge {:class (str "daterange-day-title" (get-in parts [:day-title :class]))
+                                     (merge {:class (theme/merge-class "daterange-day-title"
+                                                                       (get-in parts [:day-title :class]))
                                              :style (get-in parts [:day-title :style])}
                                             (get-in parts [:day-title :attr]))
                                      day-string))
@@ -342,7 +358,8 @@
         with-weekdays-row  (into [:tbody table-row-weekdays])
         with-dates         (into with-weekdays-row date-rows)]
     [:table
-     (merge {:class (str "rc-daterange-table" (get-in parts [:table :class]))
+     (merge {:class (theme/merge-class "rc-daterange-table"
+                                       (get-in parts [:table :class]))
              :style (get-in parts [:table :style])}
             (get-in parts [:table :attr]))
      with-dates]))
@@ -559,7 +576,7 @@
      {:name :class,
       :required false,
       :type "string",
-      :validate-fn string?,
+      :validate-fn css-class?,
       :description
       "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
      {:name :style,

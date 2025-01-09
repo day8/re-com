@@ -2,11 +2,13 @@
   (:require-macros
    [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
+   [re-com.theme    :as    theme]
    [re-com.util     :refer [deref-or-value px]]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
-                            string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
+                            string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]
+    :refer-macros [validate-args-macro]]
    [re-com.popover  :refer [popover-tooltip]]
    [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
    [reagent.core    :as    reagent]))
@@ -32,7 +34,7 @@
      {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?     :description "what to show in the tooltip"}
      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?             :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :disabled?        :required false :default false         :type "boolean | atom"                                     :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn string?               :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :class            :required false                        :type "string"          :validate-fn css-class?               :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}
@@ -112,7 +114,7 @@
      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?                            :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :emphasise?       :required false :default false         :type "boolean"                                                           :description "if true, use emphasised styling so the button really stands out"}
      {:name :disabled?        :required false :default false         :type "boolean"                                                           :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn string?                              :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :class            :required false                        :type "string"          :validate-fn css-class?                              :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                           :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
@@ -154,7 +156,11 @@
                             attr)
                            [:i
                             (merge
-                             {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-circle-icon-button-icon " (get-in parts [:icon :class]))
+                             {:class (theme/merge-class "zmdi"
+                                                        "zmdi-hc-fw-rc"
+                                                        md-icon-name
+                                                        "rc-md-circle-icon-button-icon"
+                                                        (get-in parts [:icon :class]))
                               :style (get-in parts [:icon :style] {})}
                              (get-in parts [:icon :attr]))]]]
            [box
@@ -200,7 +206,7 @@
      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?                     :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :emphasise?       :required false :default false         :type "boolean"                                                    :description "if true, use emphasised styling so the button really stands out"}
      {:name :disabled?        :required false :default false         :type "boolean"                                                    :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn string?                       :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :class            :required false                        :type "string"          :validate-fn css-class?                       :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                    :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-icon-button-parts) :description "See Parts section below."}
@@ -242,7 +248,11 @@
                             attr)
                            [:i
                             (merge
-                             {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-icon-button-icon " (get-in parts [:icon :class]))
+                             {:class (theme/merge-class "zmdi"
+                                                        "zmdi-hc-fw-rc"
+                                                        "md-icon-name"
+                                                        "rc-md-icon-button-icon"
+                                                        (get-in parts [:icon :class]))
                               :style (get-in parts [:icon :style] {})}
                              (get-in parts [:icon :attr]))]]]
            [box
@@ -284,7 +294,7 @@
      {:name :position  :required false :default :right-below :type "keyword"         :validate-fn position?                  :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :width     :required false :default "250px"      :type "string"          :validate-fn string?                    :description "width in px"}
      {:name :disabled? :required false :default false        :type "boolean"                                                 :description "if true, the user can't click the button"}
-     {:name :class     :required false                       :type "string"          :validate-fn string?                    :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
+     {:name :class     :required false                       :type "string"          :validate-fn css-class?                    :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
      {:name :style     :required false                       :type "CSS style map"   :validate-fn css-style?                 :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
      {:name :attr      :required false                       :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
      {:name :parts     :required false                       :type "map"             :validate-fn (parts? info-button-parts) :description "See Parts section below."}
@@ -360,7 +370,7 @@
      {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?         :description "what to show in the tooltip"}
      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?                 :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :disabled?        :required false :default false         :type "boolean"                                                :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn string?                   :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :class            :required false                        :type "string"          :validate-fn css-class?                   :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? row-button-parts) :description "See Parts section below."}
@@ -396,7 +406,11 @@
                             attr)
                            [:i
                             (merge
-                             {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-row-button-icon " (get-in parts [:icon :class]))
+                             {:class (theme/merge-class "zmdi"
+                                                        "zmdi-hc-fw-rc"
+                                                        md-icon-name
+                                                        " rc-row-button-icon"
+                                                        (get-in parts [:icon :class]))
                               :style (get-in parts [:icon :style] {})}
                              (get-in parts [:icon :attr]))]]]
            [box
@@ -440,7 +454,7 @@
      {:name :tooltip          :required false                        :type "string | hiccup"          :validate-fn string-or-hiccup?        :description "what to show in the tooltip"}
      {:name :tooltip-position :required false :default :below-center :type "keyword"                  :validate-fn position?                :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :disabled?        :required false :default false         :type "boolean | r/atom"                                               :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"                   :validate-fn string?                  :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+     {:name :class            :required false                        :type "string"                   :validate-fn css-class?                  :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?               :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}
@@ -464,7 +478,8 @@
                the-button [box
                            :src   (at)
                            :align :start
-                           :class (str "rc-hyperlink-container " (get-in parts [:container :class]))
+                           :class (theme/merge-class "rc-hyperlink-container"
+                                                     (get-in parts [:container :class]))
                            :child [:a
                                    (merge
                                     {:class    (str "noselect rc-hyperlink " class)
@@ -523,7 +538,7 @@
      {:name :tooltip          :required false                        :type "string | hiccup"          :validate-fn string-or-hiccup?             :description "what to show in the tooltip"}
      {:name :tooltip-position :required false :default :below-center :type "keyword"                  :validate-fn position?                     :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :disabled?        :required false :default false         :type "boolean | r/atom"                                                    :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"                   :validate-fn string?                       :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+     {:name :class            :required false                        :type "string"                   :validate-fn css-class?                       :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?                    :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}

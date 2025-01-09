@@ -26,10 +26,7 @@
                style
                (assoc :style (merge (:style acc) style)))))
 
-(defn merge-class [x & classes]
-  (if-not (seq classes)
-    x
-    (into (or (->v (flatten x)) [])
-          (flatten classes))))
+(defn merge-class [& classes]
+  (vec (filter some? (flatten classes))))
 
 (defn merge-props [& ms] (reduce rf {} ms))

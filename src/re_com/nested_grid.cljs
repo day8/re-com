@@ -7,7 +7,7 @@
    [reagent.core :as r]
    [re-com.debug :as debug]
    [re-com.config      :as config :refer [include-args-desc?]]
-   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part?]]
+   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part? css-class?]]
    [re-com.theme :as theme]
    [re-com.box :as box]
    [re-com.buttons :as buttons]))

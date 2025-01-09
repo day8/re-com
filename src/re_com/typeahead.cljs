@@ -9,11 +9,12 @@
    [re-com.debug      :refer [->attr]]
    [re-com.throbber   :refer [throbber]]
    [re-com.input-text :refer [input-text]]
+   [re-com.theme      :as theme]
    [re-com.util       :refer [deref-or-value px]]
    [re-com.popover    :refer [popover-tooltip]] ;; need?
    [re-com.box        :refer [h-box v-box box gap line flex-child-style align-style]] ;; need?
    [re-com.validate   :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts? number-or-string?
-                              string-or-atom? throbber-size? throbber-sizes-list]]
+                              string-or-atom? throbber-size? throbber-sizes-list css-class?]]
    [reagent.core      :as    reagent]
    [goog.events.KeyCodes]))
 
@@ -251,7 +252,7 @@
      {:name :width                   :required false :default "250px" :type "string"               :validate-fn string?            :description "standard CSS width setting for this input"}
      {:name :height                  :required false                  :type "string"               :validate-fn string?            :description "standard CSS height setting for this input"}
      {:name :disabled?               :required false :default false   :type "boolean | r/atom"                                     :description "if true, the user can't interact (input anything)"}
-     {:name :class                   :required false                  :type "string"               :validate-fn string?            :description "CSS class names, space separated (applies to the textbox)"}
+     {:name :class                   :required false                  :type "string"               :validate-fn css-class?            :description "CSS class names, space separated (applies to the textbox)"}
      {:name :style                   :required false                  :type "CSS style map"        :validate-fn css-style?         :description "CSS styles to add or override (applies to the textbox)"}
      {:name :attr                    :required false                  :type "HTML attr map"        :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to " [:span.bold "the outer container"] ", rather than the textbox)"]}
      {:name :parts                   :required false                  :type "map"                  :validate-fn (parts? #{:suggestions-container :suggestion :throbber}) :description "See Parts section below."}
@@ -320,7 +321,8 @@
                                                :child [throbber
                                                        :src   (at)
                                                        :size  :small
-                                                       :class (str "rc-typeahead-throbber " (get-in parts [:throbber :class]))]])
+                                                       :class (theme/merge-class "rc-typeahead-throbber"
+                                                                                 (get-in parts [:throbber :class]))]])
                                             (for [[i s] (map vector (range) suggestions)
                                                   :let [selected? (= suggestion-active-index i)]]
                                               ^{:key i}
@@ -329,9 +331,9 @@
                                                :child (if render-suggestion
                                                         (render-suggestion s)
                                                         s)
-                                               :class (str "rc-typeahead-suggestion"
-                                                           (when selected? " active")
-                                                           (get-in parts [:suggestion :class]))
+                                               :class (theme/merge-class "rc-typeahead-suggestion"
+                                                                         (when selected? " active")
+                                                                         (get-in parts [:suggestion :class]))
                                                :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
                                                       :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]]))))))
 

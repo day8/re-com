@@ -4,8 +4,9 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
+   [re-com.theme    :as    theme]
    [re-com.util     :refer [deref-or-value px]]
-   [re-com.validate :refer [string-or-hiccup? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+   [re-com.validate :refer [string-or-hiccup? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]
    [re-com.box      :refer [box]]
    [reagent.core    :as    reagent]))
 
@@ -29,7 +30,7 @@
      {:name :top-offset   :required false                   :type "number"           :validate-fn number?                    :description "offset the 'x' button text up or down from it's default position in the containing div (can be positive or negative)"}
      {:name :left-offset  :required false                   :type "number"           :validate-fn number?                    :description "offset the 'x' button text left or right from it's default position in the containing div (can be positive or negative)"}
      {:name :disabled?    :required false  :default false   :type "boolean | r/atom"                                         :description "if true, the user can't click the button"}
-     {:name :class        :required false                   :type "string"           :validate-fn string?                    :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :class        :required false                   :type "string"           :validate-fn css-class?                    :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style        :required false                   :type "CSS style map"    :validate-fn css-style?                 :description "CSS styles (applies to the button, not the wrapping div)"}
      {:name :attr         :required false                   :type "HTML attr map"    :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts        :required false                   :type "map"              :validate-fn (parts? #{:wrapper :icon}) :description "See Parts section below."}
@@ -78,6 +79,11 @@
                              attr)
                      :child [:i
                              (merge
-                              {:class (str "rc-close-button-icon zmdi zmdi-hc-fw-rc zmdi zmdi-close " (get-in parts [:icon :class]))
+                              {:class (theme/merge-class "rc-close-button-icon"
+                                                         "zmdi"
+                                                         "zmdi-hc-fw-rc"
+                                                         "zmdi"
+                                                         "zmdi-close"
+                                                         (get-in parts [:icon :class]))
                                :style (get-in parts [:icon :style] {})}
                               (get-in parts [:icon :attr]))]]])))))

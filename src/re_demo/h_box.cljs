@@ -7,7 +7,7 @@
    [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
    [re-com.util     :refer [px]]
    [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
-   [re-com.validate :refer [string-or-hiccup? alert-type? vector-of-maps?]]
+   [re-com.validate :refer [string-or-hiccup? alert-type? vector-of-maps? css-class?]]
    [reagent.core    :as    reagent]
    [reagent.ratom   :refer-macros [reaction]]))
 

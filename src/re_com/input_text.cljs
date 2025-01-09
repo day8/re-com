@@ -5,11 +5,12 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
+   [re-com.theme    :as    theme]
    [re-com.util     :refer [deref-or-value px]]
    [re-com.popover  :refer [popover-tooltip]]
    [re-com.throbber :refer [throbber]]
    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? css-class? html-attr? parts?
                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]
    [reagent.core    :as    reagent]))
 
@@ -42,7 +43,7 @@
      {:name :on-alter         :required false                  :type "string -> string"         :validate-fn fn?                       :description "called with the new value to alter it immediately"}
      {:name :validation-regex :required false                  :type "regex"                    :validate-fn regex?                    :description "user input is only accepted if it would result in a string that matches this regular expression"}
      {:name :disabled?        :required false :default false   :type "boolean | r/atom"                                                :description "if true, the user can't interact (input anything)"}
-     {:name :class            :required false                  :type "string"                   :validate-fn string?                   :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
+     {:name :class            :required false                  :type "string"                   :validate-fn css-class?                   :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
      {:name :style            :required false                  :type "CSS style map"            :validate-fn css-style?                :description "CSS styles to add or override (applies to the textbox, not the wrapping div)"}
      {:name :attr             :required false                  :type "HTML attr map"            :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
      {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
@@ -107,14 +108,15 @@
            :width    (if width width "250px")
            :children [[:div
                        (merge
-                        {:class (str "rc-input-text-inner "          ;; form-group
-                                     (case status
-                                       :success "has-success "
-                                       :warning "has-warning "
-                                       :error "has-error "
-                                       "")
-                                     (when (and status status-icon?) "has-feedback ")
-                                     (get-in parts [:inner :class]))
+                        {:class (theme/merge-class "rc-input-text-inner"          ;; form-group
+                                                   (case status
+                                                     :success "has-success"
+                                                     :warning "has-warning"
+                                                     :error "has-error"
+                                                     "")
+                                                   (when (and status status-icon?)
+                                                     "has-feedback ")
+                                                   (get-in parts [:inner :class]))
                          :style (merge (flex-child-style "auto")
                                        (get-in parts [:inner :style]))}
                         (get-in parts [:inner :attr]))
@@ -190,7 +192,10 @@
                                :src   (at)
                                :size  :regular
                                :class "smaller"]
-                              [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
+                              [:i {:class (theme/merge-class "zmdi"
+                                                             "zmdi-hc-fw"
+                                                             icon-class
+                                                             "form-control-feedback")
                                    :style (merge (flex-child-style "none")
                                                  (align-style :align-self :center)
                                                  {:position    "static"

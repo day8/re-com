@@ -8,8 +8,9 @@
    [reagent.core          :as reagent]
    [re-com.config         :refer [include-args-desc?]]
    [re-com.debug          :refer [->attr]]
+   [re-com.theme          :as theme]
    [re-com.util           :refer [deref-or-value px-n assoc-in-if-empty]]
-   [re-com.validate       :as validate :refer [parts?]]
+   [re-com.validate       :as validate :refer [parts? css-class?]]
    [re-com.box            :refer [box h-box v-box gap]]
    [re-com.checkbox       :refer [checkbox]]
    [re-com.selection-list :as    selection-list]
@@ -65,7 +66,7 @@
 
                      :padding "0px 4px"
                      :margin  (px-n 2 (if placeholder? 0 6) 2 0)
-                     :class (str "noselect rc-text-tag " class)
+                     :class (theme/merge-class "noselect" "rc-text-tag" class)
                      :style (merge
                              {:color            "white"
                               :background-color (:background-color tag-data)

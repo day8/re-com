@@ -370,7 +370,7 @@
      {:name :align-self :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
      {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
      {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
-     {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+     {:name :class      :required false                   :type "string"          :validate-fn css-class?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}

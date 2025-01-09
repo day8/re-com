@@ -10,7 +10,7 @@
    [cljs-time.format  :refer [formatter unparse]]
    [re-com.core       :refer [at h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
    [re-com.datepicker :refer [iso8601->date datepicker-parts-desc datepicker-dropdown-args-desc]]
-   [re-com.validate   :refer [date-like?]]
+   [re-com.validate   :refer [date-like? css-class?]]
    [re-com.util       :refer [now->utc px]]
    [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]])
   (:import

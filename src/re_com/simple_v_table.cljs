@@ -10,7 +10,7 @@
    [re-com.util     :as u :refer [px deref-or-value assoc-in-if-empty ->v position-for-id item-for-id remove-id-item clipboard-write! table->tsv]]
    [re-com.text     :refer [label]]
    [re-com.theme    :as    theme]
-   [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
+   [re-com.validate :refer [vector-of-maps? vector-atom? parts? css-class?]]
    [re-com.v-table  :as    v-table]))
 
 (def default-sort-criterion {:keyfn :label :order :asc})
@@ -139,7 +139,8 @@
   [row {:keys [id width height align vertical-align row-label-fn] :as column} cell-style parts]
   [:div
    (merge
-    {:class (str "rc-simple-v-table-row-item " (get-in parts [:simple-row-item :class]))
+    {:class (theme/merge-class "rc-simple-v-table-row-item"
+                               (get-in parts [:simple-row-item :class]))
      :style (merge {:display        "inline-block"
                     :padding        (str "0px " "12px")
                     :width          (px width)
@@ -349,7 +350,7 @@
      {:name :class,
       :required false,
       :type "string",
-      :validate-fn string?,
+      :validate-fn css-class?,
       :description
       "CSS class names, space separated (applies to the outer container)."}
      {:name :parts,
@@ -539,7 +540,9 @@
              :children [header-label
                         (when sort-by
                           [h-box
-                           :class (str "rc-simple-v-table-column-header-sort-label " (when current-order "rc-simple-v-table-column-header-sort-active"))
+                           :class (theme/merge-class "rc-simple-v-table-column-header-sort-label"
+                                                     (when current-order
+                                                       "rc-simple-v-table-column-header-sort-active"))
                            :min-width "35px"
                            :style (when current-order {:opacity 0.3})
                            :justify :center

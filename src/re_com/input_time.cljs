@@ -6,7 +6,8 @@
    [reagent.core    :as    reagent]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug :refer [->attr]]
-   [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
+   [re-com.theme    :as theme]
+   [re-com.validate :refer [css-style? css-class? html-attr? parts? number-or-string?]]
    [re-com.text     :refer [label]]
    [re-com.box      :refer [h-box gap]]
    [re-com.util     :refer [pad-zero-number deref-or-value]]))
@@ -161,7 +162,7 @@
      {:name :hide-border? :required false :default false   :type "boolean"                                                          :description "when true, input filed is displayed without a border"}
      {:name :width        :required false                  :type "string"                    :validate-fn string?                   :description "standard CSS width setting for width of the input box (excluding the icon if present)"}
      {:name :height       :required false                  :type "string"                    :validate-fn string?                   :description "standard CSS height setting"}
-     {:name :class        :required false                  :type "string"                    :validate-fn string?                   :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
+     {:name :class        :required false                  :type "string"                    :validate-fn css-class?                   :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
      {:name :style        :required false                  :type "CSS style map"             :validate-fn css-style?                :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
      {:name :attr         :required false                  :type "HTML attr map"             :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
      {:name :parts        :required false                  :type "map"                       :validate-fn (parts? input-time-parts) :description "See Parts section below."}
@@ -219,12 +220,18 @@
                           ;; Leaving time-icon class (below) for backwards compatibility only.
                         [:div
                          (merge
-                          {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
+                          {:class (theme/merge-class "time-icon"
+                                                     "rc-time-icon-container"
+                                                     (get-in parts [:time-icon-container :class]))
                            :style (get-in parts [:time-icon-container :style] {})}
                           (get-in parts [:time-icon-container :attr]))
                          [:i
                           (merge
-                           {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
+                           {:class (theme/merge-class "zmdi"
+                                                      "zmdi-hc-fw-rc"
+                                                      "zmdi-time"
+                                                      "rc-time-icon"
+                                                      (get-in parts [:time-icon :class]))
                             :style (merge {:position "static"
                                            :margin   "auto"}
                                           (get-in parts [:time-icon :style]))}

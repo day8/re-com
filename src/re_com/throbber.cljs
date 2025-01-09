@@ -5,11 +5,12 @@
   (:require
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
+   [re-com.theme    :as theme]
    [re-com.util     :refer [deref-or-value px]]
    [re-com.popover  :refer [popover-tooltip]]
    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list css-class?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: throbber
@@ -29,7 +30,7 @@
   (when include-args-desc?
     [{:name :size     :required false :default :regular :type "keyword"       :validate-fn throbber-size?          :description [:span "one of " throbber-sizes-list]}
      {:name :color    :required false :default "#999"   :type "string"        :validate-fn string?                 :description "CSS color"}
-     {:name :class    :required false                   :type "string"        :validate-fn string?                 :description "CSS class names, space separated (applies to the throbber, not the wrapping div)"}
+     {:name :class    :required false                   :type "string"        :validate-fn css-class?                 :description "CSS class names, space separated (applies to the throbber, not the wrapping div)"}
      {:name :style    :required false                   :type "CSS style map" :validate-fn css-style?              :description "CSS styles to add or override (applies to the throbber, not the wrapping div)"}
      {:name :attr     :required false                   :type "HTML attr map" :validate-fn html-attr?              :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the throbber, not the wrapping div)"]}
      {:name :parts    :required false                   :type "map"           :validate-fn (parts? throbber-parts) :description "See Parts section below."}
@@ -44,7 +45,8 @@
    (let [seg (fn []
                [:li
                 (merge
-                 {:class (str "rc-throbber-segment " (get-in parts [:segment :class]))
+                 {:class (theme/merge-class "rc-throbber-segment"
+                                            (get-in parts [:segment :class]))
                   :style (merge
                           (when color {:background-color color})
                           (get-in parts [:segment :style]))}
@@ -57,13 +59,13 @@
       :attr     (get-in parts [:wrapper :attr])
       :align    :start
       :child    [:ul
-                 (merge {:class (str "loader rc-throbber "
-                                     (case size :regular ""
-                                           :smaller "smaller "
-                                           :small "small "
-                                           :large "large "
-                                           "")
-                                     class)
+                 (merge {:class (theme/merge-class "loader rc-throbber"
+                                                   (case size
+                                                     :smaller "smaller"
+                                                     :small "small"
+                                                     :large "large"
+                                                     nil)
+                                                   class)
                          :style style}
                         attr)
                  [seg] [seg] [seg] [seg]

@@ -7,9 +7,10 @@
    [re-com.close-button :refer [close-button]]
    [re-com.config       :refer [include-args-desc?]]
    [re-com.debug        :refer [->attr]]
+   [re-com.theme        :as    theme]
    [re-com.util         :refer [deref-or-value]]
    [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
-                                vector-of-maps? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
+                                vector-of-maps? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
@@ -36,7 +37,7 @@
      {:name :padding    :required false :default "15px" :type "string"          :validate-fn string?                  :description "padding surounding the alert"}
      {:name :closeable? :required false :default false  :type "boolean"                                               :description [:span "if true, render a close button. " [:code ":on-close"] " should be supplied"]}
      {:name :on-close   :required false                 :type ":id -> nil"      :validate-fn fn?                      :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
-     {:name :class      :required false                 :type "string"          :validate-fn string?                  :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class      :required false                 :type "string"          :validate-fn css-class?                  :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style      :required false                 :type "CSS style map"   :validate-fn css-style?               :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr       :required false                 :type "HTML attr map"   :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts      :required false                 :type "map"             :validate-fn (parts? alert-box-parts) :description "See Parts section below."}
@@ -63,7 +64,7 @@
                                    :warning        "alert-warning"
                                    :danger         "alert-danger"})]
      [:div
-      (merge {:class (str "rc-alert alert fade in " alert-class " " class)
+      (merge {:class (theme/merge-class "rc-alert" "alert" "fade in" "alert-class" class)
               :style (merge (flex-child-style "none")
                             {:padding padding}
                             style)}
@@ -80,7 +81,7 @@
          :attr     (get-in parts [:heading :attr] {})
          :children [[:h4
                      (merge
-                      {:class (str "rc-alert-h4 " (get-in parts [:h4 :class]))
+                      {:class (theme/merge-class "rc-alert-h4" (get-in parts [:h4 :class]))
                        :style (merge {:margin-bottom "0px"}
                                      (get-in parts [:h4 :style]))}
                       (get-in parts [:h4 :attr])) ;; Override h4
@@ -125,7 +126,7 @@
      {:name :border-style :required false :default "1px solid lightgrey" :type "string"                  :validate-fn string?                   :description "CSS border style surrounding the list"}
      {:name :alert-class  :required false                                :type "string"                  :validate-fn string?                   :description "CSS class names, space separated (applies to each alert-box component)"}
      {:name :alert-style  :required false                                :type "CSS style map"           :validate-fn css-style?                :description "CSS styles (applies to each alert-box component)"}
-     {:name :class        :required false                                :type "string"                  :validate-fn string?                   :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class        :required false                                :type "string"                  :validate-fn css-class?                   :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style        :required false                                :type "CSS style map"           :validate-fn css-style?                :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr         :required false                                :type "HTML attr map"           :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts        :required false                                :type "map"                     :validate-fn (parts? alert-list-parts) :description "See Parts section below."}

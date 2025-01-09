@@ -8,7 +8,7 @@
     [re-com.box      :refer [v-box box line flex-child-style]]
     [re-com.theme    :as    theme]
     [re-com.util     :refer [deep-merge]]
-    [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
+    [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup? css-class?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: label
@@ -28,7 +28,7 @@
     [{:name :label    :required true  :type "anything"                                        :description "text or hiccup or whatever to display"}
      {:name :on-click :required false :type "-> nil"        :validate-fn fn?                  :description "a function which takes no params and returns nothing. Called when the label is clicked"}
      {:name :width    :required false :type "string"        :validate-fn string?              :description "a CSS width"}
-     {:name :class    :required false :type "string"        :validate-fn string?              :description "CSS class names, space separated (applies to the label, not the wrapping div)"}
+     {:name :class    :required false :type "string"        :validate-fn css-class?              :description "CSS class names, space separated (applies to the label, not the wrapping div)"}
      {:name :style    :required false :type "CSS style map" :validate-fn css-style?           :description "additional CSS styles (applies to the label, not the wrapping div)"}
      {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}
      {:name :parts    :required false :type "map"           :validate-fn (parts? label-parts) :description "See Parts section below."}
@@ -51,7 +51,7 @@
     :align    :start
     :child    [:span
                (merge
-                {:class (str "rc-label " class)
+                {:class (theme/merge-class "rc-label" class)
                  :style (merge (flex-child-style "none")
                                style)}
                 (when on-click
@@ -80,7 +80,7 @@
      {:name :underline?    :required false  :default false   :type "boolean"                                           :description "if true, the title is underlined"}
      {:name :margin-top    :required false  :default "0.4em" :type "string"          :validate-fn string?              :description "CSS size for space above the title"}
      {:name :margin-bottom :required false  :default "0.1em" :type "string"          :validate-fn string?              :description "CSS size for space below the title"}
-     {:name :class         :required false                   :type "string"          :validate-fn string?              :description "CSS class names, space separated (applies to the title, not the wrapping div)"}
+     {:name :class         :required false                   :type "string"          :validate-fn css-class?              :description "CSS class names, space separated (applies to the title, not the wrapping div)"}
      {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?           :description "CSS styles to add or override (applies to the title, not the wrapping div)"}
      {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the title, not the wrapping div)"]}
      {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}
@@ -110,7 +110,7 @@
          :attr     (get-in parts [:wrapper :attr])
          :children [[:span
                      (themed ::title-label
-                       (merge {:class (str "display-flex rc-title " preset-class " " class)
+                       (merge {:class (theme/merge-class "display-flex" "rc-title" preset-class class)
                                :style (merge (flex-child-style "none")
                                              {:margin-top margin-top}
                                              {:line-height 1}             ;; so that the margins are correct
@@ -121,7 +121,8 @@
                     (when underline? [line
                                       :src  (at)
                                       :size "1px"
-                                      :class (str "rc-title-underline " (get-in parts [:underline :class]))
+                                      :class (theme/merge-class "rc-title-underline"
+                                                                (get-in parts [:underline :class]))
                                       :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))
                                       :attr  (get-in parts [:underline :attr])])]})])))
 

@@ -5,11 +5,12 @@
   (:require
    [re-com.config       :refer [include-args-desc?]]
    [re-com.debug        :refer [->attr]]
+   [re-com.theme        :as theme]
    [re-com.util         :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
    [re-com.box          :refer [box h-box v-box flex-child-style flex-flow-style align-style]]
    [re-com.close-button :refer [close-button]]
    [re-com.validate     :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
-                                string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr? parts?]]
+                                string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr? parts? css-class?]]
    [clojure.string      :as    string]
    [react               :as    react]
    [reagent.core        :as    reagent]
@@ -91,7 +92,9 @@
                      :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}]
     [:svg
      (merge
-      {:class (str "popover-arrow rc-popover-arrow " (get-in parts [:arrow :class] ""))
+      {:class (theme/merge-class "popover-arrow"
+                                 "rc-popover-arrow"
+                                 (get-in parts [:arrow :class] ""))
        :style (merge {:position "absolute"
                       (case orientation ;; Connect arrow to edge of popover
                         :left  :right
@@ -131,7 +134,7 @@
   (when include-args-desc?
     [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
      {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
-     {:name :class    :required false              :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+     {:name :class    :required false              :type "string"          :validate-fn css-class?           :description "CSS class names, space separated"}
      {:name :style    :required false              :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr     :required false              :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
@@ -178,7 +181,7 @@
      {:name :title          :required false                :type "string | hiccup"   :validate-fn string-or-hiccup?            :description "describes the title of the popover. Default font size is 18px to make it stand out"}
      {:name :close-button?  :required false  :default true :type "boolean"                                                     :description "when true, displays the close button"}
      {:name :close-callback :required false                :type "-> nil"            :validate-fn fn?                          :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}
-     {:name :class          :required false                :type "string"            :validate-fn string?                      :description "CSS class names, space separated"}
+     {:name :class          :required false                :type "string"            :validate-fn css-class?                      :description "CSS class names, space separated"}
      {:name :style          :required false                :type "CSS style map"     :validate-fn css-style?                   :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr           :required false                :type "HTML attr map"     :validate-fn html-attr?                   :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts          :required false                :type "map"               :validate-fn (parts? popover-title-parts) :description "See Parts section below."}
@@ -195,7 +198,7 @@
    (let [close-button? (if (nil? close-button?) true close-button?)]
      [:h3
       (merge
-       {:class (str "popover-title rc-popover-title " class)
+       {:class (theme/merge-class "popover-title" "rc-popover-title" class)
         :style (merge (flex-child-style "inherit")
                       {:font-size "18px"}
                       style)}
@@ -285,7 +288,7 @@
      {:name :margin-top           :required false                       :type "string"           :validate-fn string?                       :description "a CSS style describing the vertical offset from anchor after position"}
      {:name :tooltip-style?       :required false :default false        :type "boolean"                                                     :description "setup popover styles for a tooltip"}
      {:name :title                :required false                       :type "string | markup"                                             :description "describes a title"}
-     {:name :class                :required false                       :type "string"           :validate-fn string?                       :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class                :required false                       :type "string"           :validate-fn css-class?                       :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style                :required false                       :type "CSS style map"    :validate-fn css-style?                    :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr                 :required false                       :type "HTML attr map"    :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts                :required false                       :type "map"              :validate-fn (parts? popover-border-parts) :description "See Parts section below."}
@@ -343,7 +346,7 @@
           (let [[orientation grey-arrow?] (calc-metrics @position)]
             [:div.popover.fade.in
              (merge
-              {:class (str "rc-popover-border " class)
+              {:class (theme/merge-class "rc-popover-border" class)
                :id    pop-id
                :style (merge (if @rendered-once
                                (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
@@ -383,7 +386,9 @@
              (when title title)
              (into [:div
                     (merge
-                     {:class (str "popover-content rc-popover-content " (get-in parts [:content :class] ""))
+                     {:class (theme/merge-class "popover-content"
+                                                "rc-popover-content"
+                                                (get-in parts [:content :class] ""))
                       :style (merge {:padding padding} (get-in parts [:content :style]))}
                      (get-in parts [:content :attr]))]
                    children)])))}))))
@@ -424,7 +429,7 @@
      {:name :arrow-width          :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
      {:name :arrow-gap            :required false  :default -1           :type "integer"          :validate-fn number?           :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
      {:name :padding              :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
-     {:name :class                :required false                        :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class                :required false                        :type "string"           :validate-fn css-class?           :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style                :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr                 :required false                        :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts                :required false                        :type "map"              :validate-fn (parts? #{:backdrop :border :title}) :description "See Parts section below."}
@@ -474,7 +479,9 @@
           (do
             @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
             [:div
-             (merge {:class (str "popover-content-wrapper rc-popover-content-wrapper " class)
+             (merge {:class (theme/merge-class "popover-content-wrapper"
+                                               "rc-popover-content-wrapper"
+                                               class)
                      :style (merge (flex-child-style "inherit")
                                    (when no-clip? {:position "fixed"
                                                    :left     (px @left-offset)
@@ -539,7 +546,7 @@
      {:name :position :required true                        :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
      {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
-     {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :class    :required false                       :type "string"          :validate-fn css-class?           :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts    :required false                       :type "map"             :validate-fn (parts? popover-anchor-wrapper-parts) :description "See Parts section below."}
@@ -571,13 +578,17 @@
                   place-anchor-before?    (case orientation (:left :above) false true)
                   flex-flow               (case orientation (:left :right) "row" "column")]
               [:div
-               (merge {:class (str "rc-popover-anchor-wrapper display-inline-flex " class)
+               (merge {:class (theme/merge-class "rc-popover-anchor-wrapper"
+                                                 "display-inline-flex"
+                                                 class)
                        :style (merge (flex-child-style "inherit")
                                      style)}
                       (->attr args)
                       attr)
                [:div                                ;; Wrapper around the anchor and the "point"
-                {:class (str "display-inline-flex rc-point-wrapper " (get-in parts [:point-wrapper :class] ""))
+                {:class (theme/merge-class "display-inline-flex"
+                                           "rc-point-wrapper"
+                                           (get-in parts [:point-wrapper :class] ""))
                  :style (merge (flex-child-style "auto")
                                (flex-flow-style flex-flow)
                                (align-style :align-items :center)
@@ -586,7 +597,9 @@
                 (when place-anchor-before? anchor)
                 (when (deref-or-value showing?)
                   [:div                             ;; The "point" that connects the anchor to the popover
-                   {:class (str "display-inline-flex rc-popover-point " (get-in parts [:point :class] ""))
+                   {:class (theme/merge-class "display-inline-flex"
+                                              "rc-popover-point"
+                                              (get-in parts [:point :class] ""))
                     :style (merge (flex-child-style "auto")
                                   {:position "relative"
                                    :z-index  4}
@@ -628,7 +641,7 @@
      {:name :info-color    :required false  :default "#333333"    :type "string"                   :validate-fn string?              :description "default fill color for the info status."}
      {:name :success-color :required false  :default "#13C200"    :type "string"                   :validate-fn string?              :description "default fill color for the success status."}
 
-     {:name :class         :required false                        :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
+     {:name :class         :required false                        :type "string"                   :validate-fn css-class?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
      {:name :style         :required false                        :type "CSS style map"            :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency (applies to popover-anchor-wrapper component)"}
      {:name :attr          :required false                        :type "HTML attr map"            :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}
      {:name :parts         :required false                        :type "map"                      :validate-fn (parts? popover-tooltip-parts) :description "See Parts section below."}

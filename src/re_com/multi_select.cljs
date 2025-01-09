@@ -13,8 +13,9 @@
    [re-com.text                 :as text]
    [re-com.buttons              :as buttons]
    [re-com.close-button         :as close-button]
+   [re-com.theme                :as theme]
    [re-com.util                 :as rc.util :refer [deref-or-value]]
-   [re-com.validate             :as validate :refer [string-or-hiccup? parts?]]
+   [re-com.validate             :as validate :refer [string-or-hiccup? parts? css-class?]]
    [reagent.core                :as reagent]))
 
 (defn items-with-group-headings
@@ -249,7 +250,7 @@
      {:name :height             :required false                     :type "string"                   :validate-fn string?                     :description "the specific height of the component"}
      {:name :max-height         :required false                     :type "string"                   :validate-fn string?                     :description "the maximum height of the component"}
      {:name :tab-index          :required false                     :type "integer | string"         :validate-fn validate/number-or-string?  :description "component's tabindex. A value of -1 removes from the tab order"}
-     {:name :class              :required false                     :type "string"                   :validate-fn string?                     :description "CSS class names, space separated"}
+     {:name :class              :required false                     :type "string"                   :validate-fn css-class?                     :description "CSS class names, space separated"}
      {:name :style              :required false                     :type "CSS style map"            :validate-fn validate/css-style?         :description "CSS styles to add or override"}
      {:name :attr               :required false                     :type "HTML attr map"            :validate-fn validate/html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :parts              :required false                     :type "map"                      :validate-fn (parts? multi-select-parts) :description "See Parts section below."}
@@ -410,7 +411,11 @@
                                         (reset! *current-selection-id nil))]
           [:div
            (merge
-            {:class (str "rc-multi-select noselect chosen-container chosen-container-single " class)
+            {:class (theme/merge-class "rc-multi-select"
+                                       "noselect"
+                                       "chosen-container"
+                                       "chosen-container-single"
+                                       class)
              :style (merge (box/flex-child-style (if width "0 0 auto" "auto"))
                            (box/align-style :align-self :start)
                            {:overflow "hidden"
@@ -443,7 +448,8 @@
                                           :justify  :between
                                           :children [[:span
                                                       (merge
-                                                       {:class (str "rc-multi-select-left-label " (get-in parts [:left-label :class]))
+                                                       {:class (theme/merge-class "rc-multi-select-left-label"
+                                                                                  (get-in parts [:left-label :class]))
                                                         :style (merge {:font-size   "small"
                                                                        :font-weight "bold"}
                                                                       (get-in parts [:left-label :style]))}
@@ -451,7 +457,8 @@
                                                       left-label]
                                                      [:span
                                                       (merge
-                                                       {:class (str "rc-multi-select-left-label-item-count " (get-in parts [:left-label-item-count :class]))
+                                                       {:class (theme/merge-class "rc-multi-select-left-label-item-count"
+                                                                                  (get-in parts [:left-label-item-count :class]))
                                                         :style (merge {:font-size "smaller"}
                                                                       (get-in parts [:left-label-item-count :style]))}
                                                        (get-in parts [:left-label-item-count :attr]))
@@ -488,7 +495,8 @@
                                            :style {:font-size "smaller"}]
                                           [text/label
                                            :src   (at)
-                                           :class (str "rc-multi-select-left-filter-result-count " (get-in parts [:left-filter-result-count :class]))
+                                           :class (theme/merge-class "rc-multi-select-left-filter-result-count"
+                                                                     (get-in parts [:left-filter-result-count :class]))
                                            :style (merge {:font-size "smaller"}
                                                          (get-in parts [:left-filter-result-count :style]))
                                            :attr  (get-in parts [:left-filter-result-count :attr])
@@ -502,7 +510,8 @@
                           :justify  :between
                           :children [[box/box
                                       :src   (at)
-                                      :class (str "rc-multi-select-middle-spacer " (get-in parts [:middle-spacer :class]))
+                                      :class (theme/merge-class "rc-multi-select-middle-spacer"
+                                                                (get-in parts [:middle-spacer :class]))
                                       :style (get-in parts [:middle-spacer :style])
                                       :attr  (get-in parts [:middle-spacer :attr])
                                       :size  "0 1 22px" ;; 22 = (+ 18 4) - height of the top components
@@ -517,7 +526,7 @@
                                                   :src       (at)
                                                   :class     (str "rc-multi-select-include-all-button " (get-in parts [:include-all-button :class]))
                                                   :label     [:span
-                                                              [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-forward")}]
+                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-fast-forward")}]
                                                               [:span
                                                                {:style {:position "relative" :top "-1px"}}
                                                                (str " include " (if (string/blank? @*filter-choices-text) potential-count (count filtered-choices)))]]
@@ -530,7 +539,7 @@
                                                   :src       (at)
                                                   :class     (str "rc-multi-select-include-selected-button " (get-in parts [:include-selected-button :class]))
                                                   :label     [:span
-                                                              [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play")}]
+                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-play")}]
                                                               [:span
                                                                {:style {:position "relative" :top "-1px"}}
                                                                (str " include " (when @*choice-group-heading-selected?
@@ -546,7 +555,7 @@
                                                   :src       (at)
                                                   :class     (str "rc-multi-select-exclude-selected-button " (get-in parts [:exclude-selected-button :class]))
                                                   :label     [:span
-                                                              [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play zmdi-hc-rotate-180")}]
+                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-play" "zmdi-hc-rotate-180")}]
                                                               [:span
                                                                {:style {:position "relative" :top "-1px"}}
                                                                (str " exclude " (when @*selection-group-heading-selected?
@@ -562,7 +571,7 @@
                                                   :src       (at)
                                                   :class     (str "rc-multi-select-exclude-all-button " (get-in parts [:exclude-all-button :class]))
                                                   :label     [:span
-                                                              [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-rewind")}]
+                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-fast-rewind")}]
                                                               [:span
                                                                {:style {:position "relative" :top "-1px"}}
                                                                (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))]]
@@ -588,7 +597,8 @@
                                      [text/label
                                       :src   (at)
                                       :label @*warning-message
-                                      :class (str "rc-multi-select-warning-message " (get-in parts [:warning-message :class]))
+                                      :class (theme/merge-class "rc-multi-select-warning-message"
+                                                                (get-in parts [:warning-message :class]))
                                       :style (when @*warning-message
                                                (merge
                                                 {:color            "white"
@@ -614,7 +624,8 @@
                                           :justify  :between
                                           :children [[:span
                                                       (merge
-                                                       {:class (str "rc-multi-select-right-label " (get-in parts [:right-label :class]))
+                                                       {:class (theme/merge-class "rc-multi-select-right-label"
+                                                                                  (get-in parts [:right-label :class]))
                                                         :style (merge {:font-size "small"
                                                                        :font-weight "bold"}
                                                                       (get-in parts [:right-label :style]))}
@@ -622,7 +633,8 @@
                                                       right-label]
                                                      [:span
                                                       (merge
-                                                       {:class (str "rc-multi-select-right-label-item-count " (get-in parts [:right-label-item-count :class]))
+                                                       {:class (theme/merge-class "rc-multi-select-right-label-item-count"
+                                                                                  (get-in parts [:right-label-item-count :class]))
                                                         :style (merge {:font-size "smaller"}
                                                                       (get-in parts [:right-label-item-count :style]))}
                                                        (get-in parts [:right-label-item-count :attr]))
@@ -662,6 +674,7 @@
                                           [text/label
                                            :src   (at)
                                            :label [:span "Found " (rc.util/pluralize (count filtered-selections) "match" "matches") " containing " [:strong @*filter-selections-text]]
-                                           :class (str "rc-multi-select-right-filter-result-count " (get-in parts [:right-filter-result-count :class]))
+                                           :class (theme/merge-class "rc-multi-select-right-filter-result-count"
+                                                                     (get-in parts [:right-filter-result-count :class]))
                                            :style (merge {:font-size "smaller"} (get-in parts [:right-filter-result-count :style]))
                                            :attr  (get-in parts [:right-filter-result-count :attr])])])]]]]]))))))

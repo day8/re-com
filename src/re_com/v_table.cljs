@@ -8,8 +8,9 @@
    [re-com.config      :refer [debug? include-args-desc?]]
    [re-com.debug       :as debug :refer [->attr]]
    [re-com.box         :as    box]
+   [re-com.theme       :as theme]
    [re-com.util        :as    util :refer [deref-or-value px-n]]
-   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
+   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? css-class?]]
    [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
 ;; The public API for this component is called table (see last component in this file)
@@ -251,7 +252,7 @@
   [column-header-renderer scroll-x class style attr]
   [box/box
    :src   (at)
-   :class (str "rc-v-table-column-header-content rc-v-table-content " class)
+   :class (theme/merge-class "rc-v-table-column-header-content" "rc-v-table-content" class)
    :style (merge {:margin-left (px scroll-x :negative)}
                  style)
    :attr  attr
@@ -355,7 +356,7 @@
   [column-footer-renderer scroll-x class style attr]
   [box/box
    :src   (at)
-   :class (str "rc-v-table-column-footer-content rc-v-table-content " class)
+   :class (theme/merge-class "rc-v-table-column-footer-content" "rc-v-table-content" class)
    :style (merge {:margin-left (px scroll-x :negative)}
                  style)
    :attr  attr
@@ -523,7 +524,7 @@
      {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description
       "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise
  there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
-     {:name :class                      :required false                :type "string"                      :validate-fn string?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
+     {:name :class                      :required false                :type "string"                      :validate-fn css-class?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
      {:name :parts                      :required false                :type "map"                         :validate-fn (parts? v-table-parts) :description "See Parts section below."}
      {:name :src                        :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as                   :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
@@ -896,7 +897,7 @@
                                                                       (- @sel-content-x-start @scroll-x width))]
                                                [:div
                                                 (merge
-                                                 {:class (str "rc-v-table-selection " class)
+                                                 {:class (theme/merge-class "rc-v-table-selection" class)
                                                   :style (merge {:position         "absolute"
                                                                  :z-index          1
                                                                  :top              (px top)
