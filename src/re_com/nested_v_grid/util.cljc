@@ -41,7 +41,8 @@
 (defn remove-size [m]
   (cond-> m (map? m) (dissoc :size)))
 
-(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size show-branch-cells? hide-root?]}]
+(defn walk-size [{:keys [window-start window-end tree size-cache dimension default-size show-branch-cells? hide-root? skip-tail?]
+                  :or {skip-tail? true}}]
   (let [sum-size         (volatile! 0)
         tree-hash        (hash tree)
         cached-sum-size  (and size-cache
@@ -75,7 +76,7 @@
                                :or   {is-leaf? true
                                       keypath  []}}]
           (let [sum          @sum-size
-                passed-tail? (and tail-cached? (> sum window-end))]
+                passed-tail? (and skip-tail? tail-cached? (> sum window-end))]
             (cond
               passed-tail?   :exit
               (leaf? node)   (let [leaf-path (conj path node)
