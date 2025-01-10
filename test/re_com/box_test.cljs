@@ -54,7 +54,7 @@
 (deftest test-gap
   (are [expected actual] (= expected actual)
     [:div
-     {:class "rc-gap my-gap"
+     {:class ["rc-gap" "my-gap"]
       :style {:flex "0 0 1px"
               :-webkit-flex "0 0 1px"}
       :id "my-id"}]
@@ -63,7 +63,7 @@
 (deftest test-line
   (are [expected actual] (= expected actual)
     [:div
-     {:class "rc-line my-line"
+     {:class ["rc-line" "my-line"]
       :style {:flex "0 0 1px"
               :-webkit-flex "0 0 1px"
               :background-color "lightgray"}
@@ -73,7 +73,7 @@
 (deftest test-box
   (are [expected actual] (= expected actual)
     [:div
-     {:class "rc-box display-flex my-box"
+     {:class ["rc-box" "display-flex my-box"]
       :style {:flex "none"
               :-webkit-flex "none"
               :flex-flow "inherit"
@@ -85,7 +85,7 @@
 (deftest test-scroller
   (are [expected actual] (= expected actual)
     [:div
-     {:class "rc-scroller display-flex my-scroller"
+     {:class ["rc-scroller" "display-flex" "my-scroller"]
       :style {:flex "auto"
               :-webkit-flex "auto"
               :flex-flow "inherit"
@@ -98,7 +98,7 @@
 (deftest test-border
   (are [expected actual] (= expected actual)
     [:div
-     {:class "rc-border display-flex my-border"
+     {:class ["rc-border" "display-flex" "my-border"]
       :style {:flex "none"
               :-webkit-flex "none"
               :flex-flow "inherit"
