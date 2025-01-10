@@ -163,10 +163,10 @@
       :description [:span "Predicate on the set of maps given by "
                     [:code "choices"] ". Disables the subset of choices for which "
                     [:code "choice-disabled?"] " returns " [:code "true"] "."]}
-     {:name :id-fn
-      :required false
-      :default :id
-      :type "map -> anything"
+     {:name        :id-fn
+      :required    false
+      :default     :id
+      :type        "map -> anything"
       :validate-fn ifn?
       :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name        :label-fn
@@ -191,36 +191,42 @@
       :description [:span "By default, an empty model (i.e. #{}) means that no checkboxes are checked. When "
                     [:code ":empty-means-full?"]
                     " is true, all checkboxes appear checked when the model is empty."]}
+     {:name        :change-on-blur?
+      :default     true
+      :description [:span "When true, invoke " [:code ":on-change"]
+                    " function on blur, otherwise on any change (clicking any checkbox)"],
+      :required    false
+      :type        "boolean | r/atom"}
      {:name        :show-only-button?
       :default     false
       :type        "boolean"
       :validate-fn boolean?
       :description (str "When true, hovering over an item causes an \"only\" button to appear. "
                         "Clicking it will select that item, and deselect all others.")}
-     {:name :class
-      :required false
-      :type "string | vector"
+     {:name        :class
+      :required    false
+      :type        "string | vector"
       :validate-fn css-class?
       :description "CSS class string, or vector of class strings (applies to the outer container)."}
-     {:name :style
-      :required false
-      :type "CSS style map"
+     {:name        :style
+      :required    false
+      :type        "CSS style map"
       :validate-fn css-style?
       :description "CSS styles to add or override (applies to the outer container)"}
-     {:name :attr
-      :required false
-      :type "HTML attr map"
+     {:name        :attr
+      :required    false
+      :type        "HTML attr map"
       :validate-fn html-attr?
       :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br]
                     "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-     {:name :parts
-      :required false
-      :type "map"
+     {:name        :parts
+      :required    false
+      :type        "map"
       :validate-fn (parts? tree-select-parts)
       :description "See Parts section below."}
-     {:name :src
-      :required false
-      :type "map"
+     {:name        :src
+      :required    false
+      :type        "map"
       :validate-fn map?
       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
                     [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
@@ -585,10 +591,11 @@
          (remove highest-group-descendants)
          sort-items)))
 
-(defn tree-select-dropdown [& {:keys [expanded-groups]
+(defn tree-select-dropdown [& {:keys [expanded-groups model]
                                :or   {expanded-groups (r/atom nil)}}]
   (let [default-expanded-groups expanded-groups
-        showing?                (r/atom false)]
+        showing?                (r/atom false)
+        internal-model          (r/atom (u/deref-or-value model))]
     (fn tree-select-dropdown-render
       [& {:keys [choices disabled? required?
                  width min-width max-width anchor-width
@@ -600,14 +607,15 @@
                  show-only-button? show-reset-button? on-reset
                  label body-header body-footer choice
                  choice-disabled-fn
-                 empty-means-full?
+                 empty-means-full? change-on-blur?
                  parts theme main-theme theme-vars base-theme]
           :or   {placeholder     "Select an item..."
                  label-fn        :label
                  id-fn           :id
                  expanded-groups default-expanded-groups}
           :as   args}]
-      (let [state             {:enable (if-not disabled? :enabled :disabled)}
+      (let [change-on-blur?   (u/deref-or-value change-on-blur?)
+            state             {:enable (if-not disabled? :enabled :disabled)}
             themed            (fn [part props] (theme/apply props
                                                  {:state       state
                                                   :part        part
@@ -623,7 +631,7 @@
             alt-text-fn       (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn    (or group-label-fn (comp name last :group))
             field-label-fn    (or field-label-fn field-label)
-            labelable-items   (labelable-items (deref-or-value model) (deref-or-value choices) {:id-fn id-fn})
+            labelable-items   (labelable-items @model (deref-or-value choices) {:id-fn id-fn})
             anchor-label      (field-label-fn {:items          (distinct-by-id id-fn labelable-items)
                                                :label-fn       label-fn
                                                :group-label-fn group-label-fn})
@@ -648,14 +656,16 @@
                                     :min-width               min-width
                                     :max-width               max-width
                                     :min-height              min-height
-                                    :on-change               on-change
+                                    :on-change               (if change-on-blur?
+                                                               #(reset! internal-model %)
+                                                               on-change)
                                     :groups-first?           groups-first?
                                     :choice-disabled-fn      choice-disabled-fn
                                     :initial-expanded-groups initial-expanded-groups
                                     :empty-means-full?       empty-means-full?
                                     :id-fn                   id-fn
                                     :label-fn                label-fn
-                                    :model                   model})])]
+                                    :model                   (if change-on-blur? internal-model model)})])]
         [dd/dropdown
          (themed ::dropdown
            {:label         [u/part label {:model           (deref-or-value model)
@@ -672,7 +682,7 @@
                              [h-box
                               (themed ::dropdown-indicator
                                 {:children
-                                 [[box (themed ::counter {:child (str (count (deref-or-value model)))})]
+                                 [[box (themed ::counter {:child (str (count (if change-on-blur? @internal-model (u/deref-or-value model))))})]
                                   [dd/indicator (themed ::dropdown-indicator props)]
                                   (when (u/deref-or-value show-reset-button?)
                                     [u/x-button
@@ -688,6 +698,11 @@
             :body-footer   body-footer
             :body          body
             :model         showing?
+            :on-change     (when change-on-blur?
+                             (fn [open?] (reset! showing? open?)
+                               (when (and (not open?)
+                                          (not= @internal-model (u/deref-or-value model)))
+                                 (on-change @internal-model))))
             :theme         theme
             :parts         (merge
                             {:wrapper        (:dropdown-wrapper parts)

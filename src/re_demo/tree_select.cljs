@@ -28,6 +28,7 @@
   (let [model                   (reagent/atom #{:sydney :auckland})
         groups                  (reagent/atom nil)
         disabled?               (reagent/atom false)
+        change-on-blur?         (reagent/atom nil)
         show-reset-button?      (reagent/atom false)
         initial-expanded-groups (reagent/atom nil)
         label-fn                (reagent/atom nil)
@@ -87,6 +88,7 @@
                     :min-height         (some-> @min-height px)
                     :max-height         (some-> @max-height px)
                     :anchor-width       (some-> @anchor-width px)
+                    :change-on-blur?    @change-on-blur?
                     :disabled?          disabled?
                     :show-reset-button? @show-reset-button?
                     :label-fn           @label-fn
@@ -129,6 +131,12 @@
                                                        :child [:code ":show-reset-button?"]]
                                            :model     show-reset-button?
                                            :on-change #(reset! show-reset-button? %)]
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
+                                                       :align :start
+                                                       :child [:code ":change-on-blur?"]]
+                                           :model     change-on-blur?
+                                           :on-change #(reset! change-on-blur? %)]
                                           [v-box :src (at)
                                            :children [[box :src (at) :align :start :child [:code ":initial-expanded-groups"]]
 

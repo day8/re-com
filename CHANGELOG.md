@@ -5,6 +5,7 @@
 #### Added
 
 - All components can accept a vector of strings as their `:class` argument. Nested vectors work, as well (they get flattened).
+- `tree-select-dropdown`: Added `:change-on-blur?` prop
 
 ## 2.23.1 (2025-01-07)
 
