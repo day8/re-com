@@ -338,7 +338,7 @@
          :children
          (into
           (vec (repeat level [gap :size "10px"]))
-          [[u/part choice props :default re-com.tree-select/choice]
+          [(u/part choice props :default re-com.tree-select/choice)
            [gap :size "1"]
            (when (and show-only-button? @hover?) [solo-button props])])]))))
 
@@ -378,7 +378,7 @@
                                       (get-in parts [:expander :class]))
             :child
             [u/triangle {:direction (if open? :down :right)}]]
-           [u/part re-com.tree-select/group-item props :default re-com.tree-select/group-item]
+           (u/part re-com.tree-select/group-item props :default re-com.tree-select/group-item)
            [gap :size "1"]
            (when (and show-only-button? @hover?) [solo-button props])])]))))
 
@@ -631,7 +631,7 @@
             alt-text-fn       (or alt-text-fn #(->> % :items (map (or label-fn :label)) (str/join ", ")))
             group-label-fn    (or group-label-fn (comp name last :group))
             field-label-fn    (or field-label-fn field-label)
-            labelable-items   (labelable-items @model (deref-or-value choices) {:id-fn id-fn})
+            labelable-items   (labelable-items (deref-or-value model) (deref-or-value choices) {:id-fn id-fn})
             anchor-label      (field-label-fn {:items          (distinct-by-id id-fn labelable-items)
                                                :label-fn       label-fn
                                                :group-label-fn group-label-fn})
@@ -668,15 +668,15 @@
                                     :model                   (if change-on-blur? internal-model model)})])]
         [dd/dropdown
          (themed ::dropdown
-           {:label         [u/part label {:model           (deref-or-value model)
+           {:label         (u/part label {:model           (deref-or-value model)
                                           :state           state
                                           :placeholder     placeholder
                                           :label-fn        label-fn
                                           :group-label-fn  group-label-fn
                                           :labelable-items labelable-items
                                           :id-fn           id-fn}
-                            :default
-                            anchor-label-part]
+                                   :default
+                                   anchor-label-part)
             :placeholder   placeholder
             :indicator     (fn [props]
                              [h-box

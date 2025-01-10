@@ -135,39 +135,39 @@
                  [(when header
                     [:<>
                      [box/gap :size "19px"]
-                     [u/part header args]])
+                     (u/part header args)])
                   [:<>
                    (when action
-                     [u/part heading
-                      (themed ::sub-title-2 {:label action :level :level2}) :default
-                      text/title])
+                     (u/part heading
+                             (themed ::sub-title-2 {:label action :level :level2}) :default
+                             text/title))
                    (when instructions
                      [text/p instructions])
                    (when what-happened
                      [:<>
-                      [u/part heading
-                       (themed ::sub-title-2 {:label what-happened-title :level :level3}) :default text/title]
-                      [u/part what-happened args]])
+                      (u/part heading
+                              (themed ::sub-title-2 {:label what-happened-title :level :level3}) :default text/title)
+                      (u/part what-happened args)])
 
                    (when implications
                      [:<>
-                      [u/part heading
-                       (themed ::sub-title {:label implications-title :level :level3}) :default text/title]
-                      [u/part implications args :default]])
+                      (u/part heading
+                              (themed ::sub-title {:label implications-title :level :level3}) :default text/title)
+                      (u/part implications args :default)])
 
                    (when what-to-do
                      [:<>
-                      [u/part heading (themed ::sub-title {:label what-to-do-title :level :level3}) :default text/title]
-                      [u/part what-to-do args]])]
+                      (u/part heading (themed ::sub-title {:label what-to-do-title :level :level3}) :default text/title)
+                      (u/part what-to-do args)])]
 
                   (when (or details error context)
                     [:<>
-                     [u/part heading
-                      (themed ::sub-title {:label details-title :level :level4})
-                      :default [:strong {:style {:font-size "12px"}} details-title]]
-                     [u/part details args]
-                     [u/part error (themed ::error args)]
-                     [u/part context (themed ::context args)]])
+                     (u/part heading
+                             (themed ::sub-title {:label details-title :level :level4})
+                             :default [:strong {:style {:font-size "12px"}} details-title])
+                     (u/part details args)
+                     (u/part error (themed ::error args))
+                     (u/part context (themed ::context args))])
 
                   (when footer
-                    [u/part footer args])]})]]})]})]))
+                    (u/part footer args))]})]]})]})]))

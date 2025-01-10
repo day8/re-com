@@ -446,7 +446,7 @@
                                     (and today (=date cell-date today) (not disabled?)) (into class ["rc-datepicker-today"])
                                     :else class)
                       class       (conj class "rc-datepicker-date")]
-                  [u/part date-cell {:date          cell-date
+                  (u/part date-cell {:date          cell-date
                                      :label         (cljs-time/day cell-date)
                                      :focus-month   focus-month
                                      :selected      selected
@@ -462,7 +462,7 @@
                                      :attr          (get-in parts [:date :attr])
                                      :style         (get-in parts [:date :style])
                                      :parts         parts}
-                   :default table-td]))
+                          :default table-td)))
           (range 7))))
 
 (defn- table-tbody

@@ -435,21 +435,21 @@
                    {:src (at)
                     :children
                     [(when (and show-backdrop? (not= :out (:transitionable state)))
-                       [u/part backdrop
-                        (themed ::backdrop part-props)
-                        :default re-com.dropdown/backdrop])
+                       (u/part backdrop
+                               (themed ::backdrop part-props)
+                               :default re-com.dropdown/backdrop))
                      [h-box
                       (themed ::anchor-wrapper
                         {:src      (at)
                          :attr     {:ref anchor-ref!}
-                         :children [[u/part anchor
-                                     (themed ::anchor part-props)
-                                     :default re-com.dropdown/anchor]
+                         :children [(u/part anchor
+                                            (themed ::anchor part-props)
+                                            :default re-com.dropdown/anchor)
                                     [gap :size "1"]
                                     [gap :size "5px"]
-                                    [u/part indicator
-                                     (themed ::indicator part-props)
-                                     :default re-com.dropdown/indicator]]})]
+                                    (u/part indicator
+                                            (themed ::indicator part-props)
+                                            :default re-com.dropdown/indicator)]})]
                      (when (= :open (:openable state))
                        [body-wrapper {:anchor-ref      anchor-ref
                                       :body-ref        body-ref
@@ -458,9 +458,9 @@
                                       :parts           parts
                                       :state           state
                                       :theme           theme}
-                        [u/part body-header (themed ::body-header part-props)]
-                        [u/part body (themed ::body part-props)]
-                        [u/part body-footer (themed ::body-footer part-props)]])]})])))))))
+                        (u/part body-header (themed ::body-header part-props))
+                        (u/part body (themed ::body part-props))
+                        (u/part body-footer (themed ::body-footer part-props))])]})])))))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
