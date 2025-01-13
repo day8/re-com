@@ -150,7 +150,7 @@
     [:div
      (merge
       (->attr args)
-      {:class (theme/merge-class "display-flex" class-name class) :style s}
+      {:class (theme/merge-class class-name "display-flex" class) :style s}
       attr)
      child]))
 
@@ -397,7 +397,7 @@
              :margin      margin
              :padding     padding
              :child       child
-             :class-name  "rc-box "
+             :class-name  "rc-box"
              :class       class
              :style       style
              :attr        attr
@@ -472,7 +472,7 @@
                :margin     margin
                :padding    padding
                :child      child
-               :class-name "rc-scroller "
+               :class-name "rc-scroller"
                :class      class
                :style      style
                :attr       attr
@@ -537,7 +537,7 @@
                :b-border    b-border
                :radius      radius
                :child       child
-               :class-name  "rc-border "
+               :class-name  "rc-border"
                :class       class
                :style       style
                :attr        attr

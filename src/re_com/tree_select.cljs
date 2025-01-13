@@ -697,7 +697,7 @@
             :body-header   body-header
             :body-footer   body-footer
             :body          body
-            :model         showing?
+            :model         (u/deref-or-value showing?)
             :on-change     (when change-on-blur?
                              (fn [open?] (reset! showing? open?)
                                (when (and (not open?)

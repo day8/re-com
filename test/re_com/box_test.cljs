@@ -73,7 +73,7 @@
 (deftest test-box
   (are [expected actual] (= expected actual)
     [:div
-     {:class ["rc-box" "display-flex my-box"]
+     {:class ["rc-box" "display-flex" "my-box"]
       :style {:flex "none"
               :-webkit-flex "none"
               :flex-flow "inherit"
