@@ -856,12 +856,55 @@
                                            "thin solid black")}}
          (str row-index " // " column-index)])})))
 
+(def header-tree-minimal
+  [:a :b :c])
+
+(def header-tree-small
+  [:a :b [:c :d] [:e :f]])
+
+(def header-tree
+  [{:id :z :label "ZZ" :show? false}
+   [:g
+    [{:id :x :label "HIHI" :size 99}
+     {:label "something" :size 20}]
+    [{:id :y :label "HIHI"}
+     [{:label "sometihng-else" :size 40}]]
+    [:z {:size 20}]]
+   [:h
+    [:x {:id 20}]
+    [:y 40]
+    [:z 20]]
+   [:i
+    [:x 20]
+    [:y 40]
+    [:z 20]]
+   [:j
+    [:x 20]
+    [:y 40]
+    [:z 20]]])
+
+(def header-tree-big
+  (into header-tree
+        (repeatedly 1000 #(do [(keyword (gensym))
+                               [:x 20]
+                               [:y 40]
+                               [:z 20]]))))
+
+(def header-tree-huge
+  (into header-tree
+        [(into [:hhh]
+               (repeatedly 10000 #(do [(keyword (gensym))
+                                       [:x 20]
+                                       [:y 40]
+                                       [:z 20]
+                                       [:h 10]])))]))
+
 (def ww (r/atom 500))
 (def wh (r/atom 500))
 
 (def row-header-widths (r/atom [20 30 40 50]))
 (def column-header-heights (r/atom [20 50 70]))
-(def row-tree (r/atom ngu/big-test-tree))
+(def row-tree (r/atom header-tree-big))
 (def column-tree (r/atom [{:id :a :size 120}
                           [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
                            {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
