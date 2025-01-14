@@ -21,11 +21,16 @@
   (cond-> m (map? m) (dissoc :size)))
 
 (defn ancestry [path]
-  (take (count path) (iterate pop path)))
+  (vec (take (count path) (iterate pop path))))
 
 (defn intersection? [x1 size window-start window-end]
   (and (<= x1 window-end)
        (>= (+ x1 size) window-start)))
+
+(defn evict! [cache tree keypath]
+  (apply dissoc cache (into [tree]
+                            (map #(get-in tree %))
+                            (ancestry keypath))))
 
 (defn window [{:keys [window-start
                       window-end

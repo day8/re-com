@@ -238,10 +238,19 @@
               themed
               (fn [part props] (theme/apply props {:part part} theme))
 
+              resize!
+              (fn [{:keys [keypath size-dimension header-dimension] :as props}]
+                (when-let [tree (case [header-dimension size-dimension]
+                                  [:row :height]   @internal-row-tree
+                                  [:column :width] @internal-column-tree
+                                  nil)]
+                  (vswap! size-cache ngu/evict! tree keypath))
+                (on-resize props))
+
               row-width-resizers
               (for [i (range (if hide-root? 1 0) @row-depth)]
                 ^{:key [::row-width-resizer i]}
-                [ngp/resizer {:on-resize        on-resize
+                [ngp/resizer {:on-resize        resize!
                               :overlay          overlay
                               :header-dimension :row
                               :size-dimension   :width
@@ -254,7 +263,7 @@
               (for [i (range (if hide-root? 1 0) @column-depth)]
                 ^{:key [::column-height-resizer i]}
                 [ngp/resizer {:path             (get @column-paths i)
-                              :on-resize        on-resize
+                              :on-resize        resize!
                               :overlay          overlay
                               :header-dimension :column
                               :size-dimension   :height
@@ -273,7 +282,7 @@
                   ^{:key [::row-height-resizer i]}
                   [ngp/resizer {:path             row-path
                                 :offset           offset
-                                :on-resize        on-resize
+                                :on-resize        resize!
                                 :overlay          overlay
                                 :keypath          (get @row-keypaths i)
                                 :size             size
@@ -290,7 +299,7 @@
                   [ngp/resizer {:path             column-path
                                 :offset           offset
                                 :style            style
-                                :on-resize        on-resize
+                                :on-resize        resize!
                                 :overlay          overlay
                                 :keypath          (get @column-keypaths i)
                                 :size             (get @column-sizes i)
