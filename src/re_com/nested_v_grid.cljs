@@ -25,16 +25,22 @@
                              hide-root?       true
                              on-export        (fn on-export [{:keys [rows]}]
                                                 (->> rows (map u/tsv-line) str/join u/clipboard-write!))}}]
-  (let [[wx wy wh ww !wrapper-ref scroll-listener resize-observer overlay
-         column-header-heights-internal row-header-widths-internal]
+  (let [[wx wy wh ww !wrapper-ref scroll-listener resize-observer overlay]
         (repeatedly #(r/atom nil))
         wrapper-ref!                     (partial reset! !wrapper-ref)
         on-scroll!                       #(do (reset! wx (.-scrollLeft (.-target %)))
                                               (reset! wy (.-scrollTop (.-target %))))
         on-resize!                       #(do (reset! wh (.-height (.-contentRect (aget % 0))))
                                               (reset! ww (.-width (.-contentRect (aget % 0)))))
+        prev-row-tree                    (r/atom (u/deref-or-value row-tree))
+        prev-column-tree                 (r/atom (u/deref-or-value column-tree))
+        prev-row-header-widths           (r/atom (u/deref-or-value row-header-widths))
+        prev-column-header-heights       (r/atom (u/deref-or-value column-header-heights))
         internal-row-tree                (r/atom (u/deref-or-value row-tree))
         internal-column-tree             (r/atom (u/deref-or-value column-tree))
+        internal-row-header-widths       (r/atom (u/deref-or-value row-header-widths))
+        internal-column-header-heights   (r/atom (or (u/deref-or-value column-header-heights)
+                                                     (repeat @column-tree-depth column-header-height)))
         internal-cell-value              (r/atom (u/deref-or-value cell-value))
         internal-on-export               (r/atom (u/deref-or-value on-export))
         internal-on-export-cell          (r/atom (u/deref-or-value on-export-cell))
@@ -45,9 +51,9 @@
         internal-column-header-label     (r/atom (u/deref-or-value column-header-label))
         size-cache                       (volatile! {})
         column-depth                     (r/reaction (or (u/deref-or-value column-tree-depth)
-                                                         (count (u/deref-or-value column-header-heights))))
+                                                         (count (u/deref-or-value internal-column-header-heights))))
         row-depth                        (r/reaction (or (u/deref-or-value row-tree-depth)
-                                                         (count (u/deref-or-value row-header-widths))))
+                                                         (count (u/deref-or-value internal-row-header-widths))))
         row-traversal                    (r/reaction
                                           (ngu/window {:header-tree        @internal-row-tree
                                                        :window-start       (- (or @wy 0) 20)
@@ -144,59 +150,63 @@
                                                          :column-headers column-headers
                                                          :rows           (concat (map concat corner-headers column-headers)
                                                                                  (map concat row-headers cells))})))
-        _                                (when-let [init on-init-export-fn] (init export-fn))
-        column-header-heights            (r/reaction (cond-> (or
-                                                              (u/deref-or-value column-header-heights-internal)
-                                                              (u/deref-or-value column-header-heights)
-                                                              (repeat @column-depth column-header-height))
+        processed-column-header-heights  (r/reaction (cond->      (u/deref-or-value internal-column-header-heights)
                                                        hide-root? (#(into [0] (rest %)))
                                                        :do        vec))
-        row-header-widths                (r/reaction (cond-> (or
-                                                              (u/deref-or-value row-header-widths-internal)
-                                                              (u/deref-or-value row-header-widths)
+        processed-row-header-widths      (r/reaction (cond-> (or
+                                                              (u/deref-or-value internal-row-header-widths)
                                                               (repeat @row-depth row-header-width))
                                                        hide-root? (#(into [0] (rest %)))
                                                        :do        vec))
-        column-header-height-total       (r/reaction (apply + @column-header-heights))
+        column-header-height-total       (r/reaction (apply + @processed-column-header-heights))
         column-width-total               (r/reaction (:sum-size @column-traversal))
         column-paths                     (r/reaction (:header-paths @column-traversal))
         column-keypaths                  (r/reaction (:keypaths @column-traversal))
         column-sizes                     (r/reaction (:sizes @column-traversal))
         column-template                  (r/reaction (ngu/grid-template @column-traversal))
-        column-cross-template            (r/reaction (ngu/grid-cross-template @column-header-heights))
+        column-cross-template            (r/reaction (ngu/grid-cross-template @processed-column-header-heights))
         column-spans                     (r/reaction (ngu/grid-spans @column-paths))
-        row-header-width-total           (r/reaction (apply + @row-header-widths))
+        row-header-width-total           (r/reaction (apply + @processed-row-header-widths))
         row-height-total                 (r/reaction (:sum-size @row-traversal))
         row-paths                        (r/reaction (:header-paths @row-traversal))
         row-keypaths                     (r/reaction (:keypaths @row-traversal))
         row-sizes                        (r/reaction (:sizes @row-traversal))
         row-template                     (r/reaction (ngu/grid-template @row-traversal))
-        row-cross-template               (r/reaction (ngu/grid-cross-template @row-header-widths))
+        row-cross-template               (r/reaction (ngu/grid-cross-template @processed-row-header-widths))
         row-spans                        (r/reaction (ngu/grid-spans @row-paths))]
     (r/create-class
      {:component-did-mount
-      #(do (reset! scroll-listener
-                   (.addEventListener @!wrapper-ref "scroll" on-scroll!))
-           (reset! resize-observer
-                   (.observe (js/ResizeObserver. on-resize!) @!wrapper-ref)))
+      #(do
+         (when-let [init on-init-export-fn] (init export-fn))
+         (reset! scroll-listener (.addEventListener @!wrapper-ref "scroll" on-scroll!))
+         (reset! resize-observer (.observe (js/ResizeObserver. on-resize!) @!wrapper-ref)))
       :component-did-update
-      #(let [[_ {:keys [row-tree column-tree cell-value
-                        on-export on-export-cell on-export-row-header on-export-column-header on-export-corner-header
-                        row-header-label column-header-label]}] (r/argv %)]
-         (reset! internal-row-tree (u/deref-or-value row-tree))
-         (reset! internal-column-tree (u/deref-or-value column-tree))
-         (reset! internal-cell-value (u/deref-or-value cell-value))
-         (reset! internal-on-export (u/deref-or-value on-export))
-         (reset! internal-on-export-cell (u/deref-or-value on-export-cell))
-         (reset! internal-on-export-row-header (u/deref-or-value on-export-row-header))
-         (reset! internal-on-export-column-header (u/deref-or-value on-export-column-header))
-         (reset! internal-on-export-corner-header (u/deref-or-value on-export-corner-header))
-         (reset! internal-row-header-label (u/deref-or-value row-header-label))
-         (reset! internal-column-header-label (u/deref-or-value column-header-label)))
+      (fn [this]
+        (let [[_ & {:keys [row-tree column-tree cell-value
+                           on-export on-export-cell on-export-row-header on-export-column-header on-export-corner-header
+                           row-header-label column-header-label]}] (r/argv this)]
+          (doseq [[external-prop prev-external-prop internal-prop] [[row-tree prev-row-tree internal-row-tree]
+                                                                    [column-tree prev-column-tree internal-column-tree]
+                                                                    [row-header-widths prev-row-header-widths internal-row-header-widths]
+                                                                    [column-header-heights prev-column-header-heights internal-column-header-heights]]
+                  :let                                             [external-value (u/deref-or-value external-prop)
+                                                                    prev-external-value (u/deref-or-value prev-external-prop)]]
+            (when (not= prev-external-value external-value)
+              (reset! prev-external-prop external-value)
+              (reset! internal-prop external-value)))
+          (doseq [[external-prop internal-prop] {on-export               internal-on-export
+                                                 cell-value              internal-cell-value
+                                                 on-export-cell          internal-on-export-cell
+                                                 on-export-row-header    internal-on-export-row-header
+                                                 on-export-column-header internal-on-export-column-header
+                                                 on-export-corner-header internal-on-export-corner-header
+                                                 row-header-label        internal-row-header-label
+                                                 column-header-label     internal-column-header-label}
+                  :let                          [external-value (u/deref-or-value external-prop)]]
+            (reset! internal-prop external-value))))
       :reagent-render
       (fn [{:keys
-            [row-tree column-tree theme-cells? on-resize hide-root?
-             cell-value on-export on-export-cell on-export-header on-export-corner-header on-export-row-header on-export-column-header]
+            [theme-cells? on-resize hide-root? cell-value]
             {:keys
              [cell corner-header
               row-header column-header
@@ -209,10 +219,18 @@
             {hide-root? true
              on-resize  (fn [{:keys [header-dimension size-dimension keypath size]}]
                           (case [header-dimension size-dimension]
-                            [:column :height] (swap! column-header-heights-internal assoc-in keypath size)
-                            [:row :width]     (swap! row-header-widths-internal assoc-in keypath size)))}}]
-        (mapv u/deref-or-value [row-tree row-header-widths row-height
-                                column-tree column-header-heights column-width])
+                            [:column :height] (swap! internal-column-header-heights assoc-in keypath size)
+                            [:row :width]     (swap! internal-row-header-widths assoc-in keypath size)
+                            [:row :height]    (swap! internal-row-tree update-in keypath assoc :size size)
+                            [:column :width]  (swap! internal-column-tree update-in keypath assoc :size size)))}}]
+        (let [ensure-reactivity u/deref-or-value
+              external-keys     [:row-tree :row-header-widths :row-height
+                                 :column-tree :column-header-heights :column-width
+                                 :on-export :on-export-cell :on-export-header :on-export-corner-header
+                                 :on-export-row-header :on-export-column-header]
+              external-props    (map props external-keys)]
+          (doseq [prop external-props]
+            (ensure-reactivity prop)))
         (let [theme
               (theme/defaults props {:user [(theme/<-props props {:part    ::wrapper
                                                                   :include [:style :class]})]})
@@ -230,7 +248,7 @@
                               :dimension        :row-header-width
                               :keypath          [i]
                               :index            i
-                              :size             (get @row-header-widths i row-header-width)}])
+                              :size             (get @internal-row-header-widths i row-header-width)}])
 
               column-height-resizers
               (for [i (range (if hide-root? 1 0) @column-depth)]
@@ -243,7 +261,7 @@
                               :dimension        :column-header-height
                               :keypath          [i]
                               :index            i
-                              :size             (get @column-header-heights i column-header-height)}])
+                              :size             (get @internal-column-header-heights i column-header-height)}])
 
               row-height-resizers
               (fn [& {:keys [offset]}]
