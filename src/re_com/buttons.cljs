@@ -250,7 +250,7 @@
                             (merge
                              {:class (theme/merge-class "zmdi"
                                                         "zmdi-hc-fw-rc"
-                                                        "md-icon-name"
+                                                        md-icon-name
                                                         "rc-md-icon-button-icon"
                                                         (get-in parts [:icon :class]))
                               :style (get-in parts [:icon :style] {})}
