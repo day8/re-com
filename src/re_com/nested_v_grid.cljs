@@ -38,9 +38,10 @@
         prev-column-header-heights       (r/atom (u/deref-or-value column-header-heights))
         internal-row-tree                (r/atom (u/deref-or-value row-tree))
         internal-column-tree             (r/atom (u/deref-or-value column-tree))
-        internal-row-header-widths       (r/atom (u/deref-or-value row-header-widths))
+        internal-row-header-widths       (r/atom (or (u/deref-or-value row-header-widths)
+                                                     (vec (repeat (u/deref-or-value row-tree-depth) row-header-width))))
         internal-column-header-heights   (r/atom (or (u/deref-or-value column-header-heights)
-                                                     (repeat @column-tree-depth column-header-height)))
+                                                     (vec (repeat (u/deref-or-value column-tree-depth) column-header-height))))
         internal-cell-value              (r/atom (u/deref-or-value cell-value))
         internal-on-export               (r/atom (u/deref-or-value on-export))
         internal-on-export-cell          (r/atom (u/deref-or-value on-export-cell))
@@ -49,7 +50,8 @@
         internal-on-export-corner-header (r/atom (u/deref-or-value on-export-corner-header))
         internal-row-header-label        (r/atom (u/deref-or-value row-header-label))
         internal-column-header-label     (r/atom (u/deref-or-value column-header-label))
-        size-cache                       (volatile! {})
+        row-size-cache                   (volatile! {})
+        column-size-cache                (volatile! {})
         column-depth                     (r/reaction (or (u/deref-or-value column-tree-depth)
                                                          (count (u/deref-or-value internal-column-header-heights))))
         row-depth                        (r/reaction (or (u/deref-or-value row-tree-depth)
@@ -58,7 +60,7 @@
                                           (ngu/window {:header-tree        @internal-row-tree
                                                        :window-start       (- (or @wy 0) 20)
                                                        :window-end         (+ @wy @wh)
-                                                       :size-cache         size-cache
+                                                       :size-cache         row-size-cache
                                                        :show-branch-cells? show-row-branches?
                                                        :default-size       (u/deref-or-value row-height)
                                                        :hide-root?         hide-root?}))
@@ -66,13 +68,13 @@
                                           (ngu/window {:header-tree        @internal-column-tree
                                                        :window-start       (- (or @wx 0) 20)
                                                        :window-end         (+ @wx @ww 50)
-                                                       :size-cache         size-cache
+                                                       :size-cache         column-size-cache
                                                        :show-branch-cells? show-column-branches?
                                                        :default-size       (u/deref-or-value column-width)
                                                        :hide-root?         hide-root?}))
         complete-row-traversal           (r/reaction
                                           (ngu/window {:header-tree        @internal-row-tree
-                                                       :size-cache         size-cache
+                                                       :size-cache         row-size-cache
                                                        :dimension          :row
                                                        :show-branch-cells? show-row-branches?
                                                        :default-size       (u/deref-or-value row-height)
@@ -80,7 +82,7 @@
                                                        :skip-tail?         false}))
         complete-column-traversal        (r/reaction
                                           (ngu/window {:header-tree        @internal-column-tree
-                                                       :size-cache         size-cache
+                                                       :size-cache         column-size-cache
                                                        :dimension          :column
                                                        :show-branch-cells? show-column-branches?
                                                        :default-size       (u/deref-or-value column-width)
@@ -244,7 +246,8 @@
                                   [:row :height]   @internal-row-tree
                                   [:column :width] @internal-column-tree
                                   nil)]
-                  (vswap! size-cache ngu/evict! tree keypath))
+                  (vswap! (case header-dimension :row row-size-cache :column column-size-cache)
+                          ngu/evict! tree keypath))
                 (on-resize props))
 
               row-width-resizers
@@ -317,7 +320,8 @@
                                       :keypath     (get @row-keypaths i)
                                       :branch-end? branch-end?
                                       :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                                    :grid-row-end      (str "span " (get @row-spans row-path))
+                                                    :grid-row-end      (str "span " (cond-> (get @row-spans row-path)
+                                                                                      (not show-row-branches?) dec))
                                                     :grid-column-start (cond-> (count row-path) branch-end? dec)
                                                     :grid-column-end   -1}}
                                props (assoc props :children [(u/part row-header-label props
@@ -335,7 +339,8 @@
                                       :branch-end? branch-end?
                                       :keypath     (get @column-keypaths i)
                                       :style       {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                    :grid-column-end   (str "span " (get @column-spans column-path))
+                                                    :grid-column-end   (str "span " (cond-> (get @column-spans column-path)
+                                                                                      (not show-column-branches?) dec))
                                                     :grid-row-start    (cond-> (count column-path) branch-end? dec)
                                                     :grid-row-end      -1
                                                     :overflow          :hidden}}
