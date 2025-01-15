@@ -193,4 +193,22 @@
              grid-tokens)
        @results)))
 
-
+(defn upgrade-header-tree-schema
+  ([tree]
+   (upgrade-header-tree-schema [:root] tree))
+  ([acc tree]
+   (if-not (vector? tree)
+     [tree]
+     (let [[l & [r :as remainder]] tree]
+       (cond
+         (not l)           acc
+         (vector? l)       (recur (into acc (upgrade-header-tree-schema [] l))
+                                  (vec remainder))
+         (not (vector? r)) (recur (conj acc [l])
+                                  (vec remainder))
+         :else             (let [children      (take-while vector? remainder)
+                                 new-remainder (vec (drop (count children) remainder))]
+                             (recur (conj acc (reduce into [l]
+                                                      (map (partial upgrade-header-tree-schema [])
+                                                           children)))
+                                    new-remainder)))))))

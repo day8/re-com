@@ -1,8 +1,7 @@
 (ns re-com.nested-grid-test
   (:require
    [cljs.test :refer-macros [is are deftest]]
-   [re-com.nested-v-grid.util :as ngu]
-   [re-demo.nested-grid :as demo]))
+   [re-com.nested-v-grid.util :as ngu]))
 
 (def main-keys [:header-paths :keypaths :sizes :sum-size :positions])
 
@@ -175,3 +174,14 @@
               as deeply as the resized header-spec (i.e. header-y-resized).
               This descent is necessary, since its size, and all its ancestors' total-sizes, have changed
               and must be recalculated."))))
+
+(deftest upgrade-header-tree-schema
+  (are [old-tree new-tree] (= (ngu/upgrade-header-tree-schema old-tree) new-tree)
+    [:a]                             [:root [:a]]
+    [:a :b]                          [:root [:a] [:b]]
+    [:a [:b :c]]                     [:root [:a [:b] [:c]]]
+    [:a [:b [:c]]]                   [:root [:a [:b [:c]]]]
+    [:a [[:b] [:c]]]                 [:root [:a [:b] [:c]]]
+    [:a [:b [:d] :c]]                [:root [:a [:b [:d]] [:c]]]
+    [:a [:b [:c [:d]]]]              [:root [:a [:b [:c [:d]]]]]
+    [:a [:b [:c [:d]] [:e [:f]] :g]] [:root [:a [:b [:c [:d]] [:e [:f]]] [:g]]]))
