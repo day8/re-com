@@ -3,25 +3,18 @@
    [reagent.core :as r]
    [re-com.nested-v-grid.util :as ngu]))
 
-(defn cell [{:keys [style class row-path column-path children cell-value] :as props}]
-  (into [:div {:style (merge {:grid-row-start    (ngu/path->grid-line-name row-path)
-                              :grid-column-start (ngu/path->grid-line-name column-path)}
-                             style)
-               :class class}]
-        (when cell-value (cell-value props))))
-
-(def box-style
-  {:top    {:top    -2 :left  0  :height 5 :width  "100%"}
-   :bottom {:bottom -3 :left  0  :height 5 :width  "100%"}
-   :left   {:top    0  :left  -2 :width  5 :height "100%"}
-   :right  {:top    0  :right -3 :width  5 :height "100%"}})
+(defn box-style [position]
+  (case position
+    :top    {:top    -2 :left  0  :height 5 :width  "100%"}
+    :bottom {:bottom -3 :left  0  :height 5 :width  "100%"}
+    :left   {:top    0  :left  -2 :width  5 :height "100%"}
+    :right  {:top    0  :right -3 :width  5 :height "100%"}))
 
 (defn header-label [{:keys [path]}]
   (let [spec (peek path)]
-    [:span {:title (pr-str (meta path))}
-     (or (:label spec)
-         (some-> spec :id str)
-         (some-> spec pr-str))]))
+    (or (:label spec)
+        (some-> spec :id name)
+        (some-> spec pr-str))))
 
 (def row-header-label header-label)
 

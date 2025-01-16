@@ -21,7 +21,10 @@
   (cond-> m (map? m) (dissoc :size)))
 
 (defn ancestry [path]
-  (vec (take (count path) (iterate pop path))))
+  (loop [acc [] ancestor path]
+    (if (empty? ancestor)
+      acc
+      (recur (conj acc ancestor) (pop ancestor)))))
 
 (defn intersection? [x1 size window-start window-end]
   (and (<= x1 window-end)
