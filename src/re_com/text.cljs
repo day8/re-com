@@ -147,21 +147,28 @@
 
   If the first child is a map, it is interpreted as a map of styles / attributes.
 
-  This uses [:span] because React has become more unforgiving about nesting [:div]s under [:p]s and dumps
+  The map can include a :children key. If you pass a sequence of hiccups for :children,
+  its items will appear before the rest of the arguments. For instance:
+
+  [rc/p {:children [\"Hello\"]} \" World\"]
+
+  This will show a \"Hello World\" paragraph on the page.
+
+  This component uses [:span] because React has become more unforgiving about nesting [:div]s under [:p]s and dumps
   a big red warning message in DevTools.
 
   By adding, for example, a [hyperlink] component within your `[:p]` (which contains a [:div]), you can get this warning message"
-  [& children]
-  (let [child1       (first children)    ;; it might be a map of attributes, including styles
-        [m children] (if (map? child1)
-                       [child1  (rest children)]
-                       [{}      children])
-        m             (deep-merge {:style {:flex          "none"
-                                           :width         "450px"
-                                           :min-width     "450px"
-                                           :margin-bottom "0.7em"}}
-                                  m)]
-    [:span.rc-p m (into [:span] children)]))
+  [& args]
+  (let [arg1                     (first args)    ;; it might be a map of attributes, including styles
+        [m hiccup-children]      (if (map? arg1)
+                                   [arg1 (rest args)]
+                                   [{}   args])
+        {:keys [children] :as m} (deep-merge {:style {:flex          "none"
+                                                      :width         "450px"
+                                                      :min-width     "450px"
+                                                      :margin-bottom "0.7em"}}
+                                             m)]
+    [:span.rc-p m (into [:span] (concat children hiccup-children))]))
 
 ;; Alias for backwards compatibility; p and p-span used to be different implementations.
 (def p-span p)
