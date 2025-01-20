@@ -3,38 +3,40 @@
    [re-com.theme.default :as default :refer [base main]]
    [re-com.nested-v-grid :as-alias nvg]))
 
+;; NOTE: See re-com.css for styling of cells & headers
+
 (def border-light "thin solid #ccc")
 (def border-dark "thin solid #aaa")
 
 (defn style [props & ms] (apply update props :style merge ms))
 
-(defmethod base ::nvg/wrapper [props _]
+(defmethod base ::nvg/wrapper [props]
   (style props {:height   300
-                :width    500
+                :width    "100%"
                 :overflow :auto
-                :flex     "0 0 auto"
+                :flex     "1 1 auto"
                 :display  :grid}))
 
 (defmethod base ::nvg/cell-grid
-  [props _]
+  [props]
   (style props {:display           :grid
                 :grid-row-start    2
                 :grid-column-start 2}))
 
 (defmethod base ::nvg/column-header-grid
-  [props _]
+  [props]
   (style props {:display  :grid
                 :position :sticky
                 :top      0}))
 
 (defmethod base ::nvg/row-header-grid
-  [props _]
+  [props]
   (style props {:display  :grid
                 :position :sticky
                 :left      0}))
 
 (defmethod base ::nvg/corner-header-grid
-  [props _]
+  [props]
   (style props {:position          :sticky
                 :display           :grid
                 :grid-row-start    1
@@ -56,8 +58,8 @@
      :white-space      :nowrap}))
 
 (defmethod main ::nvg/corner-header
-  [{:keys [edge] :as props} _]
-  (style props header-main
+  [{:keys [edge] :as props}]
+  (style props {}
          (when (edge :top) {:border-top border-light})
          (when (edge :right) {:border-right border-light})
          (when (edge :bottom) {:border-bottom border-light})

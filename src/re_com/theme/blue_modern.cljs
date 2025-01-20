@@ -6,9 +6,7 @@
    [re-com.tree-select :as tree-select]
    [re-com.error-modal :as-alias error-modal]))
 
-(defn theme [props {:keys [state part part-path]
-                    $     :variables
-                    :as   ctx}]
+(defn theme [{:as props :keys [part]}]
   (->> (case part
          ::dropdown/anchor-wrapper
          {:style {:height      "25px"}}

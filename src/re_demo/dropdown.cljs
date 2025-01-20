@@ -47,10 +47,9 @@
            [[title2 "Demo"]
             [dropdown
              (merge
-              {:parts {:anchor {:style {:color "red"}}}
-               :anchor         (fn [{:keys [state label style]}]
+              {:parts {:anchor (fn [{:keys [state label style]}]
                                  [:span {:style style}
-                                  (str "This " label " is " (:openable state) (when (= :open (:openable state)) " ;)"))])
+                                  (str "This " label " is " (:openable state) (when (= :open (:openable state)) " ;)"))])}
                :label          "dropdown"
                :body           [:div "Hello World!"]
                :model          model

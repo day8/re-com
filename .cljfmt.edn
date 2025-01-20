@@ -1,3 +1,1 @@
-{:extra-indents {re-com.theme/apply   [[:inner 0]]
-                 themed               [[:inner 0]]
-                 re-com.theme/<-props [[:inner 0]]}}
+{:extra-indents {re-com.util/part [[:inner 0]]}}

@@ -242,26 +242,38 @@
 
 (def hiccup? vector?)
 
-(defn default-part   [{:keys [class style attr children]}]
-  (into [:div (merge {:class class :style style} attr)]
+(defn default-part   [{:keys [class style attr children tag]
+                       :or {tag :div}}]
+  (into [tag (merge {:class class :style style} attr)]
         children))
 
-(defn part [x props & {:keys [default key] :as opts}]
-  (cond
-    (hiccup? x) x
-    (ifn? x)    (cond-> [x props]
-                  key (with-meta {:key key}))
-    (string? x) x
-    (map? x)    (cond-> [(or default default-part) (tu/merge-props props x)]
-                  key (with-meta {:key key}))
-    default     (part default props opts)
-    :else       (cond-> [default-part props]
-                  key (with-meta {:key key}))))
+(def part-name (memoize (comp keyword name)))
 
-(defn themed-part [x props & [default]]
-  [x props default])
-
-(def reduce-> #(reduce %2 %1 %3))
+(defn part
+  ([{:keys [parts]} id opts]
+   (part (get parts id
+              (get parts (part-name id)))
+     (assoc opts :part id)))
+  ([part-value {:keys   [impl key theme post-props props]
+                part-id :part
+                :or     {impl default-part}}]
+   (if (or (hiccup? part-value) (string? part-value))
+     (cond-> part-value
+       key (with-meta {:key key}))
+     (let [component (cond (map? part-value) impl
+                           (ifn? part-value) part-value
+                           :else             impl)]
+       (cond-> (if (hiccup? component)
+                 component
+                 (let [props
+                       (cond-> {:part part-id}
+                         :do               (merge props)
+                         theme             (theme component)
+                         (map? part-value) (tu/merge-props part-value)
+                         post-props        (tu/merge-props post-props))]
+                   (cond->
+                    [component props]
+                     key (with-meta {:key key})))))))))
 
 (defn triangle [& {:keys [width height fill direction]
                    :or   {width "9px" height "9px" fill "currentColor"}

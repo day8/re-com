@@ -446,23 +446,24 @@
                                     (and today (=date cell-date today) (not disabled?)) (into class ["rc-datepicker-today"])
                                     :else class)
                       class       (conj class "rc-datepicker-date")]
-                  (u/part date-cell {:date          cell-date
-                                     :label         (cljs-time/day cell-date)
-                                     :focus-month   focus-month
-                                     :selected      selected
-                                     :today         today
-                                     :minimum       minimum
-                                     :maximum       maximum
-                                     :selectable-fn selectable-fn
-                                     :attributes    attributes
-                                     :selectable?   selectable?
-                                     :disabled?     disabled?
-                                     :on-change     on-change
-                                     :class         (into class (get-in parts [:date :class]))
-                                     :attr          (get-in parts [:date :attr])
-                                     :style         (get-in parts [:date :style])
-                                     :parts         parts}
-                          :default table-td)))
+                  (u/part date-cell
+                    {:props {:date          cell-date
+                             :label         (cljs-time/day cell-date)
+                             :focus-month   focus-month
+                             :selected      selected
+                             :today         today
+                             :minimum       minimum
+                             :maximum       maximum
+                             :selectable-fn selectable-fn
+                             :attributes    attributes
+                             :selectable?   selectable?
+                             :disabled?     disabled?
+                             :on-change     on-change
+                             :class         (into class (get-in parts [:date :class]))
+                             :attr          (get-in parts [:date :attr])
+                             :style         (get-in parts [:date :style])
+                             :parts         parts}
+                     :impl table-td})))
           (range 7))))
 
 (defn- table-tbody

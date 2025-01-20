@@ -1575,7 +1575,6 @@ code {
     border-right: thin solid #aaa;;
 }
 
-
 .rc-nested-v-grid-column-header-grid > div:not(.rc-nested-v-grid-resizer) {
     overflow: hidden;
     text-overflow: ellipsis;

@@ -1,7 +1,6 @@
 (ns re-com.nested-v-grid.util
   (:require [clojure.string :as str]
-            #?@(:cljs [[reagent.core :as r]
-                       [re-com.util :as u]
+            #?@(:cljs [[re-com.util :as u]
                        goog.string])))
 
 (defn path->grid-line-name [path]
@@ -39,7 +38,6 @@
                       window-end
                       header-tree
                       size-cache
-                      dimension
                       default-size
                       show-branch-cells?
                       hide-root?

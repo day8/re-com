@@ -233,7 +233,7 @@
   [:span (merge {:style style :class class} attr)
    (or label placeholder)])
 
-(defn backdrop [{:keys [attr class style state transition!]}]
+(defn backdrop [{:keys [attr class style]}]
   [:div (merge {:style style :class class} attr)])
 
 (defn nearest [x a b]
@@ -283,46 +283,41 @@
     (->> [best-x best-y]
          (mapv + [a-x a-y]))))
 
-(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction]} & _]
+(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction parts]}]
   (let [set-body-ref!      #(reset! body-ref %)
         optimize-position! #(reset! anchor-position
                                     (optimize-position! @anchor-ref @body-ref
                                                         {:direction direction}))
         animation-id       (atom nil)
-        start-loop         (fn start-loop []
+        start-loop!        (fn start-loop []
                              (reset! animation-id
                                      (js/requestAnimationFrame
                                       (fn []
                                         (optimize-position!)
                                         (start-loop)))))
-        stop-loop          #(when-let [id @animation-id]
+        stop-loop!         #(when-let [id @animation-id]
                               (js/cancelAnimationFrame id)
-                              (reset! animation-id nil))
-        mounted!           #(do
-                              (optimize-position!)
-                              (start-loop))
-        unmounted!         #(do
-                              (stop-loop)
-                              (reset! anchor-position nil))]
+                              (reset! animation-id nil))]
     (reagent/create-class
-     {:component-did-mount    mounted!
-      :component-will-unmount unmounted!
+     {:component-did-mount    #(do (optimize-position!)
+                                   (start-loop!))
+      :component-will-unmount #(do (stop-loop!)
+                                   (reset! anchor-position nil))
       :reagent-render
-      (fn [{:keys [state theme]} & children]
-        (let [[left top] @anchor-position]
-          (into
-           [:div
-            (theme/apply
-              {}
-              {:state (merge state {:position    :fixed
-                                    :anchor-top  top
-                                    :anchor-left left
-                                    :top         top
-                                    :left        left
-                                    :ref         set-body-ref!})
-               :part  ::body-wrapper}
-              theme)]
-           children)))})))
+      (fn [{:keys [theme children post-props]}]
+        (let [[left top] (deref anchor-position)]
+          (u/part (get parts :body-wrapper (get parts ::body-wrapper))
+            {:theme theme
+             :part  ::body-wrapper
+             :props
+             {:position    :fixed
+              :anchor-top  top
+              :anchor-left left
+              :top         top
+              :left        left
+              :attr        {:ref set-body-ref!}
+              :children    children}
+             :post-props post-props})))})))
 
 (defn indicator [{:keys [state style]}]
   [:span {:style style}
@@ -347,8 +342,7 @@
                  model
                  show-backdrop?
                  label placeholder
-                 anchor backdrop body body-header body-footer indicator
-                 parts theme main-theme theme-vars base-theme
+                 parts theme pre-theme
                  width height]
           :or   {placeholder "Select an item"
                  model       default-model
@@ -397,70 +391,71 @@
                                  (click-outside? @anchor-ref event)
                                  (click-outside? @body-ref event))
                         (transition! :close)))]
-              (let [theme      (theme/defaults
-                                args
-                                {:user [(theme/<-props (-> args
-                                                           (dissoc :height)
-                                                           (merge
-                                                            (when anchor-height {:height anchor-height})
-                                                            (when width {:width width})
-                                                            (when anchor-width {:width anchor-width})))
-                                          {:part    ::anchor-wrapper
-                                           :exclude [:max-height :min-height]})
-                                        (theme/<-props (merge args
-                                                              (when height {:height height})
-                                                              (when body-height {:height body-height})
-                                                              (when body-width {:width body-width}))
-                                          {:part    ::body-wrapper
-                                           :include [:width :height :min-width
-                                                     :min-height :max-height]})
-                                        (theme/<-props args
-                                          {:part    ::wrapper
-                                           :include [:class :style :attr]})]})
-                    themed     (fn [part props & [special-theme]]
-                                 (theme/apply props
-                                   {:state       state
-                                    :part        part
-                                    :transition! transition!}
-                                   (or special-theme theme)))
-                    part-props {:placeholder placeholder
+              (let [part-props {:placeholder placeholder
                                 :transition! transition!
                                 :label       label
                                 :theme       theme
                                 :parts       parts
                                 :state       state
-                                :indicator   indicator}]
-                [v-box
-                 (themed ::wrapper
-                   {:src (at)
-                    :children
-                    [(when (and show-backdrop? (not= :out (:transitionable state)))
-                       (u/part backdrop
-                               (themed ::backdrop part-props)
-                               :default re-com.dropdown/backdrop))
-                     [h-box
-                      (themed ::anchor-wrapper
-                        {:src      (at)
-                         :attr     {:ref anchor-ref!}
-                         :children [(u/part anchor
-                                            (themed ::anchor part-props)
-                                            :default re-com.dropdown/anchor)
-                                    [gap :size "1"]
-                                    [gap :size "5px"]
-                                    (u/part indicator
-                                            (themed ::indicator part-props)
-                                            :default re-com.dropdown/indicator)]})]
-                     (when (= :open (:openable state))
-                       [body-wrapper {:anchor-ref      anchor-ref
-                                      :body-ref        body-ref
-                                      :anchor-position anchor-position
-                                      :direction       direction
-                                      :parts           parts
-                                      :state           state
-                                      :theme           theme}
-                        (u/part body-header (themed ::body-header part-props))
-                        (u/part body (themed ::body part-props))
-                        (u/part body-footer (themed ::body-footer part-props))])]})])))))))
+                                :re-com      {:state state}
+                                :indicator   indicator}
+                    theme      (theme/comp pre-theme theme)
+                    parts      (merge parts
+                                      (select-keys args [:body ::body
+                                                         :anchor ::anchor
+                                                         :wrapper ::wrapper
+                                                         :backdrop ::backdrop
+                                                         :anchor-wrapper ::anchor-wrapper
+                                                         :body-header ::body-header
+                                                         :body-footer ::body-footer]))
+                    part       (fn [id & [opts]]
+                                 (u/part {:parts parts} id
+                                   (assoc opts :theme theme)))]
+                (part ::wrapper
+                      {:impl       v-box
+                       :post-props {:class (:class args)
+                                    :style (:style args)
+                                    :attr  (:attr args)}
+                       :props
+                       {:src (at)
+                        :children
+                        [(when (and show-backdrop? (not= :out (:transitionable state)))
+                           (part ::backdrop
+                                 {:theme theme
+                                  :props part-props
+                                  :impl  re-com.dropdown/backdrop}))
+                         (part ::anchor-wrapper
+                               {:impl       h-box
+                                :props      {:src      (at)
+                                             :re-com   {:state       state
+                                                        :transition! transition!}
+                                             :attr     {:ref anchor-ref!}
+                                             :children [(part ::anchor {:props part-props
+                                                                        :impl  re-com.dropdown/anchor})
+                                                        [gap :size "1"]
+                                                        [gap :size "5px"]
+                                                        (part ::indicator {:props part-props
+                                                                           :impl  re-com.dropdown/indicator})]}
+                                :post-props {:style (merge (:style args)
+                                                           (select-keys args [:width :min-width :max-width])
+                                                           (when anchor-height {:height anchor-height})
+                                                           (when anchor-width {:width anchor-width}))
+                                             :attr  (:attr args)}})
+                         (when (= :open (:openable state))
+                           [body-wrapper
+                            {:anchor-ref      anchor-ref
+                             :body-ref        body-ref
+                             :anchor-position anchor-position
+                             :direction       direction
+                             :parts           parts
+                             :theme           theme
+                             :post-props      {:style (merge (select-keys args [:width :min-width #_:max-width
+                                                                                :height :min-height :max-height])
+                                                             (when body-height {:height body-height})
+                                                             (when body-width {:width body-width}))}
+                             :children        [(part ::body-header {:props part-props})
+                                               (part ::body {:props part-props})
+                                               (part ::body-footer {:props part-props})]}])]}}))))))))
 
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away

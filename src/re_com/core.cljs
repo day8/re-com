@@ -31,7 +31,8 @@
    [re-com.v-table        :as v-table]
    [re-com.simple-v-table :as simple-v-table]
    [re-com.nested-grid    :as nested-grid]
-   [re-com.nested-v-grid  :as nested-v-grid]))
+   [re-com.nested-v-grid  :as nested-v-grid]
+   [re-com.theme          :as theme]))
 
 ;; -----------------------------------------------------------------------------
 ;; re-com public API (see also re-com.util)
@@ -123,3 +124,13 @@
 (def make-tour-nav              tour/make-tour-nav)
 
 (def stack-spy                  debug/stack-spy)
+
+(defn reg-theme [layer-id f]
+  (case layer-id
+    :variables (set! theme/variables f)
+    :base      (set! theme/base f)
+    :main      (set! theme/main f)
+    :user      (set! theme/user f)))
+
+
+

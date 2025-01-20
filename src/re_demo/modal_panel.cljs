@@ -141,14 +141,22 @@
                                #_(js/setTimeout #(reset! show? false) 3000))]
                   (when @show?
                     [error-modal
-                     {:src               (at)
-                      :what-happened     "Something happened"
-                      :implications      "Implications"
-                      :what-to-do        "Do something."
-                      :footer            [:div
-                                          [rc/title :level :level3 :label :error-log]]
-                      :backdrop-on-click #(reset! show? false)
-                      :on-close          #(reset! show? false)}])]])))
+                     {:src                 (at)
+                      :header              "header"
+                      :action              "Do Action"
+                      :instructions        "Instructions"
+                      :what-happened-title "What Happened:"
+                      :what-happened       "Something happened"
+                      :implications-title  "The Implications:"
+                      :implications        "Implications"
+                      :what-to-do-title    "what-to-do-title"
+                      :what-to-do          "Do something."
+                      :details-title       "DETAILS"
+                      :details             {:x 1 2 {:y 3}}
+                      :footer              [:div
+                                            [rc/title :level :level3 :label :error-log]]
+                      :backdrop-on-click   #(reset! show? false)
+                      :on-close            #(reset! show? false)}])]])))
 (defn panel2
   []
   [v-box :src (at)

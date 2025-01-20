@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [re-com.util :as ru :refer [px]]
-   [re-com.theme.util :refer [merge-props]]
+   [re-com.theme.util :refer [merge-props merge-style]]
    [re-com.dropdown :as-alias dropdown]
    [re-com.error-modal :as-alias error-modal]
    [re-com.nested-grid :as-alias nested-grid]
@@ -63,118 +63,214 @@
 
 (def static-variables (merge colors golden-section-50 font-sizes))
 
-(defn base-variables [props ctx]
-  [props (assoc ctx :variables static-variables)])
+(defn variables [props]
+  (assoc-in props [:re-com :variables] static-variables))
 
-(defmulti base (fn [_ {:keys [part]}] part))
+(defmulti base :part)
+
+(defmethod base :default [{:keys [part] :as props}]
+  #_(js/console.log "Re-com's default theme function was passed an unknown part: " part
+                    ". This is a no-op.")
+  props)
+
+(defmulti main :part)
+
+(defmethod main :default [{:keys [part] :as props}]
+  #_(js/console.log "Re-com's default theme function was passed an unknown part: " part
+                    ". This is a no-op.")
+  props)
+
+(defmethod base :default [props] props)
 
 (def cell-wrapper-base {#_#_:pointer-events "none"
                         :user-select        "none"
                         :overflow           "hidden"
                         :position           "relative"})
 
-(defmethod base ::nested-grid/cell-wrapper [props _]
+(defmethod base ::nested-grid/cell-wrapper [props]
   (update props :style merge cell-wrapper-base))
 
 (def row-header-wrapper-base {:user-select        "none"
                               :height             "100%"})
 
-(defmethod base ::nested-grid/row-header-wrapper [props _]
+(defmethod base ::nested-grid/row-header-wrapper [props]
   (update props :style merge row-header-wrapper-base))
 
-(defmethod base ::nested-grid/column-header-wrapper [props _]
+(defmethod base ::nested-grid/column-header-wrapper [props]
   (update props :style merge
           {:user-select "none"
            :width       "100%"
            :height      "100%"}))
 
+(defmethod main ::nested-grid/column-header-wrapper
+  [{:keys        [header-spec]
+    {{:keys [sm-4 sm-3 light-background border-dark border]}
+     :variables} :re-com
+    :as          props}]
+  (let [{:keys [align-column align-column-header align]} header-spec]
+    (update props :style merge
+            {:padding-top      sm-3
+             :padding-right    sm-4
+             :padding-left     sm-4
+             :white-space      :nowrap
+             :text-overflow    :ellipsis
+             :overflow         :hidden
+             :background-color light-background
+             :color            "#666"
+             :text-align       (or align-column-header align-column align :center)
+             :font-size        "13px"
+             :border-top       (when (get (:edge props) :top) (str "thin solid " border-dark))
+             :border-bottom    (str "thin solid " border)
+             :border-right     (cond
+                                 (get (:edge props) :column-section-right)
+                                 (str "thin" " solid " border-dark)
+                                 (get (:edge props) :right)
+                                 (str "thin" " solid " border-dark)
+                                 :else
+                                 (str "thin" " solid " border))})))
+
 (defmethod base ::nested-grid/row-header
-  [props {{:keys [sticky? sticky-top]} :state}]
+  [props]
   (update props :style merge {:width         "100%"
                               :text-overflow :ellipsis
                               :overflow      :hidden
                               :white-space   :nowrap
-                              :position      :sticky
-                              :top           sticky-top}))
+                              :position      :sticky}))
 
 (defmethod base ::nested-grid/column-header
-  [props _]
+  [props]
   (update props :style merge {:height        "100%"
                               :text-overflow :ellipsis
                               :overflow      :hidden
                               :whitespace    :nowrap}))
 
+(def row-header-wrapper-main
+  (let [{:keys [sm-3 sm-6]}               golden-section-50
+        {:keys [border light-background]} colors]
+    {:padding-top      sm-3
+     :padding-right    sm-3
+     :padding-left     sm-6
+     :background-color light-background
+     :color            "#666"
+     :text-align       "left"
+     :font-size        "13px"
+     :white-space      "nowrap"
+     :border-left      "thin solid #ccc"
+     :border-bottom    "thin solid #ccc"}))
+
 (defmethod base ::nested-grid/corner-header-wrapper
-  [props _]
-   (update props :style merge row-header-wrapper-base))
+  [props]
+  (update props :style merge row-header-wrapper-base))
 
-(defmethod base :default [props {:keys                   [state part transition!]
-                                 {:keys [sm-2]}          :variables
-                                 {:keys [anchor-height]} :component-props
-                                 :as                     ctx}]
-  (->> {}
-       (case part
+(defmethod main ::nested-grid/corner-header-wrapper
+  [{{{:keys [border-dark border light-background]} :variables} :re-com :as props}]
+  (update props :style merge
+          row-header-wrapper-main
+          {:overflow      "hidden"
+           :text-overflow "ellipsis"
+           :white-space   "nowrap"}
+          {:border-left      (when (contains? (:edge props) :left)
+                               (str "thin" " solid " border-dark))
+           :border-top       (when (get (:edge props) :top)
+                               (str "thin solid " border-dark))
+           :border-bottom    (when (get (:edge props) :bottom)
+                               (str "thin solid " border))
+           :border-right     (when (get (:edge props) :right)
+                               (str "thin" " solid " border))
+           :background-color light-background}))
 
-         ::dropdown/wrapper
-         {:attr  {#_#_#_#_:on-focus #(do (transition! :focus)
-                                         (transition! :enter))
-                      :on-blur          #(do (transition! :blur)
-                                             (transition! :exit))}
-          :style {:display  "inline-block"
-                  :position "relative"}}
+(defmethod base ::dropdown/body-wrapper
+  [{:keys [ref position top left anchor-top] :as props}]
+  (update props :style merge {:position   position
+                              :top        (px top)
+                              :left       (px left)
+                              :opacity    (when-not anchor-top 0)
+                              :overflow-y "auto"
+                              :overflow-x "visible"
+                              :z-index    30}))
 
-         ::dropdown/anchor-wrapper
-         {:attr  {:tab-index   (or (:tab-index state) 0)
-                  :on-click    #(transition! :toggle)
-                  #_#_:on-blur #(do (transition! :blur)
-                                    (transition! :exit))}
-          :style {:outline        (when (and (= :focused (:focusable state))
-                                             (not= :open (:openable state)))
-                                    (str sm-2 " auto #ddd"))
-                  :outline-offset (str "-" sm-2)
-                  :position       "relative"
-                  #_#_:display    "block"
-                  :overflow       "hidden"
-                  :user-select    "none"
-                  #_#_:width      "100%"
-                  :z-index        (case (:openable state)
-                                    :open 20 nil)}}
+(defmethod base ::dropdown/anchor-wrapper
+  [{{:keys [state transition!]
+     {:keys [sm-2]} :variables} :re-com
+    :as                         props}]
+  (-> props
+      (merge-props
+       {:attr  {:tab-index   (or (:tab-index state) 0)
+                :on-click    #(transition! :toggle)
+                #_#_:on-blur #(do (transition! :blur)
+                                  (transition! :exit))}
+        :style {:outline        (when (and (= :focused (:focusable state))
+                                           (not= :open (:openable state)))
+                                  (str sm-2 " auto #ddd"))
+                :outline-offset (str "-" sm-2)
+                :position       "relative"
+                #_#_:display    "block"
+                :overflow       "hidden"
+                :user-select    "none"
+                #_#_:width      "100%"
+                :z-index        (case (:openable state)
+                                  :open 20 nil)}})))
 
-         ::dropdown/backdrop
-         {:class "noselect"
-          :style {:position         "fixed"
-                  :background-color "black"
-                  :left             "0px"
-                  :top              "0px"
-                  :width            "100%"
-                  :height           "100%"
-                  :pointer-events   "none"}}
+(defmethod main ::dropdown/anchor-wrapper
+  [{:as            props
+    {:keys [state]
+     $     :variables} :re-com}]
+  (let [open?   (= :open (:openable state))
+        closed? (= :closed (:openable state))]
+    (-> props
+        (merge-props
+         {:align :center
+          :style {:background-color (:white $)
+                  :background-clip  "padding-box"
+                  :border           (str "1px solid "
+                                         (cond
+                                           closed? (:border $)
+                                           open?   "#66afe9"))
+                  :border-radius    "4px"
+                  :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
+                                      open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
+                  :color            (:foreground $)
+                  :height           "34px"
+                  :padding          "0 8px 0 8px"
+                  :text-decoration  "none"
+                  :white-space      "nowrap"
+                  :transition       "border 0.2s box-shadow 0.2s"}}))))
 
-         ::dropdown/body-wrapper
-         {:ref   (:ref state)
-          :style {:position   (:position state)
-                  :top        (px (:top state))
-                  :left       (px (:left state))
-                  :opacity    (when-not (:anchor-top state) 0)
-                  :overflow-y "auto"
-                  :overflow-x "visible"
-                  :z-index    30}}
+(defmethod base ::dropdown/backdrop
+  [props]
+  (merge-props props
+               {:class "noselect"
+                :style {:position       "fixed"
+                        :left           "0px"
+                        :top            "0px"
+                        :width          "100%"
+                        :height         "100%"
+                        :pointer-events "none"}}))
 
-         ::nested-grid/cell-grid-container
-         {:style {:position "relative"
+(defmethod main ::dropdown/backdrop
+  [{{:keys [state]} :re-com :as props}]
+  (merge-style props
+               {:background-color "black"
+                :opacity          (if (-> state :transitionable (= :in)) 0.1 0)
+                :transition       "opacity 0.25s"}))
 
-                  :gap "0px"}}
+(defmethod base ::dropdown/wrapper
+  [props]
+  (merge-style props
+               {:display  "inline-block"
+                :position "relative"}))
 
-         ::nested-grid/cell-wrapper
-         {:style {#_#_:pointer-events "none"
-                  :user-select        "none"
-                  :overflow           "hidden"
-                  :position           "relative"}})
-       (merge-props props)))
+(defmethod base ::nested-grid/cell-grid-container
+  [props]
+  (merge-style props
+               {:position "relative"
+                :gap      "0px"}))
 
-(defn main-variables [props _] props)
-
-(defmulti main (fn [_ {:keys [part]}] part))
+(defmethod main ::nested-grid/cell-grid-container
+  [props]
+  (merge-style props
+               {:padding          "0px"
+                :background-color "transparent"}))
 
 (def cell-wrapper-main
   (let [{:keys [sm-3]} golden-section-50]
@@ -189,7 +285,7 @@
      :border-bottom "thin solid #ccc"}))
 
 (defmethod main ::nested-grid/cell-wrapper
-  [props {{:keys [edge value column-path]} :state}]
+  [{:keys [edge value column-path] :as props}]
   (let [align (some :align column-path)]
     (update props :style merge
             cell-wrapper-main
@@ -209,22 +305,8 @@
                                 "thin solid #aaa"
                                 "thin solid #ccc")}))))
 
-(def row-header-wrapper-main
-  (let [{:keys [sm-3 sm-6]}               golden-section-50
-        {:keys [border light-background]} colors]
-    {:padding-top      sm-3
-     :padding-right    sm-3
-     :padding-left     sm-6
-     :background-color light-background
-     :color            "#666"
-     :text-align       "left"
-     :font-size        "13px"
-     :white-space      "nowrap"
-     :border-left      "thin solid #ccc"
-     :border-bottom    "thin solid #ccc"}))
-
 (defmethod main ::nested-grid/row-header-wrapper
-  [props {{:keys [edge]} :state}]
+  [{:keys [edge] :as props}]
   (update props :style merge
           row-header-wrapper-main
           (when (contains? edge :right)
@@ -234,168 +316,127 @@
           (when (contains? edge :bottom)
             {:border-bottom "thin solid #aaa"})))
 
-(defmethod main :default [props {:keys                [state part]
-                                 {:as   $
-                                  :keys [sm-1 sm-2 sm-3 sm-4 sm-5 sm-6 md-1 md-2
-                                         dark shadow light light-background
-                                         border border-dark
-                                         foreground]} :variables
-                                 :as                  ctx}]
-  (->> {}
-       (case part
-         ::dropdown/body-wrapper
-         {:style {:background-color "white"
-                  :border-radius    "4px"
-                  :border           (str "thin solid " (:border $))
-                  :padding          sm-3
-                  :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}}
+(defmethod main ::dropdown/body-wrapper
+  [props]
+  (let [{:keys [sm-2 sm-3 sm-6 shadow border]} (-> props :re-com :variables)]
+    (update props :style merge {:background-color "white"
+                                :border-radius    "4px"
+                                :border           (str "thin solid " border)
+                                :padding          sm-3
+                                :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])})))
 
-         ::dropdown/backdrop
-         {:style {:color      "black"
-                  :opacity    (if (-> state :transitionable (= :in)) 0.1 0)
-                  :transition "opacity 0.25s"}}
+(defmethod base ::tree-select/label
+  [props]
+  (update props :style merge
+          {:white-space   :nowrap
+           :overflow      :hidden
+           :text-overflow :ellipsis}))
 
-         ::dropdown/anchor-wrapper
-         (let [open?   (= :open (:openable state))
-               closed? (= :closed (:openable state))]
-           {:align :center
-            :style {:background-color (:white $)
-                    :background-clip  "padding-box"
-                    :border           (str "1px solid "
-                                           (cond
-                                             closed? (:border $)
-                                             open?   "#66afe9"))
-                    :border-radius    "4px"
-                    :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
-                                        open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
-                    :color            (:foreground $)
-                    :height           "34px"
-                    :padding          "0 8px 0 8px"
-                    :text-decoration  "none"
-                    :white-space      "nowrap"
-                    :transition       "border 0.2s box-shadow 0.2s"}})
+(defmethod main ::error-modal/modal
+  [props]
+  (merge-props props
+               {:wrap-nicely? false
+                :style        {:z-index 50}}))
 
-         ::dropdown/anchor
-         {:style (cond-> {:color (:foreground $)
-                          :overflow "hidden"
-                          :text-overflow "ellipsis"
-                          :white-space "nowrap"}
-                   (-> state :enable (= :disabled))
-                   (merge {:background-color (:background-disabled $)}))}
+(defmethod main ::error-modal/inner-wrapper
+  [{:as            props
+    {$ :variables} :re-com}]
+  (merge-props props
+               {:style {:background-color (:white $)
+                        :box-shadow       "2.82843px 2.82843px 4px rgba(1,1,1,0.2)"
+                        :font-size        (:font-size/medium $)
+                        :min-width        (px 474)
+                        :min-height       (px 300)
+                        :max-width        (px 525)}}))
 
-         ::nested-grid/cell-grid-container
-         {:style {:padding          "0px"
-                  :background-color "transparent"}}
+(defmethod main ::error-modal/top-bar
+  [{:as                                    props
+    {{:keys [severity]}        :error-modal
+     {:keys [md-2 sm-6] :as $} :variables} :re-com}]
+  (merge-props props
+               {:justify :between
+                :align   :center
+                :style   {:background-color (case severity
+                                              :error   (:error $)
+                                              :warning (:warning $)
+                                              "#1e1e1e")
+                          :color            "#FFFFFF"
+                          :padding-left     md-2
+                          :padding-right    sm-6}
+                :height  (px 50)}))
 
-         ::nested-grid/corner-header-wrapper
-         {:style (merge row-header-wrapper-main
-                        {:overflow       "hidden"
-                         :text-overflow  "ellipsis"
-                         :white-space    "nowrap"}
-                        {:border-left      (when (contains? (:edge state) :left)
-                                             (str "thin" " solid " border-dark))
-                         :border-top       (when (get (:edge state) :top)
-                                             (str "thin solid " border-dark))
-                         :border-bottom    (when (get (:edge state) :bottom)
-                                             (str "thin solid " border))
-                         :border-right     (when (get (:edge state) :right)
-                                             (str "thin" " solid " border))
-                         :background-color light-background})}
+(defmethod main ::error-modal/title-wrapper
+  [{:as props {$ :variables} :re-com}]
+  (merge-props props
+               {:style {:font-size 25
+                        :color     (:white $)
+                        :padding   0
+                        :margin    "0px"}}))
 
-         ::nested-grid/column-header-wrapper
-         (let [{:keys [align-column align-column-header align]} (:header-spec state)]
-           {:style {:padding-top      sm-3
-                    :padding-right    sm-4
-                    :padding-left     sm-4
-                    :white-space      :nowrap
-                    :text-overflow    :ellipsis
-                    :overflow         :hidden
-                    :background-color light-background
-                    :color            "#666"
-                    :text-align       (or align-column-header align-column align :center)
-                    :font-size        "13px"
-                    :border-top       (when (get (:edge state) :top) (str "thin solid " border-dark))
-                    :border-bottom    (str "thin solid " border)
-                    :border-right     (cond
-                                        (get (:edge state) :column-section-right)
-                                        (str "thin" " solid " border-dark)
-                                        (get (:edge state) :right)
-                                        (str "thin" " solid " border-dark)
-                                        :else
-                                        (str "thin" " solid " border))}})
+(defmethod main ::error-modal/triangle
+  [{:as            props
+    {{:keys [severity]} :error-modal
+     $                  :variables} :re-com}]
+  (merge-props props
+               {:style {:fill (case severity
+                                :error   (:error $)
+                                :warning (:warning $)
+                                "#1e1e1e")}}))
 
-         ::tree-select/dropdown-anchor
-         {:style {:padding  "0 0 0 0"
-                  :overflow "hidden"
-                  :color    foreground
-                  :cursor   (if (-> state :enable (= :disabled))
-                              "default" "pointer")}}
+(defmethod main ::error-modal/code
+  [{:as props {$ :variables} :re-com}]
+  (merge-props props
+               {:style {:font-family "monospace"
+                        :white-space "pre-wrap"
+                        :font-size   :font-size/xx-small
+                        :color       (:neutral $)}}))
 
-         ::tree-select/dropdown-indicator
-         {:align :center
-          :style {:gap   "5px"
-                  :color (:light-foreground $)}}
+(defmethod main ::error-modal/body
+  [{:as props {{:keys [md-2 sm-4]} :variables} :re-com}]
+  (merge-props props
+               {:style {:padding (str sm-4 " " md-2)}}))
 
-         ::tree-select/dropdown-indicator-triangle
-         {:align :center
-          :style {:gap   "5px"
-                  :color (:foreground $)}}
+(defmethod main ::dropdown/anchor
+  [{:keys          [state]
+    {$ :variables} :re-com
+    :as            props}]
+  (merge-style props
+               (cond-> {:color (:foreground $)
+                        :overflow "hidden"
+                        :text-overflow "ellipsis"
+                        :white-space "nowrap"}
+                 (-> state :enable (= :disabled))
+                 (merge {:background-color (:background-disabled $)}))))
 
-         ::tree-select/dropdown-counter
-         {:style {#_#_:margin-left  "5px"
-                  #_#_:margin-right "5px"
-                  :opacity          "50%"}}
+(defmethod main ::tree-select/dropdown-anchor
+  [{:keys          [state]
+    {$ :variables} :re-com
+    :as            props}]
+  (merge-style props {:padding  "0 0 0 0"
+                      :overflow "hidden"
+                      :color    (:foreground $)
+                      :cursor   (if (-> state :enable (= :disabled))
+                                  "default" "pointer")}))
 
-         ::error-modal/modal
-         {:wrap-nicely? false
-          :style        {:z-index 50}}
+(defmethod main ::tree-select/dropdown-indicator
+  [{{$ :variables} :re-com
+    :as            props}]
+  (merge-props props {:align :center
+                      :style {:gap   "5px"
+                              :color (:light-foreground $)}}))
 
-         ::error-modal/inner-wrapper
-         {:style {:background-color (:white $)
-                  :box-shadow       "2.82843px 2.82843px 4px rgba(1,1,1,0.2)"
-                  :font-size        (:font-size/medium $)
-                  :min-width        (px 474)
-                  :min-height       (px 300)
-                  :max-width        (px 525)}}
+(defmethod main
+  ::tree-select/dropdown-indicator-triangle
+  [{{$ :variables} :re-com
+    :as props}]
+  (merge-props props
+               {:align :center
+                :style {:gap   "5px"
+                        :color (:foreground $)}}))
 
-         ::error-modal/title-wrapper
-         (let [{:keys [severity]} state]
-           {:justify :between
-            :align   :center
-            :style   {:background-color (case severity
-                                          :error   (:error $)
-                                          :warning (:warning $)
-                                          "#1e1e1e")
-                      :color            "#FFFFFF"
-                      :padding-left     md-2
-                      :padding-right    sm-6}
-            :height  (px 50)})
-
-         ::error-modal/title
-         {:style {:font-size 25
-                  :color     (:white $)
-                  :padding   0
-                  :margin    "0px"}}
-
-         ::error-modal/triangle
-         (let [{:keys [severity]} state]
-           {:style {:fill (case severity
-                            :error   (:error $)
-                            :warning (:warning $)
-                            "#1e1e1e")}})
-
-         ::error-modal/error
-         {:style {:font-family "monospace"
-                  :white-space "pre-wrap"
-                  :font-size   :font-size/xx-small
-                  :color       (:neutral $)}}
-
-         ::error-modal/context
-         {:style {:font-family "monospace"
-                  :white-space "pre-wrap"
-                  :font-size   :font-size/xx-small
-                  :color       (:neutral $)}}
-
-         ::error-modal/body
-         {:style {:padding (str sm-4 " " md-2)}})
-       (merge-props props)))
+(defmethod main ::tree-select/dropdown-counter
+  [props]
+  (merge-style props
+               {:style {#_#_:margin-left  "5px"
+                        #_#_:margin-right "5px"
+                        :opacity          "50%"}}))

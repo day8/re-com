@@ -148,7 +148,7 @@
   [arg-defs passed-args]
   (if-not debug?
     nil
-    (let [passed-arg-keys (set (remove #{:theme} (set (keys passed-args))))
+    (let [passed-arg-keys (set (remove #{:theme :re-com :part} (set (keys passed-args))))
           problems        (->> []
                                (arg-names-known? (:arg-names arg-defs) passed-arg-keys)
                                (required-args?   (:required-args arg-defs) passed-arg-keys)
@@ -439,38 +439,49 @@
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
 
+(defn part?
+  "Returns true if the passed argument is a part, otherwise false/error"
+  [arg]
+  (or (map? arg) (string-or-hiccup? arg) (ifn? arg) (nil? arg)))
+
 (defn parts?
-  "Returns a function that validates a value is a map that contains `keys` mapped to values that are maps containing
+  "Returns a function that validates a value is a map that contains `keys` mapped to values that are either functions, hiccups, or maps containing
    `class`, `:style` and/or `:attr`."
-  [keys]
-  {:pre [(set? keys)]}
+  [part-keys]
+  {:pre [(set? part-keys)]}
   (fn [arg]
     (if-not debug?
       true
       (reduce-kv
        (fn [_ k v]
-         (if-not (keys k)
-           (reduced {:status  :error
-                     :message (str "Invalid keyword in :parts parameter: " k)})
-           (reduce-kv
-            (fn [_ k2 v2]
-              (case k2
-                :class (if-not (string? v2)
-                         (reduced {:status :error
-                                   :message (str "Parameter [:parts " k " " k2 "] expected string but got " (type v2))})
-                         true)
-                :style (let [valid? (css-style? v2)]
-                         (if-not (true? valid?)
-                           (reduced valid?)
-                           true))
-                :attr  (let [valid? (html-attr? v2)]
-                         (if-not (true? valid?)
-                           (reduced valid?)
-                           true))
-                (reduced {:status :error
-                          :message (str "Invalid keyword in [:parts " k "] parameter: " k2)})))
-            true
-            v)))
+         (cond (not (part-keys k))
+               (reduced {:status  :error
+                         :message (str "Invalid keyword in :parts parameter: " k)})
+               (map? k)
+               (reduce-kv
+                (fn [_ k2 v2]
+                  (case k2
+                    :class (if-not (string? v2)
+                             (reduced {:status :error
+                                       :message (str "Parameter [:parts " k " " k2 "] expected string but got " (type v2))})
+                             true)
+                    :style (let [valid? (css-style? v2)]
+                             (if-not (true? valid?)
+                               (reduced valid?)
+                               true))
+                    :attr  (let [valid? (html-attr? v2)]
+                             (if-not (true? valid?)
+                               (reduced valid?)
+                               true))
+                    (reduced {:status :error
+                              :message (str "Invalid keyword in [:parts " k "] parameter: " k2)})))
+                true
+                v)
+               (not (part? v))
+               (reduced {:status :error
+                         :message (str "Invalid val in [:parts " k "] parameter. Not a valid re-com part: " v)})
+               :else
+               true))
        true
        arg))))
 
@@ -500,11 +511,6 @@
   (or (nil? arg) (ifn? arg)))
 
 (def hiccup? vector?)
-
-(defn part?
-  "Returns true if the passed argument is a part, otherwise false/error"
-  [arg]
-  (or (string-or-hiccup? arg) (ifn-or-nil? arg)))
 
 ;; Test for atoms containing specific data types
 ;; NOTE: These "test for atom" validation functions use the 2-arity option where the validation mechanism passes the value
