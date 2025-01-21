@@ -10,6 +10,7 @@
    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part? css-class?]]
    [re-com.theme :as theme]
    [re-com.box :as box]
+   re-com.nested-grid.theme
    [re-com.buttons :as buttons]))
 
 (def nested-grid-parts-desc

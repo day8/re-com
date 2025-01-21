@@ -1,15 +1,14 @@
 (ns re-com.error-modal
   (:require-macros
-   [re-com.core :refer [handler-fn at]])
+   [re-com.core :refer [at]])
   (:require
    [reagent.core :as r]
    [re-com.box :as box]
    [re-com.modal-panel :as mp]
    [re-com.theme :as theme]
-   [re-com.theme.blue-modern :as blue-modern]
-   [re-com.buttons :as button]
+   re-com.error-modal.theme
    [re-com.text :as text]
-   [re-com.util :as u :refer [deref-or-value px]]))
+   [re-com.util :as u :refer [px]]))
 
 (defn close-button [_]
   (let [hover? (r/atom nil)]

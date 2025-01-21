@@ -5,16 +5,15 @@
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.theme    :as    theme]
-   [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id ->v]]
-   [re-com.box      :refer [align-style flex-child-style v-box h-box box gap]]
+   [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id]]
+   [re-com.box      :refer [flex-child-style v-box h-box gap]]
    [re-com.validate :refer [vector-of-maps? css-style? css-class? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list part?] :refer-macros [validate-args-macro]]
-   [re-com.popover  :refer [popover-tooltip]]
    [clojure.string  :as    string]
-   [react           :as    react]
    [reagent.core    :as    reagent]
    [goog.string     :as    gstring]
-   [goog.string.format]))
+   [goog.string.format]
+   re-com.dropdown.theme))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select

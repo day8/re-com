@@ -11,7 +11,8 @@
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
    [re-com.validate       :as validate :refer [css-style? html-attr? parts? part? css-class?] :refer-macros [validate-args-macro]]
-   [re-com.theme :as theme]))
+   [re-com.theme :as theme]
+   re-com.tree-select.theme))
 
 (def tree-select-dropdown-parts-desc
   (when include-args-desc?
