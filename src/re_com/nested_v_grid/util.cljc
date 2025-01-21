@@ -54,6 +54,7 @@
         sizes           (volatile! [])
         sums            (volatile! [])
         nodes-traversed (volatile! [])
+        spans           (volatile! {})
         cache!          (or cache-fn #(vswap! size-cache assoc %1 %2))
         lookup!         (or lookup-fn #(get @size-cache %))
         cached-sum-size (lookup! header-tree)
@@ -66,7 +67,7 @@
           (let [sum          @sum-size
                 passed-tail? (and skip-tail? cached-sum-size (> sum window-end))]
             (cond
-              passed-tail?   :exit
+              passed-tail?   nil
               (branch? node) (let [csize        (lookup! node)
                                    skippable?   (and csize (not (intersection? sum csize window-start window-end)))
                                    children     (children node)
@@ -98,8 +99,9 @@
                                                                    :branch-end? (= after-child subtree)}
                                                                   (when (= i (- (count children) (when add-after? 1)))
                                                                     {:last-child? true})))))
-                                       total-size (+ own-size
-                                                     (transduce descend-tx + all-children))]
+                                       child-sizes (filter some? (transduce descend-tx conj all-children))
+                                       total-size (reduce + own-size (remove zero? child-sizes))]
+                                   (vswap! spans update own-path + (count child-sizes))
                                    (when-not (intersection? sum total-size window-start window-end)
                                      (vswap! paths pop)
                                      (vswap! sums pop)
@@ -108,20 +110,24 @@
                                    (when cacheable?
                                      (cache! node total-size))
                                    total-size)))
-              :else          (let [leaf-path (conj path node)
-                                   show?     (get node :show-above?)
-                                   leaf-size (if-not (or is-leaf? show?)
-                                               0
-                                               (header-size node default-size))]
+              :else          (let [leaf-path   (conj path node)
+                                   show-above? (get node :show-above?)
+                                   show?       (or is-leaf? show-above?)
+                                   leaf-size   (if-not (or is-leaf? show-above?)
+                                                 0
+                                                 (header-size node default-size))]
                                (when (or (intersection? sum leaf-size window-start window-end)
                                          collect-anyway?)
                                  (let [new-path (cond-> (mapv remove-size leaf-path)
-                                                  (or is-leaf? show?)
+                                                  (or is-leaf? show-above?)
                                                   (vary-meta merge {}
                                                              (when is-leaf? {:leaf? true})
                                                              (when branch-end? {:branch-end? true})
-                                                             (when show? {:show-above? true})
+                                                             (when show-above? {:show-above? true})
                                                              (when last-child? {:last-child? true})))]
+                                   #_(when show?
+                                       (vswap! spans
+                                               (fn [m] (reduce #(update %1 %2 inc) m (ancestry leaf-path)))))
                                    (vswap! paths conj new-path)
                                    (vswap! sums conj sum)
                                    (vswap! sizes conj leaf-size)
@@ -130,6 +136,7 @@
                                leaf-size))))]
     (walk [] header-tree {:hide? hide-root?})
     {:sum-size        (or cached-sum-size @sum-size)
+     :spans           @spans
      :positions       @sums
      :header-paths    @paths
      :keypaths        @keypaths

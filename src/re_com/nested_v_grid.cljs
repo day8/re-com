@@ -173,7 +173,6 @@
         column-sizes                     (r/reaction (:sizes @column-traversal))
         column-template                  (r/reaction (ngu/grid-template @column-traversal))
         column-cross-template            (r/reaction (ngu/grid-cross-template @processed-column-header-heights))
-        column-spans                     (r/reaction (ngu/grid-spans @column-paths))
         row-header-width-total           (r/reaction (apply + @processed-row-header-widths))
         row-height-total                 (r/reaction (:sum-size @row-traversal))
         row-paths                        (r/reaction (:header-paths @row-traversal))
@@ -181,7 +180,6 @@
         row-sizes                        (r/reaction (:sizes @row-traversal))
         row-template                     (r/reaction (ngu/grid-template @row-traversal))
         row-cross-template               (r/reaction (ngu/grid-cross-template @processed-row-header-widths))
-        row-spans                        (r/reaction (ngu/grid-spans @row-paths))
         theme                            (theme/comp pre-theme theme)]
     (r/create-class
      {:component-did-mount
@@ -313,6 +311,9 @@
               row-headers
               (for [i    (range (count @row-paths))
                     :let [row-path              (get @row-paths i)
+                          path-ct               (count row-path)
+                          end-path              (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
+                                                      (drop (inc i) @row-paths))
                           {:keys [branch-end?]} (meta row-path)
                           row-path-prop              (cond-> row-path hide-root? (subvec 1))]
                     :let [props {:part        ::row-header
@@ -321,8 +322,7 @@
                                  :keypath     (get @row-keypaths i)
                                  :branch-end? branch-end?
                                  :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                               :grid-row-end      (str "span " (cond-> (get @row-spans row-path)
-                                                                                 (not show-row-branches?) dec))
+                                               :grid-row-end      (ngu/path->grid-line-name end-path)
                                                :grid-column-start (cond-> (count row-path) branch-end? dec)
                                                :grid-column-end   -1}}
                           props (assoc props :children [(u/part row-header-label
@@ -337,6 +337,9 @@
               column-headers
               (for [i         (range (count  @column-paths))
                     :let      [column-path           (get @column-paths i)
+                               path-ct               (count column-path)
+                               end-path              (some #(when (= (count %) path-ct) %)
+                                                           (drop (inc i) @column-paths))
                                {:keys [branch-end?]} (meta column-path)
                                column-path-prop           (cond-> column-path hide-root? (subvec 1))]
                     #_#_:when (not branch-end?)
@@ -346,8 +349,7 @@
                                       :branch-end? branch-end?
                                       :keypath     (get @column-keypaths i)
                                       :style       {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                    :grid-column-end   (str "span " (cond-> (get @column-spans column-path)
-                                                                                      (not show-column-branches?) dec))
+                                                    :grid-column-end   (ngu/path->grid-line-name end-path)
                                                     :grid-row-start    (cond-> (count column-path) branch-end? dec)
                                                     :grid-row-end      -1
                                                     :overflow          :hidden}}
