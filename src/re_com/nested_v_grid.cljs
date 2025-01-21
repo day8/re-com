@@ -20,9 +20,11 @@
                              on-export
                              on-export-row-header on-export-column-header
                              on-export-corner-header
-                             theme pre-theme]
+                             theme pre-theme
+                             virtualize?]
                       :or   {row-header-width 40 column-header-height 40
                              row-height       20 column-width         40
+                             virtualize?      true
                              hide-root?       true
                              on-export        (fn on-export [{:keys [rows]}]
                                                 (->> rows (map u/tsv-line) str/join u/clipboard-write!))}}]
@@ -61,21 +63,21 @@
         row-depth                        (r/reaction (or (u/deref-or-value row-tree-depth)
                                                          (count (u/deref-or-value internal-row-header-widths))))
         row-traversal                    (r/reaction
-                                          (ngu/window {:header-tree        @internal-row-tree
-                                                       :window-start       (- (or @wy 0) 20)
-                                                       :window-end         (+ @wy @wh)
-                                                       :size-cache         row-size-cache
-                                                       :show-branch-cells? show-row-branches?
-                                                       :default-size       (u/deref-or-value row-height)
-                                                       :hide-root?         hide-root?}))
+                                          (ngu/window (cond-> {:header-tree        @internal-row-tree
+                                                               :size-cache         row-size-cache
+                                                               :show-branch-cells? show-row-branches?
+                                                               :default-size       (u/deref-or-value row-height)
+                                                               :hide-root?         hide-root?}
+                                                        virtualize? (merge {:window-start (- (or @wy 0) 20)
+                                                                            :window-end   (+ @wy @wh)}))))
         column-traversal                 (r/reaction
-                                          (ngu/window {:header-tree        @internal-column-tree
-                                                       :window-start       (- (or @wx 0) 20)
-                                                       :window-end         (+ @wx @ww 50)
-                                                       :size-cache         column-size-cache
-                                                       :show-branch-cells? show-column-branches?
-                                                       :default-size       (u/deref-or-value column-width)
-                                                       :hide-root?         hide-root?}))
+                                          (ngu/window (cond-> {:header-tree        @internal-column-tree
+                                                               :size-cache         column-size-cache
+                                                               :show-branch-cells? show-column-branches?
+                                                               :default-size       (u/deref-or-value column-width)
+                                                               :hide-root?         hide-root?}
+                                                        virtualize? (merge {:window-start (- (or @wx 0) 20)
+                                                                            :window-end   (+ @wx @ww 50)}))))
         complete-row-traversal           (r/reaction
                                           (ngu/window {:header-tree        @internal-row-tree
                                                        :size-cache         row-size-cache
