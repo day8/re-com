@@ -28,16 +28,16 @@
                              hide-root?       true
                              on-export        (fn on-export [{:keys [rows]}]
                                                 (->> rows (map u/tsv-line) str/join u/clipboard-write!))}}]
-  (let [[wx wy wh ww !wrapper-ref scroll-listener resize-observer overlay hide-resizers?]
+  (let [[scroll-left scroll-top content-height content-width
+         !wrapper-ref scroll-listener resize-observer overlay hide-resizers?]
         (repeatedly #(r/atom nil))
-        wrapper-ref! (partial reset! !wrapper-ref)
-
-        on-scroll!                       #(do (reset! wx (.-scrollLeft (.-target %)))
-                                              (reset! wy (.-scrollTop (.-target %)))
+        wrapper-ref!                     (partial reset! !wrapper-ref)
+        on-scroll!                       #(do (reset! scroll-left (.-scrollLeft (.-target %)))
+                                              (reset! scroll-top (.-scrollTop (.-target %)))
                                               (when-let [timeout @hide-resizers?] (js/clearTimeout timeout))
                                               (reset! hide-resizers? (js/setTimeout (fn [] (reset! hide-resizers? nil)) 300)))
-        on-resize!                       #(do (reset! wh (.-height (.-contentRect (aget % 0))))
-                                              (reset! ww (.-width (.-contentRect (aget % 0)))))
+        on-resize!                       #(do (reset! content-height (.-height (.-contentRect (aget % 0))))
+                                              (reset! content-width (.-width (.-contentRect (aget % 0)))))
         prev-row-tree                    (r/atom (u/deref-or-value row-tree))
         prev-column-tree                 (r/atom (u/deref-or-value column-tree))
         prev-row-header-widths           (r/atom (u/deref-or-value row-header-widths))
@@ -68,16 +68,16 @@
                                                                :show-branch-cells? show-row-branches?
                                                                :default-size       (u/deref-or-value row-height)
                                                                :hide-root?         hide-root?}
-                                                        virtualize? (merge {:window-start (- (or @wy 0) 20)
-                                                                            :window-end   (+ @wy @wh)}))))
+                                                        virtualize? (merge {:window-start (- (or @scroll-top 0) 20)
+                                                                            :window-end   (+ @scroll-top @content-height)}))))
         column-traversal                 (r/reaction
                                           (ngu/window (cond-> {:header-tree        @internal-column-tree
                                                                :size-cache         column-size-cache
                                                                :show-branch-cells? show-column-branches?
                                                                :default-size       (u/deref-or-value column-width)
                                                                :hide-root?         hide-root?}
-                                                        virtualize? (merge {:window-start (- (or @wx 0) 20)
-                                                                            :window-end   (+ @wx @ww 50)}))))
+                                                        virtualize? (merge {:window-start (- (or @scroll-left 0) 20)
+                                                                            :window-end   (+ @scroll-left @content-width 50)}))))
         complete-row-traversal           (r/reaction
                                           (ngu/window {:header-tree        @internal-row-tree
                                                        :size-cache         row-size-cache
