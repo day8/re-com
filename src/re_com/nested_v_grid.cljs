@@ -280,9 +280,8 @@
               row-height-resizers
               (fn [& {:keys [offset]}]
                 (for [i     (range (count @row-paths))
-                      :let  [row-path (get @row-paths i)
-                             size (get @row-sizes i)]
-                      :when (and (pos? size)
+                      :let  [row-path (get @row-paths i)]
+                      :when (and ((some-fn :leaf? :show?) (meta row-path))
                                  (map? (peek row-path)))]
                   ^{:key [::row-height-resizer i]}
                   [ngp/resizer {:path             row-path
@@ -290,7 +289,7 @@
                                 :on-resize        resize!
                                 :overlay          overlay
                                 :keypath          (get @row-keypaths i)
-                                :size             size
+                                :size             (get @row-sizes i)
                                 :header-dimension :row
                                 :size-dimension   :height
                                 :dimension        :row-height}]))
@@ -299,7 +298,8 @@
               (fn [& {:keys [offset style]}]
                 (for [i     (range (count @column-paths))
                       :let  [column-path (get @column-paths i)]
-                      :when (map? (peek column-path))]
+                      :when (and ((some-fn :leaf? :show?) (meta column-path))
+                                 (map? (peek column-path)))]
                   ^{:key [::column-width-resizer i]}
                   [ngp/resizer {:path             column-path
                                 :offset           offset
