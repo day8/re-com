@@ -229,17 +229,19 @@
               row-header-grid column-header-grid
               corner-header-grid cell-grid
               resize-row-height?
+              resize-column-header-height?
               row-height column-width]} :parts
             :as                         props
             :or
-            {hide-root? true
-             resize-row-height? true
-             on-resize  (fn [{:keys [header-dimension size-dimension keypath size]}]
-                          (case [header-dimension size-dimension]
-                            [:column :height] (swap! internal-column-header-heights assoc-in keypath size)
-                            [:row :width]     (swap! internal-row-header-widths assoc-in keypath size)
-                            [:row :height]    (swap! internal-row-tree update-in keypath assoc :size size)
-                            [:column :width]  (swap! internal-column-tree update-in keypath assoc :size size)))}}]
+            {hide-root?                   true
+             resize-row-height?           true
+             resize-column-header-height? true
+             on-resize                    (fn [{:keys [header-dimension size-dimension keypath size]}]
+                                            (case [header-dimension size-dimension]
+                                              [:column :height] (swap! internal-column-header-heights assoc-in keypath size)
+                                              [:row :width]     (swap! internal-row-header-widths assoc-in keypath size)
+                                              [:row :height]    (swap! internal-row-tree update-in keypath assoc :size size)
+                                              [:column :width]  (swap! internal-column-tree update-in keypath assoc :size size)))}}]
         (let [ensure-reactivity u/deref-or-value
               external-keys     [:row-tree :row-header-widths :row-height
                                  :column-tree :column-header-heights :column-width
@@ -446,7 +448,8 @@
                   :part  ::column-header-grid
                   :props {:children (cond-> column-headers
                                       (not @hide-resizers?)
-                                      (concat column-height-resizers
+                                      (concat (when resize-column-header-height?
+                                                column-height-resizers)
                                               (column-width-resizers {:offset -1})))
                           :style    {:grid-template-rows    @column-cross-template
                                      :grid-template-columns @column-template}}})
@@ -466,7 +469,8 @@
                   :props {:children (cond-> corner-headers
                                       (not @hide-resizers?)
                                       (concat row-width-resizers
-                                              column-height-resizers))
+                                              (when resize-column-header-height?
+                                                column-height-resizers)))
                           :style    {:grid-template-rows    @column-cross-template
                                      :grid-template-columns @row-cross-template}}})
                (u/deref-or-value overlay)]}})))})))
