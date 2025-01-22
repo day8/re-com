@@ -116,7 +116,8 @@
                                                  row-headers                  (for [showing-row-path (cond-> row-paths hide-root? rest)
                                                                                     :let             [{:keys [leaf? show?]} (meta showing-row-path)]
                                                                                     :when            (or leaf? show?)
-                                                                                    :let             [this-depth (count showing-row-path)]]
+                                                                                    :let             [showing-row-path (cond-> showing-row-path hide-root? (subvec 1))
+                                                                                                      this-depth (count showing-row-path)]]
                                                                                 (for [i    (cond-> (range @row-depth) hide-root? rest)
                                                                                       :let [row-path (subvec showing-row-path 0 (min (inc i) this-depth))
                                                                                             {:keys [branch-end?]} (meta row-path)
@@ -129,7 +130,8 @@
                                                                                 (for [showing-column-path (cond-> column-paths hide-root? rest)
                                                                                       :let                [{:keys [leaf? show?]} (meta showing-column-path)]
                                                                                       :when               (or leaf? show?)
-                                                                                      :let                [this-depth (count showing-column-path)
+                                                                                      :let                [showing-row-path (cond-> showing-column-path hide-root? (subvec 1))
+                                                                                                           this-depth (count showing-column-path)
                                                                                                            column-path (subvec showing-column-path 0 (min (inc i) this-depth))
                                                                                                            {:keys [branch-end?]} (meta column-path)
                                                                                                            props {:column-path column-path
@@ -147,14 +149,16 @@
                                                                                                     export-corner-header (or on-export-corner-header #())]]
                                                                                   (export-corner-header props)))
                                                  cells                        (for [row-path row-paths
-                                                                                    :when    ((some-fn :leaf? :show?) (meta row-path))]
+                                                                                    :when    ((some-fn :leaf? :show?) (meta row-path))
+                                                                                    :let     [row-path (cond-> row-path hide-root? (subvec 1))]]
                                                                                 (for [column-path column-paths
                                                                                       :when       ((some-fn :leaf? :show?) (meta column-path))
-                                                                                      :let        [props (cond-> {:row-path    row-path
-                                                                                                                  :column-path column-path}
-                                                                                                           (and cell-value (not on-export-cell))
-                                                                                                           (merge {:cell-value cell-value
-                                                                                                                   :value      (cell-value props)}))
+                                                                                      :let        [column-path (cond-> column-path hide-root? (subvec 1))
+                                                                                                   props {:row-path row-path
+                                                                                                          :column-path column-path}
+                                                                                                   props (cond-> props
+                                                                                                           cell-value (merge {:cell-value cell-value
+                                                                                                                              :value      (cell-value props)}))
                                                                                                    export-cell (or on-export-cell cell-value #())]]
                                                                                   (export-cell props)))]
                                              (on-export {:corner-headers corner-headers
