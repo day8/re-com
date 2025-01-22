@@ -869,7 +869,7 @@
                                             :rows           rows
                                             :default        default-on-export}))
             _                          (when on-init-export-fn (on-init-export-fn export-fn))
-            export-button              (u/part export-button
+            export-part                (u/part export-button
                                          {:part  ::export-button
                                           :theme theme
                                           :props {:style    {:position :fixed
@@ -1106,8 +1106,8 @@
                                                                :width            25
                                                                :height           25
                                                                :margin-right     10}
-                                                    :children [export-button]}]]
-            corner-headers             (u/part u/default-part
+                                                    :children [export-part]}]]
+            corner-headers             (u/part corner-header-grid-container
                                          {:part  ::corner-header-grid-container
                                           :theme theme
                                           :props {:style    {:display               :grid
