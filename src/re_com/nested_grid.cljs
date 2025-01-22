@@ -700,21 +700,19 @@
     (fn [& {:as passed-in-props}]
       (let [{:as   props
              :keys [column-tree row-tree
-                    cell cell-value column-header row-header corner-header
-                    cell-wrapper column-header-wrapper row-header-wrapper corner-header-wrapper
-                    theme-cells?
+                    cell-value theme-cells?
                     pre-theme theme
                     show-branch-paths?
                     max-height max-width
                     remove-empty-row-space? remove-empty-column-space?
                     column-width column-header-height row-header-width row-height
-                    show-export-button? on-export export-button
+                    show-export-button? on-export
                     on-export-cell on-export-column-header on-export-row-header on-export-corner-header
                     on-init-export-fn
                     show-zebra-stripes?
                     show-selection-box? resize-columns? resize-rows?
                     sticky? sticky-left sticky-top
-                    debug-parts?
+                    debug-parts? parts
                     src]
              :or   {column-header-height       25
                     column-width               55
@@ -737,6 +735,10 @@
                     theme-cells?               true
                     debug-parts?               (or config/debug? config/debug-parts?)}}
             passed-in-props            #_(theme/top-level-part passed-in-props ::nested-grid)
+            {:keys [export-button column-header column-header-wrapper row-header row-header-wrapper
+                    corner-header corner-header-wrapper cell cell-wrapper zebra-stripe corner-header-grid-container
+                    column-header-grid-container row-header-grid-container cell-grid-container wrapper outer-grid-container]}
+            (merge passed-in-props parts)
             #_#_theme                  (theme/defaults
                                         props
                                         {:user [(theme/<-props props {:part    ::wrapper
@@ -1044,10 +1046,10 @@
                                               :impl  re-com.nested-grid/cell-wrapper})))
             zebra-stripes              (for [i (filter even? (range 1 (inc (count row-paths))))]
                                          ^{:key [::zebra-stripe i]}
-                                         (u/part u/default-part
+                                         (u/part zebra-stripe
                                            {:theme theme
-                                            :props {:part ::zebra-stripe
-                                                    :style
+                                            :part  ::zebra-stripe
+                                            :props {:style
                                                     {:grid-column-start 1
                                                      :grid-column-end   "end"
                                                      :grid-row          i
@@ -1121,7 +1123,7 @@
                                                              :grid-template-columns (grid-template max-row-widths)
                                                              :grid-template-rows    (grid-template max-column-heights)}
                                                   :children corner-header-cells}})
-            column-headers             (u/part u/default-part
+            column-headers             (u/part column-header-grid-container
                                          {:part  ::column-header-grid-container
                                           :theme theme
                                           :props {:style    {:position              :sticky
@@ -1134,7 +1136,7 @@
                                                              :grid-template-columns (grid-template cell-grid-columns)
                                                              :grid-template-rows    (grid-template max-column-heights)}
                                                   :children column-header-cells}})
-            row-headers                (u/part u/default-part
+            row-headers                (u/part row-header-grid-container
                                          {:part  ::row-header-grid-container
                                           :theme theme
                                           :props
@@ -1147,7 +1149,7 @@
                                                       :grid-template-columns (grid-template max-row-widths)
                                                       :grid-template-rows    (grid-template cell-grid-rows)}
                                            :children row-header-cells}})
-            cells                      (u/part u/default-part
+            cells                      (u/part cell-grid-container
                                          {:part  ::cell-grid-container
                                           :props {:style    {:max-height            max-height
                                                              :max-width             max-width
@@ -1162,7 +1164,7 @@
                                                               show-selection-box?
                                                               (conj box-selector))}})]
         (conj
-         (u/part u/default-part
+         (u/part wrapper
            {:theme theme
             :part  ::wrapper
             :props (merge {:src   src
@@ -1176,10 +1178,10 @@
                                                     {:max-height :fit-content}))))
                            :children
                            [(when show-export-button? control-panel)
-                            (u/part u/default-part
+                            (u/part outer-grid-container
                               {:theme theme
-                               :props {:part     ::outer-grid-container
-                                       :attr     {:on-mouse-enter #(reset! hover? true)
+                               :part  ::outer-grid-container
+                               :props {:attr     {:on-mouse-enter #(reset! hover? true)
                                                   :on-mouse-leave #(reset! hover? false)}
                                        :style
                                        (merge
