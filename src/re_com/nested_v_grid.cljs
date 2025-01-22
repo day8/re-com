@@ -150,9 +150,11 @@
                                                                                     :when    ((some-fn :leaf? :show?) (meta row-path))]
                                                                                 (for [column-path column-paths
                                                                                       :when       ((some-fn :leaf? :show?) (meta column-path))
-                                                                                      :let        [props (merge props
-                                                                                                                {:row-path    row-path
-                                                                                                                 :column-path column-path})
+                                                                                      :let        [props (cond-> {:row-path    row-path
+                                                                                                                  :column-path column-path}
+                                                                                                           (and cell-value (not on-export-cell))
+                                                                                                           (merge {:cell-value cell-value
+                                                                                                                   :value      (cell-value props)}))
                                                                                                    export-cell (or on-export-cell cell-value #())]]
                                                                                   (export-cell props)))]
                                              (on-export {:corner-headers corner-headers
