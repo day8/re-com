@@ -596,7 +596,7 @@
      {:component-did-update
       (fn [this]
         (let [[_ & {:keys [model]}] (r/argv this)
-              model-value (u/deref-or-value model)]
+              model-value           (u/deref-or-value model)]
           (when (not= model-value
                       (u/deref-or-value prev-model))
             (reset! internal-model model-value)
@@ -669,7 +669,7 @@
                                            :model                   (if change-on-blur? internal-model model)}}))]
           (u/part (get parts :dropdown (get parts ::dropdown))
             {:theme      theme
-             :impl dd/dropdown
+             :impl       dd/dropdown
              :post-props {:class (:class args)
                           :style (:style args)
                           :attr  (:attr args)}
@@ -691,31 +691,9 @@
                                                                                            :group-label-fn group-label-fn})}
                                                     :children        [anchor-label]}})
                           :placeholder   placeholder
-                          :indicator     (fn [props]
-                                           (u/part (get parts :dropdown-indicator (get parts ::dropdown-indicator))
-                                             {:impl h-box
-                                              :props {:part ::dropdown-indicator
-                                                      :children
-                                                      [(u/part box
-                                                         {:theme theme
-                                                          :props {:part  ::counter
-                                                                  :child (str (count (if change-on-blur? @internal-model (u/deref-or-value model))))}})
-                                                       (u/part dd/indicator
-                                                         {:theme theme
-                                                          :props (merge {:part ::dropdown-indicator} props)})
-                                                       (when (u/deref-or-value show-reset-button?)
-                                                         [u/x-button
-                                                          {:on-click (when on-reset
-                                                                       (handler-fn
-                                                                        (.stopPropagation event)
-                                                                        (on-reset (deref-or-value model)
-                                                                                  (deref-or-value expanded-groups))))}])]}}))
                           :width         width
                           :anchor-width  anchor-width
                           :anchor-height anchor-height
-                          :body-header   body-header
-                          :body-footer   body-footer
-                          :body          body
                           :model         showing?
                           :on-change     (when change-on-blur?
                                            (fn [open?] (reset! showing? open?)
@@ -728,11 +706,31 @@
                                            :backdrop       (:dropdown-backdrop parts)
                                            :anchor-wrapper (:dropdown-anchor-wrapper parts)
                                            :anchor         (:dropdown-anchor parts)
-                                           :indicator      (:dropdown-indicator parts)
+                                           :indicator      (fn [props]
+                                                             (u/part (get parts :dropdown-indicator (get parts ::dropdown-indicator))
+                                                               {:impl  h-box
+                                                                :theme theme
+                                                                :props {:part ::dropdown-indicator
+                                                                        :children
+                                                                        [(u/part box
+                                                                           {:theme theme
+                                                                            :props {:part  ::counter
+                                                                                    :child (str (count (if change-on-blur? @internal-model (u/deref-or-value model))))}})
+                                                                         (u/part dd/indicator
+                                                                           {:theme theme
+                                                                            :props (merge {:part ::dropdown-indicator} props)})
+                                                                         (when (u/deref-or-value show-reset-button?)
+                                                                           [u/x-button
+                                                                            {:on-click (when on-reset
+                                                                                         (handler-fn
+                                                                                          (.stopPropagation event)
+                                                                                          (on-reset (deref-or-value model)
+                                                                                                    (deref-or-value expanded-groups))))}])]}}))
                                            :body-wrapper   (merge {:style {:width      (or width "221px")
                                                                            :max-height max-height
                                                                            :min-width  min-width}}
                                                                   (:dropdown-body-wrapper parts))
-                                           :body-header    (:dropdown-body-header parts)
-                                           :body           (:dropdown-body parts)}
+                                           :body-header    body-header
+                                           :body-footer    body-footer
+                                           :body           body}
                                           (:parts (:dropdown parts)))}})))})))

@@ -47,7 +47,7 @@
      {:name :body-header
       :impl "user-defined"
       :level 2}
-     {:name :body-header
+     {:name :body-footer
       :impl "user-defined"
       :level 2}
      {:name :body
