@@ -71,22 +71,6 @@
         arrow-points      (str arrow-midpoint "," arrow-midpoint " "
                                arrow-side-length "," 0 " "
                                "0,0")
-        error             (cond
-                            (string? error)
-                            (fn [props] [:div props error])
-                            (map? error)
-                            (fn [props] [:div props (pr-str error)])
-                            :else
-                            error)
-        context           (cond
-                            (string? context)
-                            (fn [props] [:div props context])
-                            (map? context)
-                            (fn [props] [:div props (pr-str context)])
-                            :else
-                            context)
-        details           (if (string? details)
-                            (fn [props] [:div props details]) details)
         what-happened     (or what-happened
                               (when defaults?
                                 [:span "Your app encountered an unexpected error. "
@@ -228,13 +212,13 @@
                                                :props
                                                {:children
                                                 [(when details
-                                                   (part (pr-str details)
+                                                   (part details
                                                          {:part ::details}))
                                                  (when error
-                                                   (part (pr-str error)
+                                                   (part error
                                                          {:part ::error}))
                                                  (when context
-                                                   (part (pr-str context)
+                                                   (part context
                                                          {:part ::context}))]}})])
                                      (when footer
                                        (part footer
