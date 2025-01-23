@@ -713,6 +713,7 @@
                     show-selection-box? resize-columns? resize-rows?
                     sticky? sticky-left sticky-top
                     debug-parts? parts
+                    class style attr
                     src]
              :or   {column-header-height       25
                     column-width               55
@@ -1167,6 +1168,9 @@
          (u/part wrapper
            {:theme theme
             :part  ::wrapper
+            :post-props {:style style
+                         :class class
+                         :attr  attr}
             :props (merge {:src   src
                            :style (merge {:flex-direction :column}
                                          (when-not sticky?
