@@ -134,7 +134,7 @@
   (when include-args-desc?
     [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
      {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
-     {:name :class    :required false              :type "string"          :validate-fn css-class?           :description "CSS class names, space separated"}
+     {:name :class    :required false              :type "string"          :validate-fn css-class?        :description "CSS class names, space separated"}
      {:name :style    :required false              :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr     :required false              :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}

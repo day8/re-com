@@ -335,7 +335,7 @@
                                  :keypath     (get @row-keypaths i)
                                  :branch-end? branch-end?
                                  :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                 :cross-size  cross-size
+                                               :cross-size  cross-size
                                                :grid-row-end      (ngu/path->grid-line-name end-path)
                                                :grid-column-start (cond-> (count row-path) branch-end? dec)
                                                :grid-column-end   -1}}
