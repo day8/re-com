@@ -327,18 +327,23 @@
                           end-path              (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
                                                       (drop (inc i) @row-paths))
                           {:keys [branch-end?]} (meta row-path)
-                          row-path-prop              (cond-> row-path hide-root? (subvec 1))]
+                          row-path-prop         (cond-> row-path hide-root? (subvec 1))
+                          cross-size            (get @internal-row-header-widths (dec path-ct) row-header-width)]
                     :let [props {:part        ::row-header
                                  :row-path    row-path-prop
                                  :path        row-path-prop
                                  :keypath     (get @row-keypaths i)
                                  :branch-end? branch-end?
                                  :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                 :cross-size  cross-size
                                                :grid-row-end      (ngu/path->grid-line-name end-path)
                                                :grid-column-start (cond-> (count row-path) branch-end? dec)
                                                :grid-column-end   -1}}
                           props (assoc props :children [(u/part row-header-label
-                                                          {:props props
+                                                          {:props (assoc props
+                                                                         :style {:width    (- cross-size 10)
+                                                                                 :position :sticky
+                                                                                 :top      @column-header-height-total})
                                                            :impl  ngp/row-header-label})])]]
                 (u/part row-header
                   {:part  ::row-header
@@ -363,8 +368,7 @@
                                       :style       {:grid-column-start (ngu/path->grid-line-name column-path)
                                                     :grid-column-end   (ngu/path->grid-line-name end-path)
                                                     :grid-row-start    (cond-> (count column-path) branch-end? dec)
-                                                    :grid-row-end      -1
-                                                    :overflow          :hidden}}
+                                                    :grid-row-end      -1}}
                                props (assoc props :children    [(u/part column-header-label
                                                                   {:props props
                                                                    :impl  ngp/column-header-label})])]]
