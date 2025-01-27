@@ -667,7 +667,7 @@
                                 :dimension        :column-width}]))
 
               row-headers
-              (for [i    (range (count @row-paths))
+              (for [i    (range (if hide-root? 1 0) (count @row-paths))
                     :let [row-path              (get @row-paths i)
                           path-ct               (count row-path)
                           end-path              (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
@@ -682,13 +682,15 @@
                                  :keypath     (get @row-keypaths i)
                                  :branch-end? branch-end?
                                  :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                               :cross-size  cross-size
-                                               :grid-row-end      (ngu/path->grid-line-name end-path)
+                                               :cross-size        cross-size
+                                               :grid-row-end      (if branch-end? "span 1"
+                                                                      (ngu/path->grid-line-name end-path))
                                                :grid-column-start (cond-> (count row-path) branch-end? dec)
                                                :grid-column-end   -1}}
                           props (assoc props :children [(part ::row-header-label
                                                           {:props (assoc props
                                                                          :style {:width    (- cross-size 10)
+                                                                                 :height   (- size 5)
                                                                                  :position :sticky
                                                                                  :top      @column-header-height-total})
                                                            :impl  ngp/row-header-label})])]]
@@ -736,16 +738,20 @@
                                   edge (corner-header-edges props)
                                   border-light "thin solid #ccc"
                                   props (merge props {:edge edge})
-                                  props (update props :style merge {}
-                                                (when (edge :top) {:border-top border-light})
-                                                (when (edge :right) {:border-right border-light})
-                                                (when (edge :bottom) {:border-bottom border-light})
-                                                (when (edge :left) {:border-left border-light}))]]
-                (u/part corner-header
+                                  props (assoc props :children
+                                               [(part ::corner-header-label
+                                                  {:part  ::corner-header-label
+                                                   :props props})])
+                                  borders (merge {}
+                                                 (when (edge :top) {:border-top border-light})
+                                                 (when (edge :right) {:border-right border-light})
+                                                 (when (edge :bottom) {:border-bottom border-light})
+                                                 (when (edge :left) {:border-left border-light}))]]
                 (part ::corner-header
                   {:part  ::corner-header
                    :theme (when true #_theme-cells? theme)
                    :props (cond-> props
+                            :do        (update :style merge borders)
                             hide-root? (merge {:row-index    (dec row-index)
                                                :column-index (dec column-index)}))
                    :key   [::corner-header row-index column-index]}))

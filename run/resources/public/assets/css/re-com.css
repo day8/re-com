@@ -1580,7 +1580,6 @@ code {
     white-space: nowrap;
     user-select: none;
     font-size: 13px;
-    background-color: #eee;
     color: #777;
     text-align: left;
 }
@@ -1607,7 +1606,6 @@ code {
     white-space: nowrap;
     user-select: none;
     font-size: 13px;
-    background-color: #eee;
     color: #777;
     text-align: center;
 }
