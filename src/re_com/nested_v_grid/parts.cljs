@@ -13,7 +13,7 @@
 (defn header-label [{:keys [path]}]
   (let [spec (peek path)]
     (or (:label spec)
-        (some-> spec :id name)
+        (some-> spec :id str)
         (some-> spec pr-str))))
 
 (def row-header-label header-label)

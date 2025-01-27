@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [comp])
   (:require
    [re-com.theme.util :as tu]
+   [re-com.part :as part]
    [re-com.theme.default :as theme.default]))
 
 (def ^:dynamic variables theme.default/variables)
@@ -16,11 +17,7 @@
 (def merge-props tu/merge-props)
 
 (defn part-class [{:keys [part] :as props}]
-  (update props :class merge-class
-          (str "rc-"
-               (subs (namespace part) 7)
-               "-"
-               (name part))))
+  (update props :class merge-class (part/css-class part)))
 
 (def part-class* (memoize part-class))
 

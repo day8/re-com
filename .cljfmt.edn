@@ -1,1 +1,2 @@
-{:extra-indents {re-com.util/part [[:inner 0]]}}
+{:extra-indents {re-com.util/part [[:inner 0]]
+                 part             [[:inner 0]]}}

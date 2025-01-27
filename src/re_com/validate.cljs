@@ -4,10 +4,10 @@
   (:require
    [clojure.string :as str]
    [cljs-time.core         :as    time.core]
-   [clojure.set            :refer [superset?]]
+   [clojure.set            :refer [superset? intersection union difference]]
    [re-com.config          :refer [debug?]]
    [re-com.debug           :as    debug]
-   [re-com.util            :refer [deref-or-value-peek]]
+   [re-com.util            :as u :refer [deref-or-value-peek]]
    [reagent.core           :as    reagent]
    [reagent.impl.component :as    component]
    [reagent.impl.template  :refer [valid-tag?]]
@@ -34,14 +34,17 @@
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
-  {:arg-names      (set (map :name args-desc))
-   :required-args  (->> args-desc
-                        (filter :required)
-                        (map :name)
-                        set)
-   :validated-args (->> (filter :validate-fn args-desc)
-                        vec
-                        (hash-map-with-name-keys))})
+  (merge
+   {:arg-names      (set (map :name args-desc))
+    :required-args  (->> args-desc
+                         (filter :required)
+                         (map :name)
+                         set)
+    :validated-args (->> (filter :validate-fn args-desc)
+                         vec
+                         (hash-map-with-name-keys))}
+   (when-let [parts-validate-fn (some :parts-validate-fn args-desc)]
+     {:parts-validate-fn parts-validate-fn})))
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
@@ -119,7 +122,9 @@
                                 warning?)
                            (do
                              (log-warning
-                              (str "Validation failed for argument '" arg-name "' in component '" (component/component-name (reagent/current-component)) "': " (:message validate-result)))
+                              (str "Validation failed for argument '" arg-name "' in component '"
+                                   (component/component-name (reagent/current-component))
+                                   "': " (:message validate-result)))
                              nil)
 
                            :else
@@ -148,12 +153,16 @@
   [arg-defs passed-args]
   (if-not debug?
     nil
-    (let [passed-arg-keys (set (remove #{:theme :re-com :part} (set (keys passed-args))))
-          problems        (->> []
-                               (arg-names-known? (:arg-names arg-defs) passed-arg-keys)
-                               (required-args?   (:required-args arg-defs) passed-arg-keys)
-                               (validate-fns?    (:validated-args arg-defs) passed-args)
-                               (remove nil?))]
+    (let [{:keys [parts-validate-fn]} arg-defs
+          passed-arg-keys             (set (remove #{:theme :re-com :part} (set (keys passed-args))))
+          problems                    (as-> [] problems
+                                        (cond-> problems
+                                          parts-validate-fn
+                                          (parts-validate-fn passed-args problems))
+                                        (arg-names-known? (:arg-names arg-defs) passed-arg-keys problems)
+                                        (required-args?   (:required-args arg-defs) passed-arg-keys problems)
+                                        (validate-fns?    (:validated-args arg-defs) passed-args problems)
+                                        (remove nil? problems))]
       (when-not (empty? problems)
         [debug/validate-args-error
          :problems  problems
@@ -439,14 +448,10 @@
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
 
-(defn part?
-  "Returns true if the passed argument is a part, otherwise false/error"
-  [arg]
-  (or (map? arg) (string-or-hiccup? arg) (ifn? arg) (nil? arg)))
+(def part? (some-fn map? string? vector? ifn? nil?))
 
 (defn parts?
-  "Returns a function that validates a value is a map that contains `keys` mapped to values that are either functions, hiccups, or maps containing
-   `class`, `:style` and/or `:attr`."
+  "Returns a function that validates a value is a map that contains `keys` mapped to part-values. A part-value can be either a function, a hiccup, a string, or a parts-map. A parts-map can only contain the keys `class`, `:style` and/or `:attr`."
   [part-keys]
   {:pre [(set? part-keys)]}
   (fn [arg]

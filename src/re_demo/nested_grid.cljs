@@ -10,7 +10,7 @@
    [reagent.core :as r]
    [re-com.nested-grid :refer [nested-grid leaf-paths header-spec->header-paths
                                nested-grid-args-desc nested-grid-parts-desc]]
-   [re-com.nested-v-grid  :as v-grid :refer [nested-v-grid]]
+   [re-com.nested-v-grid  :as nvg :refer [nested-v-grid]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
@@ -938,21 +938,26 @@
                     :on-export-corner-header export-cell
                     :on-resize               (fn [{:keys [header-dimension size-dimension keypath size]}]
                                                (case [header-dimension size-dimension]
-                                                 [:column :height] (swap! column-header-heights assoc-in keypath size)
-                                                 [:row :width]     (swap! row-header-widths assoc-in keypath size)
-                                                 [:row :height]    (swap! row-tree update-in keypath assoc :size size)
-                                                 [:column :width]  (swap! column-tree update-in keypath assoc :size size)))
+                                                 [:column :height]
+                                                 (swap! column-header-heights assoc-in keypath size)
+                                                 [:row :width]
+                                                 (swap! row-header-widths assoc-in keypath size)
+                                                 [:row :height]
+                                                 (swap! row-tree update-in keypath assoc :size size)
+                                                 [:column :width]
+                                                 (swap! column-tree update-in keypath assoc :size size)))
                     :parts                   {:wrapper {:style {:height @wh
                                                                 :width  @ww}}
 
                                               :row-header-label
-                                              (fn [{:keys [row-path]}]
-                                                (let [{:keys [is-after?]} (meta row-path)
-                                                      row-spec            (peek row-path)
-                                                      the-label           (->> "placeholder"
-                                                                               (get row-spec :id)
-                                                                               (get row-spec :label))]
-                                                  (str the-label (when is-after? " (Total)"))))
+                                              (fn [{:keys [row-path style]}]
+                                                [:div {:style style}
+                                                 (let [{:keys [is-after?]} (meta row-path)
+                                                       row-spec            (peek row-path)
+                                                       the-label           (->> "placeholder"
+                                                                                (get row-spec :id)
+                                                                                (get row-spec :label))]
+                                                   (str the-label (when is-after? " (Total)")))])
                                               :corner-header
                                               (fn [{:keys [edge row-index column-index style class attr] :as props}]
                                                 [:div (merge {:style style :class class} attr)
@@ -1062,4 +1067,5 @@
              :on-change #(reset! !tab-id %)]
             [(:view @!tab)]]]
           [demos]]]
-        [parts-table "nested-grid" nested-grid-parts-desc]]])))
+        #_[parts-table "nested-grid" nested-grid-parts-desc]
+        [parts-table "nested-v-grid" nvg/nested-v-grid-parts-desc]]])))

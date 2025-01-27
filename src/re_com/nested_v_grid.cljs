@@ -1,12 +1,363 @@
 (ns re-com.nested-v-grid
   (:require
    [clojure.string :as str]
+   [re-com.config :as config :refer [include-args-desc?]]
+   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part? css-class?]]
    [re-com.util :as u]
    [re-com.nested-v-grid.util :as ngu]
    [re-com.nested-v-grid.parts :as ngp]
    [reagent.core :as r]
+   [re-com.part :as part]
    [re-com.theme :as theme]
    [re-com.nested-v-grid.theme]))
+
+(def cell-args-desc
+  [{:name :row-path}
+   {:name :column-path}
+   {:name :value}
+   {:name :children}])
+
+(def part-structure
+  [::wrapper
+   [::corner-header-grid
+    [::corner-header {:multiple? true}
+     [::corner-header-label]]]
+   [::row-header-grid
+    [::row-header {:multiple? true}
+     [::row-header-label {:impl ngp/row-header-label}]]]
+   [::column-header-grid
+    [::column-header {:multiple? true}
+     [::column-header-label {:impl ngp/column-header-label}]]]
+   [::cell-grid
+    [::cell {:top-level-arg? true
+             :multiple?      true
+             :args-desc      cell-args-desc}
+     [::cell-label]]]])
+
+(def nested-v-grid-parts-desc
+  (when include-args-desc?
+    (part/describe part-structure)))
+
+(def nested-v-grid-parts
+  (when include-args-desc?
+    (-> (map :name nested-v-grid-parts-desc) set)))
+
+(def nested-v-grid-args-desc
+  (when include-args-desc?
+    [{:name :cell
+      :default "constantly nil"
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "String, hiccup or function. When a function, acceps keyword args "
+       [:code ":column-path"] " and " [:code ":row-path"]
+       ". Returns either a string or hiccup, which will appear within a single grid cell."]}
+     {:name :cell-value
+      :type "function"
+      :required false
+      :validate-fn ifn?
+      :description
+      [:span "Before calling " [:code ":cell"] ", " [:code "nested-grid"] " evaluates "
+       [:code ":cell-value"] "with the same arguments. It then passes the return value to "
+       [:code ":cell"] ", via a " [:code ":value"] " prop."]}
+     {:name :column-tree
+      :default "[]"
+      :type "vector or seq of column-specs or column-trees"
+      :validate-fn seq?
+      :description
+      [:span "Describes a nested arrangement of " [:code ":column-spec"] "s. "
+       "A spec's path derives from its depth within the hierarchy of vectors or seqs. "
+       " When a non-vector A precedes a vector B, then the items of B are children of A."
+       " When a non-vector C follows B, then C is a sibling of A."
+       " This nesting can be arbitrarily deep."]}
+     {:name :row-tree
+      :default "[]"
+      :type "vector or seq of row-specs or row-trees"
+      :validate-fn seq?
+      :description
+      [:span "Describes a nested arrangement of " [:code ":row-spec"] "s. "
+       "A spec's path derives from its depth within the hierarchy of vectors or seqs. "
+       " When a non-vector A precedes a vector B, then the items of B are children of A."
+       " When a non-vector C follows B, then C is a sibling of A."
+       " This nesting can be arbitrarily deep."]}
+     {:name :column-header
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A string, hiccup, or function of " [:code "{:keys [column-path]}"] "."
+       " By default, returns the " [:code ":label"] ", " [:code ":id"]
+       ", or else a string of the entire value of the last item in "
+       [:code ":column-path"] "."]}
+     {:name :row-header
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A string, hiccup, or function of " [:code "{:keys [row-path]}"] "."
+       " By default, returns the " [:code ":label"] ", " [:code ":id"]
+       ", or else a string of the entire value of the last item in "
+       [:code ":row-path"] "."]}
+     {:name :corner-header
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A string, hiccup, or function of " [:code "{:keys [row-index column-index]}"] "."
+       " Both row-index and column-index are integers. By default, returns " [:code "nil"] "."]}
+     {:name :cell-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper div, responsible for positioning one " [:code ":cell"]
+       " within the css grid."]}
+     {:name :column-header-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper div, responsible for positioning one " [:code ":column-header"]
+       " within the css grid."]}
+     {:name :row-header-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper div, responsible for positioning one " [:code ":row-header"]
+       " within the css grid."]}
+     {:name :corner-header-wrapper
+      :type "part"
+      :validate-fn part?
+      :description
+      [:span "A wrapper responsible for positioning one " [:code ":corner-header"]
+       " within the css grid."]}
+     {:name :export-button
+      :type "part"
+      :validate-fn part?
+      :description [:span "Receives an " [:code ":on-click"]
+                    " prop, a function which calls " [:code ":on-export"] "."]}
+     {:name :show-branch-paths?
+      :type "boolean"
+      :default "false"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "true"] ", displays cells and headers for all "
+       [:code ":column-paths"] " and " [:code ":row-paths"] ", not just the leaf paths."]}
+     {:name :theme-cells?
+      :type "boolean"
+      :default "true"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "false"] ", uses the " [:code ":cell"] " function directly, "
+       " not wrapping or themeing it. That means your theme fn will not get called with a "
+       [:code "part"] " value of " [:code "::cell"] " or " [:code "::cell-wrapper"] ". "
+       "the " [:code "::cell-wrapper"] " part will not be used at all. Your "
+       [:code ":cell"] " will be passed a " [:code ":style"] " prop, and "
+       "it must return a div with that style applied (necessary for grid positioning). "
+       "This improves performance for grids with a high number of cells."]}
+     {:name :resize-columns?
+      :type "boolean"
+      :default "true"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "true"] ", display a draggable resize button on column-header grid lines."]}
+     {:name :resize-rows?
+      :type "boolean"
+      :default "false"
+      :validate-fn boolean?
+      :description
+      [:span "When " [:code "true"] ", display a draggable resize button on row-header grid lines."]}
+     {:default true
+      :description
+      "If true removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise
+ there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."
+      :name :remove-empty-row-space?
+      :required false
+      :type "boolean"}
+     {:default true
+      :description
+      "If true removes whitespace between the last column and the vertical scrollbar. Useful for tables without many columns where otherwise
+ there would be a big gap between the last column and the vertical scrollbar at the right of the available space."
+      :name :remove-empty-column-space?
+      :required false
+      :type "boolean"}
+     {:name :max-height
+      :required false
+      :type "string"
+      :validate-fn string?
+      :description [:span "standard CSS max-height setting of the entire grid. "
+                    "Literally constrains the grid to the given width so that "
+                    "if the grid is taller than this it will add scrollbars. "
+                    "Ignored if value is larger than the combined width of "
+                    "all the rendered grid rows."]}
+     {:name :max-width
+      :required false
+      :type "string"
+      :validate-fn string?
+      :description
+      [:span "standard CSS max-width setting of the entire grid. "
+       "Literally constrains the grid to the given width so that "
+       "if the grid is wider than this it will add scrollbars."
+       " Ignored if value is larger than the combined width of all the rendered grid columns."]}
+     {:name :column-header-height
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default height that a column-header will use. "
+       "Can be overridden by a " [:code ":height"] "key in the "
+       [:code ":column-spec"] ", or by component-local state."]}
+     {:name :row-height
+      :default 25
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default height that a row will use. "
+       "Can be overridden by a " [:code ":height"] "key in the "
+       [:code ":row-spec"] ", or by component-local state."]}
+     {:name :column-width
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default width that a column of grid cells will use. "
+       "Can be overridden by a " [:code ":height"] "key in the "
+       [:code ":column-spec"] ", or by component-local state."]}
+     {:name :row-header-width
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default width that a row-header will use. "
+       "Can be overridden by a " [:code ":width"] "key in the "
+       [:code ":row-spec"] ", or by component-local state."]}
+     {:name :row-width
+      :default 30
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "The default width that a row of grid cells will use. "
+       "Can be overridden by a " [:code ":width"]
+       "key in the " [:code ":row-spec"] ", or by component-local state."]}
+     {:name :sticky?
+      :default false
+      :type "boolean"
+      :description
+      [:span "When true, disables scroll bars on the wrapper. "
+       "In that case: "
+       [:ul
+        [:li "Header cells \"stick\" to the first ancestor which is a scroll container"]
+        [:li [:code ":max-width"] " and " [:code ":max-height"] " have no effect"]
+        [:li [:code ":sticky-top"] " and " [:code ":sticky-left"] " take effect"]]
+       "See css sticky positioning for details. "]}
+     {:name :sticky-top
+      :default false
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "When " [:code ":sticky?"] " is true, "
+       "header cells (and the top buttons) stick to an ancestor scroll container. "
+       [:code ":sticky-top"] " Adds a pixel offset, making them stick higher or lower on the page."
+       " Useful to prevent overlap, for instance, if the page header is sticky, absolute or fixed."]}
+     {:name :sticky-left
+      :default false
+      :type "number"
+      :validate-fn number?
+      :description
+      [:span "When " [:code ":sticky?"] " is true, "
+       "header cells (and the top buttons) stick to an ancestor scroll container. "
+       [:code ":sticky-left"] " Adds a pixel offset, making them stick further left or right on the page."
+       " Useful to prevent overlap, for instance, if the page sidebar is sticky, absolute or fixed."]}
+     {:name :show-export-button?
+      :required false
+      :default false
+      :type "boolean"
+      :description
+      [:span "When non-nil, adds a hiccup of " [:code ":export-button-render"]
+       " to the component tree."]}
+     {:name :on-export
+      :required false
+      :type "function"
+      :validate-fn ifn?
+      :description
+      [:span "Called whenever the export button is clicked. "
+       "Can expect to be passed several keyword arguments. "
+       "Each argument is a nested vector of cell values. "
+       [:ul
+        [:li [:strong [:code ":rows"]] ": "
+         "Everything."]
+        [:li [:strong [:code ":header-rows"]] ": "
+         "Everything above the cells. Each row includes spacers for the top-left corner, "
+         "followed by column headers."]
+        [:li [:strong [:code ":main-rows"]] ": "
+         "Includes first row of main cells and everything beneath it. "
+         "Each row includes the row-headers, followed by the main cells."]
+        [:li [:strong [:code ":cells"]] ": "
+         "Just the cells, without any headers."]
+        [:li [:strong [:code ":spacers"]] ": "
+         "Just the spacers in the top-left corner."]
+        [:li [:strong [:code ":row-headers"]] ": "
+         "Just the row headers, no cells."]
+        [:li [:strong [:code ":column-headers"]] ": "
+         "Just the column headers, no cells."]
+        [:li [:strong [:code ":default"]] ": "
+         [:code "nested-grid"] "'s default function for " [:code ":on-export"] ". "
+         "This joins the rows into a single string of tab-separated values, then "
+         "writes that string to the clipboard."]]]}
+     {:name :on-init-export-fn
+      :type "function"
+      :validate-fn ifn?
+      :description "Called whenever nested-grid's internal export function changes."}
+     {:name :on-export-cell
+      :required false
+      :type "{:keys [row-path column-path]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":cell"] ", but its return value should be serializable. "
+       "Returning a hiccup or render-fn is probably a bad idea. "
+       "After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-cell"] "over any cells marked for export, passing the "
+       "results to " [:code ":on-export"] "."]}
+     {:name :on-export-row-header
+      :required false
+      :type "{:keys [row-path]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":row-header"]
+       ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-row-header"] "over any row headers marked for export, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":main-rows"] " prop."]}
+     {:name :on-export-column-header
+      :required false
+      :type "{:keys [column-path]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":column-header"]
+       ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-column-header"] "over any column-headers marked for export, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}
+     {:name :on-export-corner-header
+      :type "{:keys [row-index column-index]} -> string"
+      :validate-fn ifn?
+      :description
+      [:span "Similar to " [:code ":corner-header"]
+       ", but it should return a string value only."
+       " After the export button is clicked, " [:code "nested-grid"] " maps "
+       [:code ":on-export-column-header"] " over all the top-left corner cells, passing the "
+       "results to " [:code ":on-export"] " via the " [:code ":header-rows"] " prop."]}
+     {:name :show-selection-box?
+      :default false
+      :type "boolean"
+      :validate-fn boolean?
+      :description
+      [:span "when true, dragging the mouse causes an excel-style "
+       "selection box to appear. When there is a selection box, any export behavior "
+       "takes the bounds of that box into account. For instance, if 2 cells are "
+       "selected, then only 2 cells are exported."]}
+     {:description
+      [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
+       [:code ":file"] "and" [:code ":line"] ". See 'Debugging'."]
+      :name :src
+      :required false
+      :type "map"
+      :validate-fn map?}]))
 
 (defn nested-v-grid [{:keys [row-tree column-tree
                              row-tree-depth column-tree-depth
@@ -221,16 +572,8 @@
             (reset! internal-prop external-value))))
       :reagent-render
       (fn [{:keys
-            [theme-cells? on-resize hide-root? cell-value style class]
-            {:keys
-             [wrapper cell corner-header
-              row-header column-header
-              row-header-label column-header-label
-              row-header-grid column-header-grid
-              corner-header-grid cell-grid
-              resize-row-height?
-              resize-column-header-height?
-              row-height column-width]} :parts
+            [theme-cells? on-resize hide-root? cell-value style class resize-row-height?
+             resize-column-header-height?]
             :as                         props
             :or
             {hide-root?                   true
@@ -250,7 +593,10 @@
               external-props    (map props external-keys)]
           (doseq [prop external-props]
             (ensure-reactivity prop)))
-        (let [resize!
+        (let [part
+              (partial part/part part-structure props)
+
+              resize!
               (fn [{:keys [keypath size-dimension header-dimension] :as props}]
                 (when-let [tree (case [header-dimension size-dimension]
                                   [:row :height]   @internal-row-tree
@@ -328,7 +674,8 @@
                                                       (drop (inc i) @row-paths))
                           {:keys [branch-end?]} (meta row-path)
                           row-path-prop         (cond-> row-path hide-root? (subvec 1))
-                          cross-size            (get @internal-row-header-widths (dec path-ct) row-header-width)]
+                          cross-size            (get @internal-row-header-widths (dec path-ct) row-header-width)
+                          size                  (get @row-sizes i)]
                     :let [props {:part        ::row-header
                                  :row-path    row-path-prop
                                  :path        row-path-prop
@@ -339,13 +686,13 @@
                                                :grid-row-end      (ngu/path->grid-line-name end-path)
                                                :grid-column-start (cond-> (count row-path) branch-end? dec)
                                                :grid-column-end   -1}}
-                          props (assoc props :children [(u/part row-header-label
+                          props (assoc props :children [(part ::row-header-label
                                                           {:props (assoc props
                                                                          :style {:width    (- cross-size 10)
                                                                                  :position :sticky
                                                                                  :top      @column-header-height-total})
                                                            :impl  ngp/row-header-label})])]]
-                (u/part row-header
+                (part ::row-header
                   {:part  ::row-header
                    :props props
                    :key   row-path
@@ -369,10 +716,10 @@
                                                     :grid-column-end   (ngu/path->grid-line-name end-path)
                                                     :grid-row-start    (cond-> (count column-path) branch-end? dec)
                                                     :grid-row-end      -1}}
-                               props (assoc props :children    [(u/part column-header-label
+                               props (assoc props :children    [(part ::column-header-label
                                                                   {:props props
                                                                    :impl  ngp/column-header-label})])]]
-                (u/part column-header
+                (part ::column-header
                   {:part  ::column-header
                    :theme (when theme-cells? theme)
                    :props props
@@ -395,6 +742,7 @@
                                                 (when (edge :bottom) {:border-bottom border-light})
                                                 (when (edge :left) {:border-left border-light}))]]
                 (u/part corner-header
+                (part ::corner-header
                   {:part  ::corner-header
                    :theme (when true #_theme-cells? theme)
                    :props (cond-> props
@@ -415,12 +763,12 @@
                                  props (cond-> props
                                          cell-value (merge {:cell-value cell-value
                                                             :children   [[cell-value props]]}))]]
-                (u/part cell
+                (part ::cell
                   {:part  ::cell
                    :props props
                    :theme (when theme-cells? theme)
                    :key   [row-path column-path]}))]
-          (u/part wrapper
+          (part ::wrapper
             {:part        ::wrapper
              :theme       theme
              :after-props {:style style
@@ -435,7 +783,7 @@
                       :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
               :attr  {:ref wrapper-ref!}
               :children
-              [(u/part cell-grid
+              [(part ::cell-grid
                  {:theme theme
                   :part  ::cell-grid
                   :props {:children (cond-> cells
@@ -447,7 +795,7 @@
                                                                :offset -1})))
                           :style    {:grid-template-rows    @row-template
                                      :grid-template-columns @column-template}}})
-               (u/part column-header-grid
+               (part ::column-header-grid
                  {:theme theme
                   :part  ::column-header-grid
                   :props {:children (cond-> column-headers
@@ -457,7 +805,7 @@
                                               (column-width-resizers {:offset -1})))
                           :style    {:grid-template-rows    @column-cross-template
                                      :grid-template-columns @column-template}}})
-               (u/part row-header-grid
+               (part ::row-header-grid
                  {:theme theme
                   :part  ::row-header-grid
                   :props {:children (cond-> row-headers
@@ -467,7 +815,7 @@
                                                 (row-height-resizers {:offset -1}))))
                           :style    {:grid-template-rows    @row-template
                                      :grid-template-columns @row-cross-template}}})
-               (u/part corner-header-grid
+               (part ::corner-header-grid
                  {:theme theme
                   :part  ::corner-header-grid
                   :props {:children (cond-> corner-headers
