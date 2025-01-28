@@ -10,6 +10,16 @@
 (def ^:dynamic main theme.default/main)
 (def ^:dynamic user nil)
 
+(def args-desc
+  [{:name        :theme
+    :validate-fn ifn?
+    :description [:span "See the theme section of re-com docs (TBD). "
+                  "This argument is not reactive."]}
+   {:name        :pre-theme
+    :validate-fn ifn?
+    :description [:span "See the theme section of re-com docs (TBD). "
+                  "This argument is not reactive."]}])
+
 (def merge-class tu/merge-class)
 
 (def merge-style tu/merge-style)
@@ -31,4 +41,3 @@
                    base
                    component-local-pre-theme
                    variables])))
-

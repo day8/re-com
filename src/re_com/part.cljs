@@ -105,18 +105,27 @@
   (into [{:name              :parts
           :required          false
           :type              "map"
-          :parts-validate-fn (validate/parts?
+          :validate-fn       (validate/parts?
                               (set (map :name (describe structure))))
+          :parts-validate-fn (partial args-valid? structure)
           :description       "See Parts section below."}]
         (comp
          (filter (comp (top-level-args structure) :name))
-         (map #(merge % {:validate-fn part?})))
+         (map #(merge
+                %
+                {:validate-fn part?
+                 :type        "re-com part"
+                 :description
+                 [:span "Overrides the " [:code (str (:name %))]
+                  " key within " [:code ":parts"] "."
+                  " See the parts section below for details."]})))
         (describe structure)))
 
-(defn destructure [part-structure props k]
-  (or (when (top-level-arg? part-structure k)
-        (clojure.core/get props (unqualify k)))
-      (clojure.core/get-in props [:parts (unqualify k)])))
+(defn get [part-structure props k]
+  (let [part-name (unqualify k)]
+    (or (when (top-level-arg? part-structure part-name)
+          (clojure.core/get props part-name))
+        (clojure.core/get-in props [:parts part-name]))))
 
 (defn default [{:keys [class style attr children tag]
                 :or   {tag :div}}]
@@ -125,7 +134,7 @@
 
 (defn part
   ([structure props k opts]
-   (part (destructure structure props k)
+   (part (get structure props k)
      (assoc opts :part k)))
   ([part-value {:keys   [impl key theme post-props props]
                 part-id :part

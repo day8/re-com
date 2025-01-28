@@ -718,7 +718,7 @@
 
 (defn args-column []
   [args-table
-   nested-grid-args-desc
+   nvg/args-desc #_nested-grid-args-desc
    {:total-width       "550px"
     :name-column-width "180px"}])
 
@@ -927,10 +927,11 @@
                     :row-tree-depth          4
                     :row-header-widths       row-header-widths
                     :column-header-heights   column-header-heights
+                    :column-tree-depth       3
                     :show-row-branches?      true
                     :show-column-branches?   true
                     #_#_:hide-root?          false
-                    :cell-value              #(str (gensym))
+                    :cell-label              #(str (gensym))
                     :on-init-export-fn       (fn [f] (reset! export-fn f))
                     :on-export-cell          export-cell
                     :on-export-row-header    export-cell

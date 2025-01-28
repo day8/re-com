@@ -28,7 +28,7 @@
            [::cell-label]))))
 
 (deftest get-part
-  (let [get-part (partial part/destructure structure)]
+  (let [get-part (partial part/get structure)]
     (are [props k] (get-part props k)
       {:parts {:wrapper true}} :wrapper
       {:parts {:wrapper true}} :wrapper

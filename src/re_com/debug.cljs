@@ -148,21 +148,46 @@
   (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
     (case problem
       ;; [IJ] TODO: :validate-fn-return
-      :unknown         (js/console.log
-                        (str "• %cUnknown parameter: %c" arg-name)
-                        error-style code-style)
-      :required        (js/console.log
-                        (str "• %cMissing required parameter: %c" arg-name)
-                        error-style code-style)
-      :ref             (js/console.log
-                        (str "• %cParameter %c" arg-name "%c expected a reactive atom but got a %c" actual)
-                        error-style code-style error-style code-style)
-      :validate-fn     (js/console.log
-                        (str "• %cParameter %c" arg-name "%c expected %c" (:type expected) "%c but got %c" actual)
-                        error-style code-style error-style code-style error-style code-style)
-      :validate-fn-map (js/console.log
-                        (str "• %c" (:message validate-fn-result))
-                        error-style)
+      :unknown
+      (js/console.log
+       (str "• %cUnknown parameter: %c" arg-name)
+       error-style code-style)
+
+      :required
+      (js/console.log
+       (str "• %cMissing required parameter: %c" arg-name)
+       error-style code-style)
+
+      :ref
+      (js/console.log
+       (str "• %cParameter %c" arg-name "%c expected a reactive atom but got a %c" actual)
+       error-style code-style error-style code-style)
+
+      :validate-fn
+      (js/console.log
+       (str "• %cParameter %c" arg-name "%c expected %c" (:type expected) "%c but got %c" actual)
+       error-style code-style error-style code-style error-style code-style)
+
+      :validate-fn-map
+      (js/console.log
+       (str "• %c" (:message validate-fn-result))
+       error-style)
+
+      :part-top-level-collision
+      (js/console.log
+       (str "• %cParameter %c" arg-name "%c has been passed both as a top-level argument and within %c:props%c"
+            "\n  - Re-com doesn't know which value to use for configuring the %c" arg-name
+            "%c part. \n  - Please delete one or the other.")
+       error-style code-style error-style code-style error-style code-style error-style)
+
+      :part-top-level-unsupported
+      (js/console.log
+       (str "• %cParameter %c" arg-name "%c has been passed as a top-level argument."
+            "\n  - This is unsupported. "
+            "However, it is supported within %c:props%c \n  - Please declare %c" arg-name
+            "%c within the %c:props%c map.")
+       error-style code-style error-style code-style error-style code-style error-style code-style error-style)
+
       (js/console.log "• " confused-icon " Unknown problem reported"))))
 
 (defn log-validate-args-error

@@ -155,14 +155,14 @@
     nil
     (let [{:keys [parts-validate-fn]} arg-defs
           passed-arg-keys             (set (remove #{:theme :re-com :part} (set (keys passed-args))))
-          problems                    (as-> [] problems
-                                        (cond-> problems
-                                          parts-validate-fn
-                                          (parts-validate-fn passed-args problems))
-                                        (arg-names-known? (:arg-names arg-defs) passed-arg-keys problems)
-                                        (required-args?   (:required-args arg-defs) passed-arg-keys problems)
-                                        (validate-fns?    (:validated-args arg-defs) passed-args problems)
-                                        (remove nil? problems))]
+          problems                    (as-> [] pvec
+                                        (if-not parts-validate-fn
+                                          pvec
+                                          (parts-validate-fn passed-args pvec))
+                                        (arg-names-known? (:arg-names arg-defs) passed-arg-keys pvec)
+                                        (required-args?   (:required-args arg-defs) passed-arg-keys pvec)
+                                        (validate-fns?    (:validated-args arg-defs) passed-args pvec)
+                                        (remove nil? pvec))]
       (when-not (empty? problems)
         [debug/validate-args-error
          :problems  problems
