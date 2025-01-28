@@ -426,7 +426,7 @@
            [box/h-box
             :src        (at)
             :class      (str "rc-multi-select-container " (get-in parts [:container :class]))
-            :style      (get-in parts [:container :class])
+            :style      (get-in parts [:container :style])
             :attr       (get-in parts [:container :attr])
             :height     height
             :max-height max-height
