@@ -40,7 +40,8 @@
                                             :externs         ["externs/detect-element-resize-externs.js"]
                                             :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
                          :devtools         {:http-port 8021
-                                            :http-root "run/resources/public/compiled_test/demo"}}
+                                            :http-root "run/resources/public/compiled_test/demo"
+                                            :preloads  [hashp.core]}}
           :karma-test   {:target           :karma
                          :ns-regexp        ".*-test$"
                          :output-to        "target/karma/test.js"
