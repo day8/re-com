@@ -14,7 +14,7 @@
   (let [spec (peek path)]
     (or (:label spec)
         (some-> spec :id str)
-        (some-> spec pr-str))))
+        (some-> spec str))))
 
 (def row-header-label header-label)
 
