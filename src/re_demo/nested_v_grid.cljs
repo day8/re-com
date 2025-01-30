@@ -1,4 +1,4 @@
-(ns re-demo.nested-grid
+(ns re-demo.nested-v-grid
   (:require
    [clojure.string :as str]
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
@@ -366,6 +366,35 @@
             :padding-top      1
             :background-color "#768895"
             :color            :white}}})
+
+(defn style-demo []
+  [v-box
+   :gap "12px"
+   :children
+   [[nested-grid
+     {:theme                rf8-grid-theme
+      #_#_:parts            rf8-grid-parts
+      #_#_:row-header-width 0
+      :corner-header        (fn [{:keys [x]}]
+                              (get ["Market" "Network"] x))
+      :column-tree          (->> [{:id "Align Column" :width 120 :align-column :left}
+                                  {:id "Default Alignment" :width 120}
+                                  {:id "Align Column Header" :width 150 :align-column-header :right}]
+                                 (map-indexed (fn [i item] (assoc item :index i)))
+                                 vec)
+      :cell-value           (fn [{:keys [row-path column-path]}]
+                              (let [cell-values (some :cell-values (reverse row-path))
+                                    index       (some :index (reverse column-path))]
+                                (get cell-values index)))
+      :show-branch-paths?   true
+      :row-tree             [{:measure :market :market "Sydney" :label "Sydney"}
+                             [{:measure     :station :station "TEN" :label "TEN"
+                               :cell-values ["Lorem" "ipsum" "dolor"]}
+                              {:measure     :station :station "ABC" :label "ABC"
+                               :cell-values ["sit" "amet" " consectetur"]}
+                              {:measure     :station :station "NINE" :label "NINE"
+                               :cell-values (vec (range 1000 1003))}]]
+      :cell                 (fn [{:keys [value]}] value)}]]])
 
 (defn internals-demo []
   [v-box
@@ -870,17 +899,128 @@
                                        [:z 20]
                                        [:h 10]])))]))
 
+(def ww (r/atom 500))
+(def wh (r/atom 500))
+
+(def row-header-widths (r/atom [20 30 40 50]))
+(def column-header-heights (r/atom [20 50 70]))
+(def row-tree (r/atom header-tree-big))
+(def column-tree (r/atom [{:id :a :size 120}
+                          [{:id :n :size 100} {:id :d :size 89} {:id :e :size 89}
+                           {:id :f :size 89} {:id :g :size 89} {:id :h :size 89}]]))
+
 (def export-fn (r/atom #()))
 
 (defn export-cell [{:keys [row-path column-path row-index column-index]}]
   (let [label #(get (peek %) :id (peek %))]
     (str/join " " (filter some? [row-index column-index (label row-path) (label column-path)]))))
 
+(defn v-grid-demo []
+  [rc/v-box
+   :children
+   [[rc/button
+     {:on-click @export-fn
+      :style    {:width 81}
+      :label    "export"}]
+    [nested-v-grid {:row-tree                row-tree
+                    :column-tree             column-tree
+                    :row-tree-depth          4
+                    :row-header-widths       row-header-widths
+                    :column-header-heights   column-header-heights
+                    :column-tree-depth       3
+                    :show-row-branches?      true
+                    :show-column-branches?   true
+                    #_#_:hide-root?          false
+                    :cell-label              #(str (gensym))
+                    :on-init-export-fn       (fn [f] (reset! export-fn f))
+                    :on-export-cell          export-cell
+                    :on-export-row-header    export-cell
+                    :on-export-column-header export-cell
+                    :on-export-corner-header export-cell
+                    :on-resize               (fn [{:keys [header-dimension size-dimension keypath size]}]
+                                               (case [header-dimension size-dimension]
+                                                 [:column :height]
+                                                 (swap! column-header-heights assoc-in keypath size)
+                                                 [:row :width]
+                                                 (swap! row-header-widths assoc-in keypath size)
+                                                 [:row :height]
+                                                 (swap! row-tree update-in keypath assoc :size size)
+                                                 [:column :width]
+                                                 (swap! column-tree update-in keypath assoc :size size)))
+                    :parts                   {:wrapper {:style {:height @wh
+                                                                :width  @ww}}
+
+                                              :row-header-label
+                                              (fn [{:keys [row-path style]}]
+                                                [:div {:style style}
+                                                 (let [{:keys [is-after?]} (meta row-path)
+                                                       row-spec            (peek row-path)
+                                                       the-label           (->> "placeholder"
+                                                                                (get row-spec :id)
+                                                                                (get row-spec :label))]
+                                                   (str the-label (when is-after? " (Total)")))])
+                                              :corner-header
+                                              (fn [{:keys [edge row-index column-index style class attr] :as props}]
+                                                [:div (merge {:style style :class class} attr)
+                                                 (when (= 2 row-index)
+                                                   (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
+    [source-reference
+     "for above nested-grid"
+     "src/re_demo/nested_grid.cljs"]
+    "Window width"
+    [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
+    "Window height"
+    [rc/slider {:model wh :on-change (partial reset! wh) :min 200 :max 800}]
+    [rc/title :level :level2 :label "Key differences:"]
+    [:div {:style {:width 500}}
+     [rc/title :level :level3 :label "Trees are hiccup-like."]
+     [:p
+      " The tree " [:code "[:a :b :c]"]
+      "does " [:i "not"] " represent three siblings. Instead, " [:code ":a"]
+      " is the parent, and " [:code ":b :c"] " are children. Explicitly, "
+      "the branch function is " [:code "sequential?"]
+      " and the children function is " [:code "rest"] "."]
+     [rc/title :level :level3 :label "Root headers are hidden by default."]
+     [:p
+      " For instance, " [:code ":row-tree [:a [:b 1 2] [:c 8 9]]"]
+      " displays " [:code ":b :c"] " as two top-level headers, each with two children."
+      "The root header, " [:code ":a"] ", does not appear."]
+     [rc/title :level :level3 :label "Header main-size can only declared in the tree."]
+     [:code ":row-height"] " and " [:code ":column-width"]
+     " are the main-sizes."
+     " For instance: " [:code ":row-tree [{:id :a} {:id :b} {:id :c  :size 45}]"]
+     " makes three rows. The first two have a default height, and the third has "
+     "a height of 45."
+     [rc/title :level :level3 :label "Header cross-size can be declared as a prop."]
+     [:p [:code ":row-header-width"] " and " [:code ":column-header-height"]
+      " are the cross-sizes. To control the default cross-size, pass an integer for either key. "]
+     [:p
+      "There are also plural props, "
+      [:code ":row-header-widths"] " and " [:code ":column-header-heights"] ". "
+      "To control each header's cross-size individually, pass a vector of integers (or a reagent/atom). "
+      "Each vector must be as long (or longer) than the corresponding maximum tree-depth. "]
+     [:p
+      "For instance, " [:code ":row-tree [:apple [:banana 1 2] [:coconut 8 9]]"] " has a max depth of 3. "
+      "Note that keywords appear at tree depths 1 and 2, and numbers at a depth of 3. "
+      "In this case, you can pass " [:code " :row-header-widths [40 40 20]"] ". "
+      "This would make the keyword headers 40-wide, and the number headers 20-wide."]
+     [rc/title :level :level3 :label [:span "To handle header size changes, pass a function to " [:code ":on-resize"] "."]]
+     [:p [:code ":on-resize"] " takes keyword arguments:"]
+     [:ul
+      [:li [:code ":header-dimension"] " - either " [:code ":row"] " or " [:code ":column"]]
+      [:li [:code ":size-dimension"] " - either " [:code ":width"] " or " [:code ":height"]]
+      [:li [:code ":cross-size?"] " - True when you change column-header height or row-header width."]
+      [:li [:code ":keypath"] " - Vector of indices. Points to a location in a header-tree when resizing a main-size."
+       " Points to a location in " [:code ":row-header-widths"] " or " [:code ":column-header-heights"]
+       " when resizing a cross-size."]]]]])
+
 (defn demos []
   (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
               {:id :multimodal :label "Multimodal" :view multimodal-demo}
-              {:id :app        :label "Applications" :view app-demo}]
+              {:id :app        :label "Applications" :view app-demo}
+              {:id :v-grid     :label "V-grid (experimental)" :view v-grid-demo}
+              #_{:id :style      :label "Style" :view style-demo}]
         !tab-id  (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
@@ -910,9 +1050,9 @@
        :size     "auto"
        :gap      "10px"
        :children
-       [[panel-title "[nested-grid ... ]"
-         "src/re_com/nested_grid.cljs"
-         "src/re_demo/nested_grid.cljs"]
+       [[panel-title "[nested-v-grid ... ]"
+         "src/re_com/nested_v_grid.cljs"
+         "src/re_demo/nested_v_grid.cljs"]
         [h-box
          :src      (at)
          :gap      "50px"

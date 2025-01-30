@@ -58,8 +58,8 @@
             [re-demo.typeahead             :as    typeahead]
             [re-demo.v-table               :as    v-table]
             [re-demo.simple-v-table        :as    simple-v-table]
-            [re-demo.nested-grid                 :as    nested-grid]
-            [re-com.nested-grid            :as ng]
+            [re-demo.nested-grid           :as    nested-grid]
+            [re-demo.nested-v-grid         :as    nested-v-grid]
             [reagent.core :as r]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
@@ -102,7 +102,8 @@
    {:id :tables                 :level :major :label "Tables"}
    {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
    {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
-   {:id :nested-grid                  :level :minor :label "Nested Grid"        :panel nested-grid/panel}
+   {:id :nested-grid            :level :minor :label "Nested Grid"        :panel nested-grid/panel}
+   {:id :nested-v-grid          :level :minor :label "Nested V-grid"      :panel nested-v-grid/panel}
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
