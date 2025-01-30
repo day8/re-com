@@ -107,7 +107,7 @@
          {:name        :column-header-height
           :type        "integer"
           :validate-fn integer?
-          :default     40
+          :default     20
           :description
           [:span "Controls the default cross-axis size (i.e. width) of every column-header."]}
 
@@ -321,7 +321,7 @@
                              on-export-corner-header
                              theme pre-theme
                              virtualize?]
-                      :or   {row-header-width   40 column-header-height 40
+                      :or   {row-header-width   40 column-header-height 20
                              row-height         20 column-width         40
                              virtualize?        true
                              show-root-headers? true
@@ -392,7 +392,7 @@
         internal-row-header-widths     (r/atom (or (u/deref-or-value row-header-widths)
                                                    (vec (repeat @row-depth (u/deref-or-value row-header-width)))))
         internal-column-header-heights (r/atom (or (u/deref-or-value column-header-heights)
-                                                   (vec (repeat @row-depth (u/deref-or-value row-header-width)))))
+                                                   (vec (repeat @row-depth (u/deref-or-value column-header-height)))))
         safe-column-header-heights     (r/reaction
                                         (->> (concat @internal-column-header-heights
                                                      (repeat (u/deref-or-value column-header-height)))
