@@ -49,6 +49,7 @@
                       window-end   js/Number.POSITIVE_INFINITY
                       default-size 20}}]
   (let [sum-size        (volatile! 0)
+        depth           (volatile! 0)
         paths           (volatile! [])
         keypaths        (volatile! [])
         sizes           (volatile! [])
@@ -58,6 +59,7 @@
         cache!          (or cache-fn #(vswap! size-cache assoc %1 %2))
         lookup!         (or lookup-fn #(get @size-cache %))
         cached-sum-size (lookup! header-tree)
+        cached-depth    (lookup! :depth)
         walk
         (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? branch-end? last-child? hide?]
                                :or   {is-leaf? true
@@ -128,6 +130,7 @@
                                    #_(when show?
                                        (vswap! spans
                                                (fn [m] (reduce #(update %1 %2 inc) m (ancestry leaf-path)))))
+                                   (vswap! depth max cached-depth (count new-path))
                                    (vswap! paths conj new-path)
                                    (vswap! sums conj sum)
                                    (vswap! sizes conj leaf-size)
@@ -135,9 +138,11 @@
                                (vswap! sum-size + leaf-size)
                                leaf-size))))]
     (walk [] header-tree {:hide? hide-root?})
+    (vswap! size-cache assoc :depth @depth)
     {:sum-size        (or cached-sum-size @sum-size)
      :spans           @spans
      :positions       @sums
+     :depth           @depth
      :header-paths    @paths
      :keypaths        @keypaths
      :sizes           @sizes

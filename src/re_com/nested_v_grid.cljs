@@ -66,7 +66,7 @@
           :type        "integer"
           :default     "false"
           :validate-fn integer?
-          :required    true
+          :required    false
           :description
           [:span "Necessary to lay out the headers. Since " [:code "nested-grid"]
            " only traverses the visible part of each  header-tree, it cannot know "
@@ -78,7 +78,7 @@
           :type        "boolean"
           :default     "false"
           :validate-fn integer?
-          :required    true
+          :required    false
           :description
           [:span "Necessary to lay out the headers. Since " [:code "nested-grid"]
            " only traverses the visible part of each  header-tree, it cannot know "
@@ -343,10 +343,6 @@
         prev-column-header-heights       (r/atom (u/deref-or-value column-header-heights))
         internal-row-tree                (r/atom (u/deref-or-value row-tree))
         internal-column-tree             (r/atom (u/deref-or-value column-tree))
-        internal-row-header-widths       (r/atom (or (u/deref-or-value row-header-widths)
-                                                     (vec (repeat (u/deref-or-value row-tree-depth) row-header-width))))
-        internal-column-header-heights   (r/atom (or (u/deref-or-value column-header-heights)
-                                                     (vec (repeat (u/deref-or-value column-tree-depth) column-header-height))))
         internal-on-export               (r/atom (u/deref-or-value on-export))
         internal-on-export-cell          (r/atom (u/deref-or-value on-export-cell))
         internal-on-export-column-header (r/atom (u/deref-or-value on-export-column-header))
@@ -354,10 +350,6 @@
         internal-on-export-corner-header (r/atom (u/deref-or-value on-export-corner-header))
         row-size-cache                   (volatile! {})
         column-size-cache                (volatile! {})
-        column-depth                     (r/reaction (or (u/deref-or-value column-tree-depth)
-                                                         (count (u/deref-or-value internal-column-header-heights))))
-        row-depth                        (r/reaction (or (u/deref-or-value row-tree-depth)
-                                                         (count (u/deref-or-value internal-row-header-widths))))
         row-traversal                    (r/reaction
                                           (ngu/window (cond-> {:header-tree        @internal-row-tree
                                                                :size-cache         row-size-cache
@@ -390,91 +382,105 @@
                                                        :default-size       (u/deref-or-value column-width)
                                                        :hide-root?         (not show-root-headers?)
                                                        :skip-tail?         false}))
-        corner-header-edges              (fn [{:keys [row-index column-index]
-                                               rd    :row-depth cd :column-depth
-                                               :or   {rd @row-depth cd @column-depth}}]
-                                           (cond-> #{}
-                                             (= row-index (if (not show-root-headers?) 1 0))    (conj :top)
-                                             (= row-index (dec cd))                             (conj :bottom)
-                                             (= column-index (if (not show-root-headers?) 1 0)) (conj :left)
-                                             (= column-index (dec rd))                          (conj :right)))
-        export-fn                        (fn export-fn []
-                                           (let [{row-paths :header-paths}    @complete-row-traversal
-                                                 {column-paths :header-paths} @complete-column-traversal
-                                                 on-export-cell               @internal-on-export-cell
-                                                 on-export-column-header      @internal-on-export-column-header
-                                                 on-export-row-header         @internal-on-export-row-header
-                                                 on-export-corner-header      @internal-on-export-corner-header
-                                                 row-headers                  (for [showing-row-path (cond-> row-paths (not show-root-headers?) rest)
-                                                                                    :let             [{:keys [leaf? show?]} (meta showing-row-path)]
-                                                                                    :when            (or leaf? show?)
-                                                                                    :let             [showing-row-path (cond-> showing-row-path (not show-root-headers?) (subvec 1))
-                                                                                                      this-depth (count showing-row-path)]]
-                                                                                (for [i    (cond-> (range @row-depth) (not show-root-headers?) rest)
-                                                                                      :let [row-path (subvec showing-row-path 0 (min i this-depth))
-                                                                                            {:keys [branch-end?]} (meta row-path)
-                                                                                            props {:row-path    row-path
-                                                                                                   :path        row-path
-                                                                                                   :branch-end? branch-end?}]]
-                                                                                  (on-export-row-header props)))
-                                                 column-headers               (for [i (cond-> (range @column-depth) (not show-root-headers?) rest)]
-                                                                                (for [showing-column-path (cond-> column-paths (not show-root-headers?) rest)
-                                                                                      :let                [{:keys [leaf? show?]} (meta showing-column-path)]
-                                                                                      :when               (or leaf? show?)
-                                                                                      :let                [showing-column-path (cond-> showing-column-path (not show-root-headers?) (subvec 1))
-                                                                                                           this-depth (count showing-column-path)
-                                                                                                           column-path (subvec showing-column-path 0 (min i this-depth))
-                                                                                                           {:keys [branch-end?]} (meta column-path)
-                                                                                                           props {:column-path column-path
-                                                                                                                  :path        column-path
-                                                                                                                  :branch-end? branch-end?}]]
-                                                                                  (on-export-column-header props)))
-                                                 corner-headers               (for [row-index (cond-> (range @column-depth) (not show-root-headers?) rest)]
-                                                                                (for [column-index (cond-> (range @row-depth) (not show-root-headers?) rest)
-                                                                                      :let         [props {:row-index    (cond-> row-index (not show-root-headers?) dec)
-                                                                                                           :column-index (cond-> column-index (not show-root-headers?) dec)
-                                                                                                           :row-depth    (cond-> @row-depth (not show-root-headers?) dec)
-                                                                                                           :column-depth (cond-> @column-depth (not show-root-headers?) dec)}
-                                                                                                    props (merge props {:edge (corner-header-edges props)})]]
-                                                                                  (on-export-corner-header props)))
-                                                 cells                        (for [row-path row-paths
-                                                                                    :when    ((some-fn :leaf? :show?) (meta row-path))
-                                                                                    :let     [row-path (cond-> row-path (not show-root-headers?) (subvec 1))]]
-                                                                                (for [column-path column-paths
-                                                                                      :when       ((some-fn :leaf? :show?) (meta column-path))
-                                                                                      :let        [column-path (cond-> column-path (not show-root-headers?) (subvec 1))
-                                                                                                   props {:row-path    row-path
-                                                                                                          :column-path column-path}]]
-                                                                                  (on-export-cell props)))]
-                                             (on-export {:corner-headers corner-headers
-                                                         :row-headers    row-headers
-                                                         :column-headers column-headers
-                                                         :cells          cells
-                                                         :rows           (concat (map concat corner-headers column-headers)
-                                                                                 (map concat row-headers cells))})))
-        processed-column-header-heights  (r/reaction (cond->      (u/deref-or-value internal-column-header-heights)
-                                                       (not show-root-headers?) (#(into [0] (rest %)))
-                                                       :do                      vec))
-        processed-row-header-widths      (r/reaction (cond-> (or
-                                                              (u/deref-or-value internal-row-header-widths)
-                                                              (repeat @row-depth row-header-width))
-                                                       (not show-root-headers?) (#(into [0] (rest %)))
-                                                       :do                      vec))
-        column-header-height-total       (r/reaction (apply + @processed-column-header-heights))
-        column-width-total               (r/reaction (:sum-size @column-traversal))
-        column-paths                     (r/reaction (:header-paths @column-traversal))
-        column-keypaths                  (r/reaction (:keypaths @column-traversal))
-        column-sizes                     (r/reaction (:sizes @column-traversal))
-        column-template                  (r/reaction (ngu/grid-template @column-traversal))
-        column-cross-template            (r/reaction (ngu/grid-cross-template @processed-column-header-heights))
-        row-header-width-total           (r/reaction (apply + @processed-row-header-widths))
-        row-height-total                 (r/reaction (:sum-size @row-traversal))
-        row-paths                        (r/reaction (:header-paths @row-traversal))
-        row-keypaths                     (r/reaction (:keypaths @row-traversal))
-        row-sizes                        (r/reaction (:sizes @row-traversal))
-        row-template                     (r/reaction (ngu/grid-template @row-traversal))
-        row-cross-template               (r/reaction (ngu/grid-cross-template @processed-row-header-widths))
-        theme                            (theme/comp pre-theme theme)]
+
+        column-depth                    (r/reaction (or (u/deref-or-value column-tree-depth)
+                                                        (cond-> (:depth @column-traversal)
+                                                          (not show-root-headers?) dec)))
+        row-depth                       (r/reaction (or (u/deref-or-value row-tree-depth)
+                                                        (cond-> (:depth @row-traversal)
+                                                          (not show-root-headers?) dec)))
+        internal-row-header-widths      (r/atom (or (u/deref-or-value row-header-widths) []))
+        internal-column-header-heights  (r/atom (or (u/deref-or-value column-header-heights) []))
+        processed-column-header-heights (r/reaction
+                                         (->> (concat (when show-root-headers? [0])
+                                                      @internal-column-header-heights
+                                                      (repeat (u/deref-or-value column-header-height)))
+                                              (take @column-depth)
+                                              vec))
+        processed-row-header-widths     (r/reaction
+                                         (->> (concat (when show-root-headers? [0])
+                                                      @internal-row-header-widths
+                                                      (repeat (u/deref-or-value row-header-width)))
+                                              (take @row-depth)
+                                              vec))
+
+        column-header-height-total (r/reaction (apply + @processed-column-header-heights))
+        column-width-total         (r/reaction (:sum-size @column-traversal))
+        column-paths               (r/reaction (:header-paths @column-traversal))
+        column-keypaths            (r/reaction (:keypaths @column-traversal))
+        column-sizes               (r/reaction (:sizes @column-traversal))
+        column-template            (r/reaction (ngu/grid-template @column-traversal))
+        column-cross-template      (r/reaction (ngu/grid-cross-template @processed-column-header-heights))
+        row-header-width-total     (r/reaction (apply + @processed-row-header-widths))
+        row-height-total           (r/reaction (:sum-size @row-traversal))
+        row-paths                  (r/reaction (:header-paths @row-traversal))
+        row-keypaths               (r/reaction (:keypaths @row-traversal))
+        row-sizes                  (r/reaction (:sizes @row-traversal))
+        row-template               (r/reaction (ngu/grid-template @row-traversal))
+        row-cross-template         (r/reaction (ngu/grid-cross-template @processed-row-header-widths))
+        corner-header-edges        (fn [{:keys [row-index column-index]
+                                         rd    :row-depth cd :column-depth
+                                         :or   {rd @row-depth cd @column-depth}}]
+                                     (cond-> #{}
+                                       (= row-index 0)           (conj :top)
+                                       (= row-index (dec cd))    (conj :bottom)
+                                       (= column-index 0)        (conj :left)
+                                       (= column-index (dec rd)) (conj :right)))
+        export-fn                  (fn export-fn []
+                                     (let [{row-paths :header-paths}    @complete-row-traversal
+                                           {column-paths :header-paths} @complete-column-traversal
+                                           on-export-cell               @internal-on-export-cell
+                                           on-export-column-header      @internal-on-export-column-header
+                                           on-export-row-header         @internal-on-export-row-header
+                                           on-export-corner-header      @internal-on-export-corner-header
+                                           row-headers                  (for [showing-row-path (cond-> row-paths (not show-root-headers?) rest)
+                                                                              :let             [{:keys [leaf? show?]} (meta showing-row-path)]
+                                                                              :when            (or leaf? show?)
+                                                                              :let             [showing-row-path (cond-> showing-row-path (not show-root-headers?) (subvec 1))
+                                                                                                this-depth (count showing-row-path)]]
+                                                                          (for [i    (cond-> (range @row-depth) (not show-root-headers?) rest)
+                                                                                :let [row-path (subvec showing-row-path 0 (min i this-depth))
+                                                                                      {:keys [branch-end?]} (meta row-path)
+                                                                                      props {:row-path    row-path
+                                                                                             :path        row-path
+                                                                                             :branch-end? branch-end?}]]
+                                                                            (on-export-row-header props)))
+                                           column-headers               (for [i (cond-> (range @column-depth) (not show-root-headers?) rest)]
+                                                                          (for [showing-column-path (cond-> column-paths (not show-root-headers?) rest)
+                                                                                :let                [{:keys [leaf? show?]} (meta showing-column-path)]
+                                                                                :when               (or leaf? show?)
+                                                                                :let                [showing-column-path (cond-> showing-column-path (not show-root-headers?) (subvec 1))
+                                                                                                     this-depth (count showing-column-path)
+                                                                                                     column-path (subvec showing-column-path 0 (min i this-depth))
+                                                                                                     {:keys [branch-end?]} (meta column-path)
+                                                                                                     props {:column-path column-path
+                                                                                                            :path        column-path
+                                                                                                            :branch-end? branch-end?}]]
+                                                                            (on-export-column-header props)))
+                                           corner-headers               (for [row-index (cond-> (range @column-depth) (not show-root-headers?) rest)]
+                                                                          (for [column-index (cond-> (range @row-depth) (not show-root-headers?) rest)
+                                                                                :let         [props {:row-index    (cond-> row-index (not show-root-headers?) dec)
+                                                                                                     :column-index (cond-> column-index (not show-root-headers?) dec)
+                                                                                                     :row-depth    (cond-> @row-depth (not show-root-headers?) dec)
+                                                                                                     :column-depth (cond-> @column-depth (not show-root-headers?) dec)}
+                                                                                              props (merge props {:edge (corner-header-edges props)})]]
+                                                                            (on-export-corner-header props)))
+                                           cells                        (for [row-path row-paths
+                                                                              :when    ((some-fn :leaf? :show?) (meta row-path))
+                                                                              :let     [row-path (cond-> row-path (not show-root-headers?) (subvec 1))]]
+                                                                          (for [column-path column-paths
+                                                                                :when       ((some-fn :leaf? :show?) (meta column-path))
+                                                                                :let        [column-path (cond-> column-path (not show-root-headers?) (subvec 1))
+                                                                                             props {:row-path    row-path
+                                                                                                    :column-path column-path}]]
+                                                                            (on-export-cell props)))]
+                                       (on-export {:corner-headers corner-headers
+                                                   :row-headers    row-headers
+                                                   :column-headers column-headers
+                                                   :cells          cells
+                                                   :rows           (concat (map concat corner-headers column-headers)
+                                                                           (map concat row-headers cells))})))
+        theme                      (theme/comp pre-theme theme)]
     (r/create-class
      {:component-did-mount
       #(do
@@ -505,11 +511,11 @@
             (reset! internal-prop external-value))))
       :reagent-render
       (fn [{:keys
-            [theme-cells? on-resize hide-root? style class resize-row-height?
+            [theme-cells? on-resize show-root-headers? style class resize-row-height?
              resize-column-header-height?]
             :as props
             :or
-            {hide-root?                   true
+            {show-root-headers?           false
              resize-row-height?           true
              resize-column-header-height? true
              on-resize                    (fn [{:keys [header-dimension size-dimension keypath size]}]
@@ -542,7 +548,7 @@
                  (on-resize props))
 
                row-width-resizers
-               (for [i (range (if hide-root? 1 0) @row-depth)]
+               (for [i (range @row-depth)]
                  ^{:key [::row-width-resizer i]}
                  [ngp/resizer {:on-resize        resize!
                                :overlay          overlay
@@ -554,7 +560,7 @@
                                :size             (get @internal-row-header-widths i row-header-width)}])
 
                column-height-resizers
-               (for [i (range (if hide-root? 1 0) @column-depth)]
+               (for [i (range @column-depth)]
                  ^{:key [::column-height-resizer i]}
                  [ngp/resizer {:path             (get @column-paths i)
                                :on-resize        resize!
@@ -602,14 +608,17 @@
                                  :dimension        :column-width}]))
 
                row-headers
-               (for [i    (range (if hide-root? 1 0) (count @row-paths))
+               (for [i    (range (if show-root-headers? 0 1) (count @row-paths))
                      :let [row-path              (get @row-paths i)
                            path-ct               (count row-path)
                            end-path              (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
-                                                       (drop (inc i) @row-paths))
+                                                       (drop
+                                                        (inc i) @row-paths))
                            {:keys [branch-end?]} (meta row-path)
-                           row-path-prop         (cond-> row-path hide-root? (subvec 1))
-                           cross-size            (get @internal-row-header-widths (dec path-ct) row-header-width)
+                           row-path-prop         (cond-> row-path (not show-root-headers?) (subvec 1))
+                           cross-size            (get @internal-row-header-widths
+                                                      (cond-> (dec path-ct) (not show-root-headers?) dec)
+                                                      row-header-width)
                            size                  (get @row-sizes i)]
                      :let [props {:part        ::row-header
                                   :row-path    row-path-prop
@@ -620,14 +629,15 @@
                                                 :cross-size        cross-size
                                                 :grid-row-end      (if branch-end? "span 1"
                                                                        (ngu/path->grid-line-name end-path))
-                                                :grid-column-start (cond-> (count row-path) branch-end? dec)
+                                                :grid-column-start (cond-> (count row-path) :do dec branch-end? dec)
                                                 :grid-column-end   -1}}
                            props (assoc props :children [(part ::row-header-label
                                                            {:props (assoc props
-                                                                          :style {:width    (- cross-size 10)
-                                                                                  :height   (- size 5)
-                                                                                  :position :sticky
-                                                                                  :top      @column-header-height-total})
+                                                                          :style (merge {:height   (- size 5)
+                                                                                         :position :sticky
+                                                                                         :top      @column-header-height-total}
+                                                                                        (when-not branch-end?
+                                                                                          {:width    (- cross-size 10)})))
                                                             :impl  ngp/row-header-label})])]]
                  (part ::row-header
                    {:part  ::row-header
@@ -636,13 +646,13 @@
                     :theme (when theme-cells? theme)}))
 
                column-headers
-               (for [i         (range (count  @column-paths))
+               (for [i         (range (if show-root-headers? 0 1) (count @column-paths))
                      :let      [column-path           (get @column-paths i)
                                 path-ct               (count column-path)
                                 end-path              (some #(when (= (count %) path-ct) %)
                                                             (drop (inc i) @column-paths))
                                 {:keys [branch-end?]} (meta column-path)
-                                column-path-prop           (cond-> column-path hide-root? (subvec 1))]
+                                column-path-prop      (cond-> column-path (not show-root-headers?) (subvec 1))]
                      #_#_:when (not branch-end?)
                      :let      [props {:part        ::column-header
                                        :column-path column-path-prop
@@ -651,7 +661,7 @@
                                        :keypath     (get @column-keypaths i)
                                        :style       {:grid-column-start (ngu/path->grid-line-name column-path)
                                                      :grid-column-end   (ngu/path->grid-line-name end-path)
-                                                     :grid-row-start    (cond-> (count column-path) branch-end? dec)
+                                                     :grid-row-start    (cond-> (count column-path-prop) branch-end? dec)
                                                      :grid-row-end      -1}}
                                 props (assoc props :children    [(part ::column-header-label
                                                                    {:props props
@@ -663,8 +673,8 @@
                     :key   column-path}))
 
                corner-headers
-               (for [column-index (cond-> (range @row-depth) hide-root? rest)
-                     row-index    (cond-> (range @column-depth) hide-root? rest)
+               (for [column-index (cond-> (range @row-depth) show-root-headers? rest)
+                     row-index    (cond-> (range @column-depth) show-root-headers? rest)
                      :let         [props {:part         ::corner-header
                                           :row-index    row-index
                                           :column-index column-index
@@ -687,8 +697,8 @@
                     :theme (when true #_theme-cells? theme)
                     :props (cond-> props
                              :do        (update :style merge borders)
-                             hide-root? (merge {:row-index    (dec row-index)
-                                                :column-index (dec column-index)}))
+                             show-root-headers? (merge {:row-index    (dec row-index)
+                                                        :column-index (dec column-index)}))
                     :key   [::corner-header row-index column-index]}))
 
                cells
@@ -696,12 +706,12 @@
                      column-path @column-paths
                      :when       (and ((some-fn :leaf? :show?) (meta row-path))
                                       ((some-fn :leaf? :show?) (meta column-path)))
-                     :let        [props {:row-path    (cond-> row-path hide-root? (subvec 1))
-                                         :column-path (cond-> column-path hide-root? (subvec 1))
+                     :let        [props {:row-path    (cond-> row-path show-root-headers? (subvec 1))
+                                         :column-path (cond-> column-path show-root-headers? (subvec 1))
                                          :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
                                                        :grid-column-start (ngu/path->grid-line-name column-path)}}
                                   props (merge props
-                                               {:children    [(part ::cell-label {:props props})]})]]
+                                               {:children [(part ::cell-label {:props props})]})]]
                  (part ::cell
                    {:part  ::cell
                     :props props
