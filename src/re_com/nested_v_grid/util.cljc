@@ -87,6 +87,7 @@
                                        own-path   (conj path (get-header-spec node))
                                        own-size   (walk path (get-header-spec node) {:collect-anyway? true
                                                                                      :is-leaf?        is-leaf?
+                                                                                     :branch-path?    (not is-leaf?)
                                                                                      :keypath         (conj keypath 0)
                                                                                      :branch-end?     branch-end?
                                                                                      :last-child?     last-child?})
@@ -124,6 +125,7 @@
                                                   (or is-leaf? show-above?)
                                                   (vary-meta merge {}
                                                              (when is-leaf? {:leaf? true})
+                                                             (when-not is-leaf? {:branch? true})
                                                              (when branch-end? {:branch-end? true})
                                                              (when show-above? {:show-above? true})
                                                              (when last-child? {:last-child? true})))]

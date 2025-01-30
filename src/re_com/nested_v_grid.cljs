@@ -650,7 +650,7 @@
                                 path-ct               (count column-path)
                                 end-path              (some #(when (= (count %) path-ct) %)
                                                             (drop (inc i) @column-paths))
-                                {:keys [branch-end?]} (meta column-path)
+                                {:keys [branch-end? branch? leaf?]} (meta column-path)
                                 column-path-prop      (cond-> column-path (not show-root-headers?) (subvec 1))]
                      #_#_:when (not branch-end?)
                      :let      [props {:part        ::column-header
@@ -659,7 +659,10 @@
                                        :branch-end? branch-end?
                                        :keypath     (get @column-keypaths i)
                                        :style       {:grid-column-start (ngu/path->grid-line-name column-path)
-                                                     :grid-column-end   (ngu/path->grid-line-name end-path)
+                                                     :grid-column-end   (cond
+                                                                          end-path (ngu/path->grid-line-name end-path)
+                                                                          leaf?    "span 1"
+                                                                          :else    "-1")
                                                      :grid-row-start    (cond-> (count column-path)
                                                                           branch-end?              dec
                                                                           (not show-root-headers?) dec)
@@ -705,10 +708,16 @@
                cells
                (for [row-path    @row-paths
                      column-path @column-paths
-                     :when       (and ((some-fn :leaf? :show?) (meta row-path))
-                                      ((some-fn :leaf? :show?) (meta column-path)))
-                     :let        [props {:row-path    (cond-> row-path show-root-headers? (subvec 1))
-                                         :column-path (cond-> column-path show-root-headers? (subvec 1))
+                     :let        [row-meta (meta row-path)
+                                  column-meta (meta column-path)]
+                     :when       (and ((some-fn :leaf? :show?) row-meta)
+                                      ((some-fn :leaf? :show?) column-meta))
+                     :let        [props {:row-path    (cond-> row-path
+                                                        (not show-root-headers?) (subvec 1)
+                                                        (:branch-end? row-meta) pop)
+                                         :column-path (cond-> column-path
+                                                        (not show-root-headers?) (subvec 1)
+                                                        (:branch-end? column-meta) pop)
                                          :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
                                                        :grid-column-start (ngu/path->grid-line-name column-path)}}
                                   props (merge props
@@ -724,12 +733,7 @@
               :after-props {:style style
                             :class class}
               :props
-              {:style {:height                300
-                       :width                 500
-                       :overflow              :auto
-                       :flex                  "0 0 auto"
-                       :display               :grid
-                       :grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
+              {:style {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
                        :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
                :attr  {:ref wrapper-ref!}
                :children

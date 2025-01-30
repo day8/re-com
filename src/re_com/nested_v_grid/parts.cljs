@@ -12,9 +12,10 @@
 
 (defn header-label [{:keys [path]}]
   (let [spec (peek path)]
-    (or (:label spec)
-        (some-> spec :id str)
-        (some-> spec str))))
+    [:div
+     (or (:label spec)
+         (some-> spec :id str)
+         (some-> spec str))]))
 
 (def row-header-label header-label)
 

@@ -11,9 +11,7 @@
 (defn style [props & ms] (apply update props :style merge ms))
 
 (defmethod base ::nvg/wrapper [props]
-  (style props {:height   300
-                :width    "100%"
-                :overflow :auto
+  (style props {:overflow :auto
                 :flex     "1 1 auto"
                 :display  :grid}))
 
@@ -52,7 +50,7 @@
      :padding-left     sm-4
      :background-color light-background
      :color            "#666"
-     :font-size        "13px"
+     :font-size        13
      :text-overflow    :ellipsis
      :overflow         :hidden
      :white-space      :nowrap}))

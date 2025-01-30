@@ -1565,9 +1565,8 @@ code {
     font-size: 13px;
     background-color: #eee;
     color: #777;
-    padding-top: 3px;
     padding-right: 3px;
-    padding-left: 3px;
+    padding-left: 6px;
     text-align: left;
     border-bottom: thin solid #ccc;
     border-left: thin solid #ccc;
@@ -1585,15 +1584,13 @@ code {
 }
 
 .rc-nested-v-grid-column-header-grid > div:not(.rc-nested-v-grid-resizer) {
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     user-select: none;
     font-size: 13px;
     background-color: #eee;
     color: #777;
-    padding-top: 3px;
-    padding-right: 3px;
-    padding-left: 3px;
     text-align: center;
     border-top: thin solid #ccc;
     border-right: thin solid #ccc;
