@@ -4,46 +4,11 @@
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
    [re-com.util :as u]
    [re-com.theme :as theme]
-   [re-com.nested-v-grid.theme :as ng-theme]
    [re-com.theme.default :as default]
-   [re-com.nested-v-grid.util :as ngu]
    [reagent.core :as r]
    [re-com.nested-grid :refer [nested-grid leaf-paths header-spec->header-paths
                                nested-grid-args-desc nested-grid-parts-desc]]
-   [re-com.nested-v-grid  :as nvg :refer [nested-v-grid]]
    [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
-
-(def arg-style {:style {:display     "inline-block"
-                        :font-weight "bold"
-                        :min-width   "140px"}})
-
-(def header->icon {:spot     "❌"
-                   :price    "💰"
-                   :foreign  "🌍"
-                   :domestic "🏠"
-                   :kilo     "𝞙"
-                   :ton      "𝞣"
-                   :apple    "🍎"
-                   :banana   "🍌"
-                   :grape    "🍇"
-                   :red      "🔴"
-                   :white    "⚪"})
-
-(defn fruit-demo []
-  [nested-grid {:column-tree [{:id :fruit :hide-cells? true}
-                              [{:id :red}
-                               {:id :white}]]
-                :row-tree    [[:price
-                               [:foreign
-                                [:kilo
-                                 :ton]]
-                               [:domestic
-                                [:kilo
-                                 :ton]]]]
-                :cell    (fn fruit-cell [{:keys [row-path column-path]}]
-                           (->> (concat column-path row-path)
-                                (map #(header->icon % (header->icon (get % :id))))
-                                (apply str)))}])
 
 (defn concepts-column []
   [v-box
@@ -140,96 +105,6 @@
      "See the " [:strong "Basic Demo"] " for examples,"
      " and the " [:strong "Concepts"] " section for in-depth explanations."]]])
 
-(def color-mixer
-  {:red    {:red    :red
-            :blue   :purple
-            :yellow :orange}
-   :yellow {:red    :orange
-            :blue   :green
-            :yellow :yellow}
-   :blue   {:red    :purple
-            :blue   :blue
-            :yellow :green}})
-
-(def special-colors
-  {"lightred"    "pink"
-   "lightorange" "peachpuff"
-   "lightpurple" "lavender"
-   "darkpurple"  "brown"
-   "darkyellow"  "gold"})
-
-(defn mix-colors [color1 color2]
-  (name (get-in color-mixer [(keyword color1) (keyword color2)])))
-
-(defn color-demo []
-  [rc/v-box
-   :children
-   [[nested-grid
-     :column-tree ["red" "yellow" "blue"]
-     :row-tree    ["red" "yellow" "blue"]
-     :cell    (fn color-cell [{:keys [row-path column-path]}]
-                (mix-colors (last row-path)
-                            (last column-path)))]
-    [source-reference
-     "for above nested-grid"
-     "src/re_demo/nested_grid.cljs"]
-    [p "Here's a grid with flat columns and rows."
-     " The " [:code ":cell"] " function closes over some external business logic ("
-     [:code "mix-colors"] ") to express a string."
-     " Since there is only one level of nesting, " [:code "column-path"]
-     " contains a single " [:i "header value"] " - for instance, "
-     [:code "[:red]"] "."]
-    [:pre "[nested-grid
- :column-tree [\"red\" \"yellow\" \"blue\"]
- :row-tree    [\"red\" \"yellow\" \"blue\"]
- :cell    (fn color-cell [{:keys [column-path row-path]}]
-             (mix-colors (last column-path)
-                         (last row-path)))]"]]])
-
-(defn color-shade-cell [{:keys [row-path column-path]}]
-  (let [[hue-a]       row-path
-        [shade hue-b] column-path
-        hue           (mix-colors hue-a hue-b)
-        shade         (when-not (= :medium shade) (name shade))
-        color         (str shade hue)
-        color         (get special-colors color color)]
-    [:div {:style {:height           "100%"
-                   :width            "100%"
-                   :text-align       "center"
-                   :background-color color}}
-     [:span {:style {:font-size   "10px"
-                     :color       "white"
-                     :text-shadow "1px 1px 2px black"}}
-      color]]))
-
-(defn color-shade-demo []
-  [v-box
-   :children
-   [[nested-grid
-     {:column-tree [:medium [:red :yellow :blue]
-                    :light [:red :yellow :blue]
-                    :dark [:red :yellow :blue]]
-      :row-tree    [:red :yellow :blue]
-      :cell    color-shade-cell}]
-    [source-reference
-     "for above nested-grid"
-     "src/re_demo/nested_grid.cljs"]
-    [rc/v-box
-     :children
-     [[p "Here, " [:code ":column-tree"] "is a nested " [:i "configuration"] " of " [:i "header values."]]
-      [p "Since the " [:i "configuration"] " has 2 levels of nesting,"
-       " each " [:code ":column-path"] " is 2-long. For instance, "
-       [:code "[:medium :yellow]"] ". "]
-      [p [:code ":cell"] " returns a hiccup."]
-      [p "Calling " [:code "(color-shade-cell {:column-path [:medium :yellow] :row-path [:blue]})"]
-       "should return a " [:span {:style {:color "green"}} "green"] " hiccup."]
-      [:pre "[nested-grid
- :column-tree [:medium [:red :yellow :blue]
-           :light  [:red :yellow :blue]
-           :dark   [:red :yellow :blue]]
- :row-tree    [:red :yellow :blue]
- :cell    color-shade-cell]"]]]]])
-
 (def lookup-table [["🚓" "🛵" "🚲" "🛻" "🚚"]
                    ["🍐" "🍎" "🍌" "🥝" "🍇"]
                    ["🐕" "🐎" "🧸" "🐈" "🐟"]])
@@ -298,74 +173,6 @@
                   "aliqua."])
 
 (defn rand-color [] (str "rgb(" (* 255 (rand)) "," (* 255 (rand)) "," (* 255 (rand)) ")"))
-
-(defn rf8-grid-theme [props {:keys [part state] $ :variables}]
-  (let [$ (merge $ {:border-light "#ccc"
-                    :dark         "#768895"
-                    :neutral      "#ccc"})]
-    (->>
-     nil
-     (case part
-       :re-com.nested-grid/nested-grid
-       {:row-height           "20px"
-        :column-header-height "20px"
-        #_#_:row-header-width 0
-        :show-zebra-stripes?  false}
-
-       :re-com.nested-grid/cell-wrapper
-       {:style {:border-left  "none"
-                :border-right "none"}}
-
-       :re-com.nested-grid/column-header-wrapper
-       {:style {:border-right     "none"
-                :padding-left     "10px"
-                :padding-top      1
-                :background-color ($ :dark)
-                :color            ($ :white)}}
-
-       :re-com.nested-grid/row-header-wrapper
-       {:style {:border-left      "none"
-                :border-bottom    "none"
-                :border-right     "none"
-                :padding-left     "10px"
-                :padding-top      1
-                :background-color "#99a"
-                :color            ($ :white)}}
-
-       :re-com.nested-grid/corner-header-wrapper
-       {:style {:border-left      "none"
-                :border-bottom    "none"
-                :border-right     "none"
-                :padding-left     "10px"
-                :padding-top      1
-                :background-color ($ :dark)
-                :color            ($ :white)}})
-     (theme/merge-props props))))
-
-(def rf8-grid-parts
-  {:re-com.nested-grid/nested-grid
-   {:row-height           "20px"
-    :column-header-height "20px"
-    :row-header-width     0
-    :show-zebra-stripes?  false}
-
-   :re-com.nested-grid/cell-wrapper
-   {:style {:border-left  "none"
-            :border-right "none"}}
-
-   :re-com.nested-grid/column-header-wrapper
-   {:style {:border-right     "none"
-            :padding-left     "10px"
-            :padding-top      1
-            :background-color "#768895"
-            :color            :white}}
-
-   :re-com.nested-grid/corner-header-wrapper
-   {:style {:border-right     "none"
-            :padding-left     "10px"
-            :padding-top      1
-            :background-color "#768895"
-            :color            :white}}})
 
 (defn internals-demo []
   [v-box
@@ -603,11 +410,11 @@
                  :fill            "none"}]]))
 
 (defmethod multimodal-cell :spark-line
-  [{:keys [column-path row-path]}]
+  [{:keys [column-path]}]
   [sparkline (get @source-data (last column-path))])
 
 (defmethod multimodal-cell :button
-  [{:keys [column-path row-path]}]
+  [{:keys [column-path]}]
   [:button {:style {:z-index 99}
             :on-click #(swap! source-data assoc (last column-path)
                               [(rand) (rand) (rand) (rand)])}
@@ -689,14 +496,9 @@
 
 (defn args-column []
   [args-table
-   nvg/args-desc #_nested-grid-args-desc
+   nested-grid-args-desc
    {:total-width       "550px"
     :name-column-width "180px"}])
-
-(defn algorithm-column []
-  [v-box
-   :children
-   []])
 
 (defn more-column []
   [v-box
@@ -774,108 +576,6 @@
      "), we only store a " [:code ":width"] " key. "
      "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
-(def row-seq (r/atom '()))
-
-(def rows-loaded (r/atom 0))
-
-(defn data-chunk [& {:keys [dimension index-offset size with-loader?] :or {size 10 with-loader? true}}]
-  (for [chunk-index (range size)]
-    (cond->
-     {:index       (+ chunk-index index-offset)
-      :chunk-index chunk-index
-      :size        size
-      :id          (gensym)
-      :cell-size   (+ 25 (rand-int 75))
-      :dimension   dimension}
-      (and with-loader? (= chunk-index 0)) (assoc :loader? true))))
-
-(defn load-row-chunk! [& {:keys [size] :or {size 10}}]
-  (swap! row-seq concat (data-chunk {:size         size
-                                     :index-offset @rows-loaded
-                                     :dimension    :row}))
-  (swap! rows-loaded + size))
-
-(def column-seq (r/atom (data-chunk {:dimension :column :size 100})))
-
-(defn test-cell [{:keys [row-path column-path]}]
-  (let [{:keys           [loader?]
-         row-index       :index
-         row-size        :size
-         row-chunk-index :chunk-index}    (peek row-path)
-        {column-index       :index
-         column-chunk-index :chunk-index} (peek column-path)
-        loader?                           (and loader? (= 0 column-chunk-index))
-        loaded?                           (r/reaction (pos? (- @rows-loaded row-index row-size)))
-        background-color                  (r/atom "#cceeff")
-        init-background!                  #(reset! background-color "#fff")]
-    (r/create-class
-     {:component-did-mount
-      #(do (when (and loader? (not @loaded?))
-             (load-row-chunk!))
-           (init-background!))
-      :reagent-render
-      (fn [{:keys [children column-path row-path]}]
-        [:div {:style {:grid-column      (ngu/path->grid-line-name column-path)
-                       :grid-row         (ngu/path->grid-line-name row-path)
-                       :padding          5
-                       :font-size        10
-                       :transition       "background-color 0.5s ease-in"
-                       :background-color @background-color
-                       :border           "thin solid black"
-                       :border-top       (if (= 0 row-chunk-index)
-                                           "thick solid black"
-                                           "thin solid black")}}
-         (str row-index " // " column-index)])})))
-
-(def header-tree-minimal
-  [:a :b :c])
-
-(def header-tree-small
-  [:a :b [:c :d] [:e :f]])
-
-(def header-tree
-  [{:id :z :label "ZZ" :show? false}
-   [:g
-    [{:id :x :label "HIHI" :size 99}
-     {:label "something" :size 20}]
-    [{:id :y :label "HIHI"}
-     [{:label "sometihng-else" :size 40}]]
-    [:z {:size 20}]]
-   [:h
-    [:x {:id 20}]
-    [:y 40]
-    [:z 20]]
-   [:i
-    [:x 20]
-    [:y 40]
-    [:z 20]]
-   [:j
-    [:x 20]
-    [:y 40]
-    [:z 20]]])
-
-(def header-tree-big
-  (into header-tree
-        (repeatedly 1000 #(do [(keyword (gensym))
-                               [:x 20]
-                               [:y 40]
-                               [:z 20]]))))
-
-(def header-tree-huge
-  (into header-tree
-        [(into [:hhh]
-               (repeatedly 10000 #(do [(keyword (gensym))
-                                       [:x 20]
-                                       [:y 40]
-                                       [:z 20]
-                                       [:h 10]])))]))
-
-(def export-fn (r/atom #()))
-
-(defn export-cell [{:keys [row-path column-path row-index column-index]}]
-  (let [label #(get (peek %) :id (peek %))]
-    (str/join " " (filter some? [row-index column-index (label row-path) (label column-path)]))))
-
 (defn demos []
   (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
               {:id :internals  :label "Internals"  :view internals-demo}
@@ -928,5 +628,4 @@
              :on-change #(reset! !tab-id %)]
             [(:view @!tab)]]]
           [demos]]]
-        #_[parts-table "nested-grid" nested-grid-parts-desc]
-        [parts-table "nested-v-grid" nvg/parts-desc]]])))
+        [parts-table "nested-grid" nested-grid-parts-desc]]])))

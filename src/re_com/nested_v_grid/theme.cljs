@@ -18,12 +18,14 @@
 (defmethod base ::nvg/cell-grid
   [props]
   (style props {:display           :grid
+                :overflow :hidden
                 :grid-row-start    2
                 :grid-column-start 2}))
 
 (defmethod base ::nvg/column-header-grid
   [props]
   (style props {:display  :grid
+                :overflow :hidden
                 :position :sticky
                 :top      0}))
 

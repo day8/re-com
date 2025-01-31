@@ -608,15 +608,15 @@
 
                row-headers
                (for [i    (range (count @row-paths))
-                     :let [row-path              (get @row-paths i)
-                           path-ct               (count row-path)
-                           end-path              (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
-                                                       (drop (inc i) @row-paths))
-                           {:keys [branch-end?]} (meta row-path)
-                           row-path-prop         (cond-> row-path (not show-root-headers?) (subvec 1))
-                           cross-size            (get @safe-row-header-widths
-                                                      (cond-> (dec path-ct) (not show-root-headers?) dec))
-                           size                  (get @row-sizes i)]
+                     :let [row-path                    (get @row-paths i)
+                           path-ct                     (count row-path)
+                           end-path                    (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
+                                                             (drop (inc i) @row-paths))
+                           {:keys [branch-end? leaf?]} (meta row-path)
+                           row-path-prop               (cond-> row-path (not show-root-headers?) (subvec 1))
+                           cross-size                  (get @safe-row-header-widths
+                                                            (cond-> (dec path-ct) (not show-root-headers?) dec))
+                           size                        (get @row-sizes i)]
                      :let [props {:part        ::row-header
                                   :row-path    row-path-prop
                                   :path        row-path-prop
@@ -632,9 +632,10 @@
                                                 :grid-column-end   -1}}
                            props (assoc props :children [(part ::row-header-label
                                                            {:props (assoc props
-                                                                          :style (merge {:height   (- size 5)
-                                                                                         :position :sticky
-                                                                                         :top      @column-header-height-total}
+                                                                          :style (merge {:height (- size 5)}
+                                                                                        (when-not leaf?
+                                                                                          {:position :sticky
+                                                                                           :top      @column-header-height-total})
                                                                                         (when-not branch-end?
                                                                                           {:width (- cross-size 10)})))
                                                             :impl  ngp/row-header-label})])]]
@@ -714,10 +715,12 @@
                                       ((some-fn :leaf? :show?) column-meta))
                      :let        [props {:row-path    (cond-> row-path
                                                         (not show-root-headers?) (subvec 1)
-                                                        (:branch-end? row-meta) pop)
+                                                        (:branch-end? row-meta)  pop)
                                          :column-path (cond-> column-path
-                                                        (not show-root-headers?) (subvec 1)
+                                                        (not show-root-headers?)   (subvec 1)
                                                         (:branch-end? column-meta) pop)
+                                         :row-meta    row-meta
+                                         :column-meta column-meta
                                          :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
                                                        :grid-column-start (ngu/path->grid-line-name column-path)}}
                                   props (merge props
