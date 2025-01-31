@@ -1,0 +1,14 @@
+.re-com-demo-util-code
+{font-size: 12px;
+ background: unset;
+ border: thin solid #ccc;
+ border-radius: 4px;
+ padding: 0.5em;
+ background-color: #eee;
+ margin-right: unset;}
+
+.re-com-demo-util-code code
+{font-size: 12px;
+ border: unset;
+ padding: unset;
+ margin-right: unset;}

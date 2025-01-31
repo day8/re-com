@@ -929,4 +929,4 @@
             [(:view @!tab)]]]
           [demos]]]
         #_[parts-table "nested-grid" nested-grid-parts-desc]
-        [parts-table "nested-v-grid" nvg/nested-v-grid-parts-desc]]])))
+        [parts-table "nested-v-grid" nvg/parts-desc]]])))

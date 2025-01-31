@@ -42,13 +42,13 @@
              :args-desc      cell-args-desc}
      [::cell-label {:top-level-arg? true}]]]])
 
-(def nested-v-grid-parts-desc
+(def parts-desc
   (when include-args-desc?
     (part/describe part-structure)))
 
-(def nested-v-grid-parts
+(def part-names
   (when include-args-desc?
-    (-> (map :name nested-v-grid-parts-desc) set)))
+    (-> (map :name parts-desc) set)))
 
 (def args-desc
   (let [special-args

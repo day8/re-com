@@ -1,9 +1,11 @@
 (ns re-demo.utils
   (:require
    [re-com.core           :as rc :refer [title line label hyperlink-href align-style at]]
-   [re-com.box            :refer [box gap h-box v-box]]
+   [re-com.box            :as box :refer [box gap h-box v-box]]
    [re-com.text           :refer [p]]
-   [re-com.util           :refer [px]]))
+   [re-com.util           :refer [px]]
+   [day8.re-frame-10x.tools.highlight-hiccup :refer [str->hiccup]]
+   [zprint.core :as zprint]))
 
 (defn github-hyperlink
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
@@ -255,3 +257,21 @@
    :on-change (if (some? prop)
                 #(swap! prop not)
                 #(reset! prop default))])
+
+(defn code [& ss]
+  [box/v-box
+   :class "re-com-demo-util-code"
+   :style {:white-space :pre}
+   :gap "19px"
+   :children
+   (mapv #(do [str->hiccup %]) ss)])
+
+(defn zprint-code [& quoted-forms]
+  (into [code]
+        (map #(do
+                (zprint/zprint-str % {:map     {:justify? true
+                                                :comma?   false}
+                                      :binding {:justify? true}
+                                      :pair    {:justify? true}
+                                      :width   60})))
+        quoted-forms))

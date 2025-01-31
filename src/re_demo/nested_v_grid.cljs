@@ -1,8 +1,10 @@
 (ns re-demo.nested-v-grid
   (:require
    [clojure.string :as str]
+   [day8.re-frame-10x.tools.highlight-hiccup :refer [str->hiccup]]
    [re-com.core   :as rc :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
    [re-com.util :as u]
+   [re-com.box :as box]
    [re-com.theme :as theme]
    [re-com.nested-v-grid.theme :as ng-theme]
    [re-com.theme.default :as default]
@@ -11,7 +13,7 @@
    [re-com.nested-grid :refer [nested-grid leaf-paths header-spec->header-paths
                                nested-grid-args-desc nested-grid-parts-desc]]
    [re-com.nested-v-grid  :as nvg :refer [nested-v-grid]]
-   [re-demo.utils :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
+   [re-demo.utils :as rdu :refer [source-reference panel-title title2 title3 args-table parts-table github-hyperlink status-text new-in-version]]))
 
 (def arg-style {:style {:display     "inline-block"
                         :font-weight "bold"
@@ -123,18 +125,14 @@
      [:ul {:style {:width 400}}
       [:li "Uses" " " [:a {:href "https://www.w3schools.com/css/css_grid.asp"} "css grid"]
        " " "for layout."]
-      [:li "Has adjustible column & row widths."]
-      [:li "Is optimized for hundreds of cells, not millions."]
-      [:li "Does not virtualize rows (" [:span {:style {:color "red"}} "...yet"] ")."
-       " It renders everything in a single pass."]
-      [:li "Does not re-render when you scroll or click. Even if that first render is expensive, "
-       "the UI should be snappy once it completes."]]]
+      [:li "Has adjustible column & row sizes."]
+      [:li "Can virtualize columns (not just rows)."]]]
     [title2 "Quick Start"]
     [p "To use " [:code "nested-grid"] ", at a minimum, you must declare:"
      [:ul
-      [:li [:code ":column-tree"] ": a vector describing the column structure."]
-      [:li [:code ":row-tree"] ": a vector describing the row structure."]
-      [:li [:code ":cell"] ": a function which, given a "
+      [:li [:strong [:code ":column-tree"]] ": a vector describing the column structure."]
+      [:li [:strong [:code ":row-tree"]] ": a vector describing the row structure."]
+      [:li [:strong [:code ":cell-label"]] ": a function which, given a "
        [:code ":column-path"] " and a " [:code ":row-path"]
        ", renders one cell, either as a string or a hiccup."]]
      "See the " [:strong "Basic Demo"] " for examples,"
@@ -234,64 +232,70 @@
                    ["🍐" "🍎" "🍌" "🥝" "🍇"]
                    ["🐕" "🐎" "🧸" "🐈" "🐟"]])
 
-(def add {:operator + :label "Addition"})
-(def multiply {:operator * :label "Multiplication"})
-(def lookup {:operator (fn [l r] (get-in lookup-table [l r]))
-             :label    "Lookup"})
-(def one {:left 1 :label "1"})
-(def two {:left 2 :label "2"})
-(def three {:right 3 :label "3"})
-(def four  {:right 4 :label "4"})
+(def operators
+  {:add      {:operator + :label "Addition"}
+   :multiply {:operator * :label "Multiplication"}
+   :lookup   {:operator (fn [l r] (get-in lookup-table [l r]))
+              :label    "Lookup"}})
+
+(def operands {:one {:left 1 :label "1"}
+               :two {:left 2 :label "2"}
+               :three {:right 3 :label "3"}
+               :four  {:right 4 :label "4"}})
 
 (defn multimodal-demo []
   [v-box
    :gap "12px"
    :children
-   [[nested-grid
-     :column-tree [add      [one two]
-                   multiply [one two]
-                   lookup   [one two]]
-     :row-tree    [three four]
-     :row-header (comp :label last :row-path)
-     :column-header (comp :label last :column-path)
-     :row-header 20
-     :column-header-height 25
-     :row-header-width 100
-     :parts {:cell-wrapper {:style {:text-align "center"}}}
-     :cell    (fn [{:keys [column-path row-path]}]
-                (let [{:keys [operator left right]} (->> (into row-path column-path)
-                                                         (apply merge))]
-                  (operator left right)))]
+   [(let [{:keys [add multiply lookup]} operators
+          {:keys [one two three four]}  operands]
+      [nested-v-grid
+       {:column-tree [{:id "left"}
+                      [add      [one] [two]]
+                      [multiply [one] [two]]
+                      [lookup   [one] [two]]]
+        :row-tree    [{:id "right"} [three] [four]]
+        :parts       {:cell {:style {:text-align "center"}}}
+        :cell-label  (fn [{:keys [column-path row-path]}]
+                       (let [{:keys [operator left right]}
+                             (->> (into row-path column-path)
+                                  (apply merge))]
+                         (operator left right)))}])
     [source-reference
      "for above nested-grid"
      "src/re_demo/nested_grid.cljs"]
     [p "Here, we use " [:i "specs"] " like " [:code "multiply"]
      " and " [:code "lookup"] " to build a multi-modal view of the source data."
      " In other words, a " [:code ":column-spec"] " or " [:code ":row-spec"] " can express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
-    [:pre "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
-                   [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
-                   [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])
-(def add      {:label \"Addition\"       :operator +})
-(def multiply {:label \"Multiplication\" :operator *})
-(def lookup   {:label \"Lookup\"
-               :operator (fn [l r] (get-in lookup-table [l r]))})
-(def one      {:label \"1\" :left 1})
-(def two      {:label \"2\" :left 2})
-(def three    {:label \"3\" :right 3})
-(def four     {:label \"4\" :right 4})
-
-[nested-grid
- :column-tree   [add      [one two]
-                 multiply [one two]
-                 lookup   [one two]]
- :row-tree      [three four]
- :column-header (comp :label last :column-path)
- :row-header    (comp :label last :row-path)
- :cell          (fn [{:keys [column-path row-path]}]
-                  (let [{:keys [operator left right]} (->> column-path
-                                                           (into row-path)
-                                                           (apply merge))]
-                    (operator left right)))]"]]])
+    [rdu/code
+     "(def lookup-table
+  [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"] [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
+   [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])"
+     "(def operators
+  {:add      {:operator + :label \"Addition\"}
+   :multiply {:operator * :label \"Multiplication\"}
+   :lookup   {:operator (fn [l r]
+                          (get-in lookup-table [l r]))
+              :label    \"Lookup\"}})"
+     "(def operands
+  {:one   {:left 1 :label \"1\"}
+   :two   {:left 2 :label \"2\"}
+   :three {:right 3 :label \"3\"}
+   :four  {:right 4 :label \"4\"}})"
+     "(let [{:keys [add multiply lookup]} operators
+      {:keys [one two three four]}  operands]
+  [nested-v-grid
+   {:column-tree [{:id \"left\"}
+                  [add      [one] [two]]
+                  [multiply [one] [two]]
+                 [lookup [one] [two]]]
+    :row-tree    [{:id \"right\"} [three] [four]]
+    :parts       {:cell {:style {:text-align \"center\"}}}
+    :cell-label  (fn [{:keys [column-path row-path]}]
+                   (let [{:keys [operator left right]}
+                           (->> (into row-path column-path)
+                                (apply merge))]
+                     (operator left right)))}])"]]])
 
 (def lorem-ipsum ["Lorem" "ipsum" "dolor" "sit" "amet" " consectetur" "adipiscing" "elit" " sed"
                   "do" "eiusmod" "tempor" "incididunt" "ut" "labore" "et" "dolore" "magna"
@@ -400,7 +404,66 @@
   [v-box
    :gap "12px"
    :children
-   [[nested-grid
+   [[nested-v-grid
+     {:column-tree [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+      :row-tree    [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+      :row-height 50
+      :column-width 60
+      :cell-label  (fn [{:keys [row-path column-path]}]
+                     [:div (pr-str column-path)
+                      [:br]
+                      (pr-str row-path)])
+      :style {:width 500
+              :height 600}}]
+    [rdu/zprint-code
+     '[nested-v-grid
+       {:column-tree [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+        :row-tree    [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+        :row-height 50
+        :column-width 60
+        :cell-label  (fn [{:keys [row-path column-path]}]
+                       [:div (pr-str column-path)
+                        [:br]
+                        (pr-str row-path)])
+        :style {:width 500
+                :height 600}}]]
+    #_[rdu/code
+       "[nested-v-grid
+ {:column-tree  [:a
+                 [:b
+                  [:e]
+                  [:f]]
+                 [:c
+                  [:g]
+                  [:h]]
+                 [:d]]
+  :row-tree     [:u
+                 [:v
+                  [:x]
+                  [:y]]
+                 [:w
+                  [:z]
+                  [:n]]]
+  :row-height   50
+  :column-width 60
+  :cell-label   (fn [{:keys [row-path column-path]}]
+                  [:div (pr-str column-path)
+                   [:br]
+                   (pr-str row-path)])}]"]
+    [nested-v-grid
+     {:column-tree [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+      :row-tree    [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+      :show-row-branches? true
+      :show-column-branches? true
+      :row-height 50
+      :column-width 60
+      :cell-label  (fn [{:keys [row-path column-path]}]
+                     [:div (pr-str column-path)
+                      [:br]
+                      (pr-str row-path)])
+      :style {:width 500
+              :height 600}}]
+    [nested-grid
      :column-tree [{:id "Tree" :width 130}
                    {:id "Leaf Paths" :width 150}
                    {:id "All Paths" :width 200}]
@@ -513,20 +576,21 @@
    [[h-box
      :justify :between
      :children
-     [[nested-grid
-       :column-tree [2 4 6]
-       :row-tree    [1 3 5]
-       :cell (fn [{:keys [column-path row-path]}]
-               (let [[column-spec] column-path
-                     [row-spec]    row-path]
-                 (* column-spec row-spec)))]
-      [:pre {:style {:margin-top "19px"}} "[nested-grid
- :column-tree [2 4 6]
- :row-tree    [1 3 5]
- :cell (fn [{:keys [column-path row-path]}]
-         (let [[column-spec] column-path
-               [row-spec]    row-path]
-           (* column-spec row-spec)))]"]]]
+     [[nested-v-grid
+       {:column-tree ["Even" 2 4 6]
+        :row-tree    ["Odd" 1 3 5]
+        :cell-label  (fn [{:keys [column-path row-path]}]
+                       (let [column-spec (last column-path)
+                             row-spec    (last row-path)]
+                         (* column-spec row-spec)))}]
+      [rdu/zprint-code
+       '[nested-v-grid
+         {:column-tree ["Even" 2 4 6]
+          :row-tree    ["Odd" 1 3 5]
+          :cell-label  (fn [{:keys [column-path row-path]}]
+                         (let [column-spec (last column-path)
+                               row-spec    (last row-path)]
+                           (* column-spec row-spec)))}]]]]
     [p "A simple times table. The " [:code ":cell"] " function gets called once for each cell, getting passed a "
      [:code ":column-path"] " and " [:code ":row-path"]
      ". In this case, each path is a vector of one number. For instance, "
@@ -534,22 +598,24 @@
     [line]
     [h-box
      :justify :between
+     :gap "10px"
      :children
-     [[nested-grid
-       :column-tree [0 1 2]
-       :row-tree    [2 3 4]
-       :cell (fn [{:keys [column-path row-path]}]
-               (get-in lookup-table [(last column-path)
-                                     (last row-path)]))]
-      [:pre {:style {:margin-top "19px"}} "(def lookup-table [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"]
-                   [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
-                   [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])
-[nested-grid
- :column-tree [0 1 2]
- :row-tree    [2 3 4]
- :cell (fn [{:keys [column-path row-path]}]
-         (get-in lookup-table [(last column-path)
-                               (last row-path)]))]"]]]
+     [[nested-v-grid
+       {:column-tree ["x" 0 1 2]
+        :row-tree    ["y" 2 3 4]
+        :cell-label  (fn [{:keys [column-path row-path]}]
+                       (get-in lookup-table [(last column-path)
+                                             (last row-path)]))}]
+      [rdu/zprint-code
+       '(def lookup-table [["🚓" "🛵" "🚲" "🛻" "🚚"]
+                           ["🍐" "🍎" "🍌" "🥝" "🍇"]
+                           ["🐕" "🐎" "🧸" "🐈" "🐟"]])
+       '[nested-v-grid
+         {:column-tree ["x" 0 1 2]
+          :row-tree    ["y" 2 3 4]
+          :cell-label  (fn [{:keys [column-path row-path]}]
+                         (get-in lookup-table [(last column-path)
+                                               (last row-path)]))}]]]]
     [p "Here, instead of multiplying the path values, we use them to access an "
      "external lookup table. This is a common use-case: prepare a data frame independently from "
      [:code "nested-grid"] ", but with the intention of using "
@@ -706,8 +772,9 @@
                    \"Median\"   (nth (vec (sort-by count lorem-ipsum))
                                    (/ (count lorem-ipsum) 2))
                    \"Random\"   (rand-nth lorem-ipsum)))]"]
-    [p "The " [:code ":cell-value"] " prop offers a semantic separation of data processing from rendering. "
-     [:code ":cell-value"] " should be a function, with the same signature as " [:code ":cell"] ". "
+    [p "You can compose the " [:code ":cell"] " and " [:code ":cell-label"]
+     " to semantically separate a semantic separation of data processing from rendering. "
+     " Both parts accept the same arguments, except "
      "When " [:code ":cell-value"] " is provided, " [:code "nested-grid"]
      " passes its return value to " [:code ":cell"]
      " via a " [:code ":value"] " prop."]
@@ -738,16 +805,12 @@
     [p "Just like " [:code ":cell"] ", the "
      [:code ":column-header"] " and " [:code ":row-header"] " props "
      "are functions of their paths."]
-    [p "The difference is, they can only expect to be passed a single path. "
-     [:code ":column-header"] " only expects a " [:code ":column-path"]
-     ", and "
-     [:code ":row-header"] " only expects a " [:code ":row-path"] "."]
-    [p "If you don't pass any " [:code ":column-header"] " prop,"
-     " then it's handled by this default behavior:"
+    [p "The difference is, they only accept a single " [:code ":path"] " argument."]
+    [p "When unspecified, these parts have default behavior:"
      [:ul
-      [:li "take the last " [:code ":column-spec"] " in the " [:code ":column-path"] "."]
+      [:li "take the last item in the " [:code ":path"] "."]
       [:li "if it's a map, get the " [:code ":label"] " key, or the  " [:code ":id"] " key."]
-      [:li "if that doesn't work, stringify the whole item."]]]
+      [:li "if that fails, stringify the whole item."]]]
 
     [title3 "Branch paths can have cells, too"]
     [p "Consider this " [:code ":column-tree"] ":"
@@ -924,10 +987,10 @@
       :label    "export"}]
     [nested-v-grid {:row-tree                row-tree
                     :column-tree             column-tree
-                    :row-tree-depth          4
+                    #_#_:row-tree-depth          4
                     :row-header-widths       row-header-widths
                     :column-header-heights   column-header-heights
-                    :column-tree-depth       3
+                    #_#_:column-tree-depth       3
                     :show-row-branches?      true
                     :show-column-branches?   true
                     #_#_:hide-root?          false
@@ -1069,4 +1132,4 @@
             [(:view @!tab)]]]
           [demos]]]
         #_[parts-table "nested-grid" nested-grid-parts-desc]
-        [parts-table "nested-v-grid" nvg/nested-v-grid-parts-desc]]])))
+        [parts-table "nested-v-grid" nvg/parts-desc]]])))
