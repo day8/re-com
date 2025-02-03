@@ -341,28 +341,28 @@
    :gap "12px"
    :children
    [[nested-v-grid
-     {:column-tree [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
-      :row-tree    [:u [:v [:x] [:y]] [:w [:z] [:n]]]
-      :row-height 50
+     {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+      :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+      :row-height   50
       :column-width 60
-      :cell-label  (fn [{:keys [row-path column-path]}]
-                     [:div (pr-str column-path)
-                      [:br]
-                      (pr-str row-path)])
-      :style {:width 500
-              :height 600}}]
+      :cell-label   (fn [{:keys [row-path column-path]}]
+                      [:div (pr-str column-path)
+                       [:br]
+                       (pr-str row-path)])
+      :style        {:width  500
+                     :height 600}}]
     [rdu/zprint-code
      '[nested-v-grid
-       {:column-tree [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
-        :row-tree    [:u [:v [:x] [:y]] [:w [:z] [:n]]]
-        :row-height 50
+       {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+        :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+        :row-height   50
         :column-width 60
-        :cell-label  (fn [{:keys [row-path column-path]}]
-                       [:div (pr-str column-path)
-                        [:br]
-                        (pr-str row-path)])
-        :style {:width 500
-                :height 600}}]]
+        :cell-label   (fn [{:keys [row-path column-path]}]
+                        [:div (pr-str column-path)
+                         [:br]
+                         (pr-str row-path)])
+        :style        {:width  500
+                       :height 600}}]]
     #_[rdu/code
        "[nested-v-grid
  {:column-tree  [:a
@@ -387,18 +387,18 @@
                    [:br]
                    (pr-str row-path)])}]"]
     [nested-v-grid
-     {:column-tree [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
-      :row-tree    [:u [:v [:x] [:y]] [:w [:z] [:n]]]
-      :show-row-branches? true
+     {:column-tree           [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+      :row-tree              [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+      :show-row-branches?    true
       :show-column-branches? true
-      :row-height 50
-      :column-width 60
-      :cell-label  (fn [{:keys [row-path column-path]}]
-                     [:div (pr-str column-path)
-                      [:br]
-                      (pr-str row-path)])
-      :style {:width 500
-              :height 600}}]]])
+      :row-height            50
+      :column-width          60
+      :cell-label            (fn [{:keys [row-path column-path]}]
+                               [:div (pr-str column-path)
+                                [:br]
+                                (pr-str row-path)])
+      :style                 {:width  500
+                              :height 600}}]]])
 
 (defn make-source-data []
   [[(rand) (rand) (rand) (rand)]
