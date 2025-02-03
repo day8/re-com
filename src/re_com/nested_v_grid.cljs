@@ -437,31 +437,31 @@
                                                                                   :when            (or leaf? show?)
                                                                                   :let             [showing-row-path (cond-> showing-row-path (not show-root-headers?) (subvec 1))
                                                                                                     this-depth (count showing-row-path)]]
-                                                                              (for [i    (cond-> (range @row-depth) (not show-root-headers?) rest)
-                                                                                    :let [row-path (subvec showing-row-path 0 (min i this-depth))
+                                                                              (for [i    (range @row-depth)
+                                                                                    :let [row-path (subvec showing-row-path 0 (min (inc i) this-depth))
                                                                                           {:keys [branch-end?]} (meta row-path)
                                                                                           props {:row-path    row-path
                                                                                                  :path        row-path
                                                                                                  :branch-end? branch-end?}]]
                                                                                 (on-export-row-header props)))
-                                               column-headers               (for [i (cond-> (range @column-depth) (not show-root-headers?) rest)]
+                                               column-headers               (for [i (range @column-depth)]
                                                                               (for [showing-column-path (cond-> column-paths (not show-root-headers?) rest)
                                                                                     :let                [{:keys [leaf? show?]} (meta showing-column-path)]
                                                                                     :when               (or leaf? show?)
                                                                                     :let                [showing-column-path (cond-> showing-column-path (not show-root-headers?) (subvec 1))
                                                                                                          this-depth (count showing-column-path)
-                                                                                                         column-path (subvec showing-column-path 0 (min i this-depth))
+                                                                                                         column-path (subvec showing-column-path 0 (min (inc i) this-depth))
                                                                                                          {:keys [branch-end?]} (meta column-path)
                                                                                                          props {:column-path column-path
                                                                                                                 :path        column-path
                                                                                                                 :branch-end? branch-end?}]]
                                                                                 (on-export-column-header props)))
-                                               corner-headers               (for [row-index (cond-> (range @column-depth) (not show-root-headers?) rest)]
-                                                                              (for [column-index (cond-> (range @row-depth) (not show-root-headers?) rest)
-                                                                                    :let         [props {:row-index    (cond-> row-index (not show-root-headers?) dec)
-                                                                                                         :column-index (cond-> column-index (not show-root-headers?) dec)
-                                                                                                         :row-depth    (cond-> @row-depth (not show-root-headers?) dec)
-                                                                                                         :column-depth (cond-> @column-depth (not show-root-headers?) dec)}
+                                               corner-headers               (for [row-index (range @column-depth)]
+                                                                              (for [column-index (range @row-depth)
+                                                                                    :let         [props {:row-index    row-index
+                                                                                                         :column-index column-index
+                                                                                                         :row-depth    @row-depth
+                                                                                                         :column-depth @column-depth}
                                                                                                   props (merge props {:edge (corner-header-edges props)})]]
                                                                                 (on-export-corner-header props)))
                                                cells                        (for [row-path row-paths
