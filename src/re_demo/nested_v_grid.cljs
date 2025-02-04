@@ -510,62 +510,70 @@
           (if (:virtualize? @props)
             [virtualization-example-code @props]
             [paths-example-code @props])]]
-        [prop-checkbox {:db props-db
-                        :id :virtualize?}]
-        [prop-checkbox {:db props-db
-                        :id :show-root-headers?}]
-        [prop-checkbox {:db props-db
-                        :id :show-row-branches?}]
-        [prop-checkbox {:db props-db
-                        :id :show-column-branches?}]
-        [prop-slider {:db          props-db
-                      :id          :row-tree-depth
-                      :default     3
-                      :default-on? false
-                      :min         0
-                      :max         10}]
-        [prop-slider {:db          props-db
-                      :id          :column-tree-depth
-                      :default     3
-                      :default-on? false
-                      :min         0
-                      :max         10}]
-        [prop-slider {:db          props-db
-                      :id          :row-height
-                      :default     20
-                      :default-on? false
-                      :min         10
-                      :max         100}]
-        [prop-slider {:db          props-db
-                      :id          :column-width
-                      :default     40
-                      :default-on? false
-                      :min         10
-                      :max         100}]
-        [prop-slider {:db          props-db
-                      :id          :row-header-width
-                      :default     40
-                      :default-on? false
-                      :min         10
-                      :max         100}]
-        [prop-checkbox {:db      props-db
-                        :id      :row-header-widths
-                        :default nil
-                        :value   [80 30 200]}]
-        [prop-slider {:db          props-db
-                      :id          :column-header-height
-                      :default     20
-                      :default-on? false
-                      :min         10
-                      :max         100}]
-        [prop-checkbox {:db      props-db
-                        :id      :column-header-heights
-                        :default nil
-                        :value   [90 20 30]}]
-        [prop-checkbox {:db props-db
-                        :id :resize-row-height?}]
-        [prop-checkbox {:db props-db
-                        :id :resize-column-header-height?}]]])))
+        [rc/v-box
+         :gap "12px"
+         :style {:min-width        "550px"
+                 :max-width        "fit-content"
+                 :padding          "15px"
+                 :border-top       "1px solid #DDD"
+                 :background-color "#f7f7f7"}
+         :children
+         [[prop-checkbox {:db props-db
+                          :id :virtualize?}]
+          [prop-checkbox {:db props-db
+                          :id :show-root-headers?}]
+          [prop-checkbox {:db props-db
+                          :id :show-row-branches?}]
+          [prop-checkbox {:db props-db
+                          :id :show-column-branches?}]
+          [prop-slider {:db          props-db
+                        :id          :row-tree-depth
+                        :default     3
+                        :default-on? false
+                        :min         0
+                        :max         10}]
+          [prop-slider {:db          props-db
+                        :id          :column-tree-depth
+                        :default     3
+                        :default-on? false
+                        :min         0
+                        :max         10}]
+          [prop-slider {:db          props-db
+                        :id          :row-height
+                        :default     20
+                        :default-on? false
+                        :min         10
+                        :max         100}]
+          [prop-slider {:db          props-db
+                        :id          :column-width
+                        :default     40
+                        :default-on? false
+                        :min         10
+                        :max         100}]
+          [prop-slider {:db          props-db
+                        :id          :row-header-width
+                        :default     40
+                        :default-on? false
+                        :min         10
+                        :max         100}]
+          [prop-checkbox {:db      props-db
+                          :id      :row-header-widths
+                          :default nil
+                          :value   [80 30 200]}]
+          [prop-slider {:db          props-db
+                        :id          :column-header-height
+                        :default     20
+                        :default-on? false
+                        :min         10
+                        :max         100}]
+          [prop-checkbox {:db      props-db
+                          :id      :column-header-heights
+                          :default nil
+                          :value   [90 20 30]}]
+          [prop-checkbox {:db props-db
+                          :id :resize-row-height?}]
+          [prop-checkbox {:db props-db
+                          :id :resize-column-header-height?}]]]]])))
 
 (defn make-source-data []
   [[(rand) (rand) (rand) (rand)]
