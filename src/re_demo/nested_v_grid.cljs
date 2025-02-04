@@ -411,22 +411,17 @@
                                            {:keys [banter]}      (rand-nth
                                                                   (group* :country country fake-banter))
                                            {:keys [branch-end?]} (merge column-meta row-meta)]
-                                       [:div {:style          (merge style
+                                       [:div {:title (str (or name company)
+                                                          " sold " label (cond product (str " of " product)
+                                                                               country (str " in " country))
+                                                          ". "
+                                                          banter)
+                                              :style          (merge style
                                                                      (when (or @hover? branch-end?)
                                                                        {:background-color "#eef"}))
                                               :on-mouse-enter #(reset! hover? true)
                                               :on-mouse-leave #(reset! hover? nil)}
-                                        [rc/popover-anchor-wrapper
-                                         :showing? hover?
-                                         :position :below-center
-                                         :anchor label
-                                         :popover [rc/popover-content-wrapper
-                                                   :no-clip? true
-                                                   :body (str (or name company)
-                                                              " sold " label (cond product (str " of " product)
-                                                                                   country (str " in " country))
-                                                              ". "
-                                                              banter)]]]))))
+                                        label]))))
         :parts                 {:wrapper {:style {:max-height 400
                                                   :max-width  640}}}
         :column-header-label   (fn [{:keys [path style]}]
