@@ -1,5 +1,6 @@
 (ns re-demo.utils
   (:require
+   [reagent.core :as r]
    [re-com.core           :as rc :refer [title line label hyperlink-href align-style at]]
    [re-com.box            :as box :refer [box gap h-box v-box]]
    [re-com.text           :refer [p]]
@@ -218,13 +219,15 @@
   [element]
   (set! (.-scrollTop element) 0))
 
-(defn prop-slider [{:keys [prop default default-on? id min max] :or {default-on? true min 40 max 500}}]
-  (let [default (or @prop default)]
+(defn prop-slider [{:keys [prop db default default-on? id unit min max]
+                    :or {default-on? true min 40 max 500}}]
+  (let [prop (or prop (r/cursor db [id]))
+        default (or @prop default)]
     (when (and default-on? default)
       (reset! prop default))
     (when-not default-on?
       (reset! prop nil))
-    (fn [{:keys [prop default]}]
+    (fn [{:keys [default]}]
       [h-box :src (at)
        :align    :center
        :children [[rc/checkbox :src (at)
@@ -246,17 +249,36 @@
                       :step      1
                       :width     "300px"]
                      [gap :src (at) :size "5px"]
-                     [label :src (at) :label (str @prop "px")]])]])))
+                     [label :src (at) :label (cond-> @prop
+                                               unit (str unit))]])]])))
 
-(defn prop-checkbox [{:keys [prop default id]}]
-  [rc/checkbox :src (at)
-   :label     [rc/box :src (at)
-               :align :start
-               :child [:code id]]
-   :model     @prop
-   :on-change (if (some? prop)
-                #(swap! prop not)
-                #(reset! prop default))])
+(defn prop-checkbox [{:keys [prop db default value id show-value?]
+                      :or   {show-value? true}
+                      :as   props}]
+  (let [prop (or prop (r/cursor db [id]))]
+    (fn [_]
+      [rc/checkbox :src (at)
+       :label     [rc/box :src (at)
+                   :align :start
+                   :child [:code id (when show-value?
+                                      (str " " (pr-str @prop)))]]
+       :model     (cond
+                    value   (= value @prop)
+                    default (not= default @prop)
+                    :else   @prop)
+       :on-change #(reset! prop
+                           (cond
+                             value   (if (= value @prop)
+                                       (if (contains? props :default)
+                                         default
+                                         %)
+                                       value)
+                             default (if (= default @prop)
+                                       (if (contains? props :value)
+                                         value
+                                         %)
+                                       default)
+                             :else   %))])))
 
 (defn code [& ss]
   [box/v-box

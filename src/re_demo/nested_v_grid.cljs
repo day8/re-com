@@ -9,7 +9,8 @@
    [reagent.core :as r]
    [re-com.nested-v-grid  :as nvg :refer [nested-v-grid]]
    [re-demo.utils :as rdu :refer [source-reference panel-title title2 title3
-                                  args-table parts-table status-text new-in-version]]))
+                                  args-table parts-table status-text new-in-version
+                                  prop-slider prop-checkbox]]))
 
 (defn number-format [n & {:keys [precision]}]
   (if-not (number? n)
@@ -33,8 +34,7 @@
 (defn fake-person! []
   {:name    (fake-name!)
    :email   (fake-email!)
-   :company (rand-nth fake-companies)
-   :size    20})
+   :company (rand-nth fake-companies)})
 
 (def fake-banter
   (into
@@ -399,6 +399,173 @@
                                 (pr-str row-path)])
       :style                 {:width  500
                               :height 600}}]]])
+
+(defn paths-example [& {:as props}]
+  [nested-v-grid
+   (merge
+    {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+     :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+     :row-height   50
+     :column-width 60
+     :cell-label   (fn [{:keys [row-path column-path]}]
+                     [:div (pr-str column-path)
+                      [:br]
+                      (pr-str row-path)])
+     :style        {:width  500
+                    :height 600}}
+    props)])
+
+(defn paths-example-code [& {:as props}]
+  [rdu/zprint-code
+   `[nested-v-grid
+     {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
+      :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
+      :row-height   50
+      :column-width 60
+      :cell-label   (fn [{:keys [row-path column-path]}]
+                      [:div (pr-str column-path)
+                       [:br]
+                       (pr-str row-path)])
+      :style        {:width  500
+                     :height 600}}]])
+
+(defn virtualization-example-code [props]
+  [rdu/zprint-code
+   '"See virtualization demo for more detailed source-code"
+   '[nested-v-grid
+     {:column-tree (into [{:label "Products"}]
+                         (nested-group-tree [:country] fake-products))
+      :row-tree    (into [{:label "Vendors"}]
+                         (nested-group-tree [:company] fake-people))
+      :cell        cell
+      :parts       {:wrapper {:style {:max-height 400
+                                      :max-width  640}}}}]])
+
+(defn virtualization-example [props]
+  [nested-v-grid
+   (-> {:column-tree           (into [{:label "Products"}]
+                                     (nested-group-tree [:country] fake-products))
+        :row-tree              (into [{:label "Vendors"}]
+                                     (nested-group-tree [:company] fake-people))
+        :cell                  (fn [_]
+                                 (let [hover? (r/atom nil)]
+                                   (fn [{:keys [column-path row-path column-meta row-meta style]}]
+                                     (let [{:keys [name product company country]}
+                                           (->> (into column-path row-path)
+                                                (apply merge))
+                                           total-sales           (cond->> fake-sales
+                                                                   country (group* :country country)
+                                                                   product (group* :product product)
+                                                                   company (group* :company company)
+                                                                   name    (group* :name name)
+                                                                   :do     (map :price)
+                                                                   :do     (apply +))
+                                           label                 (str "$" (number-format total-sales
+                                                                                         {:precision 2}))
+                                           {:keys [banter]}      (rand-nth
+                                                                  (group* :country country fake-banter))
+                                           {:keys [branch-end?]} (merge column-meta row-meta)]
+                                       [:div {:style          (merge style
+                                                                     (when (or @hover? branch-end?)
+                                                                       {:background-color "#eef"}))
+                                              :on-mouse-enter #(reset! hover? true)
+                                              :on-mouse-leave #(reset! hover? nil)}
+                                        [rc/popover-anchor-wrapper
+                                         :showing? hover?
+                                         :position :below-center
+                                         :anchor label
+                                         :popover [rc/popover-content-wrapper
+                                                   :no-clip? true
+                                                   :body (str (or name company)
+                                                              " sold " label (cond product (str " of " product)
+                                                                                   country (str " in " country))
+                                                              ". "
+                                                              banter)]]]))))
+        :parts                 {:wrapper {:style {:max-height 400
+                                                  :max-width  640}}}
+        :column-header-label   (fn [{:keys [path style]}]
+                                 [:div {:style style}
+                                  (str ((some-fn :product :grouping) (peek path)))])
+        :row-header-label      (fn [{:keys [path style]}]
+                                 [:div {:style style}
+                                  (str ((some-fn :name :grouping) (peek path)))])}
+       (merge props))])
+
+(defn options-demo []
+  (let [props-db (r/atom {})
+        props    (r/reaction
+                  (into {} (filter (comp some? second)) @props-db))]
+    (fn []
+      [rc/v-box
+       :gap "12px"
+       :children
+       [[rc/h-box
+         :gap "12px"
+         :children
+         [(with-meta
+            (if (:virtualize? @props)
+              [virtualization-example @props]
+              [paths-example @props])
+            {:key @props})
+          (if (:virtualize? @props)
+            [virtualization-example-code @props]
+            [paths-example-code @props])]]
+        [prop-checkbox {:db props-db
+                        :id :virtualize?}]
+        [prop-checkbox {:db props-db
+                        :id :show-root-headers?}]
+        [prop-checkbox {:db props-db
+                        :id :show-row-branches?}]
+        [prop-checkbox {:db props-db
+                        :id :show-column-branches?}]
+        [prop-slider {:db          props-db
+                      :id          :row-tree-depth
+                      :default     3
+                      :default-on? false
+                      :min         0
+                      :max         10}]
+        [prop-slider {:db          props-db
+                      :id          :column-tree-depth
+                      :default     3
+                      :default-on? false
+                      :min         0
+                      :max         10}]
+        [prop-slider {:db          props-db
+                      :id          :row-height
+                      :default     20
+                      :default-on? false
+                      :min         10
+                      :max         100}]
+        [prop-slider {:db          props-db
+                      :id          :column-width
+                      :default     40
+                      :default-on? false
+                      :min         10
+                      :max         100}]
+        [prop-slider {:db          props-db
+                      :id          :row-header-width
+                      :default     40
+                      :default-on? false
+                      :min         10
+                      :max         100}]
+        [prop-checkbox {:db      props-db
+                        :id      :row-header-widths
+                        :default nil
+                        :value   [80 30 200]}]
+        [prop-slider {:db          props-db
+                      :id          :column-header-height
+                      :default     20
+                      :default-on? false
+                      :min         10
+                      :max         100}]
+        [prop-checkbox {:db      props-db
+                        :id      :column-header-heights
+                        :default nil
+                        :value   [90 20 30]}]
+        [prop-checkbox {:db props-db
+                        :id :resize-row-height?}]
+        [prop-checkbox {:db props-db
+                        :id :resize-column-header-height?}]]])))
 
 (defn make-source-data []
   [[(rand) (rand) (rand) (rand)]
@@ -850,11 +1017,12 @@
        " when resizing a cross-size."]]]]])
 
 (defn demos []
-  (let [tabs    [{:id :basic :label "Basic Demo" :view basic-demo}
-                 {:id :internals :label "Internals" :view internals-demo}
+  (let [tabs    [{:id :options :label "Options" :view options-demo}
+                 {:id :basic :label "Basics" :view basic-demo}
+                 #_{:id :internals :label "Internals" :view internals-demo}
                  {:id :multimodal :label "Multimodal" :view multimodal-demo}
                  {:id :app :label "Applications" :view app-demo}
-                 {:id :v-grid :label "Virtualization" :view virtualization-demo}
+                 #_{:id :v-grid :label "Virtualization" :view virtualization-demo}
                  #_{:id :style :label "Style" :view style-demo}]
         !tab-id (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]

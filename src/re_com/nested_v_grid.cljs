@@ -143,7 +143,7 @@
            [:code ":row-path"] ", not just those at the leaves of the tree. "
            "If a header has children, its path is a branch-path."
            "Otherwise, its path is a leaf-path."
-           "For instance, the tree " [:code "[:a [:b :c]]"]
+           "For instance, the tree " [:code "[:a [:b [:c]]]"]
            " has one leaf path " [:code "[:a :b :c]"] " and two branch paths "
            [:code "[:a] [:a :b]"] "."]}
 
@@ -156,8 +156,8 @@
            [:code ":column-path"] ", not just those at the leaves of the tree. "
            "If a header has children, its path is a branch-path."
            "Otherwise, its path is a leaf-path."
-           "For instance, the tree " [:code "[:a [:b :c]]"]
-           " has one leaf path " [:code "[:a :b :c]"] " and two branch paths "
+           "For instance, the tree " [:code "[:a [:b [:c]]]"]
+           " has one leaf path " [:code "[:a :b [:c]]"] " and two branch paths "
            [:code "[:a] [:a :b]"] "."]}
 
          {:name        :show-root-headers?
@@ -281,7 +281,8 @@
           :validate-fn boolean?
           :description
           [:span "When " [:code "true"]
-           ", display draggable resize buttons across the main-axis dimension of row headers."]}
+           ", display draggable resize buttons across the main-axis dimension of row headers. "
+           "NOTE: For a row-header to be resizable, its row-spec must be a map."]}
 
          {:name        :resize-column-header-height?
           :type        "boolean"
