@@ -140,7 +140,7 @@
                                (vswap! sum-size + leaf-size)
                                leaf-size))))]
     (walk [] header-tree {:hide? hide-root?})
-    (vswap! size-cache assoc :depth @depth)
+    (cache! :depth @depth)
     {:sum-size        (or cached-sum-size @sum-size)
      :spans           @spans
      :positions       @sums
