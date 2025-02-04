@@ -1050,8 +1050,8 @@
 (defn panel
   []
   (let [tabs [{:id :intro :label "Introduction" :view intro-column}
-              {:id :concepts :label "Concepts" :view concepts-column}
-              {:id :more :label "More" :view more-column}
+              #_{:id :concepts :label "Concepts" :view concepts-column}
+              #_{:id :more :label "More" :view more-column}
               {:id :parameters :label "Parameters" :view args-column}]
         !tab-id (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
