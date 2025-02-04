@@ -233,60 +233,6 @@
                :three {:right 3 :label "3"}
                :four  {:right 4 :label "4"}})
 
-(defn multimodal-demo []
-  [rc/v-box
-   :gap "12px"
-   :children
-   [(let [{:keys [add multiply lookup]} operators
-          {:keys [one two three four]}  operands]
-      [nested-v-grid
-       {:column-tree [{:id "left"}
-                      [add      [one] [two]]
-                      [multiply [one] [two]]
-                      [lookup   [one] [two]]]
-        :row-tree    [{:id "right"} [three] [four]]
-        :parts       {:cell {:style {:text-align "center"}}}
-        :cell-label  (fn [{:keys [column-path row-path]}]
-                       (let [{:keys [operator left right]}
-                             (->> (into row-path column-path)
-                                  (apply merge))]
-                         (operator left right)))}])
-    [source-reference
-     "for above nested-grid"
-     "src/re_demo/nested_grid.cljs"]
-    [rc/p "Here, we use " [:i "specs"] " like " [:code "multiply"]
-     " and " [:code "lookup"] " to build a multi-modal view of the source data."
-     " In other words, a " [:code ":column-spec"] " or " [:code ":row-spec"] " can express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
-    [rdu/code
-     "(def lookup-table
-  [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"] [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
-   [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])"
-     "(def operators
-  {:add      {:operator + :label \"Addition\"}
-   :multiply {:operator * :label \"Multiplication\"}
-   :lookup   {:operator (fn [l r]
-                          (get-in lookup-table [l r]))
-              :label    \"Lookup\"}})"
-     "(def operands
-  {:one   {:left 1 :label \"1\"}
-   :two   {:left 2 :label \"2\"}
-   :three {:right 3 :label \"3\"}
-   :four  {:right 4 :label \"4\"}})"
-     "(let [{:keys [add multiply lookup]} operators
-      {:keys [one two three four]}  operands]
-  [nested-v-grid
-   {:column-tree [{:id \"left\"}
-                  [add      [one] [two]]
-                  [multiply [one] [two]]
-                 [lookup [one] [two]]]
-    :row-tree    [{:id \"right\"} [three] [four]]
-    :parts       {:cell {:style {:text-align \"center\"}}}
-    :cell-label  (fn [{:keys [column-path row-path]}]
-                   (let [{:keys [operator left right]}
-                           (->> (into row-path column-path)
-                                (apply merge))]
-                     (operator left right)))}])"]]])
-
 (def lorem-ipsum ["Lorem" "ipsum" "dolor" "sit" "amet" " consectetur" "adipiscing" "elit" " sed"
                   "do" "eiusmod" "tempor" "incididunt" "ut" "labore" "et" "dolore" "magna"
                   "aliqua."])
@@ -665,7 +611,57 @@
   [rc/v-box
    :gap "12px"
    :children
-   [[nested-v-grid
+   [(let [{:keys [add multiply lookup]} operators
+          {:keys [one two three four]}  operands]
+      [nested-v-grid
+       {:column-tree [{:id "left"}
+                      [add      [one] [two]]
+                      [multiply [one] [two]]
+                      [lookup   [one] [two]]]
+        :row-tree    [{:id "right"} [three] [four]]
+        :parts       {:cell {:style {:text-align "center"}}}
+        :cell-label  (fn [{:keys [column-path row-path]}]
+                       (let [{:keys [operator left right]}
+                             (->> (into row-path column-path)
+                                  (apply merge))]
+                         (operator left right)))}])
+    [source-reference
+     "for above nested-grid"
+     "src/re_demo/nested_grid.cljs"]
+    [rc/p "Here, we use " [:i "specs"] " like " [:code "multiply"]
+     " and " [:code "lookup"] " to build a multi-modal view of the source data."
+     " In other words, a " [:code ":column-spec"] " or " [:code ":row-spec"] " can express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
+    [rdu/code
+     "(def lookup-table
+  [[\"🚓\" \"🛵\" \"🚲\" \"🛻\" \"🚚\"] [\"🍐\" \"🍎\" \"🍌\" \"🥝\" \"🍇\"]
+   [\"🐕\" \"🐎\" \"🧸\" \"🐈\" \"🐟\"]])"
+     "(def operators
+  {:add      {:operator + :label \"Addition\"}
+   :multiply {:operator * :label \"Multiplication\"}
+   :lookup   {:operator (fn [l r]
+                          (get-in lookup-table [l r]))
+              :label    \"Lookup\"}})"
+     "(def operands
+  {:one   {:left 1 :label \"1\"}
+   :two   {:left 2 :label \"2\"}
+   :three {:right 3 :label \"3\"}
+   :four  {:right 4 :label \"4\"}})"
+     "(let [{:keys [add multiply lookup]} operators
+      {:keys [one two three four]}  operands]
+  [nested-v-grid
+   {:column-tree [{:id \"left\"}
+                  [add      [one] [two]]
+                  [multiply [one] [two]]
+                 [lookup [one] [two]]]
+    :row-tree    [{:id \"right\"} [three] [four]]
+    :parts       {:cell {:style {:text-align \"center\"}}}
+    :cell-label  (fn [{:keys [column-path row-path]}]
+                   (let [{:keys [operator left right]}
+                           (->> (into row-path column-path)
+                                (apply merge))]
+                     (operator left right)))}])"]
+    [rc/line]
+    [nested-v-grid
      {:row-header-width   85
       :show-root-headers? false
       :column-tree        [:root 1 2 3]
@@ -1027,11 +1023,7 @@
 (defn demos []
   (let [tabs    [{:id :options :label "Options" :view options-demo}
                  {:id :basic :label "Basics" :view basic-demo}
-                 #_{:id :internals :label "Internals" :view internals-demo}
-                 {:id :multimodal :label "Multimodal" :view multimodal-demo}
-                 {:id :app :label "Applications" :view app-demo}
-                 #_{:id :v-grid :label "Virtualization" :view virtualization-demo}
-                 #_{:id :style :label "Style" :view style-demo}]
+                 {:id :app :label "Applications" :view app-demo}]
         !tab-id (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
