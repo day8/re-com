@@ -309,6 +309,12 @@
         theme/args-desc
         (part/describe-args part-structure))))))
 
+(defn safe-assoc
+  [v idx val]
+  (if (< idx (count v))
+    (assoc v idx val)
+    (into (vec (concat v (repeat (- idx (count v)) nil))) [val])))
+
 (defn nested-v-grid [{:keys [row-tree column-tree
                              row-tree-depth column-tree-depth
                              row-header-widths column-header-heights
@@ -397,12 +403,14 @@
         safe-column-header-heights     (r/reaction
                                         (->> (concat @internal-column-header-heights
                                                      (repeat (u/deref-or-value column-header-height)))
+                                             (map #(or % column-header-height))
                                              (take @column-depth)
                                              vec))
         safe-row-header-widths         (r/reaction
                                         (->> (concat @internal-row-header-widths
                                                      (repeat (u/deref-or-value row-header-width)))
                                              (take @row-depth)
+                                             (map #(or % row-header-width))
                                              vec))
         column-header-height-total     (r/reaction (apply + @safe-column-header-heights))
         column-width-total             (r/reaction (:sum-size @column-traversal))
@@ -520,8 +528,8 @@
              resize-column-header-height? true
              on-resize                    (fn [{:keys [header-dimension size-dimension keypath size]}]
                                             (case [header-dimension size-dimension]
-                                              [:column :height] (swap! internal-column-header-heights assoc-in keypath size)
-                                              [:row :width]     (swap! internal-row-header-widths assoc-in keypath size)
+                                              [:column :height] (swap! internal-column-header-heights safe-assoc (first keypath) size)
+                                              [:row :width]     (swap! internal-row-header-widths safe-assoc (first keypath) size)
                                               [:row :height]    (swap! internal-row-tree update-in keypath assoc :size size)
                                               [:column :width]  (swap! internal-column-tree update-in keypath assoc :size size)))}}]
         (let [ensure-reactivity u/deref-or-value
