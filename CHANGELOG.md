@@ -2,6 +2,9 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+
+## 2.24.0 (2025-02-10)
+
 #### Added
 
 - All components can accept a vector of strings as their `:class` argument. Nested vectors work, as well (they get flattened).
