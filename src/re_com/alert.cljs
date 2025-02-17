@@ -64,7 +64,7 @@
                                    :warning        "alert-warning"
                                    :danger         "alert-danger"})]
      [:div
-      (merge {:class (theme/merge-class "rc-alert" "alert" "fade in" "alert-class" class)
+      (merge {:class (theme/merge-class "rc-alert" "alert" "fade in" alert-class class)
               :style (merge (flex-child-style "none")
                             {:padding padding}
                             style)}
