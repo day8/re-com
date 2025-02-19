@@ -2,6 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.24.1 (2025-02-19)
+
+#### Fixed
+
+- `alert-box`: Fix styling derived from the `:alert-type` prop. #351 @cerr0s-loanpro
 
 ## 2.24.0 (2025-02-10)
 
