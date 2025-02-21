@@ -190,23 +190,12 @@
                    (cond (number? (first group))
                          (str/join " " (map u/px group))
                          (string? (first group))
-                         (str/join " " group)
-                         :else
-                         (str "[" (str/join " " (map path->grid-line-name group)) "]"))))]
+                         (str/join " " group))))]
      (str
       (->> tokens
            (partition-by (some-fn number? string?))
            (reduce rf ""))
       #_" [end]"))))
-
-#?(:cljs
-   (defn grid-spans [grid-tokens]
-     (let [results (volatile! {})]
-       (mapv (fn [path]
-               (doseq [p (ancestry path)]
-                 (vswap! results update p inc)))
-             grid-tokens)
-       @results)))
 
 (defn upgrade-header-tree-schema
   ([tree]
