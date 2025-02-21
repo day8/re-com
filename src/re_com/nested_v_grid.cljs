@@ -619,22 +619,27 @@
                (for [i    (range (count @row-paths))
                      :let [row-path                    (get @row-paths i)
                            path-ct                     (count row-path)
-                           end-path                    (some #(when (= (count %) path-ct) %) ;;TODO make this more efficient.
-                                                             (drop (inc i) @row-paths))
+                           end-keypath                 (->> @row-paths
+                                                            (drop (inc i))
+                                                            (take-while #(> (count %) path-ct))
+                                                            count
+                                                            (+ i 1)
+                                                            (#(get @row-keypaths %)))
                            {:keys [branch-end? leaf?]} (meta row-path)
                            row-path-prop               (cond-> row-path (not show-root-headers?) (subvec 1))
                            cross-size                  (get @safe-row-header-widths
                                                             (cond-> (dec path-ct) (not show-root-headers?) dec))
-                           size                        (get @row-sizes i)]
+                           size                        (get @row-sizes i)
+                           keypath (get @row-keypaths i)]
                      :let [props {:part        ::row-header
                                   :row-path    row-path-prop
                                   :path        row-path-prop
-                                  :keypath     (get @row-keypaths i)
+                                  :keypath     keypath
                                   :branch-end? branch-end?
-                                  :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
+                                  :style       {:grid-row-start    (ngu/keypath->grid-line-name keypath)
                                                 :cross-size        cross-size
                                                 :grid-row-end      (if branch-end? "span 1"
-                                                                       (ngu/path->grid-line-name end-path))
+                                                                       (ngu/keypath->grid-line-name end-keypath))
                                                 :grid-column-start (cond-> (count row-path)
                                                                      branch-end?              dec
                                                                      (not show-root-headers?) dec)
@@ -658,21 +663,26 @@
                (for [i         (range (count @column-paths))
                      :let      [column-path           (get @column-paths i)
                                 path-ct               (count column-path)
-                                end-path              (some #(when (= (count %) path-ct) %)
-                                                            (drop (inc i) @column-paths))
+                                end-keypath           (->> @column-paths
+                                                           (drop (inc i))
+                                                           (take-while #(> (count %) path-ct))
+                                                           count
+                                                           (+ i 1)
+                                                           (#(get @column-keypaths %)))
                                 {:keys [branch-end? branch? leaf?]} (meta column-path)
-                                column-path-prop      (cond-> column-path (not show-root-headers?) (subvec 1))]
+                                column-path-prop      (cond-> column-path (not show-root-headers?) (subvec 1))
+                                keypath (get @column-keypaths i)]
                      #_#_:when (not branch-end?)
                      :let      [props {:part        ::column-header
                                        :column-path column-path-prop
                                        :path        column-path-prop
                                        :branch-end? branch-end?
-                                       :keypath     (get @column-keypaths i)
-                                       :style       {:grid-column-start (ngu/path->grid-line-name column-path)
+                                       :keypath     keypath
+                                       :style       {:grid-column-start (ngu/keypath->grid-line-name keypath)
                                                      :grid-column-end   (cond
-                                                                          end-path (ngu/path->grid-line-name end-path)
-                                                                          leaf?    "span 1"
-                                                                          :else    "-1")
+                                                                          end-keypath (ngu/keypath->grid-line-name end-keypath)
+                                                                          leaf?       "span 1"
+                                                                          :else       "-1")
                                                      :grid-row-start    (cond-> (count column-path)
                                                                           branch-end?              dec
                                                                           (not show-root-headers?) dec)
@@ -716,24 +726,28 @@
                     :key   [::corner-header row-index column-index]}))
 
                cells
-               (for [row-path    @row-paths
-                     column-path @column-paths
-                     :let        [row-meta (meta row-path)
-                                  column-meta (meta column-path)]
-                     :when       (and ((some-fn :leaf? :show?) row-meta)
-                                      ((some-fn :leaf? :show?) column-meta))
-                     :let        [props {:row-path    (cond-> row-path
-                                                        (not show-root-headers?) (subvec 1)
-                                                        (:branch-end? row-meta)  pop)
-                                         :column-path (cond-> column-path
-                                                        (not show-root-headers?)   (subvec 1)
-                                                        (:branch-end? column-meta) pop)
-                                         :row-meta    row-meta
-                                         :column-meta column-meta
-                                         :style       {:grid-row-start    (ngu/path->grid-line-name row-path)
-                                                       :grid-column-start (ngu/path->grid-line-name column-path)}}
-                                  props (merge props
-                                               {:children [(part ::cell-label {:props props})]})]]
+               (for [ri    (range (count @row-paths))
+                     ci    (range (count @column-paths))
+                     :let  [row-path    (nth @row-paths ri)
+                            column-path (nth @column-paths ci)
+                            row-keypath    (nth @row-keypaths ri)
+                            column-keypath (nth @column-keypaths ci)
+                            row-meta (meta row-path)
+                            column-meta (meta column-path)]
+                     :when (and ((some-fn :leaf? :show?) row-meta)
+                                ((some-fn :leaf? :show?) column-meta))
+                     :let  [props {:row-path    (cond-> row-path
+                                                  (not show-root-headers?) (subvec 1)
+                                                  (:branch-end? row-meta)  pop)
+                                   :column-path (cond-> column-path
+                                                  (not show-root-headers?)   (subvec 1)
+                                                  (:branch-end? column-meta) pop)
+                                   :row-meta    row-meta
+                                   :column-meta column-meta
+                                   :style       {:grid-row-start    (ngu/keypath->grid-line-name row-keypath)
+                                                 :grid-column-start (ngu/keypath->grid-line-name column-keypath)}}
+                            props (merge props
+                                         {:children [(part ::cell-label {:props props})]})]]
                  (part ::cell
                    {:part  ::cell
                     :props props

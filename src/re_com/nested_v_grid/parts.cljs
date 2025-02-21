@@ -70,9 +70,9 @@
                             :height            0
                             :margin-top        (+ size offset)})
                  (case [header-dimension size-dimension]
-                   [:column :width]  {:grid-column-start (ngu/path->grid-line-name path)}
+                   [:column :width]  {:grid-column-start (ngu/keypath->grid-line-name keypath)}
                    [:column :height] {:grid-row-start (inc index)}
-                   [:row :height]    {:grid-row-start (ngu/path->grid-line-name path)}
+                   [:row :height]    {:grid-row-start (ngu/keypath->grid-line-name keypath)}
                    [:row :width]     {:grid-column-start (inc index)})
                  style)}
    [grid-line-button

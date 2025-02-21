@@ -3,6 +3,9 @@
             #?@(:cljs [[re-com.util :as u]
                        goog.string])))
 
+(defn keypath->grid-line-name [keypath]
+  (apply str (into ["rc"] keypath)))
+
 (defn path->grid-line-name [path]
   (str "rc" (hash path)))
 
@@ -153,9 +156,10 @@
      :nodes-traversed @nodes-traversed}))
 
 (defn grid-tokens
-  [{:keys [header-paths sizes positions sum-size]}]
+  [{:keys [header-paths keypaths sizes positions sum-size]}]
   (into ["[start]"]
         (loop [[path & rest-paths]                    header-paths
+               [keypath & rest-keypaths]              keypaths
                [size & rest-sizes]                    sizes
                [position
                 & [next-position :as rest-positions]] (conj positions sum-size)
@@ -164,19 +168,19 @@
                 (peek path)
                 spacer?     (not= next-position (+ position size))
                 next-result (cond-> result
-                              :do         (conj path)
+                              :do         (conj keypath)
                               show-above? (conj (or size 0))
                               spacer?     (conj "[spacer]"
                                                 (- next-position size position)))]
             (if (empty? rest-sizes)
               (conj next-result "[end]")
-              (recur rest-paths rest-sizes rest-positions next-result))))))
+              (recur rest-paths rest-keypaths rest-sizes rest-positions next-result))))))
 
 (defn grid-template [header-traversal]
   (str/replace
    (str/join " "
              (map #(cond (string? %) %
-                         (vector? %) (str "[" (path->grid-line-name %) "]")
+                         (vector? %) (str "[" (keypath->grid-line-name %) "]")
                          (number? %) (str % "px"))
                   (grid-tokens header-traversal)))
    "] [" " "))
