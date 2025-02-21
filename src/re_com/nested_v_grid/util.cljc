@@ -4,7 +4,11 @@
                        goog.string])))
 
 (defn keypath->grid-line-name [keypath]
-  (str/join "-" (into ["rc"] keypath)))
+  (->> keypath
+       (into (if (:branch-end? (meta keypath))
+               ["rc-b"]
+               ["rc"]))
+       (str/join "-")))
 
 (defn path->grid-line-name [path]
   (str "rc" (hash path)))
@@ -124,14 +128,13 @@
                                                  (header-size node default-size))]
                                (when (or (intersection? sum leaf-size window-start window-end)
                                          collect-anyway?)
-                                 (let [new-path (cond-> (mapv remove-size leaf-path)
+                                 (let [path-meta (merge (if is-leaf? {:leaf? true} {:branch? true})
+                                                        (when branch-end? {:branch-end? true})
+                                                        (when show-above? {:show-above? true})
+                                                        (when last-child? {:last-child? true}))
+                                       new-path (cond-> (mapv remove-size leaf-path)
                                                   (or is-leaf? show-above?)
-                                                  (vary-meta merge {}
-                                                             (when is-leaf? {:leaf? true})
-                                                             (when-not is-leaf? {:branch? true})
-                                                             (when branch-end? {:branch-end? true})
-                                                             (when show-above? {:show-above? true})
-                                                             (when last-child? {:last-child? true})))]
+                                                  (vary-meta merge path-meta))]
                                    #_(when show?
                                        (vswap! spans
                                                (fn [m] (reduce #(update %1 %2 inc) m (ancestry leaf-path)))))
@@ -139,7 +142,7 @@
                                    (vswap! paths conj new-path)
                                    (vswap! sums conj sum)
                                    (vswap! sizes conj leaf-size)
-                                   (vswap! keypaths conj keypath)))
+                                   (vswap! keypaths conj (vary-meta keypath merge path-meta))))
                                (vswap! sum-size + leaf-size)
                                leaf-size))))]
     (walk [] header-tree {:hide? hide-root?})
@@ -179,9 +182,10 @@
 (defn grid-template [header-traversal]
   (str/replace
    (str/join " "
-             (map #(cond (string? %) %
+             (map #(do
+                     (cond (string? %) %
                          (vector? %) (str "[" (keypath->grid-line-name %) "]")
-                         (number? %) (str % "px"))
+                         (number? %) (str % "px")))
                   (grid-tokens header-traversal)))
    "] [" " "))
 
