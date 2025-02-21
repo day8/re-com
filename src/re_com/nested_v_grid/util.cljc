@@ -4,7 +4,7 @@
                        goog.string])))
 
 (defn keypath->grid-line-name [keypath]
-  (apply str (into ["rc"] keypath)))
+  (str/join "-" (into ["rc"] keypath)))
 
 (defn path->grid-line-name [path]
   (str "rc" (hash path)))
