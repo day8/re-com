@@ -408,8 +408,9 @@
                                                                    :do     (apply +))
                                            label                 (str "$" (number-format total-sales
                                                                                          {:precision 2}))
-                                           {:keys [banter]}      (rand-nth
-                                                                  (group* :country country fake-banter))
+                                           {:keys [banter]}      (some-> (group* :country country fake-banter)
+                                                                     seq
+                                                                     rand-nth)
                                            {:keys [branch-end?]} (merge column-meta row-meta)]
                                        [:div {:title (str (or name company)
                                                           " sold " label (cond product (str " of " product)
