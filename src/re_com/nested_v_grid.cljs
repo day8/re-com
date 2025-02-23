@@ -656,7 +656,7 @@
                  (part ::row-header
                    {:part  ::row-header
                     :props props
-                    :key   row-path
+                    :key   [::row-header keypath]
                     :theme (when theme-cells? theme)}))
 
                column-headers
@@ -694,7 +694,7 @@
                    {:part  ::column-header
                     :theme (when theme-cells? theme)
                     :props props
-                    :key   column-path}))
+                    :key   [::column-header keypath]}))
 
                corner-headers
                (for [column-index (range @row-depth)
