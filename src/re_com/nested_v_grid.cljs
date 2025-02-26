@@ -631,6 +631,7 @@
                                                             (cond-> (dec path-ct) (not show-root-headers?) dec))
                            size                        (get @row-sizes i)
                            keypath (get @row-keypaths i)]
+                     :when (or show-root-headers? (pos? i))
                      :let [props {:part        ::row-header
                                   :row-path    row-path-prop
                                   :path        row-path-prop
@@ -673,6 +674,7 @@
                                 column-path-prop      (cond-> column-path (not show-root-headers?) (subvec 1))
                                 keypath (get @column-keypaths i)]
                      #_#_:when (not branch-end?)
+                     :when     (or show-root-headers? (pos? i))
                      :let      [props {:part        ::column-header
                                        :column-path column-path-prop
                                        :path        column-path-prop
