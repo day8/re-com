@@ -275,6 +275,16 @@
            "To style these parts, we recommend using css to target the descendents of container parts, such as "
            [:code ":row-header-grid"] ". This is currently done in " [:code "re-com.css"]]}
 
+         {:name        :resize?
+          :type        "boolean"
+          :default     "true"
+          :validate-fn boolean?
+          :description
+          [:span "When " [:code "true"]
+           ", display draggable resize buttons across all row & column boundaries. "
+           "This can be overridden by the other " [:code ":resize-*?"] " props. "
+           "NOTE: For a row or column to be resizable along its main axis, its spec must be a map."]}
+
          {:name        :resize-row-height?
           :type        "boolean"
           :default     "true"
@@ -291,6 +301,24 @@
           :description
           [:span "When " [:code "true"]
            ", display draggable resize buttons across the cross-axis dimension of column headers."]}
+
+         {:name        :resize-row-header-height?
+          :type        "boolean"
+          :default     "true"
+          :validate-fn boolean?
+          :description
+          [:span "When " [:code "true"]
+           ", display draggable resize buttons across the main-axis dimension of rows. "
+           "NOTE: For a row to be resizable, its row-spec must be a map."]}
+
+         {:name        :resize-column-width?
+          :type        "boolean"
+          :default     "true"
+          :validate-fn boolean?
+          :description
+          [:span "When " [:code "true"]
+           ", display draggable resize buttons across the cross-axis dimension of columns."
+           "NOTE: For a column to be resizable, its column-spec must be a map."]}
 
          {:name        :on-resize
           :type        "fn"
@@ -519,13 +547,18 @@
             (reset! internal-prop external-value))))
       :reagent-render
       (fn [{:keys
-            [theme-cells? on-resize show-root-headers? style class resize-row-height?
-             resize-column-header-height?]
+            [theme-cells? show-root-headers? style class
+             on-resize
+             resize? resize-row-height? resize-row-header-width?
+             resize-column-width? resize-column-header-height?]
             :as props
             :or
             {show-root-headers?           true
              resize-row-height?           true
+             resize-row-header-width?     true
+             resize-column-width?         true
              resize-column-header-height? true
+             resize?                      true
              on-resize                    (fn [{:keys [header-dimension size-dimension keypath size]}]
                                             (case [header-dimension size-dimension]
                                               [:column :height] (swap! internal-column-header-heights safe-assoc (first keypath) size)
@@ -616,44 +649,44 @@
                                  :dimension        :column-width}]))
 
                row-headers
-               (for [i    (range (count @row-paths))
-                     :let [row-path                    (get @row-paths i)
-                           path-ct                     (count row-path)
-                           end-keypath                 (->> @row-paths
-                                                            (drop (inc i))
-                                                            (take-while #(> (count %) path-ct))
-                                                            count
-                                                            (+ i 1)
-                                                            (#(get @row-keypaths %)))
-                           {:keys [branch-end? leaf?]} (meta row-path)
-                           row-path-prop               (cond-> row-path (not show-root-headers?) (subvec 1))
-                           cross-size                  (get @safe-row-header-widths
-                                                            (cond-> (dec path-ct) (not show-root-headers?) dec))
-                           size                        (get @row-sizes i)
-                           keypath (get @row-keypaths i)]
+               (for [i     (range (count @row-paths))
+                     :let  [row-path                    (get @row-paths i)
+                            path-ct                     (count row-path)
+                            end-keypath                 (->> @row-paths
+                                                             (drop (inc i))
+                                                             (take-while #(> (count %) path-ct))
+                                                             count
+                                                             (+ i 1)
+                                                             (#(get @row-keypaths %)))
+                            {:keys [branch-end? leaf?]} (meta row-path)
+                            row-path-prop               (cond-> row-path (not show-root-headers?) (subvec 1))
+                            cross-size                  (get @safe-row-header-widths
+                                                             (cond-> (dec path-ct) (not show-root-headers?) dec))
+                            size                        (get @row-sizes i)
+                            keypath (get @row-keypaths i)]
                      :when (or show-root-headers? (pos? i))
-                     :let [props {:part        ::row-header
-                                  :row-path    row-path-prop
-                                  :path        row-path-prop
-                                  :keypath     keypath
-                                  :branch-end? branch-end?
-                                  :style       {:grid-row-start    (ngu/keypath->grid-line-name keypath)
-                                                :cross-size        cross-size
-                                                :grid-row-end      (if branch-end? "span 1"
-                                                                       (ngu/keypath->grid-line-name end-keypath))
-                                                :grid-column-start (cond-> (count row-path)
-                                                                     branch-end?              dec
-                                                                     (not show-root-headers?) dec)
-                                                :grid-column-end   -1}}
-                           props (assoc props :children [(part ::row-header-label
-                                                           {:props (assoc props
-                                                                          :style (merge {:height (- size 5)}
-                                                                                        (when-not leaf?
-                                                                                          {:position :sticky
-                                                                                           :top      @column-header-height-total})
-                                                                                        (when-not branch-end?
-                                                                                          {:width (- cross-size 10)})))
-                                                            :impl  ngp/row-header-label})])]]
+                     :let  [props {:part        ::row-header
+                                   :row-path    row-path-prop
+                                   :path        row-path-prop
+                                   :keypath     keypath
+                                   :branch-end? branch-end?
+                                   :style       {:grid-row-start    (ngu/keypath->grid-line-name keypath)
+                                                 :cross-size        cross-size
+                                                 :grid-row-end      (if branch-end? "span 1"
+                                                                        (ngu/keypath->grid-line-name end-keypath))
+                                                 :grid-column-start (cond-> (count row-path)
+                                                                      branch-end?              dec
+                                                                      (not show-root-headers?) dec)
+                                                 :grid-column-end   -1}}
+                            props (assoc props :children [(part ::row-header-label
+                                                            {:props (assoc props
+                                                                           :style (merge {:height (- size 5)}
+                                                                                         (when-not leaf?
+                                                                                           {:position :sticky
+                                                                                            :top      @column-header-height-total})
+                                                                                         (when-not branch-end?
+                                                                                           {:width (- cross-size 10)})))
+                                                             :impl  ngp/row-header-label})])]]
                  (part ::row-header
                    {:part  ::row-header
                     :props props
@@ -769,42 +802,49 @@
                   {:theme theme
                    :part  ::cell-grid
                    :props {:children (cond-> cells
-                                       (not @hide-resizers?)
+                                       (and resize? (not @hide-resizers?))
                                        (concat
                                         (when resize-row-height?
                                           (row-height-resizers {:offset -1}))
-                                        (column-width-resizers {:style  {:grid-row-end -1}
-                                                                :offset -1})))
+                                        (when resize-column-width?
+                                          (column-width-resizers {:style  {:grid-row-end -1}
+                                                                  :offset -1}))))
                            :style    {:grid-template-rows    @row-template
                                       :grid-template-columns @column-template}}})
                 (part ::column-header-grid
                   {:theme theme
                    :part  ::column-header-grid
                    :props {:children (cond-> column-headers
-                                       (not @hide-resizers?)
-                                       (concat (when resize-column-header-height?
-                                                 column-height-resizers)
-                                               (column-width-resizers {:offset -1})))
+                                       (and resize? (not @hide-resizers?))
+                                       (concat
+                                        (when resize-column-header-height?
+                                          column-height-resizers)
+                                        (when resize-column-width?
+                                          (column-width-resizers {:offset -1}))))
                            :style    {:grid-template-rows    @column-cross-template
                                       :grid-template-columns @column-template}}})
                 (part ::row-header-grid
                   {:theme theme
                    :part  ::row-header-grid
                    :props {:children (cond-> row-headers
-                                       (not @hide-resizers?)
-                                       (concat row-width-resizers
-                                               (when resize-row-height?
-                                                 (row-height-resizers {:offset -1}))))
+                                       (and resize? (not @hide-resizers?))
+                                       (concat
+                                        (when resize-row-header-width?
+                                          row-width-resizers)
+                                        (when resize-row-height?
+                                          (row-height-resizers {:offset -1}))))
                            :style    {:grid-template-rows    @row-template
                                       :grid-template-columns @row-cross-template}}})
                 (part ::corner-header-grid
                   {:theme theme
                    :part  ::corner-header-grid
                    :props {:children (cond-> corner-headers
-                                       (not @hide-resizers?)
-                                       (concat row-width-resizers
-                                               (when resize-column-header-height?
-                                                 column-height-resizers)))
+                                       (and resize? (not @hide-resizers?))
+                                       (concat
+                                        (when resize-row-header-width?
+                                          row-width-resizers)
+                                        (when resize-column-header-height?
+                                          column-height-resizers)))
                            :style    {:grid-template-rows    @column-cross-template
                                       :grid-template-columns @row-cross-template}}})
                 (u/deref-or-value overlay)]}}))))})))
