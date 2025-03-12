@@ -209,7 +209,7 @@
   ([tree]
    (upgrade-header-tree-schema [:root] tree))
   ([acc tree]
-   (if-not (vector? tree)
+   (if-not (sequential? tree)
      [tree]
      (let [[l & [r :as remainder]] tree]
        (cond
