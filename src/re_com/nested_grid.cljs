@@ -1152,6 +1152,7 @@
                                            :children row-header-cells}})
             cells                      (u/part cell-grid-container
                                          {:part  ::cell-grid-container
+                                                :theme theme
                                           :props {:style    {:max-height            max-height
                                                              :max-width             max-width
                                                              :display               :grid
