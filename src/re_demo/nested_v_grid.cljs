@@ -195,14 +195,14 @@
     [status-text "alpha" {:color "red"}]
     [new-in-version "v2.20.0"]
     [rc/p [:code "nested-grid"]
-     " " "provides a table with nested, hierarchical columns and rows."
+     " " "provides a grid with nested, hierarchical columns and rows."
      " " "The archetypical use-case would be to display a "
      [:a {:href "https://en.wikipedia.org/wiki/Pivot_table"} "pivot table"] "."
      " " "However, " [:code "nested-grid"] " provides a lean abstraction that could"
      " " "suit a variety of problems."]
-    [rc/p "Essentially, each cell has a unique pair of" " " [:i "paths"]
+    [rc/p "Essentially, each cell has a unique pair of" " " [:i "header paths"]
      " " "within the hierarchy." " " "The value of each cell is a"
-     " " [:i "function"] " " "of its" " " [:i "paths"] "."]
+     " " [:i "function"] " " "of its" " " [:i "header paths"] "."]
     [title2 "Characteristics"]
     [rc/p "Unlike" " " [:code "v-table"] ", "
      [:code "nested-grid"] ":"
