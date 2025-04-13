@@ -789,10 +789,10 @@
                     :theme (when theme-cells? theme)
                     :key   [row-path column-path]}))]
            (part ::wrapper
-             {:part        ::wrapper
-              :theme       theme
-              :after-props {:style style
-                            :class class}
+             {:part       ::wrapper
+              :theme      theme
+              :post-props {:style style
+                           :class class}
               :props
               {:style {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
                        :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}

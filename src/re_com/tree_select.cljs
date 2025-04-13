@@ -542,19 +542,19 @@
                                                        :level             level}]
                                      [choice-wrapper choice-props]))))]
          (u/part wrapper
-           {:part        ::wrapper
-            :theme       theme
-            :impl        v-box
-            :after-props (select-keys args [:width
-                                            :min-width
-                                            :max-width
-                                            :min-height
-                                            :max-height
-                                            :style
-                                            :attr])
-            :props       {:src      (at)
-                          :style    {:overflow-y "auto"}
-                          :children (mapv item items)}}))))))
+           {:part       ::wrapper
+            :theme      theme
+            :impl       v-box
+            :post-props (select-keys args [:width
+                                           :min-width
+                                           :max-width
+                                           :min-height
+                                           :max-height
+                                           :style
+                                           :attr])
+            :props      {:src      (at)
+                         :style    {:overflow-y "auto"}
+                         :children (mapv item items)}}))))))
 
 (defn field-label [{:keys [items group-label-fn label-fn]}]
   (when (seq items)
