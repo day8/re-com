@@ -615,7 +615,7 @@
 
                row-height-resizers
                (fn [& {:keys [offset]}]
-                 (for [i     (range (count @row-paths))
+                 (for [i     (range (dec (count @row-paths)))
                        :let  [row-path (get @row-paths i)]
                        :when (and ((some-fn :leaf? :show?) (meta row-path))
                                   (map? (peek row-path)))]
