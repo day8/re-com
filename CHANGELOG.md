@@ -2,6 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+#### Added
+
+- `dropdown`: `:offset-x` and `:offset-y` (number) props.
+
+
 ## 2.24.1 (2025-02-19)
 
 #### Fixed

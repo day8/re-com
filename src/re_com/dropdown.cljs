@@ -96,7 +96,7 @@
       :default     "re-com.dropdown/backdrop"
       :type        "part"
       :validate-fn part?
-      :description (str "Renders a visual overlay, behind the `:anchor` and `:body` parts, when the dropdown is open.")}
+      :description "Renders a visual overlay, behind the `:anchor` and `:body` parts, when the dropdown is open."}
      {:name :show-backdrop?
       :required? false
       :type "boolean"
@@ -113,11 +113,17 @@
      {:name        :body-header
       :type        "part"
       :validate-fn part?
-      :description (str "Appears at the top of the :body part.")}
+      :description "Appears at the top of the :body part."}
      {:name        :body-footer
       :type        "part"
       :validate-fn part?
-      :description (str "Appears at the bottom of the :body part.")}
+      :description "Appears at the bottom of the :body part."}
+     {:name        :offset-x
+      :type        "number"
+      :description [:span [:code ":dropdown"] " adds this to the body's dynamically-generated x-position."]}
+     {:name        :offset-y
+      :type        "number"
+      :description [:span [:code ":dropdown"] " adds this to the body's dynamically-generated y-position."]}
      {:name     :disabled?
       :required false
       :type     "boolean | r/atom"}
@@ -249,7 +255,7 @@
 
   In other words, the body slides left & right within the anchor width,
   and blinks up & down, to find the least cut-off position."
-  [anchor-el body-el & {:keys [direction]}]
+  [anchor-el body-el & {:keys [direction offset-y offset-x]}]
   (let [a-rect       (.getBoundingClientRect anchor-el)
         a-x          (.-x a-rect)
         a-y          (.-y a-rect)
@@ -280,13 +286,16 @@
         best-y       (case v-pos :low lo-y :high hi-y)
         best-y       (case direction :up hi-y :down lo-y best-y)]
     (->> [best-x best-y]
-         (mapv + [a-x a-y]))))
+         (map + [a-x a-y])
+         (mapv + [offset-x offset-y]))))
 
-(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction parts]}]
+(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction parts offset-y offset-x]}]
   (let [set-body-ref!      #(reset! body-ref %)
         optimize-position! #(reset! anchor-position
                                     (optimize-position! @anchor-ref @body-ref
-                                                        {:direction direction}))
+                                                        {:direction direction
+                                                         :offset-y (u/deref-or-value offset-y)
+                                                         :offset-x (u/deref-or-value offset-x)}))
         animation-id       (atom nil)
         start-loop!        (fn start-loop []
                              (reset! animation-id
@@ -306,17 +315,17 @@
       (fn [{:keys [theme children post-props]}]
         (let [[left top] (deref anchor-position)]
           (u/part (get parts :body-wrapper (get parts ::body-wrapper))
-            {:theme theme
-             :part  ::body-wrapper
-             :props
-             {:position    :fixed
-              :anchor-top  top
-              :anchor-left left
-              :top         top
-              :left        left
-              :attr        {:ref set-body-ref!}
-              :children    children}
-             :post-props post-props})))})))
+                  {:theme      theme
+                   :part       ::body-wrapper
+                   :props
+                   {:position    :fixed
+                    :anchor-top  top
+                    :anchor-left left
+                    :top         top
+                    :left        left
+                    :attr        {:ref set-body-ref!}
+                    :children    children}
+                   :post-props post-props})))})))
 
 (defn indicator [{:keys [state style]}]
   [:span {:style style}
@@ -328,7 +337,7 @@
 
 (defn dropdown
   "A clickable anchor above an openable, floating body."
-  [& {:keys [model no-clip?] :or {model (reagent/atom nil)}}]
+  [& {:keys [model no-clip? offset-x offset-y] :or {model (reagent/atom nil)}}]
   (let [default-model                                  model
         [focused? anchor-ref body-ref anchor-position] (repeatedly #(reagent/atom nil))
         anchor-ref!                                    #(reset! anchor-ref %)
@@ -443,6 +452,8 @@
                          (when (= :open (:openable state))
                            [body-wrapper
                             {:anchor-ref      anchor-ref
+                             :offset-x        offset-x
+                             :offset-y        offset-y
                              :body-ref        body-ref
                              :anchor-position anchor-position
                              :direction       direction
