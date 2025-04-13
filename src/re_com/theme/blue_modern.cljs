@@ -11,7 +11,8 @@
               {$ :variables} :re-com}]
   (->> (case part
          ::dropdown/anchor-wrapper
-         {:style {:height "25px"}}
+         {:style {:font-size :small
+                  :height    "25px"}}
          ::dropdown/indicator
          {:style {:color (:light-foreground $)}}
          {})
