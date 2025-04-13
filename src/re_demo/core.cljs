@@ -15,6 +15,7 @@
             [re-demo.debug                 :as    debug]
             [re-demo.config                :as    config]
             [re-demo.introduction          :as    introduction]
+            [re-demo.theme-and-style       :as    theme-and-style]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox             :as    checkbox]
             [re-demo.input-text            :as    input-text]
@@ -69,6 +70,7 @@
 
 (def tabs-definition
   [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
+   {:id :theme-and-style        :level :major :label "Theme & Style"       :panel theme-and-style/panel}
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
    {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
@@ -127,7 +129,6 @@
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
    {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
-
    {:id :debug                  :level :major :label "Debugging"          :panel debug/panel}
    {:id :config                 :level :major :label "Config"             :panel config/panel}])
 

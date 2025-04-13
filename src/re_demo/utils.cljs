@@ -1,4 +1,6 @@
 (ns re-demo.utils
+   (:require-macros
+    [re-demo.utils])
   (:require
    [reagent.core :as r]
    [re-com.core           :as rc :refer [title line label hyperlink-href align-style at]]
@@ -290,10 +292,10 @@
 
 (defn zprint-code [& quoted-forms]
   (into [code]
-        (map #(do
-                (zprint/zprint-str % {:map     {:justify? true
-                                                :comma?   false}
-                                      :binding {:justify? true}
-                                      :pair    {:justify? true}
-                                      :width   60})))
+        (map #(zprint/zprint-str % {:map     {:justify? true
+                                              :comma?   false}
+                                    :binding {:justify? true}
+                                    :pair    {:justify? true}
+                                    :width   60}))
         quoted-forms))
+
