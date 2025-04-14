@@ -116,7 +116,7 @@
           :validate-fn integer?
           :default     40
           :description
-          [:span "Controls the default cross-axis size (i.e. width) of every column-header."]}
+          [:span "Controls the default cross-axis size (i.e. width) of every row-header."]}
 
          {:name        :row-header-widths
           :type        "vector of integers | r/atom"
