@@ -125,12 +125,12 @@
 
 (def stack-spy                  debug/stack-spy)
 
-(defn reg-theme [layer-id f]
-  (case layer-id
-    :variables (set! theme/variables f)
-    :base      (set! theme/base f)
-    :main      (set! theme/main f)
-    :user      (set! theme/user f)))
-
-
-
+(defn reg-theme
+  ([f]
+   (reg-theme :user f))
+  ([layer-id f]
+   (case layer-id
+     :variables (set! theme/*variables* f)
+     :base      (set! theme/*base* f)
+     :main      (set! theme/*main* f)
+     :user      (set! theme/*user* f))))
