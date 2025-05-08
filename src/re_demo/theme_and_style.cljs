@@ -66,46 +66,6 @@
                       :style {:width  "400px"
                               :height "auto"}}]]]]]}])
 
-(defn default-part []
-  [rc/v-box
-   {:src (rc/at)
-    :gap "12px"
-    :children
-    [[rc/title {:src   (rc/at)
-                :level :level2
-                :label [:span "The default part"]}]
-     [rc/h-box
-      :gap "31px"
-      :children
-      [[rc/v-box
-        :children
-        [[rc/p "More abstractly, here is a re-com component which implements the "
-          "customization described above."]]]
-       [rc/h-box
-        :style {:height :fit-content :gap "12px"}
-        :children
-        (rdu/with-src
-          (defn my-component [{:keys [class style attr children]}]
-            (into [:div (merge {:class class :style style}
-                               attr)]
-                  children)))]]]
-     [rc/h-box
-      :gap "31px"
-      :children
-      [[rc/p "It puts " [:code ":style"] " and " [:code ":class"] " into a map, "
-        "merges in " [:code ":attr"] " and follows with the "
-        [:code ":children"] "."]
-       [rc/h-box
-        :gap "12px"
-        :children
-        (rdu/with-src
-          [my-component
-           {:style    {:background :gold :padding 4}
-            :class    ["bold"]
-            :attr     {:on-click #(js/alert "That's my component, hands off!")}
-            :children [[:div "My"] [:div "perfect"] [:div "component."]]}])]]]
-     [rc/gap :size "12px"]]}])
-
 (defn parts []
   [rc/v-box
    {:src (rc/at)
@@ -119,12 +79,10 @@
       [[rc/v-box
         :children
         [[rc/p "While an ordinary reagent component simply returns a tree of hiccups, "
-          "a re-com component lables meaningful subtrees with " [:code ":parts"]
-          ". This gives you control over the details of that subtree: "
-          "its details: its component function, its props and its children."]
+          "a re-com component labels the meaningful subtrees with " [:code ":parts"]
+          ". This gives you control over the details of each subtree: "
+          " its component function, its props and its children."]
          [rc/p
-          "Re-com names each part within the namespace of its parent component. For instance, "
-          [:code ":re-com.dropdown/anchor"] ". "
           "These names are listed at the bottom of that component's documentation. "
           "By passing in a " [:code ":parts"] " map, you can target each individual part by name. "
           "You can customize a part in different ways, "
@@ -160,8 +118,8 @@
         :children
         [[rc/p "A part can be a component function. It is placed into a hiccup "
           "within the component tree, alongside a map of keyword arguments. "
-          "These can include all the props listed in the " [:strong "Basics"]
-          " section. There are also a few others, to give context:"]
+          "These can include all the props listed in the " [:strong "Basics"] " "
+          "section. There are also a few others, to give context:"]
          [rc/p
           [:ul
            [:li [:strong [:code ":parts"]]
@@ -194,15 +152,10 @@
           "Every part has a default component function (i.e. part-function), used when "
           "you don't pass a function of your own. "
           "Here, the default part for " [:code ":re-com.dropdown/anchor"] " "
-          "is responsible for adding the text " [:code "\"Select an item\""] ". "
+          "is responsible for the text " [:code "\"Select an item\""] ". "
           "The props which re-com passes into this default part have been "
           "overridden by the pink " [:code ":style"]
-          " and italic " [:code ":class"] " we passed in."]
-         [rc/p
-          "Just like in the " [:strong "Basics"] " section, "
-          [:code ":style"] " is merged, " [:code ":class"] " is concatenated "
-          " and " [:code ":attr"] " is merged at the top level. After that, it's up "
-          "to the part-function to build the final hiccup."]]]
+          " and italic " [:code ":class"] " we passed in."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :children
@@ -282,6 +235,11 @@
         :children
         [[rc/p
           "Re-com passes a " [:code ":part"] " argument to each part, naming it. "
+          "Since a theme is agnostic of any particular re-com component, this "
+          [:code ":part"] " "
+          "argument is fully-qualified. "
+          "For instance, " [:code ":re-com.dropdown/anchor"] ". "]
+         [rc/p
           "Here is a " [:code ":theme"] " function that only adds background-color to the "
           [:code ":body"] " part, and adds a class to the " [:code ":anchor"] " part."]]]
        [rc/v-box
@@ -308,13 +266,13 @@
              {:parts {:anchor my-anchor :body my-body}
               :theme my-theme}])]]]]]
      [rc/gap :size "19px"]
-     [rc/title :level :level3 :label "Global themes"]
+     [rc/title :level :level3 :label "Themes can be global"]
      [rc/h-box
       :gap "31px"
       :children
       [[rc/v-box
         :children
-        [[rc/p]]]
+        [[rc/p "By calling "]]]
        [rc/v-box
         :gap "19px"
         :children
@@ -322,14 +280,104 @@
           :style {:height :fit-content :gap "12px"}
           :align :start
           :children
-          (rdu/with-src (re-com.core/reg-theme my-theme))]
+          [[rdu/zprint-code '(re-com.core/reg-theme my-theme)]]]
          [rc/h-box
           :style {:height :fit-content :gap "12px"}
           :align :start
           :children
-          (rdu/with-src
-            [rc/dropdown
-             {:parts {:anchor my-anchor :body my-body}}])]]]]]]}])
+          [[rdu/zprint-code
+            '[rc/dropdown
+              {:parts {:anchor my-anchor :body my-body}}]]
+           [rc/dropdown
+            {:parts {:anchor my-anchor :body my-body}
+             :theme my-theme}]]
+          ]]]]]
+     [rc/gap :size "19px"]
+     [rc/title :level :level3 :label "Themes are layered"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p ""]
+         [rc/p
+          [:ul
+           [:li [:strong ":variables"]]
+           [:li [:strong ":base"]]
+           [:li [:strong ":main"]]
+           [:li [:strong ":user"]]]]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        [[rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code '(re-com.core/reg-theme my-theme)]]]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code
+            '[rc/dropdown
+              {:parts {:anchor my-anchor :body my-body}}]]
+           [rc/dropdown
+            {:parts {:anchor my-anchor :body my-body}
+             :theme my-theme}]]
+          ]]]]]
+     [rc/gap :size "19px"]
+     [rc/title :level :level3 :label "Themes are (not) reactive"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "Hello."]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        [[rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code '(re-com.core/reg-theme my-theme)]]]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code
+            '[rc/dropdown
+              {:parts {:anchor my-anchor :body my-body}}]]
+           [rc/dropdown
+            {:parts {:anchor my-anchor :body my-body}
+             :theme my-theme}]]
+          ]]]]]
+     [rc/title :level :level3 :label "Targeting the top-level hiccup"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "Hello."]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        [[rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code '(re-com.core/reg-theme my-theme)]]]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code
+            '[rc/dropdown
+              {:parts {:anchor my-anchor :body my-body}}]]
+           [rc/dropdown
+            {:parts {:anchor my-anchor :body my-body}
+             :theme my-theme}]]
+          ]]]]]]}])
 
 (defn panel* []
   [rc/v-box
@@ -340,7 +388,6 @@
       "src/re_demo/theme_and_style.cljs"]
      [basics]
      [composition]
-     [default-part]
      [parts]
      [theme]]}])
 
