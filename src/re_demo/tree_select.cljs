@@ -30,6 +30,7 @@
         disabled?               (reagent/atom false)
         change-on-blur?         (reagent/atom nil)
         show-reset-button?      (reagent/atom false)
+        show-only-button?       (reagent/atom false)
         initial-expanded-groups (reagent/atom nil)
         label-fn                (reagent/atom nil)
         group-label-fn          (reagent/atom nil)
@@ -91,6 +92,7 @@
                     :change-on-blur?    @change-on-blur?
                     :disabled?          disabled?
                     :show-reset-button? @show-reset-button?
+                    :show-only-button?  @show-only-button?
                     :label-fn           @label-fn
                     :group-label-fn     @group-label-fn
                     :choice-disabled-fn @choice-disabled-fn
@@ -131,6 +133,12 @@
                                                        :child [:code ":show-reset-button?"]]
                                            :model     show-reset-button?
                                            :on-change #(reset! show-reset-button? %)]
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
+                                                       :align :start
+                                                       :child [:code ":show-only-button?"]]
+                                           :model     show-only-button?
+                                           :on-change #(reset! show-only-button? %)]
                                           [checkbox :src (at)
                                            :label     [box :src (at)
                                                        :align :start

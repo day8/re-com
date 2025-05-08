@@ -43,3 +43,10 @@
                {:style {#_#_:margin-left  "5px"
                         #_#_:margin-right "5px"
                         :opacity          "50%"}}))
+
+(defmethod base ::ts/only-button
+  [{{{:keys [background]} :variables} :re-com :as props}]
+  (merge-style props {:position   :absolute
+                      :right      5
+                      :margin-bottom     2
+                      :background background}))

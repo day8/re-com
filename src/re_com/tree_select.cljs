@@ -55,7 +55,13 @@
         :level 2}
        {:name :dropdown-body
         :impl "user-defined"
-        :level 2}])))
+        :level 2}
+       {:name :only-button
+        :impl 're-com.tree-select/only-button
+        :level 3
+        :notes [:span "Appears when hovering a choice or group, and when "
+                [:code ":show-only-button?"] " is true. "
+                "When clicked, selects only the single choice or group."]}])))
 
 (def tree-select-dropdown-parts
   (when include-args-desc?
@@ -309,8 +315,8 @@
    :attr (get-in parts [:offset :attr])
    :child (apply str (repeat level "⯈"))])
 
-(defn solo-button [{:keys [solo!]}]
-  [:a {:href "#" :on-click solo!} "only"])
+(defn only-button [{:keys [solo! style class attr]}]
+  [:a (merge {:style style :class class :href "#" :on-click solo!} attr) "only"])
 
 (defn choice [{:keys [parts checked? toggle! label disabled? attr]}]
   [h-box
@@ -329,7 +335,7 @@
 
 (defn choice-wrapper [_]
   (let [hover? (r/atom nil)]
-    (fn [{:keys [choice level showing? show-only-button?] :as props}]
+    (fn [{:keys [choice level showing? show-only-button? theme parts] :as props}]
       (when showing?
         [h-box
          :align :center
@@ -341,9 +347,16 @@
           (vec (repeat level [gap :size "10px"]))
           [(u/part choice
              {:props props
+              :part  ::choice
+              :theme theme
               :impl  re-com.tree-select/choice})
            [gap :size "1"]
-           (when (and show-only-button? @hover?) [solo-button props])])]))))
+           (when (and show-only-button? @hover?)
+             (u/part (:only-button parts)
+               {:props props
+                :part  ::only-button
+                :theme theme
+                :impl  re-com.tree-select/only-button}))])]))))
 
 (defn group-item [& {:keys [checked? hide-show! showing? open? parts] :as props}]
   (when showing?
@@ -361,7 +374,7 @@
 
 (defn group-wrapper [_]
   (let [hover? (r/atom nil)]
-    (fn [{:keys [level hide-show! parts open? showing? show-only-button?] :as props}]
+    (fn [{:keys [level hide-show! parts open? showing? show-only-button? theme] :as props}]
       (when showing?
         [h-box
          :attr {:on-mouse-enter #(reset! hover? true)
@@ -385,7 +398,12 @@
              {:props props
               :impl  re-com.tree-select/group-item})
            [gap :size "1"]
-           (when (and show-only-button? @hover?) [solo-button props])])]))))
+           (when (and show-only-button? @hover?)
+             (u/part (:only-button parts)
+               {:props props
+                :part  ::only-button
+                :theme theme
+                :impl  re-com.tree-select/only-button}))])]))))
 
 (def group? (comp #{:group} :type))
 
@@ -504,6 +522,7 @@
                                          group-props    {:group             item-props
                                                          :label             (group-label-fn item-props)
                                                          :parts             parts
+                                                         :theme             theme
                                                          :hide-show!        (handler-fn (on-group-expand (toggle expanded-groups group)))
                                                          :toggle!           (handler-fn
                                                                              (let [new-model (toggle-group model)]
@@ -526,6 +545,7 @@
                                                        :model             model
                                                        :label             (label-fn item-props)
                                                        :parts             parts
+                                                       :theme             theme
                                                        :showing?          (if-not group
                                                                             true
                                                                             (every? (set expanded-groups) (ancestor-paths group)))
