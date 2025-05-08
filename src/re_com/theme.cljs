@@ -5,10 +5,10 @@
    [re-com.part :as part]
    [re-com.theme.default :as theme.default]))
 
-(def ^:dynamic variables theme.default/variables)
-(def ^:dynamic base theme.default/base)
-(def ^:dynamic main theme.default/main)
-(def ^:dynamic user nil)
+(def ^:dynamic *variables* theme.default/variables)
+(def ^:dynamic *base* theme.default/base)
+(def ^:dynamic *main* theme.default/main)
+(def ^:dynamic *user* nil)
 
 (def args-desc
   [{:name        :theme
@@ -34,10 +34,10 @@
 (defn comp [component-local-pre-theme component-local-theme]
   (clojure.core/apply
    clojure.core/comp
-   (filterv some? [component-local-theme
-                   part-class*
-                   user
-                   main
-                   base
-                   component-local-pre-theme
-                   variables])))
+   (filter some? [component-local-theme
+                  part-class*
+                  *user*
+                  *main*
+                  *base*
+                  component-local-pre-theme
+                  *variables*])))

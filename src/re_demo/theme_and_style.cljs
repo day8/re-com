@@ -118,17 +118,19 @@
       :children
       [[rc/v-box
         :children
-        [[rc/p "While a basic reagent component simply returns a tree of hiccups, "
-          "a re-com component is composed of " [:code ":parts"]
-          ". A part decomposes each hiccup, giving you control over "
+        [[rc/p "While an ordinary reagent component simply returns a tree of hiccups, "
+          "a re-com component lables meaningful subtrees with " [:code ":parts"]
+          ". This gives you control over the details of that subtree: "
           "its details: its component function, its props and its children."]
          [rc/p
-          "Re-com also names each part, within the namespace of its parent component. "
+          "Re-com names each part within the namespace of its parent component. For instance, "
+          [:code ":re-com.dropdown/anchor"] ". "
           "These names are listed at the bottom of that component's documentation. "
-          "By passing in a " [:code ":parts"] " map, you can target individual parts by name. "
-          "Depending on the type of value, re-com will customize each part in different ways. "]
+          "By passing in a " [:code ":parts"] " map, you can target each individual part by name. "
+          "You can customize a part in different ways, "
+          " based on the type of a val within " [:code ":parts"]]
          [rc/p {:style {:background-color "#eee" :padding 7}}
-          [:strong "Note"] ": Some re-com components only support map " [:code ":parts"] ". "
+          [:strong "Note"] ": Some re-com components only support the " [:i "map"] " type. "
           "Our effort to bring full support to all components is "
           [:a {:href "https://github.com/day8/re-com/issues/352"} "ongoing"] "."]]]
        [rc/box
@@ -304,7 +306,30 @@
           (rdu/with-src
             [rc/dropdown
              {:parts {:anchor my-anchor :body my-body}
-              :theme my-theme}])]]]]]]}])
+              :theme my-theme}])]]]]]
+     [rc/gap :size "19px"]
+     [rc/title :level :level3 :label "Global themes"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        [[rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          (rdu/with-src (re-com.core/reg-theme my-theme))]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          (rdu/with-src
+            [rc/dropdown
+             {:parts {:anchor my-anchor :body my-body}}])]]]]]]}])
 
 (defn panel* []
   [rc/v-box
@@ -321,5 +346,3 @@
 
 (defn panel []
   [panel*])
-
-
