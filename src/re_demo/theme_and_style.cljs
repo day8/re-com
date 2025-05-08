@@ -15,15 +15,14 @@
       :children
       [[rc/v-box
         :children
-        [[rc/p "Most re-com components can be passed these four named arguments:"]
+        [[rc/p "Most re-com components can be passed these named arguments:"]
          [rc/p
           [:ul
-           [:li [:code [:strong ":style"]] " must be a map, representing inline CSS style rules."]
-           [:li  [:code [:strong ":class"]] " can be a string with CSS class-names "
-            "separated by spaces, or a vector of strings."]
+           [:li [:code [:strong ":style"]] " must be a map, representing CSS inline style rules."]
+           [:li  [:code [:strong ":class"]] " must be a string, or vector of strings, representing CSS class-names."]
            [:li [:code [:strong ":attr"]] " must be a map. It stands for " [:i "Html attributes"] ". "
             "These represent extra attributes, alongside class and style. "
-            "For instance, " [:code ":on-click"] " or " [:code ":data--my-attribute"]]
+            "For instance, " [:code ":on-click"] " or " [:code ":data-my-attribute"]]
            [:li [:code [:strong ":children"]] " must be a sequence of hiccups. "
             "Some components expect a single " [:code ":child"] ", instead."]]]]]
        [rc/h-box
@@ -48,63 +47,24 @@
         [[rc/p
           "The above is enough in most cases, but sometimes we want to express UI with more: "
           [:ul
-           [:li [:i "parsimony"] ": such as, applying a design system over an entire app, "]
+           [:li [:i "flexibility"] ": such as, applying design conditionally, based on some dynamic state."]
            [:li [:i "specificity"] ": such as, building custom view logic into one instance of a component. "]
-           [:li [:i "flexibility"] ": such as, applying design conditionally, based on some dynamic state."]]]
+           [:li [:i "parsimony"] ": such as, applying a design system over an entire app, "]]]
          [rc/p
-          "Given a re-com component, which returns a hiccup tree, we need deeper mechanics we can use, "
-          " both individually and in combination. We need ways to: "
+          "Given a re-com component function, which returns a tree of hiccups, "
+          "we need deeper mechanics we can use, both individually and in combination. We need ways to: "
           [:ul
-           [:li "Replace an entire subtree (a " [:code ":parts"] " hiccup)"]
-           [:li "Override a certain hiccup's arguments (a " [:code ":parts"] " map)"]
-           [:li "Re-write a hiccup's component function (a " [:code ":parts"] " function)"]
-           [:li "Wrap a hiccup's arguments with a function (a " [:code ":theme"] ")"]
-           [:li "Register a function that wraps the arguments of hiccups everywhere (a global " [:code ":theme"] ")"]]]]]
+           [:li "Replace an entire subtree (a " [:code ":parts"] " hiccup)."]
+           [:li "Override a certain hiccup's arguments (a " [:code ":parts"] " map)."]
+           [:li "Re-write a hiccup's component function (a " [:code ":parts"] " function)."]
+           [:li "Wrap a hiccup's arguments with a function (a " [:code ":theme"] ")."]
+           [:li "Register a function that wraps the arguments of all hiccups everywhere "
+            "(a global " [:code ":theme"] ")."]]]]]
        [rc/box
         :align :center
         :child [:img {:src   "demo/architecture-LOD.jpg"
                       :style {:width  "400px"
                               :height "auto"}}]]]]]}])
-
-(defn default-part []
-  [rc/v-box
-   {:src (rc/at)
-    :gap "12px"
-    :children
-    [[rc/title {:src   (rc/at)
-                :level :level2
-                :label [:span "The default part"]}]
-     [rc/h-box
-      :gap "31px"
-      :children
-      [[rc/v-box
-        :children
-        [[rc/p "More abstractly, here is a re-com component which implements the "
-          "customization described above."]]]
-       [rc/h-box
-        :style {:height :fit-content :gap "12px"}
-        :children
-        (rdu/with-src
-          (defn my-component [{:keys [class style attr children]}]
-            (into [:div (merge {:class class :style style}
-                               attr)]
-                  children)))]]]
-     [rc/h-box
-      :gap "31px"
-      :children
-      [[rc/p "It puts " [:code ":style"] " and " [:code ":class"] " into a map, "
-        "merges in " [:code ":attr"] " and follows with the "
-        [:code ":children"] "."]
-       [rc/h-box
-        :gap "12px"
-        :children
-        (rdu/with-src
-          [my-component
-           {:style    {:background :gold :padding 4}
-            :class    ["bold"]
-            :attr     {:on-click #(js/alert "That's my component, hands off!")}
-            :children [[:div "My"] [:div "perfect"] [:div "component."]]}])]]]
-     [rc/gap :size "12px"]]}])
 
 (defn parts []
   [rc/v-box
@@ -119,16 +79,15 @@
       [[rc/v-box
         :children
         [[rc/p "While an ordinary reagent component simply returns a tree of hiccups, "
-          "a re-com component lables meaningful subtrees with " [:code ":parts"]
-          ". This gives you control over the details of that subtree: "
-          "its details: its component function, its props and its children."]
+          "a re-com component identifies each meaningful hiccup as a " [:i "part"] ". "
+          "We describe the tree of " [:i "parts"] " at the bottom of "
+          "each component's documentation page (in the left sidebar of this website). "]
          [rc/p
-          "Re-com names each part within the namespace of its parent component. For instance, "
-          [:code ":re-com.dropdown/anchor"] ". "
-          "These names are listed at the bottom of that component's documentation. "
-          "By passing in a " [:code ":parts"] " map, you can target each individual part by name. "
-          "You can customize a part in different ways, "
-          " based on the type of a val within " [:code ":parts"]]
+          "Passing a " [:code ":parts"] " map to a re-com component gives you control over the details "
+          "of each hiccup in the tree: its component function, its props and its children. "
+          "The keys are " [:i "part"] "-ids. The vals are " [:i "part"] "-specs. "
+          "They specify how to customize each part."
+          "This customization works differently, depending on the type of val you declare."]
          [rc/p {:style {:background-color "#eee" :padding 7}}
           [:strong "Note"] ": Some re-com components only support the " [:i "map"] " type. "
           "Our effort to bring full support to all components is "
@@ -142,8 +101,8 @@
       :children
       [[rc/v-box
         :children
-        [[rc/p "A part can be a string or a hiccup. In this case, "
-          "the value is placed directly into the component tree."]]]
+        [[rc/p "A " [:i "part"] "-spec can be a string or a hiccup. In this case, "
+          "the value is placed directly into the hiccup tree."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :children
@@ -158,17 +117,23 @@
       :children
       [[rc/v-box
         :children
-        [[rc/p "A part can be a component function. It is placed into a hiccup "
-          "within the component tree, alongside a map of keyword arguments. "
-          "These can include all the props listed in the " [:strong "Basics"]
-          " section. There are also a few others, to give context:"]
+        [[rc/p "A " [:i "part"] "-spec can be a component function. "
+          "It is placed into a hiccup, "
+          "replacing re-com's default component function for that " [:i "part"] ". "
+          "Re-com passes the same props to your new part function, "
+          "including all the props listed in the " [:strong "Basics"] " "
+          "section. There are a few more props, giving context to the part:"]
          [rc/p
           [:ul
-           [:li [:strong [:code ":parts"]]
+           [:li [:strong [:code ":part"]]
             " is a keyword, with the namespace of the component and the name of the part. "
             " For instance, " [:code ":re-com.dropdown/anchor"] "."]
-           [:li [:strong [:code ":re-com"]] " is a map with more context for the part, such as its "
-            [:code ":state"] "."]]]]]
+           [:li [:strong [:code ":re-com"]] " is a map describing the re-com component overall, "
+            "such as its " [:code ":state"] ", and " [:code "theme"] " information (see the "
+            [:code "theme"] " section below)."]]]
+         [rc/p {:style {:background-color "#eee" :padding 7}}
+          [:strong "Note"] ": " [:code ":state"] " is an experimental feature, "
+          "only supported by some components."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :children
@@ -188,51 +153,62 @@
       [[rc/v-box
         :children
         [[rc/p
-          "A part can be a map, letting you control some visual characteristics"
+          "A " [:i "part"] "-spec can be a map, letting you control some visual characteristics"
           " without needing to re-implement the whole component. "]
          [rc/p
-          "Every part has a default component function (i.e. part-function), used when "
+          "Every part has a default component function, used when "
           "you don't pass a function of your own. "
-          "Here, the default part for " [:code ":re-com.dropdown/anchor"] " "
-          "is responsible for adding the text " [:code "\"Select an item\""] ". "
-          "The props which re-com passes into this default part have been "
+          "Here, the default component function for " [:code ":re-com.dropdown/anchor"] " "
+          "is responsible for the text " [:code "\"Select an item\""] ". "
+          "The props which re-com passes into this function have been "
           "overridden by the pink " [:code ":style"]
-          " and italic " [:code ":class"] " we passed in."]
-         [rc/p
-          "Just like in the " [:strong "Basics"] " section, "
-          [:code ":style"] " is merged, " [:code ":class"] " is concatenated "
-          " and " [:code ":attr"] " is merged at the top level. After that, it's up "
-          "to the part-function to build the final hiccup."]]]
+          " and italic " [:code ":class"] " we passed in."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :children
         (rdu/with-src
           [rc/dropdown
-           {:parts {:anchor {:style {:background-color "pink"}
+           {:parts {:body   "Sesame"
+                    :anchor {:style {:background-color "pink"}
                              :class "italic"}}}])]]]]}])
 
 (defn theme []
   [rc/v-box
    {:src (rc/at)
     :children
-    [[rc/title {:src   (rc/at)
-                :level :level2
-                :label "Theme"}]
-     [rc/p "A theme is a pattern for " [:i "how"] " to draw UI, independent of "
-      [:i "what"] " and " [:i "where"] ". "
-      "In clojure tradition, we used a functional indirection "
-      "to implement re-com's theme system. You can pass a " [:code ":theme"] " "
-      "argument to any component, a function which broadly controls the "
-      "arguments to all that component's parts. You can also register a "
-      [:code ":theme"] " function globally, and re-com will apply it to every "
-      "re-com component instance in your app."]
+    [[rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/title {:src   (rc/at)
+                    :level :level2
+                    :label "Theme"}]
+         [rc/p "A theme is a pattern for " [:i "how"] " to draw UI, independent of "
+          [:i "what"] " and " [:i "where"] ". "
+          "You can pass a function as the " [:code ":theme"] " "
+          "argument to a re-com component. This " [:i "theme-"] "function takes "
+          "a map, and returns a new map. In this way, "
+          "it wraps the props which re-com passes to each " [:i "part"] " "
+          "(i.e. the second item of each hiccup)."]
+         [rc/p
+          "You can also register a "
+          [:i "theme"] "-function globally, and re-com will apply it to every "
+          "instance of a re-com component in your app."]
+         [rc/p {:style {:background-color "#eee" :padding 7}}
+          [:strong "Note"] ": Only some components support themes. "
+          "Our effort to bring full support to all components is "
+          [:a {:href "https://github.com/day8/re-com/issues/352"} "ongoing"] "."]]]
+       [rc/box
+        :align :center
+        :child [:img {:style {:height "250px"} :src "demo/light-bulb-shapes.jpg"}]]]]
      [rc/h-box
       :gap "31px"
       :children
       [[rc/p "Themes synergize well with both map and function parts. "
-        "Hiccup and string parts are not affected by the theme, since re-com "
-        "can't pass arguments to them. In light of this, let's define some functional "
-        "parts for this example."]
+        "Hiccup and string parts aren't affected by themes, since re-com "
+        "doesn't control their props. In light of this, let's define some functional "
+        [:i "part"] "-specs for this example."]
        [rc/v-box
         :gap "12px"
         :children
@@ -253,27 +229,32 @@
       [[rc/v-box
         :children
         [[rc/p
-          "Here is a " [:code ":theme"] " function which adds a background color. "
-          "Note that both the anchor and body are orange, since the " [:code ":theme"] " "
-          "function applies to every part."]]]
-       [rc/v-box
-        :gap "19px"
+          "Here is a " [:code ":theme"] " function which adds a background color. "]]]
+       [rc/h-box
+        :style {:height :fit-content :gap "12px"}
+        :align :start
         :children
-        [[rc/h-box
-          :style {:height :fit-content :gap "12px"}
-          :align :start
-          :children
-          (rdu/with-src
-            (defn orange-theme [props]
-              (update props :style merge {:background "orange"})))]
-         [rc/h-box
-          :style {:height :fit-content :gap "12px"}
-          :align :start
-          :children
-          (rdu/with-src
-            [rc/dropdown
-             {:parts {:anchor my-anchor :body my-body}
-              :theme orange-theme}])]]]]]
+        (rdu/with-src
+          (defn orange-theme [props]
+            (update props :style merge {:background "orange"})))]]]
+     [rc/gap :size "19px"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "Finally we apply the theme, "
+          "simply by passing our " [:i "theme"] "-function to the component. "
+          "Note that both the anchor and body are orange, since the " [:code ":theme"] " "
+          "function applies to every part (including parts you don't specify)."]]]
+       [rc/h-box
+        :style {:height :fit-content :gap "12px"}
+        :align :start
+        :children
+        (rdu/with-src
+          [rc/dropdown
+           {:parts {:anchor my-anchor :body my-body}
+            :theme orange-theme}])]]]
      [rc/gap :size "19px"]
      [rc/h-box
       :gap "31px"
@@ -281,9 +262,10 @@
       [[rc/v-box
         :children
         [[rc/p
-          "Re-com passes a " [:code ":part"] " argument to each part, naming it. "
-          "Here is a " [:code ":theme"] " function that only adds background-color to the "
-          [:code ":body"] " part, and adds a class to the " [:code ":anchor"] " part."]]]
+          "Re-com passes a " [:code ":part"] " argument to each part, identifying it "
+          "with a fully-qualified keyword. "
+          "Here is a " [:i "theme"] "-function that adds background-color only to the "
+          [:code ":body"] ", and font-style only to the " [:code ":anchor"] "."]]]
        [rc/v-box
         :gap "19px"
         :children
@@ -292,7 +274,7 @@
           :align :start
           :children
           (rdu/with-src
-            (defn my-theme [props]
+            (defn precise-theme [props]
               (case (:part props)
                 :re-com.dropdown/body
                 (update props :style merge {:background "orange"})
@@ -306,15 +288,66 @@
           (rdu/with-src
             [rc/dropdown
              {:parts {:anchor my-anchor :body my-body}
-              :theme my-theme}])]]]]]
+              :theme precise-theme}])]]]]]
      [rc/gap :size "19px"]
-     [rc/title :level :level3 :label "Global themes"]
+     [rc/title :level :level3 :label "Themes are layered"]
      [rc/h-box
       :gap "31px"
       :children
       [[rc/v-box
         :children
-        [[rc/p]]]
+        [[rc/p "To fully determine the props for a " [:i "part"] ", "
+          "re-com composes a handful of " [:i "theme"] "-functions, "
+          "including those you pass in or register (see below)."
+          "In order of application, these include:"]
+         [rc/p
+          [:ul
+           [:li [:strong ":variables"]
+            " - adds static data under the path "
+            [:code "[:re-com :variables]"]
+            ". This can include color palettes, spacing units and other standard values."]
+           [:li [:strong ":pre-user"]
+            " - empty by default. Here you could implement a spacing or color scheme, "
+            "simply by changing the values within " [:code "[:re-com :variables]"] "."]
+           [:li [:strong ":pre-theme"]
+            " - cannot be registered (see below). Contains any function you have passed "
+            "as the " [:code ":pre-theme"] " argument to a re-com component."]
+           [:li [:strong ":base"]
+            " - contains re-com's essential functionality, such as box-model positioning "
+            "and event handling. Replace at your own risk."]
+           [:li [:strong ":main"]
+            " - contains re-com's default visual styling for all components."]
+           [:li [:strong ":user"]
+            " - empty by default. Calling " [:code "reg-theme"] " (see below) "
+            "will replace the " [:code ":user"] " layer, unless you specify "
+            "a different layer."]
+           [:li [:strong ":re-com-meta"]
+            " - cannot be registered (see below). Adds useful information, "
+            "such as the " [:code "rc-component-name"] "class, and the "
+            [:code "data-rc"] " html attribute."]
+           [:li [:strong ":theme"]
+            " - cannot be registered (see below). Contains any function you have passed "
+            "as the " [:code ":theme"] " argument to a re-com component."]]]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        []]]]
+     [rc/gap :size "19px"]
+     [rc/title :level :level3 :label "Themes can be global"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "You can pass a " [:i "theme"] "-function to " [:code "reg-theme"]
+          ", and re-com will use it on every component in your application. "
+          "Here, our global theme customizes the anchor and body parts, even though "
+          "we haven't passed any " [:code ":theme"] " argument. In reality, this would "
+          "happen to every component on every page (we're faking it here for demonstration)."]
+         [rc/p "By default, this replaces the function at the " [:code ":user"] " layer "
+          "(see \"themes have layers\" above). "
+          "You can pass two arguments - a layer-id and a " [:i "theme"] "-function - "
+          "to replace a different layer."]]]
        [rc/v-box
         :gap "19px"
         :children
@@ -322,14 +355,71 @@
           :style {:height :fit-content :gap "12px"}
           :align :start
           :children
-          (rdu/with-src (re-com.core/reg-theme my-theme))]
+          [[rdu/zprint-code '(re-com.core/reg-theme precise-theme)]]]
          [rc/h-box
           :style {:height :fit-content :gap "12px"}
           :align :start
           :children
-          (rdu/with-src
-            [rc/dropdown
-             {:parts {:anchor my-anchor :body my-body}}])]]]]]]}])
+          [[rdu/zprint-code
+            '[rc/dropdown
+              {:parts {:anchor my-anchor :body my-body}}]]
+           [rc/dropdown
+            {:parts {:anchor my-anchor :body my-body}
+             :theme precise-theme}]]
+          ]]]]]
+     [rc/gap :size "19px"]
+     [rc/title :level :level3 :label "Themes are (not) reactive"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "A re-com component composes the theme "
+          [:strong "once"] ", when it mounts. That means it will not react to changes in the passed-in "
+          [:code ":theme"] " or " [:code ":pre-theme"] " arguments. This makes themes more performant. "
+          "If you do need to do reactive programming, consider doing it within the theme function."]]]
+       [rc/v-box
+        :children
+        [
+          "For instance, instead of this:"
+          [:br]
+          [rdu/zprint-code
+           '[rc/dropdown
+             {:theme (if (deref night-mode?) dark-theme light-theme)}]]
+          [:br]
+          "try this:"
+          [:br]
+          [rdu/zprint-code
+           '[rc/dropdown
+             {:theme (fn [props] (if (deref night-mode?)
+                                   (dark-theme props)
+                                   (light-theme props)))}]]]]]]
+     #_[rc/title :level :level3 :label "Targeting the top-level hiccup"]
+     #_[rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "Hello."]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        [[rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code '(re-com.core/reg-theme my-theme)]]]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          [[rdu/zprint-code
+            '[rc/dropdown
+              {:parts {:anchor my-anchor :body my-body}}]]
+           [rc/dropdown
+            {:parts {:anchor my-anchor :body my-body}
+             :theme my-theme}]]
+          ]]]]]]}])
 
 (defn panel* []
   [rc/v-box
@@ -340,7 +430,6 @@
       "src/re_demo/theme_and_style.cljs"]
      [basics]
      [composition]
-     [default-part]
      [parts]
      [theme]]}])
 
