@@ -444,11 +444,9 @@
                                                         [gap :size "5px"]
                                                         (part ::indicator {:props part-props
                                                                            :impl  re-com.dropdown/indicator})]}
-                                :post-props {:style (merge (:style args)
-                                                           (select-keys args [:width :min-width :max-width])
+                                :post-props {:style (merge (select-keys args [:width :min-width :max-width])
                                                            (when anchor-height {:height anchor-height})
-                                                           (when anchor-width {:width anchor-width}))
-                                             :attr  (:attr args)}})
+                                                           (when anchor-width {:width anchor-width}))}})
                          (when (= :open (:openable state))
                            [body-wrapper
                             {:anchor-ref      anchor-ref

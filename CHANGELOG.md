@@ -6,6 +6,10 @@
 
 - `dropdown`: `:offset-x` and `:offset-y` (number) props.
 
+#### Changed
+
+- `dropdown`: made `:style` & `:attr` props apply only to the wrapper part, not the anchor-wrapper.
+- `tree-select-dropdown`: made `:style` & `:attr` props apply only to the wrapper part, not the dropdown-anchor-wrapper.
 
 ## 2.24.1 (2025-02-19)
 
