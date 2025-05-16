@@ -337,7 +337,7 @@
 
 (defn dropdown
   "A clickable anchor above an openable, floating body."
-  [& {:keys [model no-clip? offset-x offset-y] :or {model (reagent/atom nil)}}]
+  [& {:keys [model offset-x offset-y] :or {model (reagent/atom nil)}}]
   (let [default-model                                  model
         [focused? anchor-ref body-ref anchor-position] (repeatedly #(reagent/atom nil))
         anchor-ref!                                    #(reset! anchor-ref %)
@@ -350,8 +350,7 @@
                  model
                  show-backdrop?
                  label placeholder
-                 parts theme pre-theme
-                 width height]
+                 parts theme pre-theme]
           :or   {placeholder "Select an item"
                  model       default-model
                  direction   :toward-center}
