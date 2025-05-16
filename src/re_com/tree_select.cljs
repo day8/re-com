@@ -732,10 +732,14 @@
                                                                 :theme theme
                                                                 :props {:part ::dropdown-indicator
                                                                         :children
-                                                                        [(u/part box
+                                                                        [(u/part (:counter parts)
                                                                            {:theme theme
                                                                             :props {:part  ::counter
-                                                                                    :child (str (count (if change-on-blur? @internal-model (u/deref-or-value model))))}})
+                                                                                    :impl  box
+                                                                                    :child
+                                                                                    (str (count (if change-on-blur?
+                                                                                                  @internal-model
+                                                                                                  (u/deref-or-value model))))}})
                                                                          (u/part dd/indicator
                                                                            {:theme theme
                                                                             :props (merge {:part ::dropdown-indicator} props)})
