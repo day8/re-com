@@ -20,20 +20,7 @@ re-com provides:
 * a mostly [Bootstrap](http://getbootstrap.com/) look, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
-In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class SPA app.
-
-## It Uses Flexbox
-
-The entire layout side of this library relies on 
-[Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
-
-Now, pretty much every modern browser
-[has support for Flexbox](http://caniuse.com/#feat=flexbox) so 
-this is probably a non-issue these days, unless you need to 
-support old versions of IE.
-
-We build desktop-class apps to run in controlled browser environments
-like [Electron](https://electron.atom.io).  So, we know we're dealing with Chrome.
+In short, re-com attempts to provide the UI basics needed to build a desktop-class SPA app.
 
 ## Warning: No Mobile Focus
 
@@ -49,19 +36,27 @@ so we backed away from fully advanced, minified compilation.
 
 ## So, Without Ado Being Any Furthered ...
 
-Start by [looking at the demo](https://re-com.day8.com.au).
+Start by [looking at the demo](https://re-com.day8.com.au), it:
+  - Provides detailed documentation for each component
+  - Provides interactive pages showing component use and flexibility.
 
 ## Navigating The Source
 
-When you are running the demo app, look to the the right of each page's titles, and you'll see hyperlinks
-which will take you to the associated source code.  That's a convenient way to navigate to either
+When running the demo app, look to the right of each page's title, and you'll see hyperlinks
+that will take you to the associated source code.  That's a convenient way to navigate to either
 the components themselves or the demo code.
 
-When browsing more generally, look in the `src` directory or this repo, you'll notice
+When browsing the code, look in the `src` directory or this repo, you'll notice
 two subdirectories:
 
-  - re-com - the library itself - the components
-  - re-demo - the demo app, which shows how to use the components
+  - src/re-com - the library itself - the components
+  - src/re-demo - the demo app, which documents the components and shows how to use them
+
+There's also:
+  - `run/resources/public` contains assets (CSS, fonts, JS) that you'll likely need if you are developing an app based on `re-com`
+  - `test/` with cljs.test suites for many components (e.g., box_test.cljs, selection_list_test.cljs).
+  - `docs/` containing notes about development tools and release procedures (note: the demo app has detailed documentation).
+  - `scripts/` with babashka utilities (e.g., `add-at-macro` for adding the `at` macro to legacy codebases)
 
 ## Useful Commands
 
@@ -124,6 +119,8 @@ two subdirectories:
 
 ## Using re-com
 
+For a fast start, use `https://github.com/day8/re-frame-template` to create your own app (add the `+re-com` option when using re-frsame-template).
+
 re-com is available from clojars. Add it to your project.clj dependencies:
 
 [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
@@ -164,7 +161,7 @@ so you don't need to include it explicitly.
 If you decide to use re-com, consider also using [re-frame](https://github.com/day8/re-frame)
 (an MVC-ish framework).
 
-Although both `re-frame` and `re-com` can be used independently of each other, they dovetail well.
+Although `re-frame` and `re-com` can be used independently, they dovetail well together.
 
 ## Related projects
 
@@ -174,7 +171,7 @@ Although both `re-frame` and `re-com` can be used independently of each other, t
 
 ## The Missing Components
 
-* tree  (not hard, just haven't needed one yet)
+* <s> tree  (not hard, just haven't needed one yet) </s>
 * menus - there's a dropdown, but no cascading menus
 * accordion
 * maybe a dockable LHS navbar
@@ -205,7 +202,7 @@ details on creating issues and pull requests.
 
 ### License
 
-Copyright © 2015-2021 Michael Thompson
+Copyright © 2015-2025 Michael Thompson
 
 Distributed under The MIT License (MIT) - See LICENSE.txt
 
