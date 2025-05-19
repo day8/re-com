@@ -165,12 +165,18 @@ If any problems are found, a special component is rendered in place of your comp
          :component (debug/short-component-name (component/component-name (reagent/current-component)))]))))
 ```
 
-## 7. Putting it all together
+## 7. Create a Page In the demo app 
+
+All compenents have a page in the demo app.   
+
+
+## 8. Putting it all together
 
 1. **Create** a namespace and require the helper macros and functions.
 2. **Define** `parts-desc`, `parts` and `args-desc` to describe your API.
 3. **Write** the component using Reagent hiccup, starting with `(validate-args-macro ...)`.
 4. **Use** `handler-fn`, `deref-or-value`, `->attr` and other utilities as needed.
 5. **Expose** the component via `re_com.core` for library consumers.
+6. **Demo** add a page to the demo app
 
 Following these conventions keeps new components consistent with the rest of `re-com` and ensures a good debugging experience.
