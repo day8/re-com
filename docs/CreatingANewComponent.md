@@ -1,10 +1,12 @@
 # Creating a re-com Component
 
-This guide distils the common patterns found in the `re-com` source tree and explains how to create your own component.  It assumes you are familiar with ClojureScript and Reagent.
+This guide describes how to create your own re-com component. 
 
 ## 1. Namespace setup
 
-Create a new namespace under `src/re_com`.  Components generally require several macros and utilities:
+Create a new namespace under `src/re_com`.  
+
+Components generally require several macros and utilities, so the namespace should start like this (modify `my-component` as necessary):
 
 ```clojure
 (ns re-com.my-component
@@ -16,13 +18,13 @@ Create a new namespace under `src/re_com`.  Components generally require several
             [re-com.config   :refer [include-args-desc?]]))
 ```
 
-* `handler-fn` ensures event handlers do not accidentally return `false` which React interprets specially.  See the commentary in `core.clj` lines 3‑32 for details.
+* `handler-fn` ensures event handlers do not accidentally return `false`, which React interprets specially.  See the commentary in `core.clj` lines 3‑32 for details.
 * `at` and `reflect-current-component` supply debugging metadata such as source coordinates and the current component name.
 * `validate-args-macro` performs argument validation when `goog.DEBUG` is enabled.
 
-## 2. Describe component parts
+## 2. Specify Component Parts 
 
-Most components document their internal structure with a vector of maps known as `parts-desc` and a derived set `parts`.  These are only included when `include-args-desc?` is true so that production builds remain lean.
+Components document their internal structure with a vector of maps known as `parts-desc` and a derived set `parts`.  These are only included when `include-args-desc?` is true so that production builds remain lean.
 
 An example from `buttons.cljs` lines 20‑28 illustrates the idea:
 
@@ -40,9 +42,9 @@ An example from `buttons.cljs` lines 20‑28 illustrates the idea:
 
 Consumers can customise a component via the optional `:parts` argument by providing classes, styles or attrs keyed by these part names.
 
-## 3. Document arguments
+## 3. Specify Component Arguments
 
-Each component declares an `args-desc` describing supported parameters, default values and validation functions.  Again from `buttons.cljs` lines 30‑42:
+Each component declares an `args-desc` that specifies expected/allowed arguments, default values and validation functions.  Again from `buttons.cljs` lines 30‑42:
 
 ```clojure
 (def button-args-desc
@@ -53,11 +55,18 @@ Each component declares an `args-desc` describing supported parameters, default 
      ...]))
 ```
 
-The maps typically contain keys such as `:name`, `:required`, `:default`, `:type`, `:validate-fn` and `:description`.  Validation helpers live in `re-com.validate` and include sets of allowed keywords, CSS style checks and so on.
+One map for each argument, and each map contain keys:
+  - `:name` - a keyword - used to identify the argument
+  - `:required` - boolean - is the argument required or not (ie. optional)?
+  - `:default` - if omitted, what is the default value
+  - `:type` - a description of the type - this is largely descriptive (the validation function does the enforcing)
+  - `:validate-fn` - a function to validate this argument. Validation helpers live in `re-com.validate` 
+  - `:description` - a user-friendly description shown in documentation 
 
-## 4. Implement the component
 
-A component function is usually form‑2 or form‑3.  It begins with `validate-args-macro` to check its arguments and then produces hiccup markup.  The button component demonstrates the pattern in lines 44‑91:
+## 4. Component Implementation
+
+A component function is usually Reagent form‑2 or form‑3.  It begins with `validate-args-macro` to check its arguments and then produces Hiccup markup.  The button component demonstrates the pattern in lines 44‑91:
 
 ```clojure
 (defn button []
@@ -110,7 +119,7 @@ Key takeaways:
 * `deref-or-value` handles parameters that might be plain values or atoms.
 * `->attr` injects debugging attributes (`data-rc` and source coordinates) into the root element.
 
-## 5. Exposing your component
+## 5. Exposing Your Component
 
 To make the component part of the public API, add a simple `def` in `re_com/core.cljs` that re-exports it.  For example, lines 64‑71 show how various button helpers are exposed:
 
@@ -133,7 +142,7 @@ The validation system is implemented in `re_com.validate`.  The `validate-args` 
 2. Missing required arguments.
 3. Custom validation functions per argument.
 
-If any problems are detected a special component renders in place of your component and details are logged to the console.
+If any problems are found, a special component is rendered in place of your component, and error details are logged to the console.
 
 ```clojure
 (defn validate-args [arg-defs passed-args]
