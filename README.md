@@ -55,10 +55,16 @@ two subdirectories:
 There's also:
   - `run/resources/public` contains assets (CSS, fonts, JS) that you'll likely need if you are developing an app based on `re-com`
   - `test/` with cljs.test suites for many components (e.g., box_test.cljs, selection_list_test.cljs).
-  - `docs/` containing notes about development tools and release procedures (note: the demo app has detailed documentation).
-  - `scripts/` with babashka utilities (e.g., `add-at-macro` for adding the `at` macro to legacy codebases)
+  - `docs/` containing notes about development tools and release procedures (note: the demo app has detailed documentation on each component).
+  - `scripts/` with utilities (e.g., `add-at-macro` for adding the `at` macro to legacy codebases)
 
 ## Useful Commands
+
+To run these commands, you'll need these programs installed on your machine:
+
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm])
+- [clojure](https://clojure.org/guides/install_clojure)
+- [babashka](https://github.com/babashka/babashka#installation)
 
 1. Getting The Repo
 
@@ -73,15 +79,10 @@ There's also:
 
 2. Compiling And Running The Demo
 
-   Install dependencies (CONFIRM if this only needs to be run once or every time the deps change):   
    ```shell
-   npm install
+   bb watch
    ```
-   
-   ```shell
-   npx shadow-cljs watch demo
-   ```
-   
+
    This will prepare the demo, by doing:
      - a clean
      - a compile
@@ -95,7 +96,7 @@ There's also:
 3. Run The (erm, modest) Tests
    
    ```shell
-   lein ci
+   bb ci
    ```
    
    This will:
@@ -106,20 +107,19 @@ There's also:
 4. Run or Debug the tests:
    
    ```shell
-   lein watch
+   bb watch
    ```
 
 5. Deploy The Demo App To S3 bucket
    
    This will only work if you have the right credentials in your env:
    ```shell
-   lein deploy-aws
+   bb deploy-aws
    ```
-
 
 ## Using re-com
 
-For a fast start, use `https://github.com/day8/re-frame-template` to create your own app (add the `+re-com` option when using re-frsame-template).
+For a fast start, use `https://github.com/day8/re-frame-template` to create your own app (add the `+re-com` option when using re-frame-template).
 
 re-com is available from clojars. Add it to your project.clj dependencies:
 
@@ -171,14 +171,9 @@ Although `re-frame` and `re-com` can be used independently, they dovetail well t
 
 ## The Missing Components
 
-* <s> tree  (not hard, just haven't needed one yet) </s>
 * menus - there's a dropdown, but no cascading menus
 * accordion
 * maybe a dockable LHS navbar
-* <s> virtual grid. Straight v-box is good enough at small grids, so no problem there. But when the number of
-rows gets huge, you need a widget which does virtual rows, otherwise there's just too much DOM
-and there's performance problems.
-Can we use [Fixed Data Tables for React](https://github.com/facebookarchive/fixed-data-table)?  </s>
 * drag and drop.
 * animations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move?

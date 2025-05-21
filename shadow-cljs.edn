@@ -1,4 +1,4 @@
-{:deps  {:aliases [:dev]}
+{:deps  {:aliases [:demo]}
  :nrepl {:port 7777}
 
  :builds {:demo

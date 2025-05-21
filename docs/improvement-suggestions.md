@@ -34,20 +34,7 @@ The auto compile doesn't know   "X depends on Y,  therefore I should also compil
 
 But when you do a "clean", it recompiles X and bingo you get to see the error.
 
-lein
-----
-
-   If you make a change to project.cljs,  you'll have to restart `lein cljsbuild auto <name>`
-   So a common trap is to add a dependency to project.cljs but still get errors.
-
 Baffling Compile time
 ------
 
 Leaving out the []  on a `defn` results in a compile-time error that is baffling and unhelpful.
-
-Linux
-====
-
-By default you'll probably have an old version of lein.
-
-Run `lein --version` and make sure it is at least 2.3.N

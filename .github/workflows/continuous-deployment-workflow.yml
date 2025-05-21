@@ -39,7 +39,7 @@ jobs:
       - name: Fix git dubious directory ownership error
         run: git config --global --add safe.directory /__w/re-com/re-com
 
-      - run: lein prod-once
+      - run: bb release-demo
 
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
@@ -90,7 +90,7 @@ jobs:
           key: cljdeps-${{ hashFiles('deps.edn') }}-${{ hashFiles ('package.json') }}-${{ hashFiles ('package-lock.json') }}
           restore-keys: cljdeps-
 
-      - run: lein release
+      - run: bb release-clojars
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

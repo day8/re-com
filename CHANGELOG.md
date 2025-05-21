@@ -2,6 +2,19 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.25.1 (2025-05-14)
+
+#### Added 
+
+- More developer docs, in `/docs`
+- `tree-select-dropdown`: full `:parts` support for the `:counter` part.
+
+#### Changed
+
+- Deleted leiningen. Replaced with tools.build
+
+## 2.25.0 (2025-05-14)
+
 #### Added
 
 - `dropdown`: `:offset-x` and `:offset-y` (number) props.

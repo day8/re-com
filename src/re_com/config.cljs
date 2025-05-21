@@ -1,6 +1,6 @@
 (ns re-com.config)
 
-;; debug? is true for development builds (e.g. lein watch) and false for production release builds (e.g. lein prod-once).
+;; debug? is true for development builds (e.g. bb watch) and false for production release builds (e.g. bb release-demo).
 ;; It is used to disable component argument validation in production, and to determine the value of include-args-desc?
 ;; below.
 (def debug?

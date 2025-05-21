@@ -9,16 +9,15 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Finish any feature branch you're working on. You should now be on the master branch.
 - [ ] Update README.md file if required and commit it.
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
-- [ ] Build each of these aliases (will require separate terminals for each):
+- [ ] Run each of these tasks (will require separate terminals for each):
 
-      lein watch
-      lein prod-once
-      lein ci
+      bb watch
+      bb release-demo
+      bb ci
 
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 
 - [ ] Close all auto-compiles again.
-
 
 ### Tag release 
 
