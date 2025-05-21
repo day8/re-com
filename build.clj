@@ -3,7 +3,7 @@
    [clojure.tools.build.api :as b]))
 
 (def lib 're-com/re-com)
-(def version (System/getenv "DAY8_APP_VERSION"))
+(def version (System/getenv "DAY8_RELEASE_TAG"))
 (def main-ns 're-com.core)
 (def class-dir "target/classes")
 (def basis (delay (b/create-basis {})))

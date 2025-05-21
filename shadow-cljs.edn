@@ -5,7 +5,7 @@
           {:target           :browser
            :modules          {:demo {:init-fn re-demo.core/mount-demo}}
            :build-hooks      [(shadow-git-inject.core/hook)]
-           :compiler-options {:closure-defines {re-com.config/version                  :shadow-git-inject/version
+           :compiler-options {:closure-defines {re-com.config/version                  #env "RE_COM_VERSION"
                                                 ;; For production builds of the demo app, set goog.DEBUG
                                                 ;; to be true so that the debugging demo page works as expected.
                                                 goog.DEBUG                             true
@@ -36,7 +36,7 @@
           :browser-test {:target           :browser-test
                          :ns-regexp        "-test$"
                          :test-dir         "run/resources/public/compiled_test/demo"
-                         :compiler-options {:closure-defines {re-com.config/version :shadow-git-inject/version}
+                         :compiler-options {:closure-defines {re-com.config/version #env "RE_COM_VERSION"}
                                             :externs         ["externs/detect-element-resize-externs.js"]
                                             :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
                          :devtools         {:http-port 8021
@@ -46,5 +46,5 @@
                          :ns-regexp        ".*-test$"
                          :output-to        "target/karma/test.js"
                          :compiler-options {:pretty-print    true
-                                            :closure-defines {re-com.config/version :shadow-git-inject/version}
+                                            :closure-defines {re-com.config/version #env "RE_COM_VERSION"}
                                             :externs         ["externs/detect-element-resize-externs.js"]}}}}

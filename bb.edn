@@ -1,6 +1,36 @@
 {:min-bb-version "0.4.0"
  :tasks
- {:requires       ([babashka.fs :as fs])
+ {:requires       ([babashka.fs :as fs]
+                   [clojure.string :as str])
+  :init           (do
+                    (defn release-tag [& {:keys [dir]}]
+                      (->> (shell {:out :string
+                                   :dir dir}
+                                  "git tag -l --sort=v:refname")
+                           :out
+                           str/split-lines
+                           (filter (fn [s]
+                                     (re-find (re-pattern "^v\\d+\\.\\d+\\.\\d+$") s)))
+                           last
+                           str/trim))
+                    (defn release-hash [& {:keys [dir] :as opts}]
+                      (->> (release-tag opts)
+                           (str "git rev-parse --short ")
+                           (shell {:out :string :dir dir})
+                           :out
+                           str/trim))
+                    (defn latest-hash [& {:keys [dir]}]
+                      (->> "git log -1 --format=%h"
+                           (shell {:out :string :dir dir})
+                           :out
+                           str/trim))
+                    (def opts (let [tag          (release-tag)
+                                    latest-hash  (latest-hash)
+                                    release-hash (release-hash)]
+                                {:extra-env {"DAY8_RELEASE_TAG" tag
+                                             "RE_COM_VERSION"   (cond-> tag
+                                                                  (not= release-hash latest-hash)
+                                                                  (str "--" latest-hash))}})))
   clean           (let [clean-targets ["node_modules"
                                        "run/resources/public/compiled_dev "
                                        "run/resources/public/compiled_prod"
@@ -10,26 +40,26 @@
                       (fs/delete-tree target)))
   install         (shell "npm install")
   test            {:depends [clean install]
-                   :task    (do (shell "npx shadow-cljs compile karma-test")
-                                (shell "npx karma start --single-run --reporters junit,dots"))}
+                   :task    (do (shell opts "npx shadow-cljs compile karma-test")
+                                (shell opts "npx karma start --single-run --reporters junit,dots"))}
   jar             {:depends [clean]
-                   :task    (shell "clojure -T:build jar")}
+                   :task    (shell opts "clojure -T:build jar")}
   release-clojars {:depends [jar]
-                   :task    (shell "clojure -T:build clojars")}
+                   :task    (shell opts "clojure -T:build clojars")}
   release-demo    {:depends [clean install]
-                   :task    (shell "npx shadow-cljs release demo")}
-  ci              {:depends [install test clean install release-demo]}
+                   :task    (shell opts "npx shadow-cljs release demo")}
+  ci              (do (run 'test) (run 'release-demo))
   build-report-ci {:depends [install]
-                   :task    (shell "npx shadow-cljs clj-run shadow.cljs.build-report demo"
+                   :task    (shell opts "npx shadow-cljs clj-run shadow.cljs.build-report demo"
                                    "target/build-report.html")}
   watch           {:depends [install]
-                   :task    (shell "npx shadow-cljs watch demo browser-test karma-test")}
+                   :task    (shell opts "npx shadow-cljs watch demo browser-test karma-test")}
   watch-demo      {:depends [install]
-                   :task    (shell "npx shadow-cljs watch demo")}
+                   :task    (shell opts "npx shadow-cljs watch demo")}
   browser-test    {:depends [install]
-                   :task    (shell "npx shadow-cljs watch browser-test")}
+                   :task    (shell opts "npx shadow-cljs watch browser-test")}
   deploy-aws      {:depends [ci]
-                   :task    (shell "aws s3 sync run/resources/public s3://re-demo/ --acl"
+                   :task    (shell opts "aws s3 sync run/resources/public s3://re-demo/ --acl"
                                    "public-read"
                                    "--cache-control"
                                    "max-age=2592000,public")}}}
