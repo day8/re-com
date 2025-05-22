@@ -20,10 +20,4 @@
            :build {:deps       {io.github.clojure/tools.build {:git/tag "v0.10.9"
                                                                :git/sha "e405aac"}
                                 slipset/deps-deploy           {:mvn/version "0.2.2"}}
-                   :ns-default build}
-
-           :deploy-clojars {:extra-deps {slipset/deps-deploy {:mvn/version "0.2.2"}}
-                            :exec-fn    deps-deploy.deps-deploy/deploy
-                            :exec-args  {:installer      :remote
-                                         :sign-releases? true
-                                         :artifact       "target/re-com/re-com.jar"}}}}
+                   :ns-default build}}}
