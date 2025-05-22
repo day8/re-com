@@ -17,6 +17,10 @@
           :basis      basis
           :class-dir  class-dir
           :src-dirs   ["src"]
+          :pom-data   [:licenses
+                       [:license
+                        [:name "MIT"]
+                        [:url "https://opensource.org/licenses/MIT"]]]
           :scm        {:connection          "scm:git:git://github.com/day8/re-com.git"
                        :developerConnection "scm:git:ssh://git@github.com/day8/re-com.git"
                        :url                 "https://github.com/day8/re-com"
