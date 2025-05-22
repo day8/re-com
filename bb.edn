@@ -3,9 +3,8 @@
  {:requires       ([babashka.fs :as fs]
                    [clojure.string :as str])
   :init           (do
-                    (defn release-tag [& {:keys [dir]}]
-                      (->> (shell {:out :string
-                                   :dir dir}
+                    (defn release-tag []
+                      (->> (shell {:out :string}
                                   "git tag -l --sort=v:refname")
                            :out
                            str/split-lines
@@ -13,15 +12,15 @@
                                      (re-find (re-pattern "^v\\d+\\.\\d+\\.\\d+$") s)))
                            last
                            str/trim))
-                    (defn release-hash [& {:keys [dir] :as opts}]
-                      (->> (release-tag opts)
+                    (defn release-hash []
+                      (->> (release-tag)
                            (str "git rev-parse --short ")
-                           (shell {:out :string :dir dir})
+                           (shell {:out :string})
                            :out
                            str/trim))
-                    (defn latest-hash [& {:keys [dir]}]
+                    (defn latest-hash []
                       (->> "git log -1 --format=%h"
-                           (shell {:out :string :dir dir})
+                           (shell {:out :string})
                            :out
                            str/trim))
                     (def opts (let [tag          (release-tag)
