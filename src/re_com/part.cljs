@@ -50,6 +50,8 @@
        "-"
        (clojure.core/name part-id)))
 
+(def css-class* (memoize css-class))
+
 (def describe
   (memoize
    (fn describe [structure]

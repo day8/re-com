@@ -27,17 +27,15 @@
 (def merge-props tu/merge-props)
 
 (defn part-class [{:keys [part] :as props}]
-  (update props :class merge-class (part/css-class part)))
-
-(def part-class* (memoize part-class))
+  (update props :class merge-class (part/css-class* part)))
 
 (defn comp [component-local-pre-theme component-local-theme]
   (clojure.core/apply
    clojure.core/comp
-   (filterv some? [component-local-theme
-                   part-class*
-                   user
-                   main
-                   base
-                   component-local-pre-theme
-                   variables])))
+   (filter some? [component-local-theme
+                  part-class
+                  *user*
+                  *main*
+                  *base*
+                  component-local-pre-theme
+                  *variables*])))
