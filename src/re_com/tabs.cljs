@@ -120,8 +120,9 @@
         (into [:div
                (merge
                 {:class (theme/merge-class "noselect"
-                                           "btn-group"
-                                           (when vertical? "-vertical")
+                                           (if vertical?
+                                             "btn-group-vertical"
+                                             "btn-group")
                                            "rc-tabs "
                                            class)
                  :style (merge (flex-child-style "none")

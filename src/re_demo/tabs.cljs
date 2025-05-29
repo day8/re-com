@@ -1,8 +1,8 @@
 (ns re-demo.tabs
   (:require
-   [re-com.core             :refer [at h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
-   [re-com.tabs             :refer [horizontal-tabs-args-desc bar-tabs-args-desc pill-tabs-args-desc
-                                    horizontal-tabs-parts-desc bar-tabs-parts-desc pill-tabs-parts-desc]]
+   [re-com.core             :refer [at h-box v-box box gap line scroller border horizontal-tabs bar-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
+   [re-com.horizontal-tabs :as horizontal-tabs]
+   [re-com.tabs             :refer [bar-tabs-args-desc pill-tabs-args-desc bar-tabs-parts-desc pill-tabs-parts-desc]]
    [re-com.util             :refer [item-for-id]]
    [re-demo.utils           :refer [panel-title title2 parts-table args-table github-hyperlink status-text]]
    [alandipert.storage-atom :refer [local-storage]]
@@ -39,16 +39,23 @@
                    :children [[title2
                                "[horizontal-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
-                              [horizontal-tabs :src (at)
-                               :model     selected-tab-id
-                               :tabs      tabs-definition
-                               :on-change change-tab]]]
+                              [horizontal-tabs
+                               {:src       (at)
+                                :model     selected-tab-id
+                                :tabs      tabs-definition
+                                :on-change change-tab}]]]
                   [h-box :src (at)
                    :align    :center
                    :children [[title2
                                "[horizontal-bar-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
-                              [horizontal-bar-tabs :src (at)
+                              [horizontal-bar-tabs
+                               :src (at)
+                               :theme     (fn [props]
+                                            (let [selected? (-> props :re-com :state :selectable #{:selected})]
+                                              (cond-> props
+                                                selected?
+                                                (update :style merge {:background "orange"}))))
                                :model     selected-tab-id
                                :tabs      tabs-definition
                                :on-change change-tab]]]
@@ -57,10 +64,12 @@
                    :children [[title2
                                "[vertical-bar-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
-                              [vertical-bar-tabs :src (at)
-                               :model     selected-tab-id
-                               :tabs      tabs-definition
-                               :on-change change-tab]]]
+                              [bar-tabs
+                               {:vertical? true
+                                :src       (at)
+                                :model     selected-tab-id
+                                :tabs      tabs-definition
+                                :on-change change-tab}]]]
                   [h-box :src (at)
                    :align    :center
                    :children [[title2
@@ -105,10 +114,11 @@
                   remembered using HTML5's local-storage."]
                   [p "If you refresh the entire browser page and return here, you'll see the same selection."]
                   [gap :src (at) :size "20px"]
-                  [horizontal-tabs :src (at)
-                   :model     selected-tab-id
-                   :tabs      tab-defs
-                   :on-change #(reset! selected-tab-id %)]]])))
+                  [horizontal-tabs
+                   {:src (at)
+                    :model     selected-tab-id
+                    :tabs      tab-defs
+                    :on-change #(reset! selected-tab-id %)}]]])))
 
 (defn adding-tabs-demo
   []
@@ -140,18 +150,20 @@
 
 (defn tooltips-demo
   []
-  (let [tab-defs        [{:id ::1 :label "Left Tab"   :tooltip "This is the first tooltip..."}
+  (let [tab-defs        [{:id ::1 :label "Left Tab" :tooltip "This is the first tooltip..."}
                          {:id ::2 :label "Middle Tab" :tooltip "This is the second tooltip..."}
-                         {:id ::3 :label "Right Tab"  :tooltip "This is the third and the final tooltip!"}]
+                         {:id ::3 :label "Right Tab" :tooltip "This is the third and the final tooltip!"}]
         selected-tab-id (reagent/atom (:id (first tab-defs)))]
     (fn []
       [v-box :src (at)
        :gap      "20px"
        :children [[p "Hover over a tab to see a tooltip."]
-                  [horizontal-bar-tabs :src (at)
-                   :model     selected-tab-id
-                   :tabs      tab-defs
-                   :on-change #(reset! selected-tab-id %)]]])))
+                  [bar-tabs
+                   {:src       (at)
+                    :vertical? true
+                    :model     selected-tab-id
+                    :tabs      tab-defs
+                    :on-change #(reset! selected-tab-id %)}]]])))
 
 (defn panel2
   []
@@ -185,7 +197,7 @@
                                                        :tabs      tag-types
                                                        :on-change #(reset! selected-tag-type %)]
                                                       (case @selected-tag-type
-                                                        :horizontal [args-table horizontal-tabs-args-desc {:title "Horizontal Tabs Parameters"}]
+                                                        :horizontal [args-table horizontal-tabs/args-desc {:title "Horizontal Tabs Parameters"}]
                                                         :bar        [args-table bar-tabs-args-desc        {:title "Bar Tabs Parameters"}]
                                                         :pill       [args-table pill-tabs-args-desc       {:title "Pill Tabs Parameters"}])]]]]
                               [v-box :src (at)
@@ -209,7 +221,7 @@
                                                         3 [adding-tabs-demo]
                                                         4 [tooltips-demo])]]]]]]
                   (case @selected-tag-type
-                    :horizontal [parts-table "horizontal-tabs" horizontal-tabs-parts-desc]
+                    :horizontal [parts-table "horizontal-tabs" horizontal-tabs/parts-desc]
                     :bar        [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]
                     :pill       [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc])]])))
 

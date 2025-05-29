@@ -6,6 +6,10 @@
 
 - Documentation for parts & themes in the [re-com demo](https://re-com.day8.com.au/#/customization)
 
+#### Changed
+
+- `*-tabs` components: changed some of the "re-com-*" class names to be more standard
+
 ## 2.25.1 (2025-05-14)
 
 #### Added 

@@ -4,6 +4,7 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    [clojure.string   :as    string]
+   [re-demo.args     :as    args]
    [re-com.config    :refer [include-args-desc?]]
    [re-com.debug     :refer [->attr]]
    [re-com.theme     :as    theme]
@@ -308,7 +309,10 @@
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+     {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}
+     args/ref
+     args/data-rc-src
+     args/data-rc]))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.

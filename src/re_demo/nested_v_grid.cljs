@@ -1027,11 +1027,11 @@
         [rc/v-box
          :children
          [[rc/horizontal-tabs
-           :src       (rc/at)
-           :model     !tab-id
-           :tabs      tabs
-           :style     {:margin-top "12px"}
-           :on-change #(reset! !tab-id %)]
+           {:src       (rc/at)
+            :model     !tab-id
+            :tabs      tabs
+            :parts     {:tab {:style {:margin-top "12px"}}}
+            :on-change #(reset! !tab-id %)}]
           [title2 label]
           [view]]]))))
 

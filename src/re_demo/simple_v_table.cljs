@@ -95,7 +95,7 @@
 
 (defn panel
   []
-  (let [tab-defs        [{:id :note       :label "Notes"}
+  (let [tab-defs        [{:id :note :label "Notes"}
                          {:id :parameters :label "Parameters"}]
         selected-tab-id (reagent/atom (:id (first tab-defs)))]
     (fn []
@@ -110,11 +110,11 @@
                    :children [[v-box
                                :src      (at)
                                :children [[horizontal-tabs
-                                           :src       (at)
-                                           :model     selected-tab-id
-                                           :tabs      tab-defs
-                                           :style     {:margin-top "12px"}
-                                           :on-change #(reset! selected-tab-id %)]
+                                           {:src       (at)
+                                            :model     selected-tab-id
+                                            :tabs      tab-defs
+                                            :parts     {:tab {:style {:margin-top "12px"}}}
+                                            :on-change #(reset! selected-tab-id %)}]
                                           (case @selected-tab-id
                                             :note       [notes-column]
                                             :parameters [args-table simple-v-table-args-desc {:total-width       "550px"

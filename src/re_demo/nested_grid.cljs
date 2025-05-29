@@ -577,31 +577,31 @@
      "Each column header has a draggable button, allowing you to update a column's width by hand."]]])
 
 (defn demos []
-  (let [tabs [{:id :basic      :label "Basic Demo" :view basic-demo}
-              {:id :internals  :label "Internals"  :view internals-demo}
-              {:id :multimodal :label "Multimodal" :view multimodal-demo}
-              {:id :app        :label "Applications" :view app-demo}]
-        !tab-id  (r/atom (:id (first tabs)))
+  (let [tabs    [{:id :basic :label "Basic Demo" :view basic-demo}
+                 {:id :internals :label "Internals" :view internals-demo}
+                 {:id :multimodal :label "Multimodal" :view multimodal-demo}
+                 {:id :app :label "Applications" :view app-demo}]
+        !tab-id (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
       (let [{:keys [view label]} @!tab]
         [v-box
          :children
          [[rc/horizontal-tabs
-           :src       (at)
-           :model     !tab-id
-           :tabs      tabs
-           :style     {:margin-top "12px"}
-           :on-change #(reset! !tab-id %)]
+           {:src       (at)
+            :model     !tab-id
+            :tabs      tabs
+            :parts     {:tab {:style {:margin-top "12px"}}}
+            :on-change #(reset! !tab-id %)}]
           [title2 label]
           [view]]]))))
 
 (defn panel
   []
-  (let [tabs [{:id :intro :label "Introduction" :view intro-column}
-              {:id :concepts :label "Concepts" :view concepts-column}
-              {:id :more :label "More" :view more-column}
-              {:id :parameters :label "Parameters" :view args-column}]
+  (let [tabs    [{:id :intro :label "Introduction" :view intro-column}
+                 {:id :concepts :label "Concepts" :view concepts-column}
+                 {:id :more :label "More" :view more-column}
+                 {:id :parameters :label "Parameters" :view args-column}]
         !tab-id (r/atom (:id (first tabs)))
         !tab    (r/reaction (u/item-for-id @!tab-id tabs))]
     (fn []
@@ -621,11 +621,11 @@
            :src      (at)
            :children
            [[rc/horizontal-tabs
-             :src       (at)
-             :model     !tab-id
-             :tabs      tabs
-             :style     {:margin-top "12px"}
-             :on-change #(reset! !tab-id %)]
+             {:src       (at)
+              :model     !tab-id
+              :tabs      tabs
+              :parts     {:tab {:style {:margin-top "12px"}}}
+              :on-change #(reset! !tab-id %)}]
             [(:view @!tab)]]]
           [demos]]]
         [parts-table "nested-grid" nested-grid-parts-desc]]])))

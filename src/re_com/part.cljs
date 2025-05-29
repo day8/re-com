@@ -1,22 +1,24 @@
 (ns re-com.part
   (:refer-clojure :exclude [name get])
   (:require
+   [clojure.core :as clj]
    [clojure.set :as set]
    [clojure.string :as str]
+   [re-com.debug :as debug]
    [re-com.theme.util :as tu]
    [re-com.validate :as validate]
    [re-com.util :as u]))
 
 (def id first)
 
-(defn children [[a & [b & rest-children :as all-children]]]
-  (if (map? b)
+(defn children [[_ & [x & rest-children :as all-children]]]
+  (if (map? x)
     rest-children
     all-children))
 
 (def branch? sequential?)
 
-(def unqualify (memoize (comp keyword clojure.core/name)))
+(def unqualify (memoize (comp keyword clj/name)))
 
 (def depth
   (memoize
@@ -48,7 +50,7 @@
   (str "rc-"
        (subs (namespace part-id) 7)
        "-"
-       (clojure.core/name part-id)))
+       (clj/name part-id)))
 
 (def css-class* (memoize css-class))
 
@@ -126,8 +128,8 @@
 (defn get [part-structure props k]
   (let [part-name (unqualify k)]
     (or (when (top-level-arg? part-structure part-name)
-          (clojure.core/get props part-name))
-        (clojure.core/get-in props [:parts part-name]))))
+          (clj/get props part-name))
+        (clj/get-in props [:parts part-name]))))
 
 (defn default [{:keys [class style attr children tag]
                 :or   {tag :div}}]
@@ -141,19 +143,21 @@
   ([part-value {:keys   [impl key theme post-props props]
                 part-id :part
                 :or     {impl default}}]
-   (cond->
+   (->
     (cond
       (u/hiccup? part-value) part-value
       (string? part-value)   part-value
       :else                  (let [component (cond (map? part-value) impl
                                                    (ifn? part-value) part-value
                                                    :else             impl)
+                                   part-fn  (when (ifn? part-value) part-value)
+                                   part-map (when (map? part-value) part-value)
                                    props
                                    (cond-> {:part part-id}
-                                     :do               (merge props)
-                                     theme             (theme component)
-                                     (map? part-value) (tu/merge-props part-value)
-                                     post-props        (tu/merge-props post-props))]
+                                     :do        (merge props)
+                                     theme      (theme component)
+                                     part-map   (tu/merge-props part-map)
+                                     post-props (tu/merge-props post-props))]
                                [component props]))
-     key (with-meta {:key key}))))
+     (cond-> key (with-meta {:key key})))))
 

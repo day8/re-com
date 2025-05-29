@@ -1,10 +1,19 @@
 (ns re-com.theme.util)
 
 (defn merge-class [& classes]
-  (vec (filter some? (flatten classes))))
+  (filterv some? (flatten classes)))
 
 (defn merge-style [props style]
   (update props :style merge style))
+
+(defn style [props & styles]
+  (apply update props :style merge styles))
+
+(defn attr [props & attrs]
+  (apply update props :attr merge attrs))
+
+(defn class [props & classes]
+  (apply update props :class merge-class classes))
 
 (defn ->v [x] (cond (vector? x)     x
                     (sequential? x) (vec x)

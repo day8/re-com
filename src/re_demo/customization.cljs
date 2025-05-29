@@ -22,7 +22,8 @@
             "These represent extra attributes, alongside class and style. "
             "For instance, " [:code ":on-click"] " or " [:code ":data-my-attribute"]]
            [:li [:code [:strong ":children"]] " must be a sequence of hiccups. "
-            "Some components expect a single " [:code ":child"] ", instead."]]]]]
+            "Some components expect a single " [:code ":child"] ", instead."]]]
+         [rc/p "When a re-com component returns a tree of hiccups, these arguments tend to apply to the outermost hiccup."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :children

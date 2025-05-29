@@ -228,12 +228,6 @@
      {:name        :pre-theme
       :required    false}
      {:name        :theme
-      :description "alpha"}
-     {:name        :main-theme
-      :description "alpha"}
-     {:name        :theme-vars
-      :description "alpha"}
-     {:name        :base-theme
       :description "alpha"}]))
 
 (defn anchor [{:keys [label placeholder style class attr transition!]}]
