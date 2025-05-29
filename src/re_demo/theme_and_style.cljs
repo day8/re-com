@@ -290,49 +290,6 @@
              {:parts {:anchor my-anchor :body my-body}
               :theme precise-theme}])]]]]]
      [rc/gap :size "19px"]
-     [rc/title :level :level3 :label "Themes are layered"]
-     [rc/h-box
-      :gap "31px"
-      :children
-      [[rc/v-box
-        :children
-        [[rc/p "To fully determine the props for a " [:i "part"] ", "
-          "re-com composes a handful of " [:i "theme"] "-functions, "
-          "including those you pass in or register (see below)."
-          "In order of application, these include:"]
-         [rc/p
-          [:ul
-           [:li [:strong ":variables"]
-            " - adds static data under the path "
-            [:code "[:re-com :variables]"]
-            ". This can include color palettes, spacing units and other standard values."]
-           [:li [:strong ":pre-user"]
-            " - empty by default. Here you could implement a spacing or color scheme, "
-            "simply by changing the values within " [:code "[:re-com :variables]"] "."]
-           [:li [:strong ":pre-theme"]
-            " - cannot be registered (see below). Contains any function you have passed "
-            "as the " [:code ":pre-theme"] " argument to a re-com component."]
-           [:li [:strong ":base"]
-            " - contains re-com's essential functionality, such as box-model positioning "
-            "and event handling. Replace at your own risk."]
-           [:li [:strong ":main"]
-            " - contains re-com's default visual styling for all components."]
-           [:li [:strong ":user"]
-            " - empty by default. Calling " [:code "reg-theme"] " (see below) "
-            "will replace the " [:code ":user"] " layer, unless you specify "
-            "a different layer."]
-           [:li [:strong ":re-com-meta"]
-            " - cannot be registered (see below). Adds useful information, "
-            "such as the " [:code "rc-component-name"] "class, and the "
-            [:code "data-rc"] " html attribute."]
-           [:li [:strong ":theme"]
-            " - cannot be registered (see below). Contains any function you have passed "
-            "as the " [:code ":theme"] " argument to a re-com component."]]]]]
-       [rc/v-box
-        :gap "19px"
-        :children
-        []]]]
-     [rc/gap :size "19px"]
      [rc/title :level :level3 :label "Themes can be global"]
      [rc/h-box
       :gap "31px"
@@ -345,7 +302,7 @@
           "we haven't passed any " [:code ":theme"] " argument. In reality, this would "
           "happen to every component on every page (we're faking it here for demonstration)."]
          [rc/p "By default, this replaces the function at the " [:code ":user"] " layer "
-          "(see \"themes have layers\" above). "
+          "(see \"themes are layered\" below). "
           "You can pass two arguments - a layer-id and a " [:i "theme"] "-function - "
           "to replace a different layer."]]]
        [rc/v-box
@@ -367,6 +324,49 @@
             {:parts {:anchor my-anchor :body my-body}
              :theme precise-theme}]]
           ]]]]]
+     [rc/gap :size "19px"]
+     [rc/title :level :level3 :label "Themes are layered"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "To fully determine the props for a " [:i "part"] ", "
+          "re-com composes a handful of " [:i "theme"] "-functions, "
+          "including those you pass in or register."
+          "In order of application, these include:"]
+         [rc/p
+          [:ul
+           [:li [:strong ":variables"]
+            " - adds static data under the path "
+            [:code "[:re-com :variables]"]
+            ". This can include color palettes, spacing units and other standard values."]
+           [:li [:strong ":pre-user"]
+            " - empty by default. Here you could implement a spacing or color scheme, "
+            "simply by changing the values within " [:code "[:re-com :variables]"] "."]
+           [:li [:strong ":pre-theme"]
+            " - cannot be registered. Contains any function you have passed "
+            "as the " [:code ":pre-theme"] " argument to a re-com component."]
+           [:li [:strong ":base"]
+            " - contains re-com's essential functionality, such as box-model positioning "
+            "and event handling. Replace at your own risk."]
+           [:li [:strong ":main"]
+            " - contains re-com's default visual styling for all components."]
+           [:li [:strong ":user"]
+            " - empty by default. Calling " [:code "reg-theme"] " "
+            "will replace the " [:code ":user"] " layer, unless you specify "
+            "a different layer."]
+           [:li [:strong ":re-com-meta"]
+            " - cannot be registered. Adds useful information, "
+            "such as the " [:code "rc-component-name"] "class, and the "
+            [:code "data-rc"] " html attribute."]
+           [:li [:strong ":theme"]
+            " - cannot be registered. Contains any function you have passed "
+            "as the " [:code ":theme"] " argument to a re-com component."]]]]]
+       [rc/v-box
+        :gap "19px"
+        :children
+        []]]]
      [rc/gap :size "19px"]
      [rc/title :level :level3 :label "Themes are (not) reactive"]
      [rc/h-box
