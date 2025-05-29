@@ -47,7 +47,7 @@
     (-> props
         (merge-props
          {:align :center
-          :style {:background-color (:white $)
+          :style {:background-color (:background $)
                   :background-clip  "padding-box"
                   :border           (str "1px solid "
                                          (cond
