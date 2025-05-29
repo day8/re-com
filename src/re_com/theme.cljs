@@ -6,6 +6,7 @@
    [re-com.theme.default :as theme.default]))
 
 (def ^:dynamic *variables* theme.default/variables)
+(def ^:dynamic *pre-user* theme.default/main)
 (def ^:dynamic *base* theme.default/base)
 (def ^:dynamic *main* theme.default/main)
 (def ^:dynamic *user* nil)
@@ -26,16 +27,17 @@
 
 (def merge-props tu/merge-props)
 
-(defn part-class [{:keys [part] :as props}]
+(defn re-com-meta [{:keys [part] :as props}]
   (update props :class merge-class (part/css-class* part)))
 
 (defn comp [component-local-pre-theme component-local-theme]
   (clojure.core/apply
    clojure.core/comp
    (filter some? [component-local-theme
-                  part-class
+                  re-com-meta
                   *user*
                   *main*
                   *base*
                   component-local-pre-theme
+                  *pre-user*
                   *variables*])))

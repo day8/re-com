@@ -131,6 +131,7 @@
   ([layer-id f]
    (case layer-id
      :variables (set! theme/*variables* f)
+     :pre-user  (set! theme/*pre-user* f)
      :base      (set! theme/*base* f)
      :main      (set! theme/*main* f)
      :user      (set! theme/*user* f))))
