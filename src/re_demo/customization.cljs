@@ -71,7 +71,7 @@
           [:a {:href "https://github.com/thheller/shadow-css"} "shadow-css."]]]]
        [rc/box
         :align :center
-        :child [:img {:src   "demo/architecture-LOD.png"
+        :child [:img {:src   "demo/architecture-LOD.jpg"
                       :style {:width  "400px"
                               :height "auto"}}]]]]]}])
 
