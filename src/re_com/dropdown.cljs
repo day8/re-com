@@ -225,6 +225,8 @@
      {:name        :attr
       :required    false
       :type        "map"}
+     {:name        :pre-theme
+      :required    false}
      {:name        :theme
       :description "alpha"}
      {:name        :main-theme
