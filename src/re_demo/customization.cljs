@@ -60,7 +60,15 @@
            [:li "Re-write a hiccup's component function (a " [:code ":parts"] " function)."]
            [:li "Wrap a hiccup's arguments with a function (a " [:code ":theme"] ")."]
            [:li "Register a function that wraps the arguments of all hiccups everywhere "
-            "(a global " [:code ":theme"] ")."]]]]]
+            "(a global " [:code ":theme"] ")."]]]
+         [rc/p {:style {:background-color "#eee" :padding 7}}
+          [:strong "Note"] ": Re-com has used "
+          [:a {:href "https://bootstrapdocs.com/v3.3.5/docs/getting-started/"} "bootstrap 3.3.5"]
+          " as a design system. A complete implementation of our theme system will make bootstrap optional. "
+          "It should then be possible to plug in a different system, such as "
+          [:a {:href "https://tailwindcss.com/"} "tailwind"]
+          " or "
+          [:a {:href "https://github.com/thheller/shadow-css"} "shadow-css."]]]]
        [rc/box
         :align :center
         :child [:img {:src   "demo/architecture-LOD.png"
