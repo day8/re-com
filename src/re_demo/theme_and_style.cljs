@@ -128,7 +128,7 @@
            [:li [:strong [:code ":part"]]
             " is a keyword, with the namespace of the component and the name of the part. "
             " For instance, " [:code ":re-com.dropdown/anchor"] "."]
-           [:li [:strong [:code ":re-com"]] " is a map describing the re-com component overall, "
+           [:li [:strong [:code ":re-com"]] " is a map describing the component overall, "
             "such as its " [:code ":state"] ", and " [:code "theme"] " information (see the "
             [:code "theme"] " section below)."]]]
          [rc/p {:style {:background-color "#eee" :padding 7}}
@@ -169,7 +169,7 @@
         (rdu/with-src
           [rc/dropdown
            {:parts {:body   "Sesame"
-                    :anchor {:style {:background-color "pink"}
+                    :anchor {:style {:color "pink"}
                              :class "italic"}}}])]]]]}])
 
 (defn theme []
@@ -207,21 +207,13 @@
       :children
       [[rc/p "Themes synergize well with both map and function parts. "
         "Hiccup and string parts aren't affected by themes, since re-com "
-        "doesn't control their props. In light of this, let's define some functional "
-        [:i "part"] "-specs for this example."]
-       [rc/v-box
-        :gap "12px"
+        "doesn't control their props. In light of this, let's define a functional "
+        [:i "part"] "-spec for this example."]
+       [rc/h-box
         :children
-        [[rc/h-box
-          :children
-          (rdu/with-src
-            (defn my-anchor [{:keys [style class attr]}]
-              [rc/box (merge {:style style :class class :child "Open"} attr)]))]
-         [rc/h-box
-          :children
-          (rdu/with-src
-            (defn my-body [{:keys [style class attr]}]
-              [rc/box (merge {:style style :class class :child "Sesame"} attr)]))]]]]]
+        (rdu/with-src
+          (defn my-body [{:keys [style class attr]}]
+            [rc/box (merge {:style style :class class :child "Sesame"} attr)]))]]]
      [rc/gap :size "19px"]
      [rc/h-box
       :gap "31px"
@@ -245,16 +237,33 @@
         :children
         [[rc/p "Finally we apply the theme, "
           "simply by passing our " [:i "theme"] "-function to the component. "
-          "Note that both the anchor and body are orange, since the " [:code ":theme"] " "
-          "function applies to every part (including parts you don't specify)."]]]
+          "Note that the " [:code ":theme"] " function applies to every part - "
+          "including parts you don't specify. "
+          "In this case, the anchor turns orange, even though we haven't added any "
+          [:code ":anchor"] "in the parts map. Although the anchor is in its default "
+          " configuration, re-com still applies your " [:i "theme"] "-function to the props "
+          "it passes to the anchor's component function."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :align :start
         :children
-        (rdu/with-src
-          [rc/dropdown
-           {:parts {:anchor my-anchor :body my-body}
-            :theme orange-theme}])]]]
+        (rdu/with-src [rc/dropdown {:parts {:body my-body} :theme orange-theme}])]]]
+     [rc/gap :size "19px"]
+     [rc/h-box
+      :gap "31px"
+      :children
+      [[rc/v-box
+        :children
+        [[rc/p "A theme function will also compose with a map " [:i "part"] "-spec. "
+          "Here, for the anchor part, re-com modifies its props twice - first with the theme, "
+          "and then with your " [:code ":anchor"] " spec."]]]
+       [rc/h-box
+        :style {:height :fit-content :gap "12px"}
+        :align :start
+        :children
+        (rdu/with-src [rc/dropdown {:parts {:body   my-body
+                                            :anchor {:style {:color "white"}}}
+                                    :theme orange-theme}])]]]
      [rc/gap :size "19px"]
      [rc/h-box
       :gap "31px"
@@ -265,7 +274,10 @@
           "Re-com passes a " [:code ":part"] " argument to each part, identifying it "
           "with a fully-qualified keyword. "
           "Here is a " [:i "theme"] "-function that adds background-color only to the "
-          [:code ":body"] ", and font-style only to the " [:code ":anchor"] "."]]]
+          [:code ":body"] ", and font-style only to the " [:code ":anchor"] ". "]
+         [rc/p
+          "Hint: you could express a " [:i "theme"] "-function using a multimethod: "
+          [:code "(defmulti my-theme :part)"]]]]
        [rc/v-box
         :gap "19px"
         :children
@@ -287,7 +299,7 @@
           :children
           (rdu/with-src
             [rc/dropdown
-             {:parts {:anchor my-anchor :body my-body}
+             {:parts {:body my-body}
               :theme precise-theme}])]]]]]
      [rc/gap :size "19px"]
      [rc/title :level :level3 :label "Themes can be global"]
@@ -319,11 +331,9 @@
           :children
           [[rdu/zprint-code
             '[rc/dropdown
-              {:parts {:anchor my-anchor :body my-body}}]]
+              {:parts {:body my-body}}]]
            [rc/dropdown
-            {:parts {:anchor my-anchor :body my-body}
-             :theme precise-theme}]]
-          ]]]]]
+            {:parts {:body my-body} :theme precise-theme}]]]]]]]
      [rc/gap :size "19px"]
      [rc/title :level :level3 :label "Themes are layered"]
      [rc/h-box
@@ -333,7 +343,7 @@
         :children
         [[rc/p "To fully determine the props for a " [:i "part"] ", "
           "re-com composes a handful of " [:i "theme"] "-functions, "
-          "including those you pass in or register."
+          "including those you pass in or register. "
           "In order of application, these include:"]
          [rc/p
           [:ul
@@ -366,7 +376,32 @@
        [rc/v-box
         :gap "19px"
         :children
-        []]]]
+        [[rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          (rdu/with-src
+            (defn dark-mode [props]
+              (update-in props [:re-com :variables] merge
+                         {:background "black"
+                          :foreground "white"})))]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          (rdu/with-src
+            [rc/dropdown {:parts     {:body my-body}
+                          :pre-theme dark-mode}])]
+         [rc/h-box
+          :style {:height :fit-content :gap "12px"}
+          :align :start
+          :children
+          (rdu/with-src
+            [rc/dropdown {:parts {:body my-body}
+                          :theme (fn [props]
+                                   (update-in props [:re-com :variables] merge
+                                              {:background "black"
+                                               :foreground "white"}))}])]]]]]
      [rc/gap :size "19px"]
      [rc/title :level :level3 :label "Themes are (not) reactive"]
      [rc/h-box
@@ -374,52 +409,25 @@
       :children
       [[rc/v-box
         :children
-        [[rc/p "A re-com component composes the theme "
+        [[rc/p "A re-com component composes the " [:i "theme"] "-function "
           [:strong "once"] ", when it mounts. That means it will not react to changes in the passed-in "
           [:code ":theme"] " or " [:code ":pre-theme"] " arguments. This makes themes more performant. "
           "If you do need to do reactive programming, consider doing it within the theme function."]]]
        [rc/v-box
         :children
-        [
-          "For instance, instead of this:"
-          [:br]
-          [rdu/zprint-code
-           '[rc/dropdown
-             {:theme (if (deref night-mode?) dark-theme light-theme)}]]
-          [:br]
-          "try this:"
-          [:br]
-          [rdu/zprint-code
-           '[rc/dropdown
-             {:theme (fn [props] (if (deref night-mode?)
-                                   (dark-theme props)
-                                   (light-theme props)))}]]]]]]
-     #_[rc/title :level :level3 :label "Targeting the top-level hiccup"]
-     #_[rc/h-box
-      :gap "31px"
-      :children
-      [[rc/v-box
-        :children
-        [[rc/p "Hello."]]]
-       [rc/v-box
-        :gap "19px"
-        :children
-        [[rc/h-box
-          :style {:height :fit-content :gap "12px"}
-          :align :start
-          :children
-          [[rdu/zprint-code '(re-com.core/reg-theme my-theme)]]]
-         [rc/h-box
-          :style {:height :fit-content :gap "12px"}
-          :align :start
-          :children
-          [[rdu/zprint-code
-            '[rc/dropdown
-              {:parts {:anchor my-anchor :body my-body}}]]
-           [rc/dropdown
-            {:parts {:anchor my-anchor :body my-body}
-             :theme my-theme}]]
-          ]]]]]]}])
+        ["For instance, instead of this:"
+         [:br]
+         [rdu/zprint-code
+          '[rc/dropdown
+            {:theme (if (deref night-mode?) dark-theme light-theme)}]]
+         [:br]
+         "try this:"
+         [:br]
+         [rdu/zprint-code
+          '[rc/dropdown
+            {:theme (fn [props] (if (deref night-mode?)
+                                  (dark-theme props)
+                                  (light-theme props)))}]]]]]]]}])
 
 (defn panel* []
   [rc/v-box
