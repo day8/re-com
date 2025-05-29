@@ -222,17 +222,7 @@
           :children
           (rdu/with-src
             [rc/dropdown {:parts     {:body my-body}
-                          :pre-theme dark-mode}])]
-         [rc/h-box
-          :style {:height :fit-content :gap "12px"}
-          :align :start
-          :children
-          (rdu/with-src
-            [rc/dropdown {:parts {:body my-body}
-                          :theme (fn [props]
-                                   (update-in props [:re-com :variables] merge
-                                              {:background "black"
-                                               :foreground "white"}))}])]]]]]
+                          :pre-theme dark-mode}])]]]]]
      [rc/gap :size "19px"]
      [rc/title :level :level3 :label "Themes are (not) reactive"]
      [rc/h-box

@@ -7,9 +7,7 @@
   [rc/v-box
    {:src (rc/at)
     :children
-    [[rc/title {:src   (rc/at)
-                :level :level2
-                :label "Basics: Customizing a Component"}]
+    [[rc/gap :size "19px"]
      [rc/h-box
       :gap "31px"
       :children
@@ -19,7 +17,7 @@
          [rc/p
           [:ul
            [:li [:code [:strong ":style"]] " must be a map, representing CSS inline style rules."]
-           [:li  [:code [:strong ":class"]] " must be a string, or vector of strings, representing CSS class-names."]
+           [:li [:code [:strong ":class"]] " must be a string, or vector of strings, representing CSS class-names."]
            [:li [:code [:strong ":attr"]] " must be a map. It stands for " [:i "Html attributes"] ". "
             "These represent extra attributes, alongside class and style. "
             "For instance, " [:code ":on-click"] " or " [:code ":data-my-attribute"]]
@@ -45,14 +43,17 @@
       [[rc/v-box
         :children
         [[rc/p
-          "The above is enough in most cases, but sometimes we want to express UI with more: "
+          "The above is enough in most cases, but sometimes we want to express UI with more: "]
+         [rc/p
           [:ul
            [:li [:i "flexibility"] ": such as, applying design conditionally, based on some dynamic state."]
            [:li [:i "specificity"] ": such as, building custom view logic into one instance of a component. "]
            [:li [:i "parsimony"] ": such as, applying a design system over an entire app, "]]]
          [rc/p
           "Given a re-com component function, which returns a tree of hiccups, "
-          "we need deeper mechanics we can use, both individually and in combination. We need ways to: "
+          "we need deeper mechanics we can use, both individually and in combination. "
+          "The following pages describe ways to: "]
+         [rc/p
           [:ul
            [:li "Replace an entire subtree (a " [:code ":parts"] " hiccup)."]
            [:li "Override a certain hiccup's arguments (a " [:code ":parts"] " map)."]
@@ -70,7 +71,7 @@
   [rc/v-box
    {:gap [rc/line]
     :children
-    [[rdu/panel-title "Theme & Parts"
+    [[rdu/panel-title "Customizing a Re-com Component"
       "src/re_com/core.cljs"
       "src/re_demo/theme_and_style.cljs"]
      [basics]
