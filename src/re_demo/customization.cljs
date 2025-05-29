@@ -79,7 +79,7 @@
   [rc/v-box
    {:gap [rc/line]
     :children
-    [[rdu/panel-title "Customizing a Re-com Component"
+    [[rdu/panel-title "Customization"
       "src/re_com/core.cljs"
       "src/re_demo/theme_and_style.cljs"]
      [basics]
