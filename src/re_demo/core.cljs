@@ -8,16 +8,20 @@
             [reagent.dom                   :as    rdom]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border
+                                                          label p title alert-box h-split]
+                                                  :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
             [re-com.util                   :as u :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.debug                 :as    debug]
             [re-demo.config                :as    config]
             [re-demo.introduction          :as    introduction]
-            [re-demo.theme-and-style       :as    theme-and-style]
+            [re-demo.customization         :as    customization]
+            [re-demo.parts]
+            [re-demo.theme]
             [re-demo.radio-button          :as    radio-button]
-            [re-demo.checkbox             :as    checkbox]
+            [re-demo.checkbox              :as    checkbox]
             [re-demo.input-text            :as    input-text]
             [re-demo.slider                :as    slider]
             [re-demo.label                 :as    label]
@@ -70,7 +74,9 @@
 
 (def tabs-definition
   [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
-   {:id :theme-and-style        :level :major :label "Theme & Style"       :panel theme-and-style/panel}
+   {:id :customization          :level :major :label "Customization"      :panel customization/panel}
+   {:id :parts                  :level :minor :label "Parts"              :panel re-demo.parts/panel}
+   {:id :theme                  :level :minor :label "Theme"              :panel re-demo.theme/panel}
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
    {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
