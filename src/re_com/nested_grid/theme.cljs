@@ -1,6 +1,6 @@
 (ns re-com.nested-grid.theme
   (:require
-   [re-com.theme.util :refer [merge-style]]
+   [re-com.theme.util :as tu]
    [re-com.theme.default :refer [base main golden-section-50 colors]]
    [re-com.nested-grid :as-alias ng]))
 
@@ -103,15 +103,15 @@
 
 (defmethod base ::ng/cell-grid-container
   [props]
-  (merge-style props
-               {:position "relative"
-                :gap      "0px"}))
+  (tu/style props
+            {:position "relative"
+             :gap      "0px"}))
 
 (defmethod main ::ng/cell-grid-container
   [props]
-  (merge-style props
-               {:padding          "0px"
-                :background-color "transparent"}))
+  (tu/style props
+            {:padding          "0px"
+             :background-color "transparent"}))
 
 (def cell-wrapper-main
   (let [{:keys [sm-3]} golden-section-50]

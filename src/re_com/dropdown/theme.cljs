@@ -3,21 +3,21 @@
    [clojure.string :as str]
    [re-com.dropdown :as-alias dd]
    [re-com.util :refer [px]]
-   [re-com.theme.util :refer [merge-props merge-style]]
+   [re-com.theme.util :as tu :refer [merge-props]]
    [re-com.theme.default :refer [base main]]))
 
 (defmethod base ::dd/body-wrapper
   [{:keys [position top left anchor-top] :as props}]
-  (update props :style merge {:position   position
-                              :top        (px top)
-                              :left       (px left)
-                              :opacity    (when-not anchor-top 0)
-                              :overflow-y "auto"
-                              :overflow-x "visible"
-                              :z-index    30}))
+  (tu/style props {:position   position
+                   :top        (px top)
+                   :left       (px left)
+                   :opacity    (when-not anchor-top 0)
+                   :overflow-y "auto"
+                   :overflow-x "visible"
+                   :z-index    30}))
 
 (defmethod base ::dd/anchor-wrapper
-  [{{:keys [state transition!]
+  [{{:keys          [state transition!]
      {:keys [sm-2]} :variables} :re-com
     :as                         props}]
   (-> props
@@ -39,7 +39,7 @@
                                   :open 20 nil)}})))
 
 (defmethod main ::dd/anchor-wrapper
-  [{:as            props
+  [{:as                props
     {:keys [state]
      $     :variables} :re-com}]
   (let [open?   (= :open (:openable state))
@@ -76,34 +76,39 @@
 
 (defmethod main ::dd/backdrop
   [{{:keys [state]} :re-com :as props}]
-  (merge-style props
-               {:background-color "black"
-                :opacity          (if (-> state :transitionable (= :in)) 0.1 0)
-                :transition       "opacity 0.25s"}))
+  (tu/style props
+            {:background-color "black"
+             :opacity          (if (-> state :transitionable (= :in)) 0.1 0)
+             :transition       "opacity 0.25s"}))
 
 (defmethod base ::dd/wrapper
   [props]
-  (merge-style props
-               {:display  "inline-block"
-                :position "relative"}))
+  (tu/style props
+            {:display  "inline-block"
+             :position "relative"}))
 
 (defmethod main ::dd/body-wrapper
   [props]
-  (let [{:keys [sm-2 sm-3 sm-6 shadow border]} (-> props :re-com :variables)]
-    (update props :style merge {:background-color "white"
-                                :border-radius    "4px"
-                                :border           (str "thin solid " border)
-                                :padding          sm-3
-                                :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])})))
+  (let [{:keys [sm-2 sm-3 sm-6 shadow border background]} (-> props :re-com :variables)]
+    (tu/style props {:background-color background
+                     :border-radius    "4px"
+                     :border           (str "thin solid " border)
+                     :padding          sm-3
+                     :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])})))
+
+(defmethod main ::dd/body
+  [props]
+  (let [{:keys [foreground]} (-> props :re-com :variables)]
+    (tu/style props {:color foreground})))
 
 (defmethod main ::dd/anchor
   [{:keys          [state]
     {$ :variables} :re-com
     :as            props}]
-  (merge-style props
-               (cond-> {:color (:foreground $)
-                        :overflow "hidden"
-                        :text-overflow "ellipsis"
-                        :white-space "nowrap"}
-                 (-> state :enable (= :disabled))
-                 (merge {:background-color (:background-disabled $)}))))
+  (tu/style props
+            (cond-> {:color (:foreground $)
+                     :overflow "hidden"
+                     :text-overflow "ellipsis"
+                     :white-space "nowrap"}
+              (-> state :enable (= :disabled))
+              (merge {:background-color (:background-disabled $)}))))

@@ -3,7 +3,6 @@
   (:require
    [re-com.theme.util :as tu]
    [re-com.part :as part]
-   [re-com.debug :as debug]
    [re-com.theme.default :as theme.default]))
 
 (def ^:dynamic *variables* theme.default/variables)
@@ -25,14 +24,10 @@
 
 (def merge-class tu/merge-class)
 
-(def merge-style tu/merge-style)
-
 (def merge-props tu/merge-props)
 
 (defn re-com-meta [{:keys [part] :as props}]
-  (-> props
-      (update :class merge-class (part/css-class* part))
-     #_ (merge (debug/->attr props))))
+  (tu/class props (part/css-class* part)))
 
 (defn comp [component-local-pre-theme component-local-theme]
   (clojure.core/apply

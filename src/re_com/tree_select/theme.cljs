@@ -1,6 +1,6 @@
 (ns re-com.tree-select.theme
   (:require
-   [re-com.theme.util :refer [merge-props merge-style]]
+   [re-com.theme.util :as tu :refer [merge-props]]
    [re-com.tree-select :as-alias ts]
    [re-com.theme.default :refer [base main]]))
 
@@ -15,11 +15,11 @@
   [{:keys          [state]
     {$ :variables} :re-com
     :as            props}]
-  (merge-style props {:padding  "0 0 0 0"
-                      :overflow "hidden"
-                      :color    (:foreground $)
-                      :cursor   (if (-> state :enable (= :disabled))
-                                  "default" "pointer")}))
+  (tu/style props {:padding  "0 0 0 0"
+                   :overflow "hidden"
+                   :color    (:foreground $)
+                   :cursor   (if (-> state :enable (= :disabled))
+                               "default" "pointer")}))
 
 (defmethod main ::ts/dropdown-indicator
   [{{$ :variables} :re-com
@@ -39,14 +39,14 @@
 
 (defmethod main ::ts/dropdown-counter
   [props]
-  (merge-style props
-               {:style {#_#_:margin-left  "5px"
-                        #_#_:margin-right "5px"
-                        :opacity          "50%"}}))
+  (tu/style props
+            {:style {#_#_:margin-left  "5px"
+                     #_#_:margin-right "5px"
+                     :opacity          "50%"}}))
 
 (defmethod base ::ts/only-button
   [{{{:keys [background]} :variables} :re-com :as props}]
-  (merge-style props {:position   :absolute
-                      :right      5
-                      :margin-bottom     2
-                      :background background}))
+  (tu/style props {:position   :absolute
+                   :right      5
+                   :margin-bottom     2
+                   :background background}))

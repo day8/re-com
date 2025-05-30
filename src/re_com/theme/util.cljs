@@ -3,9 +3,6 @@
 (defn merge-class [& classes]
   (filterv some? (flatten classes)))
 
-(defn merge-style [props style]
-  (update props :style merge style))
-
 (defn style [props & styles]
   (apply update props :style merge styles))
 
