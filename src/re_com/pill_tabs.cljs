@@ -32,24 +32,8 @@
      (remove (comp #{:parts} :name) horizontal-tabs/args-desc)
      vec
      (conj
-      {:name :tooltip-fn       :required false :default :tooltip      :type "tab -> string | hiccup" :validate-fn ifn?                  :description [:span "[horizontal-pill-tabs only] given an element of " [:code ":tabs"] ", returns its tooltip"]}
-      {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn v/position?           :description [:span "[horizontal-pill-tabs only] relative to this anchor. One of " v/position-options-list]}
-      {:name :validate?        :required false :default true          :type "boolean"                                                   :description [:span "Validate " [:code ":model"] " against " [:code ":tabs"]]}
-      {:name :vertical?        :required false :default false         :type "boolean"}
       {:name :parts            :required false                        :type "map"                    :validate-fn (v/parts? part-names) :description "See Parts section below."}))))
 
-
-(defn tab-tooltip [{:keys [position label showing? anchor class style attr]
-                    :or   {position :below-center}}]
-  [po/popover-tooltip
-   :src      (at)
-   :position position
-   :label    label
-   :showing? @showing?
-   :anchor   anchor
-   :class    class
-   :style    style
-   :attr     attr])
 
 (defn pill-tabs [& {:keys [theme pre-theme]}]
   (let [theme (theme/comp theme pre-theme)]

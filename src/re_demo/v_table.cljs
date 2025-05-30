@@ -3,7 +3,7 @@
    [re-com.text               :refer [p]]
    [re-com.box                :refer [h-box v-box box gap]]
    [re-com.v-table            :refer [v-table-parts-desc v-table-args-desc]]
-   [re-com.tabs               :refer [horizontal-tabs]]
+   [re-com.core               :as rc]
    [re-com.util               :refer [px]]
    [re-demo.v-table-sections  :refer [sections-render]]
    [re-demo.v-table-demo      :refer [demo]]
@@ -107,7 +107,7 @@
                   [h-box
                    :gap      "50px"
                    :children [[v-box
-                               :children [[horizontal-tabs
+                               :children [[rc/horizontal-tabs
                                            :model     selected-tab-id
                                            :tabs      tab-defs
                                            :style     {:margin-top "12px"}

@@ -1,10 +1,11 @@
 (ns re-demo.tabs
   (:require
-   [re-com.core             :refer [at h-box v-box box gap line scroller border horizontal-tabs bar-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
+   [re-com.core             :refer [at h-box v-box gap border horizontal-tabs bar-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
    [re-com.horizontal-tabs :as horizontal-tabs]
-   [re-com.tabs             :refer [bar-tabs-args-desc pill-tabs-args-desc bar-tabs-parts-desc pill-tabs-parts-desc]]
+   [re-com.pill-tabs :as pill-tabs]
+   [re-com.bar-tabs :as bar-tabs]
    [re-com.util             :refer [item-for-id]]
-   [re-demo.utils           :refer [panel-title title2 parts-table args-table github-hyperlink status-text]]
+   [re-demo.utils           :refer [panel-title title2 parts-table args-table status-text]]
    [alandipert.storage-atom :refer [local-storage]]
    [reagent.core            :as    reagent]))
 
@@ -198,8 +199,8 @@
                                                        :on-change #(reset! selected-tag-type %)]
                                                       (case @selected-tag-type
                                                         :horizontal [args-table horizontal-tabs/args-desc {:title "Horizontal Tabs Parameters"}]
-                                                        :bar        [args-table bar-tabs-args-desc        {:title "Bar Tabs Parameters"}]
-                                                        :pill       [args-table pill-tabs-args-desc       {:title "Pill Tabs Parameters"}])]]]]
+                                                        :bar        [args-table bar-tabs/args-desc        {:title "Bar Tabs Parameters"}]
+                                                        :pill       [args-table pill-tabs/args-desc       {:title "Pill Tabs Parameters"}])]]]]
                               [v-box :src (at)
                                :width    "600px"
                                :gap      "10px"
@@ -222,8 +223,8 @@
                                                         4 [tooltips-demo])]]]]]]
                   (case @selected-tag-type
                     :horizontal [parts-table "horizontal-tabs" horizontal-tabs/parts-desc]
-                    :bar        [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]
-                    :pill       [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc])]])))
+                    :bar        [parts-table "horizontal-bar-tabs" bar-tabs/parts-desc]
+                    :pill       [parts-table "horizontal-pill-tabs" pill-tabs/parts-desc])]])))
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
