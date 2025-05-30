@@ -13,7 +13,7 @@
 (defn github-hyperlink
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
   [label src-path]
-  (let [base-url (str "https://github.com/day8/re-com/blob/master/")]
+  (let [base-url "https://github.com/day8/re-com/blob/master/"]
     [hyperlink-href :src (at)
      :label  label
      ;:style  {:font-size    "13px"}
@@ -34,23 +34,28 @@
   [panel-name src1 src2]
   [v-box
    :children [[h-box
-               :margin "0px 0px 9px 0px"
-               :height "54px"
-               :align :end
-               :children [[title :src (at)
-                           :label         panel-name
-                           :level         :level1
-                           :margin-bottom "0px"
-                           :margin-top    "2px"]
-                          [gap :size "25px"]
-                          (when src1 [h-box
-                                      :class "all-small-caps"
-                                      :gap    "7px"
-                                      :align  :center
-                                      :children [[label :src (at) :label "source:"]
-                                                 [github-hyperlink "component" src1]
-                                                 [label :src (at) :label "|"  :style {:font-size "12px"}]
-                                                 [github-hyperlink "page" src2]]])]]
+               {:margin   "0px 0px 9px 0px"
+                :height   "54px"
+                :gap      "19px"
+                :align    :end
+                :children [[title
+                            {:src           (at)
+                             :label         panel-name
+                             :level         :level1
+                             :margin-bottom "0px"
+                             :margin-top    "2px"}]
+                           [h-box
+                            {:class    "all-small-caps"
+                             :gap      "7px"
+                             :align    :center
+                             :children [(when (or src1 src2)
+                                          [label :src (at) :label "source:"])
+                                        (when src1
+                                          [github-hyperlink "component" src1])
+                                        (when (and src1 src2)
+                                          [label :src (at) :label "|"  :style {:font-size "12px"}])
+                                        (when src2
+                                          [github-hyperlink "page" src2])]}]]}]
               [line :src (at)]]])
 
 (defn title2

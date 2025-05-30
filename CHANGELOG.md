@@ -2,6 +2,8 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.26.0 (2025-05-30)
+
 #### Added
 
 - Documentation for parts & themes in the [re-com demo](https://re-com.day8.com.au/#/customization)

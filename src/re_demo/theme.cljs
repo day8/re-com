@@ -7,15 +7,14 @@
   [rc/v-box
    {:src (rc/at)
     :children
-    [[rc/h-box
+    [[rdu/panel-title "Theme" nil "src/re_demo/theme.cljs"]
+     [rc/gap :size "19px"]
+     [rc/h-box
       :gap "31px"
       :children
       [[rc/v-box
         :children
-        [[rc/title {:src   (rc/at)
-                    :level :level2
-                    :label "Theme"}]
-         [rc/p "A theme is a pattern for " [:i "how"] " to draw UI, independent of "
+        [[rc/p "A theme is a pattern for " [:i "how"] " to draw UI, independent of "
           [:i "what"] " and " [:i "where"] ". "
           "You can pass a function as the " [:code ":theme"] " "
           "argument to a re-com component. This " [:i "theme-"] "function takes "

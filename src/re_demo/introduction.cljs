@@ -157,7 +157,7 @@
 (defn panel2
   []
   [v-box :src (at)
-   :children [[panel-title "Introduction" "src/re_com/core.cljs" "src/re_demo/introduction.cljs"]
+   :children [[panel-title "Introduction" nil "src/re_demo/introduction.cljs"]
               [gap :src (at) :size "15px"]
               [welecome]
               [this-app]

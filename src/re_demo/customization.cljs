@@ -78,12 +78,10 @@
 
 (defn panel* []
   [rc/v-box
-   {:gap [rc/line]
-    :children
-    [[rdu/panel-title "Customization"
-      "src/re_com/core.cljs"
-      "src/re_demo/theme_and_style.cljs"]
+   {:children
+    [[rdu/panel-title "Customization" nil "src/re_demo/customization.cljs"]
      [basics]
+     [rc/line]
      [composition]]}])
 
 (defn panel []

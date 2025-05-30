@@ -146,7 +146,7 @@
    :gap      "10px"
    :children [[panel-title
                "Debugging"
-               "src/re_com/debug.cljs"
+               nil
                "src/re_demo/debug.cljs"]
 
               [h-box

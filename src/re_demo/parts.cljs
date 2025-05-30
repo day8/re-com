@@ -7,9 +7,8 @@
   [rc/v-box
    {:src (rc/at)
     :children
-    [[rc/title {:src   (rc/at)
-                :level :level2
-                :label [:code ":parts"]}]
+    [[rdu/panel-title "Parts" nil "src/re_demo/parts.cljs"]
+     [rc/gap :size "19px"]
      [rc/h-box
       :gap "31px"
       :children
