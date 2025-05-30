@@ -2,6 +2,12 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.26.1 (2025-05-30)
+
+#### Fixed
+
+- `vertical-pill-tabs`
+
 ## 2.26.0 (2025-05-30)
 
 #### Added

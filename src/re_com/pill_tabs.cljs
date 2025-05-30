@@ -32,12 +32,13 @@
      (remove (comp #{:parts} :name) horizontal-tabs/args-desc)
      vec
      (conj
+      {:name :vertical? :type "boolean" :default false}
       {:name :parts            :required false                        :type "map"                    :validate-fn (v/parts? part-names) :description "See Parts section below."}))))
 
 
 (defn pill-tabs [& {:keys [theme pre-theme]}]
   (let [theme (theme/comp theme pre-theme)]
-    (fn [& {:keys [model tabs on-change id-fn label-fn disabled? tab-type]
+    (fn [& {:keys [model tabs on-change id-fn label-fn disabled? tab-type vertical?]
             :or   {id-fn    :id
                    label-fn :label
                    tab-type :horizontal}
@@ -54,6 +55,7 @@
             :post-props (-> (select-keys props [:class :style :attr])
                             (update :attr (merge (debug/->attr props))))
             :props      {:on-change on-change
+                         :vertical? vertical?
                          :tab-type  tab-type
                          :re-com    {:state {:enable (not disabled?)}}
                          :tag       :ul
