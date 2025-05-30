@@ -7,6 +7,7 @@
 #### Added
 
 - Documentation for parts & themes in the [re-com demo](https://re-com.day8.com.au/#/customization)
+- `*-tabs` components: full support for `:parts` and `:theme`
 
 #### Changed
 
