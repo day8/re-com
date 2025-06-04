@@ -12,6 +12,3 @@
 (def pill-tabs            pill-tabs/pill-tabs)
 (def horizontal-pill-tabs pill-tabs/horizontal-pill-tabs)
 (def vertical-pill-tabs   pill-tabs/vertical-pill-tabs)
-
-
-

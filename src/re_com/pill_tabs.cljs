@@ -35,7 +35,6 @@
       {:name :vertical? :type "boolean" :default false}
       {:name :parts            :required false                        :type "map"                    :validate-fn (v/parts? part-names) :description "See Parts section below."}))))
 
-
 (defn pill-tabs [& {:keys [theme pre-theme]}]
   (let [theme (theme/comp theme pre-theme)]
     (fn [& {:keys [model tabs on-change id-fn label-fn disabled? tab-type vertical?]
@@ -52,7 +51,7 @@
              part      (partial p/part part-structure props)]
          (part ::wrapper
            {:theme      theme
-            :post-props (-> (select-keys props [:class :style :attr])
+            :post-props (-> (select-keys props [:class :attr])
                             (update :attr (merge (debug/->attr props))))
             :props      {:on-change on-change
                          :vertical? vertical?
@@ -82,10 +81,11 @@
                                      {:tag :li
                                       :children
                                       [(part ::anchor
-                                         {:theme theme
-                                          :props (merge tab-props
-                                                        {:tag      :a
-                                                         :children [label]})})]})}))}}))))))
+                                         {:theme      theme
+                                          :post-props (select-keys props [:style])
+                                          :props      (merge tab-props
+                                                             {:tag      :a
+                                                              :children [label]})})]})}))}}))))))
 
 (defn vertical-pill-tabs [& {:as props}]
   [pill-tabs (assoc props :vertical? true)])

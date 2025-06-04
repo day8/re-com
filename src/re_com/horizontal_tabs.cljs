@@ -32,7 +32,7 @@
      {:name :id-fn     :required false :default :id    :type "tab -> anything"         :validate-fn ifn?            :description [:span "given an element of " [:code ":tabs"] ", returns its unique identifier (aka id)"]}
      {:name :label-fn  :required false :default :label :type "tab -> string | hiccup"  :validate-fn ifn?            :description [:span "given an element of " [:code ":tabs"] ", returns its displayable label"]}
      args/class
-     args/style
+     (assoc args/style :description [:span "Applies to the " [:code ":anchor"] " part."])
      args/attr
      (args/parts part-names)
      args/src
@@ -54,7 +54,7 @@
              part      (partial p/part part-structure props)]
          (part ::wrapper
            {:theme      theme
-            :post-props (-> (select-keys props [:class :style :attr])
+            :post-props (-> (select-keys props [:class :attr])
                             (update :attr (merge (debug/->attr props))))
             :props      {:on-change on-change
                          :tab-type  tab-type
@@ -83,7 +83,8 @@
                                      {:tag :li
                                       :children
                                       [(part ::anchor
-                                         {:theme theme
-                                          :props (merge tab-props
-                                                        {:tag      :a
-                                                         :children [label]})})]})}))}}))))))
+                                         {:theme      theme
+                                          :post-props (select-keys props [:style])
+                                          :props      (merge tab-props
+                                                             {:tag      :a
+                                                              :children [label]})})]})}))}}))))))

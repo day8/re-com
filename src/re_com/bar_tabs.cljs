@@ -31,15 +31,15 @@
 (def args-desc
   (when conf/include-args-desc?
     (->
-     (remove (comp #{:parts} :name) horizontal-tabs/args-desc)
+     (remove (comp #{:style :parts} :name) horizontal-tabs/args-desc)
      vec
      (conj
       {:name :tooltip-fn       :required false :default :tooltip      :type "tab -> string | hiccup" :validate-fn ifn?                  :description [:span "[horizontal-bar-tabs only] given an element of " [:code ":tabs"] ", returns its tooltip"]}
       {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn v/position?           :description [:span "[horizontal-bar-tabs only] relative to this anchor. One of " v/position-options-list]}
       {:name :validate?        :required false :default true          :type "boolean"                                                   :description [:span "Validate " [:code ":model"] " against " [:code ":tabs"]]}
-      {:name :vertical?        :required false :default false         :type "boolean"                                                   }
-      {:name :parts            :required false                        :type "map"                    :validate-fn (v/parts? part-names) :description "See Parts section below."}))))
-
+      {:name :vertical?        :required false :default false         :type "boolean"}
+      {:name :parts            :required false                        :type "map"                    :validate-fn (v/parts? part-names) :description "See Parts section below."}
+      {:name :style            :required false                        :type "map"                                                       :description [:span "Applies to the " [:code ":button"] " part."]}))))
 
 (defn tab-tooltip [{:keys [position label showing? anchor class style attr]
                     :or   {position :below-center}}]
@@ -72,7 +72,7 @@
              part      (partial p/part part-structure props)]
          (part ::wrapper
            {:theme      theme
-            :post-props (-> (select-keys props [:class :style :attr])
+            :post-props (-> (select-keys props [:class :attr])
                             (update :attr (merge (debug/->attr props))))
             :props      {:on-change on-change
                          :vertical? vertical?
@@ -101,11 +101,13 @@
                                                    {:key   t
                                                     :theme theme
                                                     :post-props
-                                                    (when tooltip-part
-                                                      {:attr {:on-mouse-over
-                                                              (handler-fn (reset! showing? id))
-                                                              :on-mouse-out
-                                                              (handler-fn (swap! showing? #(when-not (= id %) %)))}})
+                                                    (merge
+                                                     (select-keys props [:style])
+                                                     (when tooltip-part
+                                                       {:attr {:on-mouse-over
+                                                               (handler-fn (reset! showing? id))
+                                                               :on-mouse-out
+                                                               (handler-fn (swap! showing? #(when-not (= id %) %)))}}))
                                                     :props
                                                     (merge tab-props
                                                            {:tag      :button
