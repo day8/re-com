@@ -521,8 +521,9 @@
       #(do
          (when-let [init on-init-export-fn] (init export-fn))
          (when-let [wrapper-ref @!wrapper-ref]
-           (reset! scroll-listener (.addEventListener wrapper-ref "scroll" on-scroll!))
-           (reset! resize-observer (.observe (js/ResizeObserver. on-resize!) wrapper-ref))))
+           (when virtualize?
+             (reset! scroll-listener (.addEventListener wrapper-ref "scroll" on-scroll!))
+             (reset! resize-observer (.observe (js/ResizeObserver. on-resize!) wrapper-ref)))))
       :component-did-update
       (fn [this]
         (let [[_ & {:keys [row-tree column-tree
