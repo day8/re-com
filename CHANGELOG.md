@@ -2,15 +2,22 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.26.2 (2025-06-05)
+
 #### Changed
 
+- `tree-select-dropdown` fix missing `:counter` part
 - `nested-v-grid`: only allow vectors for `:column-tree` & `:row-tree`
+
+#### Fixed
+
+- `*-tabs`: Restored old behavior of the `:style` prop (it applies to an inner part, not the wrapper).
 
 ## 2.26.1 (2025-05-30)
 
 #### Fixed
 
-- `vertical-pill-tabs`
+- `vertical-pill-tabs`: made them actually vertical, not horizontal
 
 ## 2.26.0 (2025-05-30)
 
