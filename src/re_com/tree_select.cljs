@@ -734,8 +734,8 @@
                                                                         :children
                                                                         [(u/part (:counter parts)
                                                                            {:theme theme
+                                                                            :impl box
                                                                             :props {:part  ::counter
-                                                                                    :impl  box
                                                                                     :child
                                                                                     (str (count (if change-on-blur?
                                                                                                   @internal-model
