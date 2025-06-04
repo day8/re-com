@@ -2,6 +2,10 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+#### Changed
+
+- `nested-v-grid`: only allow vectors for `:column-tree` & `:row-tree`
+
 ## 2.26.1 (2025-05-30)
 
 #### Fixed

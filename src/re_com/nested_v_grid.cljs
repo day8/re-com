@@ -55,12 +55,12 @@
         [{:name        :row-tree
           :default     "[]"
           :type        "vector of row-specs or (nested) row-trees"
-          :validate-fn sequential?}
+          :validate-fn vector?}
 
          {:name        :column-tree
           :required    true
           :type        "vector of column-specs or (nested) column-trees"
-          :validate-fn sequential?}
+          :validate-fn vector?}
 
          {:name        :row-tree-depth
           :type        "integer"
