@@ -82,7 +82,7 @@
                                    children     (children node)
                                    children?    (seq children)
                                    cacheable?   (and (not csize) children?)
-                                   show-after?  (or show-branch-cells? (get (get-header-spec node) :show-after?))
+                                   show-after?  (or show-branch-cells? (get (get-header-spec node) :show?))
                                    add-after?   (and (not hide?) children?)
                                    after-child  [(first node)]
                                    children     (vec children)
@@ -129,6 +129,7 @@
                                (when (or (intersection? sum leaf-size window-start window-end)
                                          collect-anyway?)
                                  (let [path-meta (merge (if is-leaf? {:leaf? true} {:branch? true})
+                                                        (when show?       {:show? true})
                                                         (when branch-end? {:branch-end? true})
                                                         (when show-above? {:show-above? true})
                                                         (when last-child? {:last-child? true}))
