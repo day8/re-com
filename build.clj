@@ -1,9 +1,10 @@
 (ns build
   (:require
+   [clojure.string :as str]
    [clojure.tools.build.api :as b]))
 
 (def lib 're-com/re-com)
-(def version (System/getenv "DAY8_RELEASE_TAG"))
+(def version (str/replace (System/getenv "DAY8_RELEASE_TAG") "v" ""))
 (def main-ns 're-com.core)
 (def class-dir "target/classes")
 (def basis (delay (b/create-basis {})))
