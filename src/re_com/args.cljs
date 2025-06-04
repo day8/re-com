@@ -1,4 +1,4 @@
-(ns re-demo.args
+(ns re-com.args
   (:require
    [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps? css-class?]]))
 

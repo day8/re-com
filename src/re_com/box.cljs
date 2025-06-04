@@ -4,7 +4,7 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    [clojure.string   :as    string]
-   [re-demo.args     :as    args]
+   [re-com.args     :as    args]
    [re-com.config    :refer [include-args-desc?]]
    [re-com.debug     :refer [->attr]]
    [re-com.theme     :as    theme]

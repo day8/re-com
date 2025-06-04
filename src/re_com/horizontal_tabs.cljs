@@ -2,7 +2,7 @@
   (:require-macros
    [re-com.validate :as v])
   (:require
-   [re-demo.args :as args]
+   [re-com.args :as args]
    [re-com.config :as conf]
    [re-com.util :as u]
    [re-com.part :as p]
