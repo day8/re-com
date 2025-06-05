@@ -1,13 +1,11 @@
 (ns re-com.nested-grid
-  (:require-macros
-   [re-com.core         :refer [handler-fn]])
   (:require
    [clojure.string :as str]
-   [re-com.util :as u :refer [px deref-or-value]]
+   [re-com.util :as u :refer [px]]
    [reagent.core :as r]
    [re-com.debug :as debug]
-   [re-com.config      :as config :refer [include-args-desc?]]
-   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part? css-class?]]
+   [re-com.config :as config :refer [include-args-desc?]]
+   [re-com.validate :refer [part?]]
    [re-com.theme :as theme]
    [re-com.box :as box]
    re-com.nested-grid.theme
