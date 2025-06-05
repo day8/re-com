@@ -243,6 +243,17 @@
            "this function over the corner-headers, passing the results to " [:code ":on-export"] ". "
            "See " [:code ":on-init-export-fn"] " for how to invoke the export."]}
 
+         {:name    :sticky-child?
+          :description [:span "Causes the grid headers to \"stick\" to the parent container, "
+                        "instead of nested-grid's own the wrapper part. Works best in combination "
+                        "with " [:code "{:virtualize? false}"] " and without any height or width constraint."]}
+
+         {:name    :sticky-left
+          :description ""}
+
+         {:name    :sticky-top
+          :description ""}
+
          {:name    :virtualize?
           :type    "boolean"
           :default "true"
@@ -549,11 +560,14 @@
       (fn [{:keys
             [theme-cells? show-root-headers? style class
              on-resize
+             sticky-child? sticky-top sticky-left
              resize? resize-row-height? resize-row-header-width?
              resize-column-width? resize-column-header-height?]
             :as props
             :or
-            {show-root-headers?           true
+            {sticky-top                   0
+             sticky-left                  0
+             show-root-headers?           true
              resize-row-height?           true
              resize-row-header-width?     true
              resize-column-width?         true
@@ -794,9 +808,11 @@
               :post-props {:style style
                            :class class}
               :props
-              {:style {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
-                       :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
-               :attr  {:ref wrapper-ref!}
+              {:sticky-child? sticky-child?
+               :attr          {:ref wrapper-ref!}
+               :style
+               {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
+                :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
                :children
                [(part ::cell-grid
                   {:theme theme
@@ -814,37 +830,41 @@
                 (part ::column-header-grid
                   {:theme theme
                    :part  ::column-header-grid
-                   :props {:children (cond-> column-headers
-                                       (and resize? (not @hide-resizers?))
-                                       (concat
-                                        (when resize-column-header-height?
-                                          column-height-resizers)
-                                        (when resize-column-width?
-                                          (column-width-resizers {:offset -1}))))
-                           :style    {:grid-template-rows    @column-cross-template
-                                      :grid-template-columns @column-template}}})
+                   :props {:sticky-top sticky-top
+                           :children   (cond-> column-headers
+                                         (and resize? (not @hide-resizers?))
+                                         (concat
+                                          (when resize-column-header-height?
+                                            column-height-resizers)
+                                          (when resize-column-width?
+                                            (column-width-resizers {:offset -1}))))
+                           :style      {:grid-template-rows    @column-cross-template
+                                        :grid-template-columns @column-template}}})
                 (part ::row-header-grid
                   {:theme theme
                    :part  ::row-header-grid
-                   :props {:children (cond-> row-headers
-                                       (and resize? (not @hide-resizers?))
-                                       (concat
-                                        (when resize-row-header-width?
-                                          row-width-resizers)
-                                        (when resize-row-height?
-                                          (row-height-resizers {:offset -1}))))
-                           :style    {:grid-template-rows    @row-template
-                                      :grid-template-columns @row-cross-template}}})
+                   :props {:sticky-left sticky-left
+                           :children    (cond-> row-headers
+                                          (and resize? (not @hide-resizers?))
+                                          (concat
+                                           (when resize-row-header-width?
+                                             row-width-resizers)
+                                           (when resize-row-height?
+                                             (row-height-resizers {:offset -1}))))
+                           :style       {:grid-template-rows    @row-template
+                                         :grid-template-columns @row-cross-template}}})
                 (part ::corner-header-grid
                   {:theme theme
                    :part  ::corner-header-grid
-                   :props {:children (cond-> corner-headers
-                                       (and resize? (not @hide-resizers?))
-                                       (concat
-                                        (when resize-row-header-width?
-                                          row-width-resizers)
-                                        (when resize-column-header-height?
-                                          column-height-resizers)))
-                           :style    {:grid-template-rows    @column-cross-template
-                                      :grid-template-columns @row-cross-template}}})
+                   :props {:sticky-top  sticky-top
+                           :sticky-left sticky-left
+                           :children    (cond-> corner-headers
+                                          (and resize? (not @hide-resizers?))
+                                          (concat
+                                           (when resize-row-header-width?
+                                             row-width-resizers)
+                                           (when resize-column-header-height?
+                                             column-height-resizers)))
+                           :style       {:grid-template-rows    @column-cross-template
+                                         :grid-template-columns @row-cross-template}}})
                 (u/deref-or-value overlay)]}}))))})))

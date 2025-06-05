@@ -10,39 +10,43 @@
 
 (defn style [props & ms] (apply update props :style merge ms))
 
-(defmethod base ::nvg/wrapper [props]
-  (style props {:overflow :auto
-                :flex     "1 1 auto"
+(defmethod base ::nvg/wrapper [{:keys [sticky-child?] :as props}]
+  (style props {:overflow (when-not sticky-child? :auto)
+                :flex     "0 0 auto"
                 :display  :grid}))
 
 (defmethod base ::nvg/cell-grid
   [props]
   (style props {:display           :grid
-                :overflow :hidden
+                :overflow          :hidden
                 :grid-row-start    2
                 :grid-column-start 2}))
 
 (defmethod base ::nvg/column-header-grid
-  [props]
+  [{:keys [sticky-top] :or {sticky-top 0} :as props}]
   (style props {:display  :grid
                 :overflow :hidden
                 :position :sticky
-                :top      0}))
+                :top      sticky-top}))
 
 (defmethod base ::nvg/row-header-grid
-  [props]
+  [{:keys [sticky-left] :or {sticky-left 0} :as props}]
   (style props {:display  :grid
                 :position :sticky
-                :left      0}))
+                :top      40
+                :left     sticky-left}))
 
 (defmethod base ::nvg/corner-header-grid
-  [props]
+  [{:keys [sticky-left sticky-top]
+    :or   {sticky-left 0
+           sticky-top  0}
+    :as   props}]
   (style props {:position          :sticky
                 :display           :grid
                 :grid-row-start    1
                 :grid-column-start 1
-                :left              0
-                :top               0}))
+                :left              sticky-left
+                :top               sticky-top}))
 
 (def header-main
   (let [{:keys [sm-3 sm-4]}        default/golden-section-50
