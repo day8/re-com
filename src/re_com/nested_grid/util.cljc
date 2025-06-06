@@ -1,4 +1,4 @@
-(ns re-com.nested-v-grid.util
+(ns re-com.nested-grid.util
   (:require [clojure.string :as str]
             #?@(:cljs [[re-com.util :as u]
                        goog.string])))

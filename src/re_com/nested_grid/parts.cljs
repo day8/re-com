@@ -1,7 +1,7 @@
-(ns re-com.nested-v-grid.parts
+(ns re-com.nested-grid.parts
   (:require
    [reagent.core :as r]
-   [re-com.nested-v-grid.util :as ngu]))
+   [re-com.nested-grid.util :as ngu]))
 
 (defn box-style [position]
   (case position
@@ -57,7 +57,7 @@
                            #_#_:background-color "rgba(255,0,0,0.4)"}}]))
 
 (defn resizer [{:keys [path keypath size offset overlay on-resize index header-dimension size-dimension style]}]
-  [:div {:class "rc-nested-v-grid-resizer"
+  [:div {:class "rc-nested-grid-resizer"
          :style (merge
                  {:position :relative}
                  (case size-dimension
@@ -91,4 +91,3 @@
                                                                      :size      (-> (case size-dimension :width dx :height dy)
                                                                                     (+ size)
                                                                                     (max 10))}))}]))}]])
-

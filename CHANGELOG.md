@@ -6,8 +6,9 @@
 
 #### Added
 
-- `nested-v-grid`: `:show-zebra-stripes?` prop
-- `nested-v-grid`: `:sticky-child?`, `:sticky-top` and `:sticky-left` props
+- Turned `nested-v-grid` into the one and only `nested-grid` (deleted the old `nested-grid`).
+- `nested-grid`: `:show-zebra-stripes?` prop
+- `nested-grid`: `:sticky-child?`, `:sticky-top` and `:sticky-left` props
 
 ## 2.26.2 (2025-06-05)
 

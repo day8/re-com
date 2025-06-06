@@ -1,7 +1,7 @@
 (ns re-com.nested-grid-test
   (:require
    [cljs.test :refer-macros [is are deftest]]
-   [re-com.nested-v-grid.util :as ngu]
+   [re-com.nested-grid.util :as ngu]
    [snitch.core :refer-macros [*let]]))
 
 (def main-keys [:header-paths :keypaths :sizes :sum-size :positions])

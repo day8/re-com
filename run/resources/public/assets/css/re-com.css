@@ -1544,7 +1544,7 @@ code {
     background-color: #ddd;
 }
 
-.rc-nested-v-grid-cell-grid > div:not(.rc-nested-v-grid-resizer) {
+.rc-nested-grid-cell-grid > div:not(.rc-nested-grid-resizer) {
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
@@ -1558,7 +1558,7 @@ code {
     border-bottom: thin solid #ccc;
 }
 
-.rc-nested-v-grid-row-header-grid > div:not(.rc-nested-v-grid-resizer) {
+.rc-nested-grid-row-header-grid > div:not(.rc-nested-grid-resizer) {
     text-overflow: ellipsis;
     white-space: nowrap;
     user-select: none;
@@ -1573,7 +1573,7 @@ code {
     border-right: thin solid #aaa;;
 }
 
-.rc-nested-v-grid-row-header-grid > div:not(.rc-nested-v-grid-resizer) > div {
+.rc-nested-grid-row-header-grid > div:not(.rc-nested-grid-resizer) > div {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1583,7 +1583,7 @@ code {
     text-align: left;
 }
 
-.rc-nested-v-grid-column-header-grid > div:not(.rc-nested-v-grid-resizer) {
+.rc-nested-grid-column-header-grid > div:not(.rc-nested-grid-resizer) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1597,7 +1597,7 @@ code {
     border-bottom: thin solid #aaa;
 }
 
-.rc-nested-v-grid-column-header-grid > div:not(.rc-nested-v-grid-resizer) > div {
+.rc-nested-grid-column-header-grid > div:not(.rc-nested-grid-resizer) > div {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1607,7 +1607,7 @@ code {
     text-align: center;
 }
 
-.rc-nested-v-grid-corner-header-grid > div:not(.rc-nested-v-grid-resizer) {
+.rc-nested-grid-corner-header-grid > div:not(.rc-nested-grid-resizer) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
