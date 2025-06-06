@@ -252,15 +252,23 @@
            "See " [:code ":on-init-export-fn"] " for how to invoke the export."]}
 
          {:name        :sticky-child?
+          :type        "boolean"
+          :validate-fn boolean?
           :description [:span "Causes the grid headers to \"stick\" to the parent container, "
                         "instead of nested-grid's own the wrapper part. Works best in combination "
                         "with " [:code "{:virtualize? false}"] " and without any height or width constraint."]}
 
          {:name        :sticky-left
-          :description ""}
+          :type        "number"
+          :validate-fn number?
+          :description [:span "Offset (in pixels) from the container left edge - for use with "
+                        [:code ":sticky-child?"]]}
 
          {:name        :sticky-top
-          :description ""}
+          :type        "number"
+          :validate-fn number?
+          :description [:span "Offset (in pixels) from the container top edge - for use with "
+                        [:code ":sticky-child?"]]}
 
          {:name    :virtualize?
           :type    "boolean"

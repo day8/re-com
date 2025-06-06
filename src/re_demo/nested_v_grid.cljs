@@ -218,7 +218,7 @@
       [:li [:strong [:code ":row-tree"]] ": a vector describing the row structure."]
       [:li [:strong [:code ":cell-label"]] ": a function which, given a "
        [:code ":column-path"] " and a " [:code ":row-path"]
-       ", renders one cell, either as a string or a hiccup."]]
+       ", returns the contents of one cell, either as a string or a hiccup."]]
      "See the " [:strong "Basic Demo"] " for examples,"
      " and the " [:strong "Concepts"] " section for in-depth explanations."]]])
 
@@ -282,70 +282,6 @@
                 :color            ($ :white)}})
      (theme/merge-props props))))
 
-(defn internals-demo []
-  [rc/v-box
-   :gap "12px"
-   :children
-   [[nested-v-grid
-     {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
-      :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
-      :row-height   50
-      :column-width 60
-      :cell-label   (fn [{:keys [row-path column-path]}]
-                      [:div (pr-str column-path)
-                       [:br]
-                       (pr-str row-path)])
-      :style        {:width  500
-                     :height 600}}]
-    [rdu/zprint-code
-     '[nested-v-grid
-       {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
-        :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
-        :row-height   50
-        :column-width 60
-        :cell-label   (fn [{:keys [row-path column-path]}]
-                        [:div (pr-str column-path)
-                         [:br]
-                         (pr-str row-path)])
-        :style        {:width  500
-                       :height 600}}]]
-    #_[rdu/code
-       "[nested-v-grid
- {:column-tree  [:a
-                 [:b
-                  [:e]
-                  [:f]]
-                 [:c
-                  [:g]
-                  [:h]]
-                 [:d]]
-  :row-tree     [:u
-                 [:v
-                  [:x]
-                  [:y]]
-                 [:w
-                  [:z]
-                  [:n]]]
-  :row-height   50
-  :column-width 60
-  :cell-label   (fn [{:keys [row-path column-path]}]
-                  [:div (pr-str column-path)
-                   [:br]
-                   (pr-str row-path)])}]"]
-    [nested-v-grid
-     {:column-tree           [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
-      :row-tree              [:u [:v [:x] [:y]] [:w [:z] [:n]]]
-      :show-row-branches?    true
-      :show-column-branches? true
-      :row-height            50
-      :column-width          60
-      :cell-label            (fn [{:keys [row-path column-path]}]
-                               [:div (pr-str column-path)
-                                [:br]
-                                (pr-str row-path)])
-      :style                 {:width  500
-                              :height 600}}]]])
-
 (defn paths-example [& {:as props}]
   [nested-v-grid
    (merge
@@ -354,26 +290,23 @@
      :row-height   50
      :column-width 60
      :cell-label   (fn [{:keys [row-path column-path]}]
-                     [:div (pr-str column-path)
+                     [:div
+                      (pr-str column-path)
                       [:br]
-                      (pr-str row-path)])
-     :style        {:width  500
-                    :height 600}}
+                      (pr-str row-path)])}
     props)])
 
-(defn paths-example-code [& {:as props}]
+(defn paths-example-code []
   [rdu/zprint-code
-   `[nested-v-grid
+   '[nested-v-grid
      {:column-tree  [:a [:b [:e] [:f]] [:c [:g] [:h]] [:d]]
       :row-tree     [:u [:v [:x] [:y]] [:w [:z] [:n]]]
       :row-height   50
       :column-width 60
       :cell-label   (fn [{:keys [row-path column-path]}]
-                      [:div (pr-str column-path)
-                       [:br]
-                       (pr-str row-path)])
-      :style        {:width  500
-                     :height 600}}]])
+                      [:div
+                       (pr-str column-path)
+                       (pr-str row-path)])}]])
 
 (defn virtualization-example-code [props]
   [rdu/zprint-code
@@ -468,6 +401,22 @@
                           :id :show-row-branches?}]
           [prop-checkbox {:db props-db
                           :id :show-column-branches?}]
+          [prop-checkbox {:db props-db
+                          :id :show-zebra-stripes?}]
+          [prop-checkbox {:db props-db
+                          :id :sticky-child?}]
+          [prop-slider {:db          props-db
+                        :id          :sticky-top
+                        :default     0
+                        :default-on? false
+                        :min         0
+                        :max         100}]
+          [prop-slider {:db          props-db
+                        :id          :sticky-left
+                        :default     100
+                        :default-on? false
+                        :min         0
+                        :max         500}]
           [prop-slider {:db          props-db
                         :id          :row-tree-depth
                         :default     3
