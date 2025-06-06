@@ -792,7 +792,7 @@
                             row-keypath    (nth @row-keypaths ri)
                             column-keypath (nth @column-keypaths ci)
                             zebra-stripe?  (when show-zebra-stripes?
-                                             (even? (get @row-keypath->showing-index row-keypath 0)))
+                                             (odd? (get @row-keypath->showing-index row-keypath 0)))
                             row-meta       (cond-> (meta row-path) zebra-stripe? (assoc :zebra? true))
                             column-meta    (meta column-path)]
                      :when (and (showing? row-path)
