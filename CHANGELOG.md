@@ -2,6 +2,8 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.27.0 (2025-06-06)
+
 #### Added
 
 - `nested-v-grid`: `:show-zebra-stripes?` prop

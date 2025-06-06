@@ -1,11 +1,10 @@
 (ns re-com.nested-v-grid
   (:require-macros
-   [re-com.core     :refer [at]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
    [clojure.string :as str]
    [re-com.config :as config :refer [include-args-desc?]]
-   [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts? part? css-class?]]
+   [re-com.validate]
    [re-com.util :as u]
    [re-com.nested-v-grid.util :as ngu]
    [re-com.nested-v-grid.parts :as ngp]
