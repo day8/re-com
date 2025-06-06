@@ -1,6 +1,6 @@
 (ns re-demo.utils
-   (:require-macros
-    [re-demo.utils])
+  (:require-macros
+   [re-demo.utils])
   (:require
    [reagent.core :as r]
    [re-com.core           :as rc :refer [title line label hyperlink-href align-style at]]
@@ -31,32 +31,45 @@
 
 (defn panel-title
   "Shown across the top of each page"
-  [panel-name src1 src2]
+  [panel-name src1 src2 & {:keys [status new-in-version]}]
   [v-box
-   :children [[h-box
-               {:margin   "0px 0px 9px 0px"
-                :height   "54px"
-                :gap      "19px"
-                :align    :end
-                :children [[title
-                            {:src           (at)
-                             :label         panel-name
-                             :level         :level1
-                             :margin-bottom "0px"
-                             :margin-top    "2px"}]
-                           [h-box
-                            {:class    "all-small-caps"
-                             :gap      "7px"
-                             :align    :center
-                             :children [(when (or src1 src2)
-                                          [label :src (at) :label "source:"])
-                                        (when src1
-                                          [github-hyperlink "component" src1])
-                                        (when (and src1 src2)
-                                          [label :src (at) :label "|"  :style {:font-size "12px"}])
-                                        (when src2
-                                          [github-hyperlink "page" src2])]}]]}]
-              [line :src (at)]]])
+   :children
+   [[h-box
+     {:margin   "0px 0px 9px 0px"
+      :height   "54px"
+      :gap      "19px"
+      :align    :end
+      :children [[title
+                  {:src           (at)
+                   :label         panel-name
+                   :level         :level1
+                   :margin-bottom "0px"
+                   :margin-top    "2px"}]
+                 [h-box
+                  {:class    "all-small-caps"
+                   :gap      "7px"
+                   :align    :center
+                   :children [(when (or src1 src2)
+                                [label :src (at) :label "source:"])
+                              (when src1
+                                [github-hyperlink "component" src1])
+                              (when (and src1 src2)
+                                [label :src (at) :label "|"  :style {:font-size "12px"}])
+                              (when src2
+                                [github-hyperlink "page" src2])
+                              (when status [rc/gap :size "12px"])
+                              (when status
+                                [:span "status: "
+                                 [:span (when (= "alpha" status)
+                                          {:style {:color :red}})
+                                  status]])
+                              (when new-in-version [rc/gap :size "12px"])
+                              (when new-in-version
+                                [:span "new in version: "
+                                 [:code {:style {:font-size        10
+                                                 :border           :none}}
+                                  new-in-version]])]}]]}]
+    [line :src (at)]]])
 
 (defn title2
   "2nd level title"

@@ -48,19 +48,6 @@
                 :left              sticky-left
                 :top               sticky-top}))
 
-(def header-main
-  (let [{:keys [sm-3 sm-4]}        default/golden-section-50
-        {:keys [light-background]} default/colors]
-    {:padding-top      sm-3
-     :padding-right    sm-4
-     :padding-left     sm-4
-     :background-color light-background
-     :color            "#666"
-     :font-size        13
-     :text-overflow    :ellipsis
-     :overflow         :hidden
-     :white-space      :nowrap}))
-
 (defmethod main ::nvg/corner-header
   [{:keys [edge] :as props}]
   (style props {}
