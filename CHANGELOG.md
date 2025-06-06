@@ -2,6 +2,11 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+#### Added
+
+- `nested-v-grid`: `:show-zebra-stripes?` prop
+- `nested-v-grid`: `:sticky-child?`, `:sticky-top` and `:sticky-left` props
+
 ## 2.26.2 (2025-06-05)
 
 #### Changed
