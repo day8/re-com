@@ -33,7 +33,6 @@
   [{:keys [sticky-left] :or {sticky-left 0} :as props}]
   (style props {:display  :grid
                 :position :sticky
-                :top      40
                 :left     sticky-left}))
 
 (defmethod base ::ng/corner-header-grid
