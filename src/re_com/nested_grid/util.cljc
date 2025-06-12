@@ -53,7 +53,8 @@
                       lookup-fn]
                :or   {skip-tail?   true
                       size-cache   (volatile! {})
-                      window-end   js/Number.POSITIVE_INFINITY
+                      window-start 0
+                      window-end   ##Inf
                       default-size 20}}]
   (let [sum-size        (volatile! 0)
         depth           (volatile! 0)
@@ -71,8 +72,8 @@
         (fn walk [path node & {:keys [keypath collect-anyway? is-leaf? branch-end? last-child? hide?]
                                :or   {is-leaf? true
                                       keypath  []}}]
-          (when goog/DEBUG
-            (vswap! nodes-traversed conj node))
+          #?(:cljs (when goog/DEBUG
+                     (vswap! nodes-traversed conj node)))
           (let [sum          @sum-size
                 passed-tail? (and skip-tail? cached-sum-size (> sum window-end))]
             (cond
@@ -110,8 +111,8 @@
                                                                   (when (= i (- (count children) (when add-after? 1)))
                                                                     {:last-child? true})))))
                                        child-sizes (filter some? (transduce descend-tx conj all-children))
-                                       total-size (reduce + own-size (remove zero? child-sizes))]
-                                   (vswap! spans update own-path + (count child-sizes))
+                                       total-size (reduce + (or own-size 0) (remove zero? child-sizes))]
+                                   (vswap! spans update own-path (fnil + 0) (count child-sizes))
                                    (when-not (intersection? sum total-size window-start window-end)
                                      (vswap! paths pop)
                                      (vswap! sums pop)
@@ -139,7 +140,7 @@
                                    #_(when show?
                                        (vswap! spans
                                                (fn [m] (reduce #(update %1 %2 inc) m (ancestry leaf-path)))))
-                                   (vswap! depth max cached-depth (count new-path))
+                                   (vswap! depth max (or cached-depth 0) (count new-path))
                                    (vswap! paths conj new-path)
                                    (vswap! sums conj sum)
                                    (vswap! sizes conj leaf-size)
@@ -190,21 +191,22 @@
                   (grid-tokens header-traversal)))
    "] [" " "))
 
-(defn grid-cross-template
-  ([tokens & more-tokens]
-   (grid-cross-template (apply concat tokens more-tokens)))
-  ([tokens]
-   (let [rf (fn [s group]
-              (str s " "
-                   (cond (number? (first group))
-                         (str/join " " (map u/px group))
-                         (string? (first group))
-                         (str/join " " group))))]
-     (str
-      (->> tokens
-           (partition-by (some-fn number? string?))
-           (reduce rf ""))
-      #_" [end]"))))
+#?(:cljs
+   (defn grid-cross-template
+     ([tokens & more-tokens]
+      (grid-cross-template (apply concat tokens more-tokens)))
+     ([tokens]
+      (let [rf (fn [s group]
+                 (str s " "
+                      (cond (number? (first group))
+                            (str/join " " (map u/px group))
+                            (string? (first group))
+                            (str/join " " group))))]
+        (str
+         (->> tokens
+              (partition-by (some-fn number? string?))
+              (reduce rf ""))
+         #_" [end]")))))
 
 (defn upgrade-header-tree-schema
   ([tree]
