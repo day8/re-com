@@ -1,4 +1,5 @@
 {:paths   ["src" "test"]
+ :deps    {thheller/shadow-cljs {:mvn/version "2.28.2"}}
  :aliases {:demo {:deps {org.clojure/clojure         {:mvn/version "1.11.1"}
                          org.clojure/clojurescript   {:mvn/version "1.11.132"
                                                       :exclusions  [com.google.javascript/closure-compiler-unshaded

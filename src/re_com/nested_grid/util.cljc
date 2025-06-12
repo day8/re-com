@@ -227,3 +227,25 @@
                                                       (map (partial upgrade-header-tree-schema [])
                                                            children)))
                                     new-remainder)))))))
+
+(defn make-tree [tx]
+  (let [make-tree*
+        (fn make-tree* [tx]
+          (map (fn [[[k] :as paths]]
+                 (let [remainder (->> paths
+                                      (map rest)
+                                      (filter seq))]
+                   (into [k] (make-tree* remainder))))
+               (partition-by first tx)))]
+  (first (make-tree* tx))))
+
+(defn visible-to-sort? [{:keys [show? leaf? branch-end?]}]
+  (and (not branch-end?) (or show? leaf?)))
+
+(defn sort-header-tree [{:keys [sort-fn header-tree dimension]}]
+  (let [dim-k  (case dimension :row :row-path :column :column-path :header-path)
+        {:keys [header-paths]} (window {:header-tree header-tree})
+        path->meta             (zipmap header-paths (map meta header-paths))]
+    (make-tree
+     (filter (comp visible-to-sort? path->meta)
+             (sort-by #(sort-fn {:path % dim-k %}) header-paths)))))

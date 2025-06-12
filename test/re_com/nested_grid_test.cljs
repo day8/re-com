@@ -253,3 +253,19 @@
        Since `nested-grid` provides its own resize-buttons, it does this eviction
        just before calling the `on-resize` handler. That means `nested-grid`'s built-in
        resize behavior automatically prevents the \"memory leak\".")))
+
+(deftest sort-header-tree
+  (is (= [:a [:b] [:c]]
+         (ngu/sort-header-tree {:sort-fn     :row-path
+                                :header-tree [:a :c :b]
+                                :dimension   :row})))
+  (is (= [:a
+          [:c [:sort-me-1]]
+          [:b [:sort-me-2]]
+          [:c [:sort-me-3]]
+          [:b [:sort-me-4]]]
+         (ngu/sort-header-tree {:sort-fn     (comp peek :row-path)
+                                :header-tree [:a
+                                              [:c :sort-me-1 :sort-me-3]
+                                              [:b :sort-me-2 :sort-me-4]]
+                                :dimension   :row}))))
