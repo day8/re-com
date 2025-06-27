@@ -8,6 +8,7 @@
    [re-com.checkbox        :as checkbox]
    [re-com.close-button    :as close-button]
    [re-com.datepicker      :as datepicker]
+   [re-com.daterange       :as daterange]
    [re-com.debug           :as debug]
    [re-com.dropdown        :as dropdown]
    [re-com.input-text      :as input-text]
@@ -75,6 +76,9 @@
 
 (def datepicker                 datepicker/datepicker)
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
+
+(def daterange                  daterange/daterange)
+(def daterange-dropdown         daterange/daterange-dropdown)
 
 (def single-dropdown            dropdown/single-dropdown)
 (def dropdown                   dropdown/dropdown)

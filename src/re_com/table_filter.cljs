@@ -5,6 +5,7 @@
             [re-com.buttons :as buttons]
             [re-com.checkbox :as checkbox]
             [re-com.datepicker :as datepicker]
+            [re-com.daterange :as daterange]
             [re-com.dropdown :as dropdown]
             [re-com.input-text :as input-text]
             [re-com.multi-select :as multi-select]
@@ -73,7 +74,7 @@
    :number       [:equals :> :>= :< :<= :between :expr]
    :date         [:before :after :on :on-or-before :on-or-after :between]
    :boolean      [:is :is-not]
-   :select       [:equals :not-equals]
+   :select       [:equals :not-equals :contains :not-contains :is-any-of :is-none-of]
    :multi-select [:contains :not-contains]})
 
 (def op-label
@@ -81,67 +82,78 @@
    :> ">" :>= ">=" :< "<" :<= "<=" :between "between" :expr "expr"
    :before "before" :after "after" :on "on" :on-or-before "on/before"
    :on-or-after "on/after" :is "is" :is-not "is not" :not-equals "!="
-   :not-contains "not contains"})
+   :not-contains "not contains" :is-any-of "is any of" :is-none-of "is none of"})
 
 (defn column-by-id [table-spec id]
   (some #(when (= (:id %) id) %) table-spec))
 
 ;; ----------------------------------------------------------------------------
-;; Data Structure - Flat List with Logical Nesting
+;; Data Structure - Hierarchical Groups
 ;; ----------------------------------------------------------------------------
 
-(defn empty-rule [table-spec]
+(defn empty-filter [table-spec]
   (let [first-col (first table-spec)
         first-op (first (ops-by-type (:type first-col)))]
-    {:type :rule :col (:id first-col) :op first-op :val nil :level 0}))
+    {:type :filter :col (:id first-col) :op first-op :val nil}))
 
-(defn model->internal 
-  "Convert external model to flat internal structure"
-  [m table-spec]
-  (letfn [(flatten-rules [items level operator]
-            (mapcat (fn [item]
-                      (cond
-                        (:col item) [(assoc item :type :rule :level level :operator operator)]
-                        (:and item) (flatten-rules (:and item) level :and)
-                        (:or item) (flatten-rules (:or item) level :or)
-                        :else [])) items))]
+(defn empty-group [table-spec]
+  {:type :group :operator :and :children [(empty-filter table-spec)]})
+
+(defn external->internal
+  "Convert external model to hierarchical internal structure"
+  [external table-spec]
+  (letfn [(convert-item [item]
+            (cond
+              (:col item) (assoc item :type :filter)
+              (:and item) {:type :group :operator :and :children (mapv convert-item (:and item))}
+              (:or item) {:type :group :operator :or :children (mapv convert-item (:or item))}
+              :else nil))]
     (cond
-      (nil? m) [(empty-rule table-spec)]
-      (:col m) [(assoc m :type :rule :level 0 :operator nil)]
-      (:and m) (let [rules (flatten-rules (:and m) 0 :and)]
-                 (if (empty? rules) [(empty-rule table-spec)]
-                     (assoc-in (vec rules) [0 :operator] nil)))
-      (:or m) (let [rules (flatten-rules (:or m) 0 :or)]
-                (if (empty? rules) [(empty-rule table-spec)]
-                    (assoc-in (vec rules) [0 :operator] nil)))
-      :else [(empty-rule table-spec)])))
+      (nil? external) (empty-group table-spec)
+      (:col external) {:type :group :operator :and :children [(assoc external :type :filter)]}
+      (:and external) {:type :group :operator :and :children (mapv convert-item (:and external))}
+      (:or external) {:type :group :operator :or :children (mapv convert-item (:or external))}
+      :else (empty-group table-spec))))
 
-(defn internal->model 
-  "Convert flat internal structure back to external model"
-  [rules]
-  (letfn [(group-by-level [rules]
-            (if (= 1 (count rules))
-              (let [rule (first rules)]
-                (dissoc rule :type :level :operator))
-              (let [grouped (group-by :operator rules)
-                    and-rules (get grouped :and [])
-                    or-rules (get grouped :or [])
-                    nil-rules (get grouped nil [])]
-                (cond
-                  (and (seq and-rules) (empty? or-rules))
-                  {:and (mapv #(dissoc % :type :level :operator) (concat nil-rules and-rules))}
-                  
-                  (and (seq or-rules) (empty? and-rules))
-                  {:or (mapv #(dissoc % :type :level :operator) (concat nil-rules or-rules))}
-                  
-                  :else
-                  {:and (mapv #(dissoc % :type :level :operator) rules)}))))]
-    (when (seq rules)
-      (let [clean-rules (remove #(nil? (:col %)) rules)]
-        (when (seq clean-rules)
-          (if (= 1 (count clean-rules))
-            (dissoc (first clean-rules) :type :level :operator)
-            (group-by-level clean-rules)))))))
+(defn internal->external
+  "Convert hierarchical internal structure back to external model"
+  [internal]
+  (letfn [(convert-item [item]
+            (case (:type item)
+              :filter (dissoc item :type)
+              :group (let [children (mapv convert-item (:children item))]
+                       (when (seq children)
+                         (if (= 1 (count children))
+                           (first children)
+                           {(:operator item) children})))
+              nil))]
+    (when internal
+      (let [result (convert-item internal)]
+        (cond
+          (nil? result) nil
+          (and (map? result) (or (:and result) (:or result))) result
+          (map? result) result
+          :else nil)))))
+
+;; Path-based operations for nested updates
+(defn update-at-path [state path update-fn]
+  (if (empty? path)
+    (update-fn state)
+    (update-in state path update-fn)))
+
+(defn remove-at-path [state path]
+  (let [parent-path (butlast path)
+        index (last path)]
+    (if (empty? parent-path)
+      state
+      (update-in state (concat parent-path [:children])
+                 (fn [children] (vec (concat (subvec children 0 index)
+                                           (subvec children (inc index)))))))))
+
+(defn add-at-path [state path item]
+  (if (empty? path)
+    state
+    (update-in state path (fn [children] (conj (or children []) item)))))
 
 ;; ----------------------------------------------------------------------------
 ;; Validation  
@@ -169,6 +181,11 @@
                                        (= 2 (count val))
                                        (every? valid-date? val))
                          (valid-date? val))
+               :select (case op
+                         (:is-any-of :is-none-of :contains :not-contains)
+                         (and (set? val) (seq val))
+                         ;; For single value operators
+                         (some? val))
                true)))))
 
 ;; ----------------------------------------------------------------------------
@@ -198,180 +215,255 @@
                 :else [input-text/input-text :model val :width "80px"
                        :on-change #(on-change (assoc rule :val %))])
       :date (if (= op :between)
-              [box/h-box
-               :gap "4px"
-               :children [[datepicker/datepicker :model (first val)
-                           :on-change #(on-change (assoc rule :val [% (second val)]))]
-                          [datepicker/datepicker :model (second val)
-                           :on-change #(on-change (assoc rule :val [(first val) %]))]]]
-              [datepicker/datepicker :model val :on-change #(on-change (assoc rule :val %))])
+              [daterange/daterange-dropdown
+               :model val
+               :width "200px"
+               :on-change #(on-change (assoc rule :val %))]
+              [datepicker/datepicker-dropdown 
+               :model val 
+               :width "120px"
+               :on-change #(on-change (assoc rule :val %))])
       :boolean [checkbox/checkbox :model (boolean val)
                 :on-change #(on-change (assoc rule :val %))]
-      :select [dropdown/single-dropdown
-               :model val
-               :choices options
-               :on-change #(on-change (assoc rule :val %))]
+      :select (if (#{:is-any-of :is-none-of :contains :not-contains} op)
+                ;; Multi-value selection for these operators
+                [multi-select/multi-select
+                 :model (or val #{})
+                 :choices options
+                 :placeholder "Select values..."
+                 :width "200px"
+                 :on-change #(on-change (assoc rule :val %))]
+                ;; Single value selection for equals/not-equals
+                [dropdown/single-dropdown
+                 :model val
+                 :choices options
+                 :width "120px"
+                 :on-change #(on-change (assoc rule :val %))])
       :multi-select [multi-select/multi-select
                      :model (or val #{})
                      :choices options
                      :on-change #(on-change (assoc rule :val %))]
       [text/label :label ""])))
 
-(defn add-buttons [on-add-and on-add-or]
-  [box/h-box
-   :align :center
-   :gap "4px"
-   :children [
-     [buttons/button
-      :label "+ AND"
-      :class "btn-outline"
-      :style {:font-size "11px" :padding "2px 6px"}
-      :on-click on-add-and]
-     [buttons/button
-      :label "+ OR" 
-      :class "btn-outline"
-      :style {:font-size "11px" :padding "2px 6px"}
-      :on-click on-add-or]]])
+(defn add-filter-dropdown [path update-fn table-spec]
+  (let [show-menu? (r/atom false)]
+    (fn [path update-fn table-spec]
+      [box/h-box
+       :align :center
+       :gap "4px"
+       :style {:position "relative"}
+       :children [
+         [buttons/button
+          :label "+ Add filter"
+          :class "btn-outline"
+          :style {:font-size "13px" :padding "8px 14px" :color "#475569" :font-weight "500" :border "1px solid #e2e8f0" :border-radius "6px" :background-color "#ffffff" :hover {:background-color "#f8fafc"}}
+          :on-click #(swap! show-menu? not)]
+         (when @show-menu?
+           [box/v-box
+            :style {:position "absolute"
+                    :top "100%"
+                    :left "0"
+                    :z-index "1000"
+                    :background-color "#ffffff"
+                    :border "1px solid #e1e5e9"
+                    :border-radius "8px"
+                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                    :min-width "160px"
+                    :margin-top "4px"}
+            :children [
+              [buttons/button
+               :label "Add a filter"
+               :class "btn-link"
+               :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151" :hover {:background-color "#f8fafc"}}
+               :on-click #(do (reset! show-menu? false)
+                              (update-fn (fn [state]
+                                           (let [current-children (get-in state (conj path :children))
+                                                 is-root? (empty? path)
+                                                 should-auto-group? (and is-root? (= (count current-children) 1))]
+                                             (if should-auto-group?
+                                               ;; Auto-create group when adding second rule at root
+                                               (update-at-path state path 
+                                                             (fn [group] 
+                                                               (assoc group :children 
+                                                                     [(assoc (first current-children) :type :filter)
+                                                                      (empty-filter table-spec)])))
+                                               ;; Normal add
+                                               (add-at-path state (conj path :children) (empty-filter table-spec)))))))]
+              [buttons/button
+               :label "Add a filter group"
+               :class "btn-link"
+               :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151" :hover {:background-color "#f8fafc"}}
+               :on-click #(do (reset! show-menu? false)
+                              (update-fn (fn [state] (add-at-path state (conj path :children) (empty-group table-spec)))))]]])]])))
 
-(defn rule-row [table-spec rule rule-idx update-rule! remove-rule!]
-  (let [spec (column-by-id table-spec (:col rule))
+(defn filter-context-menu [path update-fn filter-item]
+  (let [show-menu? (r/atom false)]
+    (fn [path update-fn filter-item]
+      [box/h-box
+       :style {:position "relative"}
+       :children [
+         [buttons/button
+          :label "⋯"
+          :class "btn-link"
+          :style {:color "#9ca3af" :font-size "16px" :padding "6px 8px" :border "none" :background "transparent" :border-radius "4px" :hover {:background-color "#f1f5f9" :color "#64748b"}}
+          :on-click #(swap! show-menu? not)]
+         (when @show-menu?
+           [box/v-box
+            :style {:position "absolute"
+                    :top "100%"
+                    :right "0"
+                    :z-index "1000"
+                    :background-color "#ffffff"
+                    :border "1px solid #e1e5e9"
+                    :border-radius "8px"
+                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                    :min-width "160px"
+                    :margin-top "4px"}
+            :children [
+              [buttons/button
+               :label "Remove"
+               :class "btn-link"
+               :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#dc2626" :hover {:background-color "#fef2f2"}}
+               :on-click #(do (reset! show-menu? false)
+                              (update-fn (fn [state] (remove-at-path state path))))]
+              [buttons/button
+               :label "Duplicate"
+               :class "btn-link"
+               :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151" :hover {:background-color "#f8fafc"}}
+               :on-click #(do (reset! show-menu? false)
+                              (let [parent-path (butlast path)
+                                    index (last path)]
+                                (update-fn (fn [state] (add-at-path state (conj parent-path :children) filter-item)))))]
+              [buttons/button
+               :label "Turn into group"
+               :class "btn-link"
+               :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151" :hover {:background-color "#f8fafc"}}
+               :on-click #(do (reset! show-menu? false)
+                              (update-fn (fn [state] (update-at-path state path (fn [_] {:type :group :operator :and :children [filter-item]})))))]]])]])))
+
+(defn filter-component [table-spec filter-item path update-fn]
+  (let [spec (column-by-id table-spec (:col filter-item))
         ops (ops-by-type (:type spec))
-        valid? (rule-valid? rule table-spec)
+        valid? (rule-valid? filter-item table-spec)
         col-opts (mapv #(hash-map :id (:id %) :label (:name %)) table-spec)
-        op-opts (mapv #(hash-map :id % :label (get op-label % (name %))) ops)
-        level (:level rule 0)
-        operator (:operator rule)]
+        op-opts (mapv #(hash-map :id % :label (get op-label % (name %))) ops)]
     [box/h-box
      :align :center
-     :gap "6px"
-     :style {:padding "8px" 
-             :margin-left (str (* level 20) "px")
-             :background-color (if (> level 0) "#f8f9fa" "#fff")
-             :border "1px solid #e0e0e0"
-             :border-radius "4px"
-             :margin-bottom "4px"}
+     :gap "8px"
+     :style {:padding "10px 16px"
+             :background-color "#ffffff"
+             :border "1px solid #e1e5e9"
+             :border-radius "8px"
+             :margin "4px 0"
+             :box-shadow "0 1px 2px rgba(0, 0, 0, 0.04)"}
+     :children [[dropdown/single-dropdown
+                   :model (:col filter-item)
+                   :choices col-opts
+                   :width "120px"
+                   :on-change #(let [cs (column-by-id table-spec %)]
+                                 (update-fn (fn [state] (update-at-path state path
+                                                                      (fn [f] (assoc f :col % :op (first (ops-by-type (:type cs))) :val nil))))))]
+                  [dropdown/single-dropdown
+                   :model (:op filter-item)
+                   :choices op-opts
+                   :width "110px"
+                   :on-change #(update-fn (fn [state] (update-at-path state path (fn [f] (assoc f :op % :val nil)))))]
+                  [value-editor spec filter-item #(update-fn (fn [state] (update-at-path state path (constantly %))))]
+                  [filter-context-menu path update-fn filter-item]
+                  (when-not valid?
+                    [buttons/md-icon-button 
+                     :md-icon-name "zmdi-alert-triangle" 
+                     :size :smaller
+                     :style {:color "red" :pointer-events "none"}
+                     :tooltip "Invalid rule"])]]))
+
+
+(declare group-component)
+
+(defn group-component [table-spec group path update-fn depth]
+  (let [children (:children group)
+        is-root? (zero? depth)
+        show-group-ui? (> (count children) 1)
+        indent-px (* depth 60)] ; 60px per nesting level to account for operator space
+    [box/v-box
+     :style (merge {:padding (if (and show-group-ui? (not is-root?)) "16px" "0")
+                    :margin "8px 0"
+                    :margin-left (str indent-px "px")
+                    :position "relative"}
+                   (when (and show-group-ui? (not is-root?))
+                     {:background-color "#ffffff"
+                      :border "1px solid #e1e5e9"
+                      :border-radius "8px"
+                      :box-shadow "0 1px 3px rgba(0, 0, 0, 0.06)"
+                      :border-left "3px solid #3b82f6"}))
+     :gap "4px"
      :children [
-       (when operator
-         [text/label 
-          :label (case operator :and "AND" :or "OR" "")
-          :style {:font-weight "bold" 
-                  :color (case operator :and "#1976d2" :or "#388e3c" "#666")
-                  :margin-right "8px"
-                  :font-size "12px"}])
-       [dropdown/single-dropdown
-        :model (:col rule)
-        :choices col-opts
-        :width "120px"
-        :on-change #(let [cs (column-by-id table-spec %)]
-                      (update-rule! rule-idx
-                                    (assoc rule :col % :op (first (ops-by-type (:type cs))) :val nil)))]
-       [dropdown/single-dropdown
-        :model (:op rule)
-        :choices op-opts
-        :width "110px"
-        :on-change #(update-rule! rule-idx (assoc rule :op % :val nil))]
-       [value-editor spec rule #(update-rule! rule-idx %)]
-       [buttons/md-icon-button 
-        :md-icon-name "zmdi-delete" 
-        :size :smaller
-        :style {:color "#d32f2f"}
-        :tooltip "Remove rule"
-        :on-click #(remove-rule! rule-idx)]
-       (when-not valid?
-         [buttons/md-icon-button 
-          :md-icon-name "zmdi-alert-triangle" 
-          :size :smaller
-          :style {:color "red" :pointer-events "none"}
-          :tooltip "Invalid rule"])]]))
+       [box/v-box
+        :gap "4px"
+        :children (concat
+                    (map-indexed
+                      (fn [idx child]
+                        (let [child-path (conj path :children idx)
+                              show-operator? (> idx 0)
+                              operator-btn (when show-operator?
+                                            [buttons/button
+                                             :label (case (:operator group) :and "and" :or "or")
+                                             :class "btn-link"
+                                             :style {:font-size "12px" :font-weight "500" :color "#6b7280" 
+                                                    :padding "4px 8px" :margin-right "8px" :margin-left "0px"
+                                                    :background-color "#f8fafc" :border-radius "4px" 
+                                                    :border "1px solid #e2e8f0" :min-width "50px"}
+                                             :on-click #(update-fn (fn [state] (update-at-path state path (fn [g] (assoc g :operator (if (= (:operator g) :and) :or :and))))))])]
+                          [box/h-box
+                           :align :center
+                           :gap "8px"
+                           :children (concat
+                                      (when operator-btn [operator-btn])
+                                      [(case (:type child)
+                                         :filter [filter-component table-spec child child-path update-fn]
+                                         :group [group-component table-spec child child-path update-fn (inc depth)])])]))
+                      children)
+                    [[add-filter-dropdown path update-fn table-spec]])]]]))
 
 (defn table-filter
-  "Intuitive table filter with non-disruptive nesting."
+  "Notion-style hierarchical table filter with true group-based filtering."
   [table-spec model callback & {:keys [class style attr]}]
   (let [ext-model (r/atom model)
-        state (r/atom (model->internal model table-spec))]
+        state (r/atom (external->internal model table-spec))]
     (fn table-filter-render
       [table-spec model callback & {:keys [class style attr]}]
       (when (not= model @ext-model)
         (reset! ext-model model)
-        (reset! state (model->internal model table-spec)))
-      (letfn [(update-rule! [idx new-rule]
-                (swap! state assoc idx new-rule)
-                (callback (internal->model @state)))
-              (remove-rule! [idx]
-                (swap! state #(vec (concat (subvec % 0 idx) (subvec % (inc idx)))))
-                (callback (internal->model @state)))
-              (add-rule-after! [idx operator]
-                (let [current-rule (nth @state idx)
-                      current-level (:level current-rule)
-                      new-rule (assoc (empty-rule table-spec) 
-                                     :level current-level 
-                                     :operator operator)
-                      insert-pos (inc idx)]
-                  (swap! state #(vec (concat (subvec % 0 insert-pos)
-                                             [new-rule]
-                                             (subvec % insert-pos))))
-                  (callback (internal->model @state))))
-              (add-rule-nested! [idx operator]
-                (let [current-rule (nth @state idx)
-                      current-level (:level current-rule)
-                      new-rule (assoc (empty-rule table-spec) 
-                                     :level (inc current-level) 
-                                     :operator operator)
-                      insert-pos (inc idx)]
-                  (swap! state #(vec (concat (subvec % 0 insert-pos)
-                                             [new-rule]
-                                             (subvec % insert-pos))))
-                  (callback (internal->model @state))))
-              (add-rule-end! [operator]
-                (let [new-rule (assoc (empty-rule table-spec) :level 0 :operator operator)]
-                  (swap! state #(conj % new-rule))
-                  (callback (internal->model @state))))]
+        (reset! state (external->internal model table-spec)))
+      (letfn [(update-state! [update-fn]
+                (swap! state update-fn)
+                (let [new-external (internal->external @state)]
+                  (reset! ext-model new-external)
+                  (callback new-external)))
+              (clear-filters! []
+                (reset! state (empty-group table-spec))
+                (reset! ext-model nil)
+                (callback nil))]
         
         [box/v-box
          :class class
-         :style (merge {:border "1px solid #ddd" 
-                        :border-radius "4px" 
-                        :padding "12px" 
-                        :background-color "#fafafa"} 
+         :style (merge {:border "1px solid #e1e5e9" 
+                        :border-radius "8px" 
+                        :padding "20px" 
+                        :background-color "#ffffff"
+                        :box-shadow "0 2px 4px rgba(0, 0, 0, 0.04)"} 
                        style)
          :attr attr
-         :gap "8px"
+         :gap "12px"
          :children [
-           [box/v-box
-            :gap "2px"
-            :children (concat
-                        (map-indexed 
-                          (fn [idx rule]
-                            [box/v-box
-                             :gap "4px"
-                             :children [
-                               [rule-row table-spec rule idx update-rule! remove-rule!]
-                               [box/h-box
-                                :gap "8px"
-                                :style {:margin-left (str (+ (* (:level rule 0) 20) 20) "px")}
-                                :children [
-                                  [text/label :label "Continue:" :style {:font-size "10px" :color "#888"}]
-                                  [add-buttons #(add-rule-after! idx :and) #(add-rule-after! idx :or)]
-                                  [text/label :label "Group:" :style {:font-size "10px" :color "#888"}]
-                                  [add-buttons #(add-rule-nested! idx :and) #(add-rule-nested! idx :or)]]]]])
-                          @state)
-                        (when (empty? @state)
-                          [[add-buttons #(add-rule-end! :and) #(add-rule-end! :or)]]))]
+           [group-component table-spec @state [] update-state! 0]
            [box/h-box
-            :gap "12px"
+            :gap "16px"
             :align :center
+            :justify :between
             :children [
               [buttons/button
-               :label "Clear all"
+               :label "Clear filters"
                :class "btn-outline"
-               :on-click #(do 
-                            (reset! state [(empty-rule table-spec)])
-                            (reset! ext-model nil)
-                            (callback nil))]
-              (when (seq @state)
-                [box/h-box
-                 :gap "4px"
-                 :align :center
-                 :children [
-                   [text/label :label "Add to end:" :style {:font-size "11px" :color "#666"}]
-                   [add-buttons #(add-rule-end! :and) #(add-rule-end! :or)]]])]]]]))))
+               :style {:font-size "13px" :color "#64748b" :font-weight "500" :padding "8px 16px" :border "1px solid #e2e8f0" :border-radius "6px" :background-color "#ffffff"}
+               :on-click clear-filters!]]]]]))))
