@@ -45,24 +45,7 @@
          :children
          [[v-box :src (at) :gap "10px" :width "450px"
            :children
-           [[title2 "Notes"]
-            [p-span "An intuitive table filter with smart grouping logic:"]
-            [:ul
-             [:li "Progressive complexity - starts with one rule"]
-             [:li "Smart + buttons - click after any rule to add AND/OR"]
-             [:li "Intelligent grouping - same operators extend lists, different create sub-groups"]
-             [:li "Visual hierarchy - nested boxes show logical relationships"]
-             [:li "Multiple data types: text, number, date, boolean, select, multi-select"]
-             [:li "Real-time validation with warning icons"]]
-            [title3 "How it works:"]
-            [:ul
-             [:li "Start with one empty rule (must be filled for valid filter)"]
-             [:li "Click + after rule → choose AND/OR → smart grouping happens"]
-             [:li "Same operator (AND + AND) = extends current list"]
-             [:li "Different operator (AND + OR) = creates smart sub-grouping"]
-             [:li "Visual boxes show which rules are grouped together"]]
-            [title3 "Table Spec"]
-            [p-span "Define your table columns with their types and options:"]
+           [
 
             [:<>
              [:style ".custom-chosen-single span { margin-right: 2px !important; }"]
