@@ -33,6 +33,7 @@
    [re-com.v-table         :as v-table]
    [re-com.simple-v-table  :as simple-v-table]
    [re-com.nested-grid     :as nested-grid]
+   [re-com.table-filter    :as table-filter]
    [re-com.theme           :as theme]))
 
 ;; -----------------------------------------------------------------------------
@@ -60,6 +61,7 @@
 (def show-row-data-on-alt-click v-table/show-row-data-on-alt-click)
 (def simple-v-table             simple-v-table/simple-v-table)
 (def nested-grid                nested-grid/nested-grid)
+(def table-filter               table-filter/table-filter)
 
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)
