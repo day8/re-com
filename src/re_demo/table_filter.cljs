@@ -72,11 +72,10 @@
           [v-box :src (at) :width "700px" :gap "10px"
            :children
            [[title2 "Demo"]
-            [v-box :src (at) :gap "15px" :style {:padding "20px" :border "1px solid #ddd"}
+            [v-box :src (at) :gap "15px" :style {:padding "20px"}
              :children
              [[label :label "Table Filter:"]
-              [table-filter sample-table-spec @filter-model
-               #(reset! filter-model %)]
+              [table-filter sample-table-spec @filter-model #(reset! filter-model %)]
               [title3 "Current Filter Model:"]
               [:pre {:style {:background-color "#f9f9f9" :padding "10px" :font-size "12px" :max-height "200px" :overflow "auto"}}
                (if @filter-model
@@ -85,6 +84,6 @@
               [title3 "Debug Info:"]
               [p-span "Filter is " (if @filter-model "active" "empty")]
               (when @filter-model
-                [p-span " - Contains " (count (tree-seq #(or (:and %) (:or %) (:not %))
-                                                        #(or (:and %) (:or %) (vector (:not %)))
+                [p-span " - Contains " (count (tree-seq #(= (:type %) :group)
+                                                        :children
                                                         @filter-model)) " nodes"])]]]]]]]])))
