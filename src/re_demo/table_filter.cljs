@@ -75,7 +75,10 @@
             [v-box :src (at) :gap "15px" :style {:padding "20px"}
              :children
              [[label :label "Table Filter:"]
-              [table-filter sample-table-spec @filter-model #(reset! filter-model %)]
+              [table-filter 
+               :table-spec sample-table-spec 
+               :model @filter-model 
+               :on-change #(reset! filter-model %)]
               [title3 "Current Filter Model:"]
               [:pre {:style {:background-color "#f9f9f9" :padding "10px" :font-size "12px" :max-height "200px" :overflow "auto"}}
                (if @filter-model
