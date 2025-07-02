@@ -1,22 +1,14 @@
 (ns re-demo.daterange
-  (:require-macros
-   [reagent.ratom     :refer [reaction]]
-   [re-com.core       :refer []])
+  ;(:require-macro)
   (:require
    [goog.date.Date]
-   [reagent.core      :as    reagent]
-   [cljs-time.core    :refer [today days minus plus day-of-week before?]]
-   [cljs-time.coerce  :refer [to-local-date]]
+   [reagent.core      :as     reagent]
+   [cljs-time.core    :as     cljs-time]
    [cljs-time.format  :refer [formatter unparse]]
-   [re-com.core       :refer [at h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button checkbox]]
-   [re-com.datepicker :refer [iso8601->date datepicker-parts-desc datepicker-dropdown-args-desc]]
-   [re-com.daterange  :refer [daterange daterange-args-desc daterange-parts-desc daterange-dropdown-args-desc daterange-dropdown]] ;; TODO [GR-REMOVE] Removed unused `:as daterange`
-   [re-com.validate   :refer [date-like? css-class?]]
-   [re-com.util       :refer [now->utc px]]
-   [cljs-time.core    :as cljs-time]
-   [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]])
-  (:import
-   [goog.i18n DateTimeSymbols_pl]))
+   [re-com.core       :refer [at h-box v-box box gap single-dropdown
+                              checkbox title p checkbox daterange daterange-dropdown]]
+   [re-demo.utils     :refer [panel-title title2  parts-table args-table  status-text]]
+   [re-com.daterange  :refer [daterange-parts-desc daterange-dropdown-args-desc]]))
 
 (def week-start-choices
   [{:id 1 :label "Monday"}
