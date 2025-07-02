@@ -148,6 +148,7 @@
     [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys"}
      {:name :model           :required false :default nil           :type "map"              :validate-fn model?                          :description "Hierarchical filter model with :id, :type, and :children structure. If nil, starts with empty filter."}
      {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description "Callback function called when filter model changes"}
+     {:name :depth           :required false :default 2}
      {:name :disabled?       :required false :default false         :type "boolean"          :validate-fn boolean?                        :description "If true, disables all filter interactions"}
      {:name :class           :required false                        :type "string"           :validate-fn css-class?                      :description "CSS class names, space separated (applies to wrapper)"}
      {:name :style           :required false                        :type "CSS style map"    :validate-fn css-style?                      :description "CSS styles to apply to wrapper"}
@@ -228,11 +229,11 @@
   "Convert a filter to a group containing that filter"
   [tree target-id]
   (update-item-by-id tree target-id
-    (fn [item]
-      (if (= (:type item) :filter)
-        {:id (generate-id) :type :group :operator :and
-         :children [(assoc item :id (generate-id))]}
-        item))))
+                     (fn [item]
+                       (if (= (:type item) :filter)
+                         {:id (generate-id) :type :group :operator :and
+                          :children [(assoc item :id (generate-id))]}
+                         item))))
 
 (defn clean-empty-groups
   "Recursively remove groups with no children, except the root group"
@@ -410,10 +411,10 @@
 (defn add-filter-dropdown
   "The button to add filters, not an actual dropdown component for visual reason
    Has some JS stuff to add expected click away behaviour"
-  [group-id update-fn table-spec depth]
+  [group-id update-state! table-spec max-depth depth]
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
-    (fn [group-id update-fn table-spec depth]
+    (fn [group-id update-state! table-spec max-depth depth]
       ;; Add click-away listener when menu is open
       (when @show-menu?
         (js/setTimeout
@@ -450,26 +451,26 @@
                                   :class "btn-link"
                                   :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
                                   :on-click #(do (close-menu!)
-                                                 (update-fn (fn [state]
-                                                              (add-child-to-group state group-id (empty-filter table-spec)))))]]
+                                                 (update-state! (fn [state]
+                                                                  (add-child-to-group state group-id (empty-filter table-spec)))))]]
               ;; Only show "Add a filter group" if depth < 2 (max 3 levels: 0, 1, 2)
-                                (when (< depth 2)
+                                (when (< depth max-depth)
                                   [[buttons/button
                                     :label "Add a filter group"
                                     :class "btn-link"
                                     :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
                                     :on-click #(do (close-menu!)
-                                                   (update-fn (fn [state]
-                                                                (add-child-to-group state group-id (empty-group table-spec)))))]]))])]])))
+                                                   (update-state! (fn [state]
+                                                                    (add-child-to-group state group-id (empty-group table-spec)))))]]))])]])))
 
 (defn group-context-menu
   "The little ... button for a group
    Also not a re-com/dropdown for UI reasons
    Also has JS clickaway behaviour"
-  [group-id update-fn table-spec]
+  [group-id update-state! table-spec]
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
-    (fn [group-id update-fn table-spec]
+    (fn [group-id update-state! table-spec]
       ;; Add click-away listener when menu is open
       (when @show-menu?
         (js/setTimeout
@@ -503,20 +504,20 @@
                                  :class "btn-link"
                                  :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#dc2626"}
                                  :on-click #(do (close-menu!)
-                                                (update-fn (fn [state]
+                                                (update-state! (fn [state]
                                            ;; Safety check: don't delete root group
-                                                             (if (= (:id state) group-id)
-                                                               state
-                                                               (remove-item-with-cleanup state group-id table-spec)))))]]])]])))
+                                                                 (if (= (:id state) group-id)
+                                                                   state
+                                                                   (remove-item-with-cleanup state group-id table-spec)))))]]])]])))
 
 (defn filter-context-menu
   "The ... button associated with a single filter
    Also not a re-com/dropdown for UI reasons
    Also has JS clickaway behaviour"
-  [item-id update-fn filter-item table-spec depth]
+  [item-id update-state! filter-item table-spec max-depth depth]
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
-    (fn [item-id update-fn filter-item table-spec depth]
+    (fn [item-id update-state! filter-item table-spec max-depth depth]
       ;; Add click-away listener when menu is open
       (when @show-menu?
         (js/setTimeout
@@ -550,23 +551,23 @@
                                  :class "btn-link"
                                  :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#dc2626"}
                                  :on-click #(do (close-menu!)
-                                                (update-fn (fn [state] (remove-item-with-cleanup state item-id table-spec))))]
+                                                (update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec))))]
                                 [buttons/button
                                  :label "Duplicate"
                                  :class "btn-link"
                                  :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
                                  :on-click #(do (close-menu!)
-                                                (update-fn (fn [state] (duplicate-item-by-id state item-id))))]
-                                (when (< depth 2) [buttons/button
-                                                   :label "Turn into group"
-                                                   :class "btn-link"
-                                                   :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                                                   :on-click #(do (close-menu!)
-                                                                  (update-fn (fn [state] (convert-filter-to-group state item-id))))])]])]])))
+                                                (update-state! (fn [state] (duplicate-item-by-id state item-id))))]
+                                (when (< depth max-depth) [buttons/button
+                                                           :label "Turn into group"
+                                                           :class "btn-link"
+                                                           :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
+                                                           :on-click #(do (close-menu!)
+                                                                          (update-state! (fn [state] (convert-filter-to-group state item-id))))])]])]])))
 
 (defn filter-component
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a ... button"
-  [table-spec filter-item update-fn depth & {:keys [parts disabled?]}]
+  [table-spec filter-item update-state! max-depth depth & {:keys [parts disabled?]}]
   (let [spec (column-by-id table-spec (:col filter-item))
         ops (ops-by-type (:type spec))
         valid? (rule-valid? filter-item table-spec)
@@ -578,10 +579,10 @@
      :class (get-in parts [:filter :class])
      :style (merge {:padding "10px 16px"
                     :background-color "#ffffff"
-                    :border "1px solid #e1e5e9"
-                    :border-radius "8px"
+                    ;:border "1px solid #e1e5e9"
+                    ;:border-radius "8px"
                     :margin "4px 0"
-                    :box-shadow "0 1px 2px rgba(0, 0, 0, 0.04)"
+                    ;:box-shadow "0 1px 2px rgba(0, 0, 0, 0.04)"
                     :white-space "nowrap"}
                    (get-in parts [:filter :style]))
      :attr (get-in parts [:filter :attr])
@@ -594,8 +595,8 @@
                  :attr (get-in parts [:column-dropdown :attr])
                  :disabled? disabled?
                  :on-change #(let [cs (column-by-id table-spec %)]
-                               (update-fn (fn [state] (update-item-by-id state (:id filter-item)
-                                                                         (fn [f] (assoc f :col % :op (first (ops-by-type (:type cs))) :val nil))))))]
+                               (update-state! (fn [state] (update-item-by-id state (:id filter-item)
+                                                                             (fn [f] (assoc f :col % :op (first (ops-by-type (:type cs))) :val nil))))))]
                 [dropdown/single-dropdown
                  :model (:op filter-item)
                  :choices op-opts
@@ -604,9 +605,9 @@
                  :style (get-in parts [:operator-dropdown :style])
                  :attr (get-in parts [:operator-dropdown :attr])
                  :disabled? disabled?
-                 :on-change #(update-fn (fn [state] (update-item-by-id state (:id filter-item) (fn [f] (assoc f :op % :val nil)))))]
-                [value-entry-box spec filter-item #(update-fn (fn [state] (update-item-by-id state (:id filter-item) (constantly %)))) :parts parts :disabled? disabled?]
-                [filter-context-menu (:id filter-item) update-fn filter-item table-spec depth]
+                 :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (fn [f] (assoc f :op % :val nil)))))]
+                [value-entry-box spec filter-item #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %)))) :parts parts :disabled? disabled?]
+                [filter-context-menu (:id filter-item) update-state! filter-item table-spec max-depth depth]
                 (when-not valid?
                   [buttons/md-icon-button
                    :md-icon-name "zmdi-alert-triangle"
@@ -616,7 +617,7 @@
 
 (defn group-component
   "component to group filters together"
-  [table-spec group update-fn depth & {:keys [parts disabled?]}]
+  [table-spec group update-state! max-depth depth & {:keys [parts disabled?]}]
   (let [children (:children group)
         is-root? (zero? depth)
         show-group-ui? (if is-root?
@@ -638,7 +639,7 @@
      :children [(when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
                   [box/h-box
                    :style {:position "absolute" :top "0px" :right "8px" :z-index "10"}
-                   :children [[group-context-menu (:id group) update-fn table-spec]]])
+                   :children [[group-context-menu (:id group) update-state! table-spec]]])
                 [box/v-box
                  :gap "4px"
                  :children (concat
@@ -657,7 +658,7 @@
                                                                    (get-in parts [:operator-label :style]))
                                                      :attr (get-in parts [:operator-label :attr])
                                                      :disabled? disabled?
-                                                     :on-click #(update-fn (fn [state] (update-item-by-id state (:id group) (fn [g] (assoc g :operator (if (= (:operator g) :and) :or :and))))))])
+                                                     :on-click #(update-state! (fn [state] (update-item-by-id state (:id group) (fn [g] (assoc g :operator (if (= (:operator g) :and) :or :and))))))])
                                      where-label (when show-where?
                                                    [text/label
                                                     :label "Where"
@@ -674,10 +675,10 @@
                                              (when where-label [where-label])
                                              (when operator-btn [operator-btn])
                                              [(case (:type child)
-                                                :filter [filter-component table-spec child update-fn depth :parts parts :disabled? disabled?]
-                                                :group [group-component table-spec child update-fn (inc depth) :parts parts :disabled? disabled?])])]))
+                                                :filter [filter-component table-spec child update-state! max-depth depth :parts parts :disabled? disabled?]
+                                                :group [group-component table-spec child update-state! max-depth (inc depth) :parts parts :disabled? disabled?])])]))
                              children)
-                            [[add-filter-dropdown (:id group) update-fn table-spec depth]])]]]))
+                            [[add-filter-dropdown (:id group) update-state! table-spec max-depth depth]])]]]))
 
 (defn table-filter
   "Hierarchical table filter that works directly with internal tree format.
@@ -687,16 +688,21 @@
    (validate-args-macro table-filter-args-desc args)
    (let [internal-model (r/atom (or (deref-or-value model) (empty-group table-spec)))]
      (fn table-filter-render
-       [& {:keys [table-spec model on-change disabled? class style attr parts src debug-as]
+       [& {:keys [table-spec model on-change max-depth hide-border? disabled? class style attr parts src debug-as]
            :or   {disabled? false}
            :as   args}]
        (or
         (validate-args-macro table-filter-args-desc args)
-        (let [current-ext-model (deref-or-value model)]
+        (let [current-ext-model (deref-or-value model)
+              max-depth-defaulted (if max-depth max-depth 2)]
           ;; Sync external changes to internal state
           (when (not= @internal-model current-ext-model)
             (reset! internal-model (or current-ext-model (empty-group table-spec))))
 
+          ;; slightly odd pattern when we provide other "lower level" functions the ability to update the internal state
+          ;; by passing them the effectful function to do so.
+          ;; We need to be able to update the internal state to pass it to the users on-change function.
+          ;; If the users on-change function doesnt do anything to the external model, the internal state will revert
           (letfn [(update-state! [update-fn]
                     ;; Apply update to current internal model and call user's on-change
                     ;; User's on-change will update external model, sync will handle internal update
@@ -730,12 +736,13 @@
                          :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
                                        (get-in parts [:header :style]))
                          :attr (get-in parts [:header :attr])]
-                        [group-component table-spec @internal-model update-state! 0 :parts parts :disabled? disabled?]
-                        [box/h-box
+                        [group-component table-spec @internal-model update-state! max-depth-defaulted 0 :parts parts :disabled? disabled?]
+                        #_[box/gap :size "10px"]
+                        #_[box/h-box
                          :gap "16px"
                          :align :center
                          :justify :between
-                         :children [[buttons/button
+                         :children [#_[buttons/button
                                      :label "Clear filters"
                                      :class (str "btn-outline " (get-in parts [:clear-button :class]))
                                      :style (merge {:font-size "13px" :color "#64748b" :font-weight "500" :padding "8px 16px" :border "1px solid #e2e8f0" :border-radius "6px" :background-color "#ffffff"}
