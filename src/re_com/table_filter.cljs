@@ -39,6 +39,40 @@
   (some? d))
 
 ;; ----------------------------------------------------------------------------
+;; State Conversion Functions for Internal/External Model Handling
+;; ----------------------------------------------------------------------------
+
+(defn add-ids
+  "Recursively add unique IDs to all filter/group nodes.
+   Converts external (ID-less) format to internal (ID-full) format."
+  [node]
+  (cond
+    (nil? node) nil
+    
+    (and (map? node) (:type node))
+    (let [node-with-id (assoc node :id (str (random-uuid)))]
+      (if (= (:type node) :group)
+        (update node-with-id :children #(mapv add-ids %))
+        node-with-id))
+    
+    :else node))
+
+(defn remove-ids
+  "Recursively remove all :id keys from the model.
+   Converts internal (ID-full) format to external (ID-less) format."
+  [node]
+  (cond
+    (nil? node) nil
+    
+    (map? node)
+    (let [cleaned (dissoc node :id)]
+      (if (= (:type node) :group)
+        (update cleaned :children #(mapv remove-ids %))
+        cleaned))
+    
+    :else node))
+
+;; ----------------------------------------------------------------------------
 ;; Custom Validators for re-com compliance
 ;; ----------------------------------------------------------------------------
 
@@ -55,21 +89,19 @@
                table-spec)))
 
 (defn filter-node?
-  "Validates a single filter node"
+  "Validates a single filter node (external format - no ID required)"
   [node]
   (and (map? node)
-       (string? (:id node))
        (= :filter (:type node))
        (or (nil? (:col node)) (keyword? (:col node)))
        (or (nil? (:op node)) (keyword? (:op node)))))
 
 (defn group-node?
-  "Validates a single group node"
+  "Validates a single group node (external format - no ID required)"
   [node]
   (and (map? node)
-       (string? (:id node))
        (= :group (:type node))
-       (contains? #{:and :or} (:operator node))
+       (contains? #{:and :or} (:logic node))
        (vector? (:children node))))
 
 (defn model?
@@ -77,7 +109,6 @@
   [val]
   (or (nil? val)
       (and (map? val)
-           (string? (:id val))
            (contains? #{:filter :group} (:type val))
            (if (= :filter (:type val))
              (filter-node? val)
@@ -152,8 +183,8 @@
 (def table-filter-args-desc
   (when include-args-desc?
     [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys"}
-     {:name :model           :required false :default nil           :type "map"              :validate-fn model?                          :description "Hierarchical filter model with :id, :type, and :children structure. If nil, starts with empty filter."}
-     {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description "Callback function called when filter model changes"}
+     {:name :model           :required false :default nil           :type "map"              :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure (no IDs required). If nil, starts with empty filter."}
+     {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description "Callback function called when filter model changes. Receives two arguments: [model is-valid?]"}
      {:name :max-depth       :required false :default 2             :type "int"              :validate-fn int?                            :description "Set the maximum amount of nesting possible. 0 is no nesting; user only allowed to add filters. 1 allows user to add filter groups, ect"}
      {:name :top-label       :required false :default "Select rows" :type "string | hiccup"  :validate-fn string-or-hiccup?               :description "Header label text displayed at the top of the filter component"}
      {:name :hide-border?    :required false :default false         :type "boolean"          :validate-fn boolean?                        :description "If true, hides the border and background styling of the component wrapper"}
@@ -179,7 +210,20 @@
 (defn empty-group
   "creates a group with only the empty filter in it with unique ID"
   [table-spec]
-  {:id (generate-id) :type :group :operator :and :children [(empty-filter table-spec)]})
+  {:id (generate-id) :type :group :logic :and :children [(empty-filter table-spec)]})
+
+;; External format versions (no IDs) for user-facing API
+(defn empty-filter-external
+  "Create empty filter without IDs for external format"
+  [table-spec]
+  (let [first-col (first table-spec)
+        first-op (first (ops-by-type (:type first-col)))]
+    {:type :filter :col (:id first-col) :op first-op :val nil}))
+
+(defn empty-group-external
+  "Create empty group without IDs for external format"
+  [table-spec]
+  {:type :group :logic :and :children [(empty-filter-external table-spec)]})
 
 ;; ----------------------------------------------------------------------------
 ;; Clojure.walk-based tree operations
@@ -239,7 +283,7 @@
   (update-item-by-id tree target-id
                      (fn [item]
                        (if (= (:type item) :filter)
-                         {:id (generate-id) :type :group :operator :and
+                         {:id (generate-id) :type :group :logic :and
                           :children [(assoc item :id (generate-id))]}
                          item))))
 
@@ -303,6 +347,20 @@
                          (some? val))
                :boolean (boolean? val)
                true)))))
+
+(defn model-valid?
+  "Return true if all filters in the model are valid."
+  [model table-spec]
+  (cond
+    (nil? model) true
+    
+    (= (:type model) :filter)
+    (rule-valid? model table-spec)
+    
+    (= (:type model) :group)
+    (every? #(model-valid? % table-spec) (:children model))
+    
+    :else false))
 
 ;; ----------------------------------------------------------------------------
 ;; Components
@@ -403,7 +461,7 @@
 (defn add-filter-dropdown
   "The button to add filters, not an actual dropdown component for visual reason
    Has some JS stuff to add expected click away behaviour"
-  [group-id update-state! table-spec max-depth depth disabled? parts]
+  []
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
     (fn [group-id update-state! table-spec max-depth depth disabled? parts]
@@ -585,7 +643,7 @@
                                              :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" 
                                                      :background-color (when (= operator :and) "#f3f4f6")}
                                              :on-click #(do (close-menu!)
-                                                            (update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :operator :and))))))]
+                                                            (update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :and))))))]
                                             [buttons/button
                                              :label [box/v-box
                                                      :gap "2px"
@@ -595,7 +653,7 @@
                                              :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%"
                                                      :background-color (when (= operator :or) "#f3f4f6")}
                                              :on-click #(do (close-menu!)
-                                                            (update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :operator :or))))))]]]]])]])))
+                                                            (update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :or))))))]]]]])]])))
 
 (defn filter-context-menu
   "The ... button associated with a single filter
@@ -743,7 +801,7 @@
                                                  operator-btn (when show-operator?
                                                                 [box/v-box
                                                                  :children [(when true #_(= :filter (:type child)) [box/gap :size "3px"])
-                                                                            [and-or-dropdown (:operator group) update-state! (:id group) disabled? parts depth (= idx 1)]]])
+                                                                            [and-or-dropdown (:logic group) update-state! (:id group) disabled? parts depth (= idx 1)]]])
                                                  where-label (when show-where?
                                                                [text/label
                                                                 :label "Where"
@@ -771,12 +829,15 @@
                    :children [[group-context-menu (:id group) update-state! table-spec disabled? parts]]])]]))
 
 (defn table-filter
-  "Hierarchical table filter that works directly with internal tree format.
-   Model should be: {:type :group :operator :and :children [...]}"
+  "Hierarchical table filter component with dual-state architecture.
+   External model (user-facing): {:type :group :logic :and :children [...]} - no IDs required
+   Internal model automatically adds IDs for component state management."
   [& {:keys [table-spec model] :as args}]
   (or
    (validate-args-macro table-filter-args-desc args)
-   (let [internal-model (r/atom (or (deref-or-value model) (empty-group table-spec)))]
+   (let [external-model (r/atom (deref-or-value model))  ; Track external model changes
+         internal-model (r/atom (add-ids (or (deref-or-value model) 
+                                             (empty-group-external table-spec))))]  ; Convert to internal format
      (fn table-filter-render
        [& {:keys [table-spec model on-change max-depth top-label hide-border? disabled? class style attr parts src debug-as]
            :or   {disabled? false top-label "Select rows" hide-border? false}
@@ -786,19 +847,22 @@
         (let [current-ext-model (deref-or-value model)
               max-depth-defaulted (if max-depth max-depth 2)]
           ;; Sync external changes to internal state
-          (when (not= @internal-model current-ext-model)
-            (reset! internal-model (or current-ext-model (empty-group table-spec))))
-
+          (when (not= @external-model current-ext-model)
+            (reset! external-model current-ext-model)
+            (reset! internal-model (add-ids (or current-ext-model
+                                                (empty-group-external table-spec)))))
           ;; slightly odd pattern when we provide other "lower level" functions the ability to update the internal state
-          ;; by passing them the effectful function to do so.
+          ;; by passing them the (probably) effectful user defined function to do so.
           ;; We need to be able to update the internal state to pass it to the users on-change function.
-          ;; If the users on-change function doesnt do anything to the external model, the internal state will revert
+          ;; If the users on-change function doesnt do anything to the external model, the internal state will "revert"
           (letfn [(update-state! [update-fn]
                     ;; Apply update to current internal model and call user's on-change
-                    ;; User's on-change will update external model, sync will handle internal update
-                    (let [new-model (update-fn @internal-model)]
-                      (when on-change (on-change new-model))))]
-
+                    ;; Convert internal model to external format for callback
+                    (let [new-internal-model (update-fn @internal-model)
+                          new-external-model (remove-ids new-internal-model)
+                          is-valid? (model-valid? new-external-model table-spec)]
+                      (reset! internal-model new-internal-model)
+                      (when on-change (on-change new-external-model is-valid?))))]
             [box/v-box
              :src      src
              :debug-as (or debug-as (reflect-current-component))
