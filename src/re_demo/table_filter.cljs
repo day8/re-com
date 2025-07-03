@@ -37,6 +37,7 @@
 (defn panel
   []
   (let [filter-model (r/atom nil)
+        filter-valid? (r/atom false)
         disabled-model (r/atom false)
         hide-border-model (r/atom false)
         top-label-model (r/atom "Select rows")
@@ -68,12 +69,13 @@
                :disabled? @disabled-model
                :table-spec sample-table-spec
                :model @filter-model
-               :on-change #(reset! filter-model %)]
+               :on-change (fn [model is-valid?] 
+                           (reset! filter-model model)
+                           (reset! filter-valid? is-valid?))]
               [h-box :gap "20px" :align :center
                :children
-               [[p-span "Rows shown: " [:strong (str (count sample-data) " total")]]
-                (when @filter-model
-                  [p-span " • Filter contains " [:strong (str (count (tree-seq #(= (:type %) :group) :children @filter-model)) " nodes")]])]]
+               [[p-span " • Filter contains " [:strong (str (count (tree-seq #(= (:type %) :group) :children @filter-model)) " nodes")]]
+                [p-span " • Filter is " [:strong {:style {:color (if @filter-valid? "green" "red")}} (if @filter-valid? "Valid" "Invalid")]]]]
               [title3 "Interactive Parameters"]
               [v-box :gap "15px" :style {:background-color "#f7f7f7" :padding "15px" :border-radius "8px"}
                :children
