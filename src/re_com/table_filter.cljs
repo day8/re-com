@@ -1,8 +1,7 @@
 (ns re-com.table-filter
   (:require-macros [re-com.core :refer [handler-fn at reflect-current-component]]
                    [re-com.validate :refer [validate-args-macro]])
-  (:require [clojure.string :as str]
-            [clojure.walk :as walk]
+  (:require [clojure.walk :as walk]
             [reagent.core :as r]
             [re-com.box :as box]
             [re-com.buttons :as buttons]
@@ -13,7 +12,6 @@
             [re-com.tag-dropdown :as tag-dropdown]
             [re-com.text :as text]
             [re-com.debug :refer [->attr]]
-            [re-com.theme :as theme]
             [re-com.util :as u :refer [deref-or-value]]
             [re-com.config :refer [include-args-desc?]]
             [re-com.validate :refer [string-or-hiccup? css-class? css-style? html-attr? parts?]]))
@@ -117,15 +115,15 @@
 
 ;; dropdown options for valid operations for sql value types
 (def ops-by-type
-  {:text         [:contains :not-contains :equals :not-equals :starts-with :not-starts-with]
-   :number       [:equals :not-equals :> :>= :< :<=]
-   :date         [:before :after :on :not-on :on-or-before :on-or-after :between :not-between]
-   :boolean      [:is]
-   :select       [:is :is-not :is-any-of :is-none-of]})
+  {:text         [:equals :not-equals :contains :not-contains :starts-with :ends-with :empty :not-empty]
+   :number       [:equals :not-equals :> :>= :< :<= :empty :not-empty]
+   :date         [:before :after :on :not-on :on-or-before :on-or-after :between :not-between :empty :not-empty]
+   :boolean      [:is :empty :not-empty]
+   :select       [:is :is-not :is-any-of :is-none-of :empty :not-empty]})
 
 (def op-label
-  {:contains "contains" :not-contains "not contains" :equals "equals" :not-equals "not equals" 
-   :starts-with "starts with" :not-starts-with "not starts with"
+  {:equals "is" :not-equals "is not" :contains "contains" :not-contains "does not contain" 
+   :starts-with "starts with" :ends-with "ends with" :empty "is empty" :not-empty "is not empty"
    :> ">" :>= ">=" :< "<" :<= "<="
    :before "before" :after "after" :on "on" :not-on "not on" :on-or-before "on/before"
    :on-or-after "on/after" :between "between" :not-between "not between"
@@ -182,9 +180,9 @@
 
 (def table-filter-args-desc
   (when include-args-desc?
-    [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys"}
-     {:name :model           :required false :default nil           :type "map"              :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure (no IDs required). If nil, starts with empty filter."}
-     {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description "Callback function called when filter model changes. Receives two arguments: [model is-valid?]"}
+    [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys. Example on the right"}
+     {:name :model           :required false :default nil           :type "map | r/atom"     :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure. If nil, starts with empty filter. Interact with the demo to populate the \"Current Filter Model\" to see how this looks."}
+     {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description [:span "Callback function called when user interacts with the filter component. Receives two arguments: " [:code "[model is-valid?]"] " where " [:code "model"] " is the updated filter structure and " [:code "is-valid?"] " is a boolean indicating if all filters are complete and valid. Use this to update your application state."]}
      {:name :max-depth       :required false :default 2             :type "int"              :validate-fn int?                            :description "Set the maximum amount of nesting possible. 0 is no nesting; user only allowed to add filters. 1 allows user to add filter groups, ect"}
      {:name :top-label       :required false :default "Select rows" :type "string | hiccup"  :validate-fn string-or-hiccup?               :description "Header label text displayed at the top of the filter component"}
      {:name :hide-border?    :required false :default false         :type "boolean"          :validate-fn boolean?                        :description "If true, hides the border and background styling of the component wrapper"}
@@ -192,7 +190,7 @@
      {:name :class           :required false                        :type "string"           :validate-fn css-class?                      :description "CSS class names, space separated (applies to wrapper)"}
      {:name :style           :required false                        :type "CSS style map"    :validate-fn css-style?                      :description "CSS styles to apply to wrapper"}
      {:name :attr            :required false                        :type "HTML attr map"    :validate-fn html-attr?                      :description [:span "HTML attributes for wrapper. No " [:code ":class"] " or " [:code ":style"] " allowed"]}
-     {:name :parts           :required false                        :type "map"              :validate-fn (parts? table-filter-parts)    :description "Map of part names to {:class :style :attr} for styling customization"}
+     {:name :parts           :required false                        :type "map"              :validate-fn (parts? table-filter-parts)     :description "Map of part names to {:class :style :attr} for styling customization"}
      {:name :src             :required false                        :type "map"              :validate-fn map?                            :description [:span "Source code coordinates for debugging. Map with " [:code ":file"] " and " [:code ":line"] " keys"]}
      {:name :debug-as        :required false                        :type "map"              :validate-fn map?                            :description [:span "Debug output masquerading. Map with " [:code ":component"] " and " [:code ":args"] " keys"]}]))
 
@@ -328,12 +326,18 @@
         op   (:op rule)
         val  (:val rule)]
     (and spec
-         (some? val)
+         (or (#{:empty :not-empty} op) (some? val))  ; empty/not-empty don't need values
          (or (and (fn? valid?) (valid? val))
              (case type
-               :text (string? val)
-               :number (valid-number? val)
+               :text (if (#{:empty :not-empty} op)
+                       true  ; empty/not-empty are always valid
+                       (string? val))
+               :number (if (#{:empty :not-empty} op)
+                         true  ; empty/not-empty are always valid
+                         (valid-number? val))
                :date   (case op
+                         (:empty :not-empty)
+                         true  ; empty/not-empty are always valid
                          (:between :not-between) (and (map? val)
                                                       (contains? val :start)
                                                       (contains? val :end)
@@ -341,11 +345,15 @@
                                                       (valid-date? (:end val)))
                          (valid-date? val))
                :select (case op
+                         (:empty :not-empty)
+                         true  ; empty/not-empty are always valid
                          (:is-any-of :is-none-of :contains :not-contains)
                          (and (set? val) (seq val))
                          ;; For single value operators
                          (some? val))
-               :boolean (boolean? val)
+               :boolean (if (#{:empty :not-empty} op)
+                          true  ; empty/not-empty are always valid
+                          (boolean? val))
                true)))))
 
 (defn model-valid?
@@ -374,15 +382,22 @@
         op  (:op filter-rule)
         val (:val filter-rule)]
     (case type
-      :text [input-text/input-text
-             :model val
-             :on-change #(on-change (assoc filter-rule :val %))
-             :width "220px"
-             :class (get-in parts [:text-input :class])
-             :style (get-in parts [:text-input :style])
-             :attr (get-in parts [:text-input :attr])
-             :disabled? disabled?]
+      :text (if (#{:empty :not-empty} op)
+              ;; No input field needed for empty/not-empty operators
+              [text/label :label "" :style {:width "220px"}]
+              [input-text/input-text
+               :model val
+               :on-change #(on-change (assoc filter-rule :val %))
+               :width "220px"
+               :class (get-in parts [:text-input :class])
+               :style (get-in parts [:text-input :style])
+               :attr (get-in parts [:text-input :attr])
+               :disabled? disabled?])
       :number (cond
+                (#{:empty :not-empty} op)
+                ;; No input field needed for empty/not-empty operators
+                [text/label :label "" :style {:width "220px"}]
+                
                 (= op :between)
                 [box/h-box
                  :gap "4px"
@@ -404,41 +419,58 @@
                        :attr (get-in parts [:text-input :attr])
                        :disabled? disabled?
                        :on-change #(on-change (assoc filter-rule :val %))])
-      :date (if (#{:between :not-between} op)
+      :date (cond
+              (#{:empty :not-empty} op)
+              ;; No input field needed for empty/not-empty operators
+              [text/label :label "" :style {:width "220px"}]
+              
+              (#{:between :not-between} op)
               [daterange/daterange-dropdown
                :model val
                :width "220px"
                :class (get-in parts [:daterange-input :class])
                :style (get-in parts [:daterange-input :style])
                :attr (get-in parts [:daterange-input :attr])
+               :show-today? true
                :disabled? disabled?
                :on-change #(on-change (assoc filter-rule :val %))]
+              
+              :else
               [datepicker/datepicker-dropdown
                :model val
                :width "220px"
                :class (get-in parts [:date-input :class])
                :style (get-in parts [:date-input :style])
                :attr (get-in parts [:date-input :attr])
+               :show-today? true
                :disabled? disabled?
                :on-change #(on-change (assoc filter-rule :val %))])
-      :boolean [dropdown/single-dropdown
-                :model val
-                :choices [{:id true :label "True"}
-                          {:id false :label "False"}]
-                :width "220px"
-                :class (get-in parts [:dropdown-input :class])
-                :style (get-in parts [:dropdown-input :style])
-                :attr (get-in parts [:dropdown-input :attr])
-                :disabled? disabled?
-                :on-change #(on-change (assoc filter-rule :val %))]
-      :select (if (#{:is-any-of :is-none-of :contains :not-contains} op)
+      :boolean (if (#{:empty :not-empty} op)
+                 ;; No input field needed for empty/not-empty operators
+                 [text/label :label "" :style {:width "220px"}]
+                 [dropdown/single-dropdown
+                  :model val
+                  :choices [{:id true :label "True"}
+                            {:id false :label "False"}]
+                  :width "220px"
+                  :class (get-in parts [:dropdown-input :class])
+                  :style (get-in parts [:dropdown-input :style])
+                  :attr (get-in parts [:dropdown-input :attr])
+                  :disabled? disabled?
+                  :on-change #(on-change (assoc filter-rule :val %))])
+      :select (cond
+                (#{:empty :not-empty} op)
+                ;; No input field needed for empty/not-empty operators
+                [text/label :label "" :style {:width "220px"}]
+                
+                (#{:is-any-of :is-none-of :contains :not-contains} op)
                 ;; Multi-value selection for these operators
                 [tag-dropdown/tag-dropdown
                  :model (or val #{})
                  :height "34px"
                  :choices options
                  :placeholder "Select values..."
-                 :min-width "350px"
+                 :min-width "220px"
                  ;:class (get-in parts [:tag-dropdown-input :class])
                  :style (merge {:color "#333333"
                                 :background-color "#ffffff"}
@@ -446,6 +478,8 @@
                  ;:attr (get-in parts [:tag-dropdown-input :attr])
                  :disabled? disabled?
                  :on-change #(on-change (assoc filter-rule :val %))]
+                
+                :else
                 ;; Single value selection for equals/not-equals
                 [dropdown/single-dropdown
                  :model val
@@ -525,7 +559,7 @@
   "The little ... button for a group
    Also not a re-com/dropdown for UI reasons
    Also has JS clickaway behaviour"
-  [group-id update-state! table-spec disabled? parts]
+  []
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
     (fn [group-id update-state! table-spec disabled? parts]
@@ -573,7 +607,7 @@
 
 (defn and-or-dropdown
   "Custom dropdown component for AND/OR selection with explanations"
-  [operator update-state! group-id disabled? parts depth interactable?]
+  []
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
     (fn [operator update-state! group-id disabled? parts depth interactable?]
@@ -659,7 +693,7 @@
   "The ... button associated with a single filter
    Also not a re-com/dropdown for UI reasons
    Also has JS clickaway behaviour"
-  [item-id update-state! filter-item table-spec max-depth depth disabled? parts]
+  []
   (let [show-menu? (r/atom false)
         close-menu! #(reset! show-menu? false)]
     (fn [item-id update-state! filter-item table-spec max-depth depth disabled? parts]
@@ -741,6 +775,7 @@
                  :class (get-in parts [:column-dropdown :class])
                  :style (get-in parts [:column-dropdown :style])
                  :attr (get-in parts [:column-dropdown :attr])
+                 :parts (get-in parts [:column-dropdown :parts])
                  :disabled? disabled?
                  :on-change #(let [cs (column-by-id table-spec %)]
                                (update-state! (fn [state] (update-item-by-id state (:id filter-item)
@@ -752,6 +787,7 @@
                  :class (get-in parts [:operator-dropdown :class])
                  :style (get-in parts [:operator-dropdown :style])
                  :attr (get-in parts [:operator-dropdown :attr])
+                 :parts (get-in parts [:operator-dropdown :parts])
                  :disabled? disabled?
                  :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (fn [f] (assoc f :op % :val nil)))))]
                 [value-entry-box spec filter-item #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %)))) :parts parts :disabled? disabled?]
@@ -840,7 +876,7 @@
                                              (empty-group-external table-spec))))]  ; Convert to internal format
      (fn table-filter-render
        [& {:keys [table-spec model on-change max-depth top-label hide-border? disabled? class style attr parts src debug-as]
-           :or   {disabled? false top-label "Select rows" hide-border? false}
+           :or   {disabled? false hide-border? false}
            :as   args}]
        (or
         (validate-args-macro table-filter-args-desc args)
@@ -883,7 +919,7 @@
                               (get-in parts [:wrapper :attr])
                               attr)
              :children [[text/label
-                         :label top-label
+                         :label (or top-label "Select rows")
                          :class (get-in parts [:header :class])
                          :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
                                        (get-in parts [:header :style]))

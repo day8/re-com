@@ -2,13 +2,14 @@
   (:require-macros
    [re-com.core     :refer [handler-fn]])
   (:require
-   [re-com.core     :as rc :refer [at h-box v-box label p-span table-filter checkbox input-text button]]
-   [re-com.slider   :refer [slider]]
-   [re-com.table-filter :refer [table-filter-parts-desc table-filter-args-desc]]
-   [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table]]
-   [reagent.core    :as r]
    [cljs.pprint]
-   [re-demo.checkbox :as checkbox]))
+   [re-com.core     :as rc :refer [at button checkbox h-box input-text label
+                                   p-span table-filter v-box p]]
+   [re-com.slider   :refer [slider]]
+   [re-com.table-filter :refer [table-filter-args-desc table-filter-parts-desc]]
+   [re-demo.utils   :refer [args-table panel-title parts-table status-text
+                            title2 title3]]
+   [reagent.core    :as r]))
 
 (def sample-table-spec
   [{:id :name :name "Name" :type :text}
@@ -56,22 +57,34 @@
          :children
          [[v-box :src (at) :gap "10px" :width "500px"
            :children
-           [[args-table table-filter-args-desc]]]
-          [v-box :src (at) :width "700px" :gap "10px"
+           [[title2 "Notes"]
+            [status-text "Alpha" {:color "red"}]
+            [p "Build complex, hierarchical filter conditions with an intuitive UI. Perfect for allowing end users to create sophisticated queries against tabular data without writing code."]
+            [p "The component uses a " [:code "table-spec"] " to automatically generate appropriate UI controls for each column type:"]
+            [:ul {:style {:margin-left "20px" :margin-bottom "15px"}}
+             [:li [:strong "Text columns:"] " is, contains, starts with, ends with, is empty operators with text input"]
+             [:li [:strong "Number columns:"] " comparison operators (>, >=, =, etc.) with numeric input"] 
+             [:li [:strong "Date columns:"] " before, after, between operators with date pickers"]
+             [:li [:strong "Boolean columns:"] " simple true/false selection"]
+             [:li [:strong "Select columns:"] " single or multi-value selection from predefined options"]]
+            [p "Supports nested filter groups with AND/OR logic, configurable nesting depth, and real-time validation."]
+            [args-table table-filter-args-desc]]]
+          [v-box :src (at) :width " 700 px " :gap "10px"
            :children
            [[title2 "Interactive Demo"]
-            [v-box :src (at) :gap "15px" :style {:padding "20px"}
+            [v-box :src (at) :gap "15px" 
              :children
              [[table-filter
+               :src (at)
                :max-depth @max-depth-model
                :top-label @top-label-model
                :hide-border? @hide-border-model
                :disabled? @disabled-model
                :table-spec sample-table-spec
                :model @filter-model
-               :on-change (fn [model is-valid?] 
-                           (reset! filter-model model)
-                           (reset! filter-valid? is-valid?))]
+               :on-change (fn [model is-valid?]
+                            (reset! filter-model model)
+                            (reset! filter-valid? is-valid?))]
               [h-box :gap "20px" :align :center
                :children
                [[p-span " • Filter contains " [:strong (str (count (tree-seq #(= (:type %) :group) :children @filter-model)) " nodes")]]
@@ -111,21 +124,96 @@
                  [[button
                    :label "Clear Filters"
                    :class "btn-outline"
-                   :style {:font-size "13px" :color "#dc2626" :font-weight "500" 
-                           :padding "8px 16px" :border "1px solid #dc2626" 
+                   :style {:font-size "13px" :color "#dc2626" :font-weight "500"
+                           :padding "8px 16px" :border "1px solid #dc2626"
                            :border-radius "6px" :background-color "#ffffff"}
                    :disabled? @disabled-model
                    :on-click #(reset! filter-model nil)]
-                  [label :label "Reset the filter to empty state"]]]]] 
+                  [label :label "Reset the filter to empty state"]]]]]
               [title3 "Current Filter Model:"]
               [:pre {:style {:background-color "#f9f9f9" :padding "15px" :font-size "11px" :max-height "250px" :overflow "auto" :border-radius "4px" :border "1px solid #e9ecef"}}
                (if @filter-model
                  (with-out-str (cljs.pprint/pprint @filter-model))
                  "nil")]
-              [title3 "table spec:"]
+              [title3 "table-spec:"]
               [:pre {:style {:background-color "#f8f9fa" :padding "15px" :font-size "11px" :border-radius "4px" :border "1px solid #e9ecef"}}
                (with-out-str (cljs.pprint/pprint sample-table-spec))]
-              [title3 "Sample Data:"]
-              [:pre {:style {:background-color "#f8f9fa" :padding "15px" :font-size "11px" :border-radius "4px" :border "1px solid #e9ecef" :max-height "300px" :overflow "auto"}}
-               (with-out-str (cljs.pprint/pprint sample-data))]]]]]]]
+              
+              [title3 "Parts System Demo"]
+              [p "The same table-filter with custom styling via the " [:code ":parts"] " parameter:"]
+              [table-filter
+               :src (at)
+               :max-depth @max-depth-model
+               :top-label @top-label-model
+               :hide-border? @hide-border-model
+               :disabled? @disabled-model
+               :table-spec sample-table-spec
+               :model @filter-model
+               :on-change (fn [model is-valid?]
+                            (reset! filter-model model)
+                            (reset! filter-valid? is-valid?))
+               :style {:font-family "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                       :font-size "13px"}  ; Modern font and smaller size
+               :parts {:wrapper {:style {:background-color "#f8fafc" 
+                                        :border "1px solid #e2e8f0"
+                                        :border-radius "6px"
+                                        :box-shadow "0 1px 3px rgba(0, 0, 0, 0.1)"}}
+                      :header {:style {:color "#1e40af" 
+                                      :font-size "14px"
+                                      :font-weight "500"
+                                      :margin-bottom "8px"}}
+                      :filter {:style {:align-items "center"}}  ; Only alignment, no background styling
+                      :add-button {:style {:background-color "#dbeafe"
+                                          :color "#1d4ed8"
+                                          :font-weight "500"
+                                          :font-size "12px"
+                                          :padding "0 8px"  ; Remove vertical padding
+                                          :border "1px solid #93c5fd"
+                                          :border-radius "4px"
+                                          :height "30px"    ; Consistent height
+                                          :line-height "28px"  ; Center text vertically
+                                          :display "flex"
+                                          :align-items "center"}}
+                      :column-dropdown {:style {:font-size "12px"
+                                               :border "1px solid #bfdbfe"
+                                               :border-radius "4px"}
+                                       :parts {:chosen-single {:style {:height "20px"
+                                                                       :line-height "18px"
+                                                                       :padding "1px 8px"}}}}
+                      :operator-dropdown {:style {:font-size "12px"
+                                                 :border "1px solid #bfdbfe"
+                                                 :border-radius "4px"}
+                                         :parts {:chosen-single {:style {:height "20px"
+                                                                         :line-height "18px"
+                                                                         :padding "1px 8px"}}}}
+                      :text-input {:style {:font-size "12px"
+                                          :border "1px solid #bfdbfe"
+                                          :border-radius "4px"
+                                          :background-color "#fafbff"
+                                          :padding "0 8px"}}
+                      :where-label {:style {:color "#3b82f6"
+                                           :font-weight "500"
+                                           :font-size "12px"
+                                           :height "30px"        ; Match component height
+                                           :line-height "30px"   ; Center text vertically
+                                           :padding "0 8px 0 0" ; Remove vertical padding
+                                           :margin "0"
+                                           :display "flex"
+                                           :align-items "center"}}
+                      :operator-button {:style {:font-size "12px"
+                                               :background-color "#f1f5f9"
+                                               :border "1px solid #cbd5e1"
+                                               :color "#475569"
+                                               :height "30px"      ; Consistent height
+                                               :padding "0 6px"    ; Remove vertical padding
+                                               :display "flex"
+                                               :align-items "center"}}
+                      :operator-text {:style {:font-size "12px"
+                                             :color "#64748b"
+                                             :height "30px"      ; Consistent height  
+                                             :line-height "30px" ; Center text vertically
+                                             :padding "0 8px"    ; Remove vertical padding
+                                             :margin "0"
+                                             :display "flex"
+                                             :align-items "center"}}}]]]]]]]
         [parts-table "table-filter" table-filter-parts-desc]]])))
