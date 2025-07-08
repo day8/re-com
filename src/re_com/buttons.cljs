@@ -19,7 +19,7 @@
 
 (def button-parts-desc
   (when include-args-desc?
-    [{:name :wrapper :level 0 :class "rc-button-wrapper" :impl "[button]"          :notes "Outer wrapper of the button, tooltip (if any), everything."}
+    [{:name :wrapper :level 0 :class "rc-button-wrapper" :impl "[box]"              :notes "Outer wrapper of the button, tooltip (if any), everything."}
      {:name :tooltip :level 1 :class "rc-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
      {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}]))
 

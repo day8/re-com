@@ -40,7 +40,7 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[panel-title "[daterange ...]"
+       :children [[panel-title "[daterange ...] & [daterange-dropdown ...]"
                    "src/re_com/daterange.cljs" ;; TODO [GR-REMOVE] corrected links
                    "src/re_demo/daterange.cljs"]
                   [h-box
@@ -49,7 +49,7 @@
                                :gap "10px"
                                :width "450px"
                                :children [[title2 "Notes"]
-                                          [status-text "Alpha, written by an intern"]
+                                          [status-text "Alpha" {:color "red"}]
                                           [p "A date range picker component."]
                                           [args-table daterange-dropdown-args-desc]]]
                               [v-box
