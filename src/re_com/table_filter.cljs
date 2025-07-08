@@ -19,7 +19,6 @@
 ;; ----------------------------------------------------------------------------
 ;; Helpers
 ;; ----------------------------------------------------------------------------
-
 ;; ID generation for filters and groups
 (defn generate-id []
   (str "item-" (random-uuid)))
@@ -392,38 +391,24 @@
                :class (get-in parts [:text-input :class])
                :style (get-in parts [:text-input :style])
                :attr (get-in parts [:text-input :attr])
+               :parts (get-in parts [:text-input :parts])
                :disabled? disabled?])
-      :number (cond
-                (#{:empty :not-empty} op)
+      :number (if
+               (#{:empty :not-empty} op)
                 ;; No input field needed for empty/not-empty operators
-                [text/label :label "" :style {:width "220px"}]
-                
-                (= op :between)
-                [box/h-box
-                 :gap "4px"
-                 :children [[input-text/input-text :model (first val) :width "60px"
-                             :class (get-in parts [:text-input :class])
-                             :style (get-in parts [:text-input :style])
-                             :attr (get-in parts [:text-input :attr])
-                             :disabled? disabled?
-                             :on-change #(on-change (assoc filter-rule :val [% (second val)]))]
-                            [input-text/input-text :model (second val) :width "60px"
-                             :class (get-in parts [:text-input :class])
-                             :style (get-in parts [:text-input :style])
-                             :attr (get-in parts [:text-input :attr])
-                             :disabled? disabled?
-                             :on-change #(on-change (assoc filter-rule :val [(first val) %]))]]]
-                :else [input-text/input-text :model val :width "220px"
-                       :class (get-in parts [:text-input :class])
-                       :style (get-in parts [:text-input :style])
-                       :attr (get-in parts [:text-input :attr])
-                       :disabled? disabled?
-                       :on-change #(on-change (assoc filter-rule :val %))])
+                [text/label :label "" #_:style #_{:width "220px"}]
+                [input-text/input-text :model val :width "220px"
+                 :class (get-in parts [:text-input :class])
+                 :style (get-in parts [:text-input :style])
+                 :attr (get-in parts [:text-input :attr])
+                 :parts (get-in parts [:text-input :parts])
+                 :disabled? disabled?
+                 :on-change #(on-change (assoc filter-rule :val %))])
       :date (cond
               (#{:empty :not-empty} op)
               ;; No input field needed for empty/not-empty operators
               [text/label :label "" :style {:width "220px"}]
-              
+
               (#{:between :not-between} op)
               [daterange/daterange-dropdown
                :model val
@@ -431,17 +416,20 @@
                :class (get-in parts [:daterange-input :class])
                :style (get-in parts [:daterange-input :style])
                :attr (get-in parts [:daterange-input :attr])
+               
                :show-today? true
                :disabled? disabled?
                :on-change #(on-change (assoc filter-rule :val %))]
-              
+
               :else
               [datepicker/datepicker-dropdown
                :model val
                :width "220px"
+               :placeholder "Select a date"
                :class (get-in parts [:date-input :class])
                :style (get-in parts [:date-input :style])
                :attr (get-in parts [:date-input :attr])
+               :parts (merge {:anchor-label {:style {:height "34px"}}} (get-in parts [:date-input :parts]))
                :show-today? true
                :disabled? disabled?
                :on-change #(on-change (assoc filter-rule :val %))])
@@ -462,7 +450,7 @@
                 (#{:empty :not-empty} op)
                 ;; No input field needed for empty/not-empty operators
                 [text/label :label "" :style {:width "220px"}]
-                
+
                 (#{:is-any-of :is-none-of :contains :not-contains} op)
                 ;; Multi-value selection for these operators
                 [tag-dropdown/tag-dropdown
@@ -478,7 +466,7 @@
                  ;:attr (get-in parts [:tag-dropdown-input :attr])
                  :disabled? disabled?
                  :on-change #(on-change (assoc filter-rule :val %))]
-                
+
                 :else
                 ;; Single value selection for equals/not-equals
                 [dropdown/single-dropdown
@@ -520,7 +508,7 @@
                                   :color "#46a2da"
                                   :font-weight "500"
                                   :border-radius "8px"
-                                  :background-color "#ffffff"}
+                                  :background-color "transparent"}
                                  (get-in parts [:add-button :style]))
                    :attr (get-in parts [:add-button :attr])
                    :on-click #(swap! show-menu? not)]
@@ -633,7 +621,7 @@
                      :class (str "btn-link and-or-dropdown-button " (get-in parts [:operator-button :class]))
                      :style (merge {:font-size "14px" :font-weight "500" 
                                     :color "#6b7280"
-                                    :margin-right "0px" :margin-left "2px"
+                                    :margin-right "0px" :margin-left "0px"
                                     :background-color (if (odd? depth) "white" "#f7f7f7")
                                     :border-radius "4px"
                                     :border "1px solid #e2e8f0"
@@ -647,12 +635,14 @@
                      :class (get-in parts [:operator-text :class])
                      :style (merge {:font-size "14px" :font-weight "500" 
                                     :color "#6b7280"
-                                    :margin-right "0px" :margin-left "2px"
+                                    :margin-right "0px" :margin-left "0px"
                                     :min-width "50px" :height "34px"
                                     :text-align "left" :padding "6px 6px"
                                     :display "flex" :align-items "center"}
                                    (get-in parts [:operator-text :style]))
                      :attr (get-in parts [:operator-text :attr])])
+                  [box/gap :size "2px"] ; TODO needs paramter, gap the the right of an AND/OR box
+                  ;; internals of dropdown
                   (when (and @show-menu? interactable?)
                     [box/v-box
                      :class "and-or-dropdown-menu"
@@ -707,14 +697,30 @@
                              #js {:once true}) 0))
       [box/h-box
        :style {:position "relative"}
+       :align :center
        :children [[buttons/button
                    :disabled? disabled?
-                   :label "⋯"
-                   :class (str "btn-link " (get-in parts [:context-menu :class]))
-                   :style (merge {:color "#9ca3af" :font-size "20px" :padding "6px 8px" :border "none" :background "transparent" :border-radius "4px"}
+                   :label "⋯" ;⋯
+                   :class (get-in parts [:context-menu :class]) #_(str "btn-unstyled " (get-in parts [:context-menu :class]))
+                   :style (merge {:color "#9ca3af" 
+                                  :font-size "20px"
+                                  :line-height "18px"
+                                  :padding "0px 8px"
+                                  :border "none !important" 
+                                  :background "transparent" 
+                                  :border-radius "4px"
+                                  :width "100%"
+                                  :height "100%"
+                                  :display "flex"
+                                  :min-width "10"
+                                  :min-height "10"}
                                  (get-in parts [:context-menu :style]))
                    :attr (get-in parts [:context-menu :attr])
-                   :on-click #(swap! show-menu? not)]
+                   :on-click #(swap! show-menu? not)
+                   :parts {:wrapper {:style {:align-self "stretch"
+                                             :min-height "15px"
+                                             :max-height "34px"
+                                             :display "flex"}}}]
                   (when @show-menu?
                     [box/v-box
                      :class "filter-context-menu"
@@ -727,7 +733,8 @@
                              :border-radius "8px"
                              :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
                              :min-width "160px"
-                             :margin-top "4px"}
+                             :margin-top "4px"
+                             }
                      :children [[buttons/button
                                  :label "Delete Filter"
                                  :class "btn-link"
@@ -759,12 +766,7 @@
      :align :center
      :gap "4px"
      :class (get-in parts [:filter :class])
-     :style (merge {:padding "0px 2px"
-                    :background-color (if (odd? depth) "#f7f7f7" "white")
-                    ;:border "1px solid #e1e5e9"
-                    ;:border-radius "8px"
-                    :margin "0px 0"
-                    ;:box-shadow "0 1px 2px rgba(0, 0, 0, 0.04)"
+     :style (merge {:background-color "transparent"
                     :white-space "nowrap"}
                    (get-in parts [:filter :style]))
      :attr (get-in parts [:filter :attr])
@@ -806,49 +808,46 @@
         is-root? (zero? depth)
         show-group-ui? (if is-root?
                          (> (count children) 1)  ; Root group only shows UI when 2+ children
-                         true)                    ; Non-root groups always show UI
-        indent-px (* depth 60)] ; 60px per nesting level to account for operator space
+                         true)]                    ; Non-root groups always show UI
     [box/h-box
-     :gap "5px"
-     :align :start 
-     :padding "3px 0px 4px 2px"
+     :align :start
      :children [[box/v-box
                  :class (get-in parts [:group :class])
                  :style (merge {:padding (if (and show-group-ui? (not is-root?)) "8px" "0")
-                                :margin "0px 0"
-                                :margin-left (str indent-px "px")
+                                :margin "0px 0px"
                                 :position "relative"}
                                (when (and show-group-ui? (not is-root?))
                                  {:background-color (if (odd? depth) "#f7f7f7" "white")
                                   :border "1px solid #e1e5e9"
-                                  :border-radius "4px"
-                                  :box-shadow "0 1px 3px rgba(0, 0, 0, 0.06)"
-                                  :border-left "3px solid #3b82f6"})
+                                  :border-radius "4px"})
                                (get-in parts [:group :style]))
                  :attr (get-in parts [:group :attr])
-                 :gap "2px"
                  :children [[box/v-box
-                             :gap "2px"
+                             :gap "6px"
                              :children (concat
                                         (map-indexed
                                          (fn [idx child]
-                                           (let [show-operator? (> idx 0)
+                                           (let [child-is-group? (= :group (:type (nth (:children group) idx)))
+                                                 show-operator? (> idx 0)
                                                  show-where? (= idx 0)  ; Show "Where" for first item
-                                                 operator-btn (when show-operator?
+                                                 operator-btn (when show-operator? ;if the child is a group comonent, the self-align should be :start
                                                                 [box/v-box
-                                                                 :children [(when true #_(= :filter (:type child)) [box/gap :size "3px"])
+                                                                 :align-self (if child-is-group? :start :center)
+                                                                 :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
                                                                             [and-or-dropdown (:logic group) update-state! (:id group) disabled? parts depth (= idx 1)]]])
                                                  where-label (when show-where?
                                                                [text/label
                                                                 :label "Where"
                                                                 :class (get-in parts [:where-label :class])
                                                                 :style (merge {:font-size "14px" :font-weight "500" :color "#374151"
-                                                                               :padding "10px 2px" :margin-right "2px" :margin-left "0px"
-                                                                               :min-width "50px" :text-align "center"}
+                                                                               ;:padding "10px 2px" 
+                                                                               ;:margin-right "2px"
+                                                                               :min-width "52px" 
+                                                                               :text-align "center"}
                                                                               (get-in parts [:where-label :style]))
                                                                 :attr (get-in parts [:where-label :attr])])]
                                              [box/h-box
-                                              :align :start
+                                              :align :center
                                               :gap "4px"
                                               :children (concat
                                                          (when where-label [where-label])
@@ -857,11 +856,10 @@
                                                             :filter [filter-component table-spec child update-state! max-depth depth :parts parts :disabled? disabled?]
                                                             :group [group-component table-spec child update-state! max-depth (inc depth) :parts parts :disabled? disabled?])])]))
                                          children)
-                                        [[box/gap :size "4px"]
+                                        [;[box/gap :size "4px"]
                                          [add-filter-dropdown (:id group) update-state! table-spec max-depth depth disabled? parts]])]]]
                 (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
                   [box/h-box
-                                                                           ;:style {:position "absolute" :top "0px" :right "8px" :z-index "10"}
                    :children [[group-context-menu (:id group) update-state! table-spec disabled? parts]]])]]))
 
 (defn table-filter
@@ -924,4 +922,5 @@
                          :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
                                        (get-in parts [:header :style]))
                          :attr (get-in parts [:header :attr])]
+                        [box/gap :size "10px"]
                         [group-component table-spec @internal-model update-state! max-depth-defaulted 0 :parts parts :disabled? disabled?]]])))))))
