@@ -18,7 +18,7 @@
    {:id :salary :name "Salary" :type :number}
    {:id :department :name "Department" :type :select
     :options [{:id "engineering" :label "Engineering"}
-              {:id "marketing" :label "Marketing"} 
+              {:id "marketing" :label "Marketing"}
               {:id "sales" :label "Sales"}]}
    {:id :active :name "Active" :type :boolean}
    {:id :hire-date :name "Hire Date" :type :date}
@@ -63,7 +63,7 @@
             [p "The component uses a " [:code "table-spec"] " to automatically generate appropriate UI controls for each column type:"]
             [:ul {:style {:margin-left "20px" :margin-bottom "15px"}}
              [:li [:strong "Text columns:"] " is, contains, starts with, ends with, is empty operators with text input"]
-             [:li [:strong "Number columns:"] " comparison operators (>, >=, =, etc.) with numeric input"] 
+             [:li [:strong "Number columns:"] " comparison operators (>, >=, =, etc.) with numeric input"]
              [:li [:strong "Date columns:"] " before, after, between operators with date pickers"]
              [:li [:strong "Boolean columns:"] " simple true/false selection"]
              [:li [:strong "Select columns:"] " single or multi-value selection from predefined options"]]
@@ -72,7 +72,7 @@
           [v-box :src (at) :width " 700 px " :gap "10px"
            :children
            [[title2 "Interactive Demo"]
-            [v-box :src (at) :gap "15px" 
+            [v-box :src (at) :gap "15px"
              :children
              [[table-filter
                :src (at)
@@ -138,7 +138,7 @@
               [title3 "table-spec:"]
               [:pre {:style {:background-color "#f8f9fa" :padding "15px" :font-size "11px" :border-radius "4px" :border "1px solid #e9ecef"}}
                (with-out-str (cljs.pprint/pprint sample-table-spec))]
-              
+
               [title3 "Parts System Demo"]
               [p "The same table-filter with custom styling via the " [:code ":parts"] " parameter:"]
               [table-filter
@@ -153,67 +153,82 @@
                             (reset! filter-model model)
                             (reset! filter-valid? is-valid?))
                :style {:font-family "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                       :font-size "13px"}  ; Modern font and smaller size
-               :parts {:wrapper {:style {:background-color "#f8fafc" 
-                                        :border "1px solid #e2e8f0"
-                                        :border-radius "6px"
-                                        :box-shadow "0 1px 3px rgba(0, 0, 0, 0.1)"}}
-                      :header {:style {:color "#1e40af" 
-                                      :font-size "14px"
-                                      :font-weight "500"
-                                      :margin-bottom "8px"}}
-                      :filter {:style {:align-items "center"}}  ; Only alignment, no background styling
-                      :add-button {:style {:background-color "#dbeafe"
-                                          :color "#1d4ed8"
-                                          :font-weight "500"
-                                          :font-size "12px"
-                                          :padding "0 8px"  ; Remove vertical padding
-                                          :border "1px solid #93c5fd"
-                                          :border-radius "4px"
-                                          :height "30px"    ; Consistent height
-                                          :line-height "28px"  ; Center text vertically
-                                          :display "flex"
-                                          :align-items "center"}}
-                      :column-dropdown {:style {:font-size "12px"
-                                               :border "1px solid #bfdbfe"
-                                               :border-radius "4px"}
-                                       :parts {:chosen-single {:style {:height "20px"
-                                                                       :line-height "18px"
-                                                                       :padding "1px 8px"}}}}
-                      :operator-dropdown {:style {:font-size "12px"
+                       :font-size "13px" :background-color "#f8fafc"}  ; Modern font and smaller size
+               :parts {:wrapper {:style {:background-color "#f8fafc"
+                                         :border "1px solid #e2e8f0"
+                                         :border-radius "6px"
+                                         :box-shadow "0 1px 3px rgba(0, 0, 0, 0.1)"}}
+                       :header {:style {:color "#1e40af"
+                                        :font-size "14px"
+                                        :font-weight "500"}}
+                       :filter {:style {:align-items "center" :background-color "transparent"}}  ; Only alignment, no background styling
+                       :add-button {:style {:background-color "#dbeafe"
+                                            :color "#1d4ed8"
+                                            :font-weight "500"
+                                            :font-size "12px"
+                                            :border-radius "4px"
+                                            :height "20px"    ; Consistent height
+                                            :line-height "15px"  ; Center text vertically
+                                            :display "flex"}}
+                       :column-dropdown {:style {:font-size "12px"
                                                  :border "1px solid #bfdbfe"
-                                                 :border-radius "4px"}
+                                                 :border-radius "4px"
+                                                 :width "90px"}
                                          :parts {:chosen-single {:style {:height "20px"
-                                                                         :line-height "18px"
-                                                                         :padding "1px 8px"}}}}
-                      :text-input {:style {:font-size "12px"
-                                          :border "1px solid #bfdbfe"
-                                          :border-radius "4px"
-                                          :background-color "#fafbff"
-                                          :padding "0 8px"}}
-                      :where-label {:style {:color "#3b82f6"
-                                           :font-weight "500"
-                                           :font-size "12px"
-                                           :height "30px"        ; Match component height
-                                           :line-height "30px"   ; Center text vertically
-                                           :padding "0 8px 0 0" ; Remove vertical padding
-                                           :margin "0"
-                                           :display "flex"
-                                           :align-items "center"}}
-                      :operator-button {:style {:font-size "12px"
-                                               :background-color "#f1f5f9"
-                                               :border "1px solid #cbd5e1"
-                                               :color "#475569"
-                                               :height "30px"      ; Consistent height
-                                               :padding "0 6px"    ; Remove vertical padding
-                                               :display "flex"
-                                               :align-items "center"}}
-                      :operator-text {:style {:font-size "12px"
-                                             :color "#64748b"
-                                             :height "30px"      ; Consistent height  
-                                             :line-height "30px" ; Center text vertically
-                                             :padding "0 8px"    ; Remove vertical padding
-                                             :margin "0"
-                                             :display "flex"
-                                             :align-items "center"}}}]]]]]]]
+                                                                         :line-height "18px"}}}}
+                       :operator-dropdown {:style {:font-size "12px"
+                                                   :border "1px solid #bfdbfe"
+                                                   :border-radius "4px"
+                                                   :width "115px"}
+                                           :parts {:chosen-single {:style {:height "20px"
+                                                                           :line-height "18px"}}}}
+                       :text-input {:style {:font-size "12px"
+                                            :border "1px solid #bfdbfe"
+                                            :border-radius "4px"
+                                            :background-color "#fafbff"
+                                            :height "20px"}
+                                    :parts {:wrapper {:style {:width "150px"}}}}
+                       :date-input {:style {:font-size "12px"
+                                            ;:border "1px solid #bfdbfe"
+                                            ;:border-radius "4px"
+                                            ;:background-color "#fafbff"
+                                            ;:height "20px"
+                                            }
+                                    :parts {:anchor-label {:style {:font-size "12px"
+                                                                   :width "90px"
+                                                                   :height "20px"
+                                                                   :line-height "7px"}}}
+                                    }
+                       :daterange-input {:style {:font-size "12px"
+                                                 :border "1px solid #bfdbfe"
+                                                 :border-radius "4px"
+                                                 :background-color "#fafbff"
+                                                 :height "20px"}
+                                         :parts {:wrapper {:style {:width "150px"}}}}
+                       :dropdown-input {:style {:font-size "12px"
+                                                :border "1px solid #bfdbfe"
+                                                :border-radius "4px"
+                                                :background-color "#fafbff"
+                                                :height "20px"}
+                                        :parts {:wrapper {:style {:width "150px"}}
+                                                :chosen-single {:style {:height "20px"
+                                                                        :line-height "18px"}}}}
+                       :tag-dropdown-input {:style {:font-size "12px"
+                                                    :border "1px solid #bfdbfe"
+                                                    :border-radius "4px"
+                                                    :background-color "#fafbff"
+                                                    :height "20px"
+                                                    :width "150px"}}
+
+                       :where-label {:style {:color "#3b82f6"
+                                             :font-size "12px"}}
+                       :operator-button {:style {:font-size "12px"
+                                                 :background-color "#f1f5f9"
+                                                 :border "1px solid #cbd5e1"
+                                                 :color "#475569"
+                                                 :height "20px"
+                                                 :display "flex"}}
+                       :operator-text {:style {:font-size "12px"
+                                               :color "#64748b"
+                                               :height "20px"}}}]]]]]]]
         [parts-table "table-filter" table-filter-parts-desc]]])))
