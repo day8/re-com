@@ -740,6 +740,7 @@ fieldset[disabled] .btn {
 
 .dropdown-button.activator {
     width: 40px;
+    height: 100%;
     color: #777;
     background-color: #F7F7F7
 }

@@ -13,6 +13,7 @@
    [re-com.theme         :as theme]
    [re-com.util          :as u :refer [deref-or-value now->utc]]
    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
+   [re-com.text          :refer [label]]
    [clojure.string       :as string])
   (:import
    [goog.i18n DateTimeFormat]))
@@ -608,7 +609,7 @@
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format goog? placeholder width disabled? parts]
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
-         :style    (flex-child-style "none")
+         :style    (merge #_{:width "100px"} (flex-child-style "none"))
          :on-click (handler-fn
                     (when (not (deref-or-value disabled?))
                       (swap! shown? not)))}
@@ -618,23 +619,27 @@
     :min-width (when-not width "10em")
     :max-width (when-not width "10em")
     :width     width
-    :children  [[:label (merge
-                         {:disabled (deref-or-value disabled?)
-                          :style    (get-in parts [:anchor-label :style])
-                          :class    (str "form-control dropdown-button"
-                                         (when (deref-or-value disabled?) " dropdown-button-disabled")
-                                         (get-in parts [:anchor-label :class]))}
-                         (get-in parts [:anchor-label :attr]))
-                 (cond (not (date-like? (deref-or-value model))) [:span {:style {:color "#bbb"}} placeholder]
-                       goog?                                     (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
-                       :else                                     (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
-                [:span
-                 {:class (theme/merge-class "dropdown-button activator"
-                                            "input-group-addon"
-                                            (when (deref-or-value disabled?)
-                                              "dropdown-button-disabled"))
-                  :style {:padding "3px 0px 0px 0px"}}
-                 [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
+    :children  [[box
+                 :size "auto"
+                 :class (str "form-control dropdown-button"
+                             (when (deref-or-value disabled?) " dropdown-button-disabled")
+                             (get-in parts [:anchor-label :class]))
+                 :style (merge (get-in parts [:anchor-label :style]))
+                 :attr (merge (when (deref-or-value disabled?) {:disabled true})
+                              (get-in parts [:anchor-label :attr]))
+                 :child (cond (not (date-like? (deref-or-value model))) [label :label placeholder :style {:color "#bbb"}]
+                              goog?                                     (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
+                              :else                                     (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
+                [h-box
+                 :class (theme/merge-class "dropdown-button activator"
+                                           "input-group-addon"
+                                           (when (deref-or-value disabled?)
+                                             "dropdown-button-disabled"))
+                 :style {:padding "2px 0px 0px 0px" :width "32px"}
+                 :justify :center
+                 :align :center
+                 :size "none"
+                 :children [[:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]]])
 
 (def datepicker-dropdown-args-desc
   (when include-args-desc?
