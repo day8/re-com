@@ -221,8 +221,7 @@
                                                (select-keys parts selection-list/selection-list-parts)
                                                (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")
                                                (assoc-in-if-empty [:list-group-item :style :height] "auto")
-                                               (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px")
-                                               )
+                                               (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px"))
                                :choices       choices
                                :hide-border?  true
                                :label-fn      (fn [tag]

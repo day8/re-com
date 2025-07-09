@@ -397,7 +397,7 @@
       :number (if
                (#{:empty :not-empty} op)
                 ;; No input field needed for empty/not-empty operators
-                [text/label :label "" #_:style #_{:width "220px"}]
+                [text/label :label ""]
                 [input-text/input-text :model val :width "220px"
                  :class (get-in parts [:text-input :class])
                  :style (get-in parts [:text-input :style])
@@ -711,7 +711,7 @@
        :children [[buttons/button
                    :disabled? disabled?
                    :label "⋯" ;⋯
-                   :class (get-in parts [:context-menu :class]) #_(str "btn-unstyled " (get-in parts [:context-menu :class]))
+                   :class (get-in parts [:context-menu :class])
                    :style (merge {:color "#9ca3af" 
                                   :font-size "20px"
                                   :line-height "18px"
