@@ -609,7 +609,7 @@
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format goog? placeholder width disabled? parts]
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
-         :style    (merge #_{:width "100px"} (flex-child-style "none"))
+         :style    (flex-child-style "none")
          :on-click (handler-fn
                     (when (not (deref-or-value disabled?))
                       (swap! shown? not)))}

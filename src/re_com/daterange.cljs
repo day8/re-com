@@ -187,8 +187,6 @@
   [h-box
    :src src
    :debug-as debug-as
-   #_#_:size "none"
-   #_#_:height "250px"
    :class "rc-daterange-wrapper"
    :children [[border
                :src (at)
