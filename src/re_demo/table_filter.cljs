@@ -35,6 +35,89 @@
    {:name "David Wilson" :age 42 :email "david@company.com" :salary 105000 :department "sales" :active true :hire-date "2020-05-03" :skills #{"python" "clojure"}}
    {:name "Eva Martinez" :age 26 :email "eva@company.com" :salary 72000 :department "marketing" :active true :hire-date "2023-06-18" :skills #{"java" "javascript"}}])
 
+(defn demo2 [max-depth-model top-label-model hide-border-model disabled-model filter-model filter-valid?]
+  (fn []
+    [v-box
+     :children
+     [[title3 "Another Parts Demo"]
+      [table-filter
+       :src (at)
+       :max-depth @max-depth-model
+       :hide-border? @hide-border-model
+       :disabled? @disabled-model
+       :table-spec sample-table-spec
+       :model @filter-model
+       :on-change (fn [model is-valid?]
+                    (reset! filter-model model)
+                    (reset! filter-valid? is-valid?))
+       :style {:font-size "14px"
+               :background-color "#f8f9f5"
+               :color "#2d3d2d"}
+       :parts {:wrapper {:style {:background-color "#f8f9f5"
+                                 :border "2px solid #9eb893"
+                                 :border-radius "50px"
+                                 :padding "20px"
+                                 :box-shadow "0 4px 12px rgba(125, 132, 113, 0.15)"}}
+               :header {:style {:color "#5a8a72"
+                                :font-size "16px"
+                                :font-weight "600"}}
+
+               :filter {:style {:background-color "transparent"}}
+               :group {:style {:border-radius "50px"}}
+               :where-label {:style {:color "#5a8a72"
+                                     :font-weight "500"}}
+               :column-dropdown {:style {:border "1px solid #dcdcdc"
+                                         :border-radius "100px"}
+                                 :parts {:chosen-single {:style {:border-radius "100px"
+                                                                 :color "#2d3d2d"
+                                                                 :height "50px"
+                                                                 :line-height "50px"}}}}
+
+               :operator-dropdown {:style {:border "1px solid #dcdcdc"
+                                           :border-radius "100px"
+                                           :height "50px"}
+                                   :parts {:chosen-single {:style {:border-radius "100px"
+                                                                   :color "#2d3d2d"
+                                                                   :height "50px"
+                                                                   :line-height "50px"}}}}
+               :text-input {:style {:border "1px solid #dcdcdc"
+                                    :border-radius "100px"
+                                    :color "#2d3d2d"
+                                    :height "50px"}}
+               :date-input {:style {}
+                            :parts {:anchor-label {:style {:border-radius "100px"
+                                                           :color "#2d3d2d"
+                                                           :height "50px"
+                                                           :line-height "50px"}}}}
+
+               :daterange-input {
+                                 :parts {}}
+               :dropdown-input {:style {:border "1px solid #dcdcdc"
+                                        :border-radius "100px"
+                                        :height "50px"}
+                                :parts {:chosen-single {:style {:color "#2d3d2d"
+                                                                :border-radius "100px"
+                                                                :height "50px"
+                                                                :line-height "50px"}}}}
+               :tag-dropdown-input {:style {:border "1px solid #dcdcdc"
+                                            :border-radius "100px"
+                                            :color "#2d3d2d"
+                                            :height "50px"}
+                                    :parts {:popover-anchor-wrapper {:style {:border-radius "50px"}}}}
+               :add-button {:style {:background-color "#e6f0e6"
+                                    :color "#5a8a72"
+                                    :border "1px solid #9eb893"
+                                    :border-radius "100px"
+                                    :height "50px"}}
+
+               :operator-button {:style {:color "#5a8a72"
+                                         :border "1px solid #dcdcdc"
+                                         :border-radius "100px"
+                                         :height "50px"}}
+               :operator-text {:style {:color "#5a8a72"
+                                       :font-weight "500"}}
+               :warning-icon {:style {:color "#d4af37"}}}]]]))
+
 (defn panel
   []
   (let [filter-model (r/atom nil)
@@ -69,7 +152,10 @@
              [:li [:strong "Select columns:"] " single or multi-value selection from predefined options"]]
             [p "Supports nested filter groups with AND/OR logic, configurable nesting depth, and real-time validation."]
             [args-table table-filter-args-desc]]]
-          [v-box :src (at) :width " 700 px " :gap "10px"
+          [v-box
+           :src (at)
+           :width "auto"
+           :gap "10px"
            :children
            [[title2 "Interactive Demo"]
             [v-box :src (at) :gap "15px"
@@ -126,7 +212,7 @@
                    :class "btn-outline"
                    :style {:font-size "13px" :color "#dc2626" :font-weight "500"
                            :padding "8px 16px" :border "1px solid #dc2626"
-                           :border-radius "6px" :background-color "#ffffff"}
+                           :border-radius "6px" }
                    :disabled? @disabled-model
                    :on-click #(reset! filter-model nil)]
                   [label :label "Reset the filter to empty state"]]]]]
@@ -141,6 +227,9 @@
 
               [title3 "Parts System Demo"]
               [p "The same table-filter with custom styling via the " [:code ":parts"] " parameter:"]
+              [p "Note: Each part (like " [:code ":column-dropdown"] ") can have both direct styling and nested " [:code ":parts"] " to customize its internal components:"]
+              [:pre {:style {:background-color "#f8f9fa" :padding "10px" :font-size "10px" :border-radius "4px" :border "1px solid #e9ecef" :margin-bottom "10px"}}
+               ":parts {:column-dropdown {:style {:border \"1px solid blue\"}    ; Style the dropdown wrapper\n                          :parts {:chosen-single {:style {:color \"red\"}}}}  ; Style internal dropdown parts"]
               [table-filter
                :src (at)
                :max-depth @max-depth-model
@@ -197,8 +286,7 @@
                                     :parts {:anchor-label {:style {:font-size "12px"
                                                                    :width "90px"
                                                                    :height "20px"
-                                                                   :line-height "7px"}}}
-                                    }
+                                                                   :line-height "7px"}}}}
                        :daterange-input {:style {:font-size "12px"
                                                  :border "1px solid #bfdbfe"
                                                  :border-radius "4px"
@@ -208,17 +296,17 @@
                                                 :border "1px solid #bfdbfe"
                                                 :border-radius "4px"
                                                 :background-color "#fafbff"
-                                                :height "20px"}
-                                        :parts {:wrapper {:style {:width "150px"}}
-                                                :chosen-single {:style {:height "20px"
+                                                :height "20px"
+                                                :width "115px"}
+                                        :parts {:chosen-single {:style {:height "20px"
                                                                         :line-height "18px"}}}}
-                       :tag-dropdown-input {:style {:font-size "12px"
-                                                    :border "1px solid #bfdbfe"
-                                                    :border-radius "4px"
-                                                    :background-color "#fafbff"
+                       :tag-dropdown-input {:style {;:font-size "12px"
+                                                    ;:border "1px solid #bfdbfe"
+                                                    ;:border-radius "4px"
+                                                    ;:background-color "#fafbff"
                                                     :height "20px"
-                                                    :width "150px"}}
-
+                                                   ; :width "150px"
+                                                    }}
                        :where-label {:style {:color "#3b82f6"
                                              :font-size "12px"}}
                        :operator-button {:style {:font-size "12px"
@@ -229,5 +317,9 @@
                                                  :display "flex"}}
                        :operator-text {:style {:font-size "12px"
                                                :color "#64748b"
-                                               :height "20px"}}}]]]]]]]
-        [parts-table "table-filter" table-filter-parts-desc]]])))
+                                               :height "20px"}}}]
+
+              [demo2 max-depth-model top-label-model hide-border-model disabled-model filter-model filter-valid?]
+              ]]]]]]
+              [parts-table "table-filter" table-filter-parts-desc]]
+              ])))
