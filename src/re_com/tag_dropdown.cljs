@@ -15,6 +15,7 @@
    [re-com.checkbox       :refer [checkbox]]
    [re-com.selection-list :as    selection-list]
    [re-com.close-button   :refer [close-button]]
+   [re-com.text           :refer [label]]
    [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]))
 
 ;; TODO: [GR] Ripped off from re-com.selection-list
@@ -125,6 +126,7 @@
      {:name :main                   :level 1 :class "rc-tag-dropdown"                        :impl "[h-box]"}
      {:name :tags                   :level 2 :class "rc-tag-dropdown-tags"                   :impl "[h-box]"}
      {:name :tag                    :level 3 :class "rc-tag-dropdown-tag"                    :impl "[h-box]" :notes [:span "Each individual tag can be independently targeted with the keyword of its " [:code ":id"]]}
+     {:name :counter                :level 2 :class "rc-tag-dropdown-counter"                :impl "[label]" :notes "The selection counter displayed to the left of the close button"}
      {:name :selection-list         :level 2 :class "rc-tag-dropdown-selection-list"         :impl "[selection-list]"}]))
 
 (def tag-dropdown-parts-desc
@@ -149,6 +151,8 @@
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
      {:name :required?          :required false :default false          :type "boolean | r/atom"                                                 :description "when true, at least one item must be selected."}
      {:name :unselect-buttons?  :required false :default false          :type "boolean"                                                          :description "When true, \"X\" buttons will be added to the display of selected tags (on the right), allowing the user to directly unselect them."}
+     {:name :only-button?       :required false :default false          :type "boolean"                                                          :description "When true, an 'Only' button will be displayed next to each item in the dropdown, allowing the user to select only that item."}
+     {:name :show-counter?      :required false :default false          :type "boolean"                                                          :description "When true, a counter showing the number of selected items will be displayed in the anchor to the left of the close button."}
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
      {:name :description-fn     :required false :default ":description" :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable description. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
      {:name :abbrev-fn          :required false                         :type "choice -> hiccup"        :validate-fn ifn?                        :description [:span "A function which can turn a choice into an abbreviated label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
@@ -167,11 +171,13 @@
    (validate-args-macro tag-dropdown-args-desc args)
    (let [showing?      (reagent/atom false)]
      (fn tag-dropdown-render
-       [& {:keys [choices model placeholder on-change unselect-buttons? required? abbrev-fn abbrev-threshold label-fn
+       [& {:keys [choices model placeholder on-change unselect-buttons? required? only-button? show-counter? abbrev-fn abbrev-threshold label-fn
                   description-fn min-width max-width height style disabled? parts src debug-as]
            :or   {label-fn          :label
                   description-fn    :description
-                  height            "25px"}
+                  height            "25px"
+                  only-button?      false
+                  show-counter?     false}
            :as   args}]
        (or
         (validate-args-macro tag-dropdown-args-desc args)
@@ -181,6 +187,8 @@
               required?          (deref-or-value required?)
               disabled?          (deref-or-value disabled?)
               unselect-buttons?  (deref-or-value unselect-buttons?)
+              only-button?       (deref-or-value only-button?)
+              show-counter?      (deref-or-value show-counter?)
 
               choices-num-chars  (reduce
                                   (fn [n choice]
@@ -208,11 +216,13 @@
                                :attr          (get-in parts [:selection-list :attr])
                                :disabled?     disabled?
                                :required?     required?
+                               :only-button?  only-button?
                                :parts         (->
                                                (select-keys parts selection-list/selection-list-parts)
                                                (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")
                                                (assoc-in-if-empty [:list-group-item :style :height] "auto")
-                                               (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px"))
+                                               (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px")
+                                               )
                                :choices       choices
                                :hide-border?  true
                                :label-fn      (fn [tag]
@@ -270,12 +280,27 @@
                                                          [box
                                                           :src   (at)
                                                           :child (if placeholder placeholder "")]))]
-                                           (when (and (not-empty model) (not disabled?)
-                                                      (not required?))
-                                             [close-button
-                                              :src       (at)
-                                              :parts     {:wrapper {:style {:margin-left "5px"}}}
-                                              :on-click  #(on-change #{})])]]]
+                                           [h-box
+                                            :src (at)
+                                            :align :center
+                                            :children [[gap :size "8px"]
+                                                       (when (and show-counter? (not-empty model))
+
+                                                         [label
+                                                          :src (at)
+                                                          :class (str "rc-tag-dropdown-counter " (get-in parts [:counter :class]))
+                                                          :style (merge {:color "grey"
+                                                                         :font-size "12px"
+                                                                         :margin-right "2px"}
+                                                                        (get-in parts [:counter :style]))
+                                                          :attr (get-in parts [:counter :attr])
+                                                          :label (str (count model))])
+                                                       (when (and (not-empty model) (not disabled?)
+                                                                  (not required?))
+                                                         [close-button
+                                                          :src       (at)
+                                                          :parts     {:wrapper {:style {:margin-left "5px"}}}
+                                                          :on-click  #(on-change #{})])]]]]]
           [popover-anchor-wrapper
            :src      src
            :debug-as (or debug-as (reflect-current-component))

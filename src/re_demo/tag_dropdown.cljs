@@ -22,6 +22,8 @@
         disabled?         (reagent/atom false)
         required?         (reagent/atom false)
         unselect-buttons? (reagent/atom false)
+        only-button?      (reagent/atom false)
+        show-counter?     (reagent/atom false)
         placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
         abbrev-threshold? (reagent/atom false)
@@ -43,6 +45,8 @@
                    :required?         required?
                    :placeholder       (when @placeholder? "placeholder message")
                    :unselect-buttons? unselect-buttons?
+                   :only-button?      only-button?
+                   :show-counter?     show-counter?
                    :choices           choices
                    :model             model
                    :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
@@ -85,6 +89,18 @@
                                                        :child [:code ":unselect-buttons?"]]
                                            :model     unselect-buttons?
                                            :on-change #(reset! unselect-buttons? %)]
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
+                                                       :align :start
+                                                       :child [:code ":only-button?"]]
+                                           :model     only-button?
+                                           :on-change #(reset! only-button? %)]
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
+                                                       :align :start
+                                                       :child [:code ":show-counter?"]]
+                                           :model     show-counter?
+                                           :on-change #(reset! show-counter? %)]
                                           [checkbox :src (at)
                                            :label     [box :src (at)
                                                        :align :start

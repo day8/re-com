@@ -416,7 +416,7 @@
                :class (get-in parts [:daterange-input :class])
                :style (get-in parts [:daterange-input :style])
                :attr (get-in parts [:daterange-input :attr])
-               
+               :placeholder "Select date range"
                :show-today? true
                :disabled? disabled?
                :on-change #(on-change (assoc filter-rule :val %))]
@@ -459,6 +459,8 @@
                  :choices options
                  :placeholder "Select values..."
                  :min-width "220px"
+                 :only-button? true
+                 :show-counter? true
                  ;:class (get-in parts [:tag-dropdown-input :class])
                  :style (merge {:color "#333333"
                                 :background-color "#ffffff"}
