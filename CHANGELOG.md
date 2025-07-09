@@ -2,6 +2,18 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
 
+## 2.28.0 (2025-07-10)
+
+#### Added
+
+ - `table-filter`: New UI component for creating filters for tabular data 
+ - `selection-list`: `:only-button` and `:show-counter` props
+ - `tag-dropdown`: `:only-button` and `:show-counter` props
+
+#### Fixed
+
+ - `daterange`: Fix daterange availability in re-com public API
+
 ## 2.27.0 (2025-06-06)
 
 #### Added
