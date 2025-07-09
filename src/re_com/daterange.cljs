@@ -662,9 +662,8 @@
   [shown? model format goog? placeholder width disabled?]
   (let [format-str (or format "dd MMM, yyyy")]
     (cond
-      (not (date-like? (:start (deref-or-value model)))) (do
-                                                           (prn (:start (deref-or-value model)))
-                                                           [:span {:style {:color "#bbb"}} placeholder])
+      (not (date-like? (:start (deref-or-value model))))
+      [:span {:style {:color "#bbb"}} placeholder]
       goog? (str
              (.format (DateTimeFormat. (if (seq format) format format-str)) (:start (deref-or-value model)))
              " - "
