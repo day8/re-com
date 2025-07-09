@@ -202,8 +202,7 @@
                        :daterange-input {:style {:font-size "12px"
                                                  :border "1px solid #bfdbfe"
                                                  :border-radius "4px"
-                                                 :background-color "#fafbff"
-                                                 :height "20px"}
+                                                 :background-color "#fafbff"}
                                          :parts {:wrapper {:style {:width "150px"}}}}
                        :dropdown-input {:style {:font-size "12px"
                                                 :border "1px solid #bfdbfe"
