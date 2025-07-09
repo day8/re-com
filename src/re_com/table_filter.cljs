@@ -156,22 +156,23 @@
 
 (def table-filter-parts-desc
   (when include-args-desc?
-    [{:name :wrapper            :level 0 :class "rc-table-filter-wrapper"      :impl "[v-box]"         :notes "Outer wrapper of the entire table filter component"}
-     {:name :header             :level 1 :class "rc-table-filter-header"       :impl "[label]"         :notes "The 'Select rows' header label"}
-     {:name :group              :level 1 :class "rc-table-filter-group"        :impl "[v-box]"         :notes "Container for a filter group"}
-     {:name :filter             :level 2 :class "rc-table-filter-filter"       :impl "[h-box]"         :notes "Container for individual filter condition row"}
-     {:name :column-dropdown    :level 3 :class "rc-table-filter-column"       :impl "[dropdown]"      :notes "Dropdown for selecting table columns"}
-     {:name :operator-dropdown  :level 3 :class "rc-table-filter-operator"     :impl "[dropdown]"      :notes "Dropdown for selecting filter operators"}
-     {:name :text-input         :level 3 :class "rc-table-filter-text"         :impl "[input-text]"    :notes "Text input field for text and number values"}
-     {:name :date-input         :level 3 :class "rc-table-filter-date"         :impl "[datepicker]"    :notes "Date picker for single date values"}
-     {:name :daterange-input    :level 3 :class "rc-table-filter-daterange"    :impl "[daterange]"     :notes "Date range picker for between/not-between operations"}
-     {:name :dropdown-input     :level 3 :class "rc-table-filter-dropdown"     :impl "[dropdown]"      :notes "Dropdown for boolean and single-select values"}
-     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes "Tag-dropdown for selecting multiple values. Due to unfinished implementation of tag-dropdown, does not accept :class or :attr"}
-     {:name :add-button         :level 2 :class "rc-table-filter-add"          :impl "[button]"        :notes "The '+ Add filter' button and dropdown menu"}
-     {:name :context-menu       :level 3 :class "rc-table-filter-context"      :impl "[button]"        :notes "The '⋯' context menu button for groups and filters"}
-     {:name :operator-button    :level 2 :class "rc-table-filter-op-button"    :impl "[button]"        :notes "The AND/OR operator button when interactive (first in group)"}
-     {:name :operator-text      :level 2 :class "rc-table-filter-op-text"      :impl "[label]"         :notes "The AND/OR operator text when non-interactive (subsequent in group)"}
-     {:name :where-label        :level 2 :class "rc-table-filter-where"        :impl "[label]"         :notes "The 'Where' label for first filter"}]))
+    [{:name :wrapper            :level 0 :class "rc-table-filter-wrapper"      :impl "[v-box]"         :notes "Outer wrapper of the entire table filter component. No nested :parts"}
+     {:name :header             :level 1 :class "rc-table-filter-header"       :impl "[label]"         :notes "The 'Select rows' header label. Accepts nested :parts"}
+     {:name :group              :level 1 :class "rc-table-filter-group"        :impl "[v-box]"         :notes "Container for a filter group. No nested :parts"}
+     {:name :filter             :level 2 :class "rc-table-filter-filter"       :impl "[h-box]"         :notes "Container for individual filter condition row. No nested :parts"}
+     {:name :column-dropdown    :level 3 :class "rc-table-filter-column"       :impl "[dropdown]"      :notes "Dropdown for selecting table columns. Accepts nested :parts"}
+     {:name :operator-dropdown  :level 3 :class "rc-table-filter-operator"     :impl "[dropdown]"      :notes "Dropdown for selecting filter operators. Accepts nested :parts"}
+     {:name :text-input         :level 3 :class "rc-table-filter-text"         :impl "[input-text]"    :notes "Text input field for text and number values. Accepts nested :parts"}
+     {:name :date-input         :level 3 :class "rc-table-filter-date"         :impl "[datepicker]"    :notes "Date picker for single date values. Accepts nested :parts"}
+     {:name :daterange-input    :level 3 :class "rc-table-filter-daterange"    :impl "[daterange]"     :notes "Date range picker for between/not-between operations. Accepts nested :parts"}
+     {:name :dropdown-input     :level 3 :class "rc-table-filter-dropdown"     :impl "[dropdown]"      :notes "Dropdown for boolean and single-select values. Accepts nested :parts"}
+     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes "Tag-dropdown for selecting multiple values. Accepts nested :parts. Due to unfinished implementation of tag-dropdown, does not accept :class or :attr"}
+     {:name :add-button         :level 2 :class "rc-table-filter-add"          :impl "[button]"        :notes "The '+ Add filter' button and dropdown menu. Accepts nested :parts"}
+     {:name :context-menu       :level 3 :class "rc-table-filter-context"      :impl "[button]"        :notes "The '⋯' context menu button for groups and filters. Accepts nested :parts"}
+     {:name :operator-button    :level 2 :class "rc-table-filter-op-button"    :impl "[button]"        :notes "The AND/OR operator button when interactive (first in group). Accepts nested :parts"}
+     {:name :operator-text      :level 2 :class "rc-table-filter-op-text"      :impl "[label]"         :notes "The AND/OR operator text when non-interactive (subsequent in group). Accepts nested :parts"}
+     {:name :where-label        :level 2 :class "rc-table-filter-where"        :impl "[label]"         :notes "The 'Where' label for first filter. Accepts nested :parts"}
+     {:name :warning-icon       :level 3 :class "rc-table-filter-warning"      :impl "[md-icon-button]" :notes "The warning icon shown for invalid filters. Accepts nested :parts"}]))
 
 (def table-filter-parts
   (when include-args-desc?
@@ -416,6 +417,7 @@
                :class (get-in parts [:daterange-input :class])
                :style (get-in parts [:daterange-input :style])
                :attr (get-in parts [:daterange-input :attr])
+               :parts (get-in parts [:daterange-input :parts])
                :placeholder "Select date range"
                :show-today? true
                :disabled? disabled?
@@ -444,6 +446,7 @@
                   :class (get-in parts [:dropdown-input :class])
                   :style (get-in parts [:dropdown-input :style])
                   :attr (get-in parts [:dropdown-input :attr])
+                  :parts (get-in parts [:dropdown-input :parts])
                   :disabled? disabled?
                   :on-change #(on-change (assoc filter-rule :val %))])
       :select (cond
@@ -455,7 +458,7 @@
                 ;; Multi-value selection for these operators
                 [tag-dropdown/tag-dropdown
                  :model (or val #{})
-                 :height "34px"
+                 :height (or  (get-in parts [:tag-dropdown-input :style :height]) "34px")
                  :choices options
                  :placeholder "Select values..."
                  :min-width "220px"
@@ -466,6 +469,7 @@
                                 :background-color "#ffffff"}
                                (get-in parts [:tag-dropdown-input :style]))
                  ;:attr (get-in parts [:tag-dropdown-input :attr])
+                 :parts (get-in parts [:tag-dropdown-input :parts])
                  :disabled? disabled?
                  :on-change #(on-change (assoc filter-rule :val %))]
 
@@ -478,6 +482,7 @@
                  :class (get-in parts [:dropdown-input :class])
                  :style (get-in parts [:dropdown-input :style])
                  :attr (get-in parts [:dropdown-input :attr])
+                 :parts (get-in parts [:dropdown-input :parts])
                  :disabled? disabled?
                  :on-change #(on-change (assoc filter-rule :val %))])
       [text/label :label ""])))
@@ -513,6 +518,7 @@
                                   :background-color "transparent"}
                                  (get-in parts [:add-button :style]))
                    :attr (get-in parts [:add-button :attr])
+                   :parts (get-in parts [:add-button :parts])
                    :on-click #(swap! show-menu? not)]
                   (when @show-menu?
                     [box/v-box
@@ -570,6 +576,7 @@
                    :style (merge {:color "#9ca3af" :font-size "20px" :padding "6px 8px" :border "none" :background "transparent" :border-radius "4px"}
                                  (get-in parts [:context-menu :style]))
                    :attr (get-in parts [:context-menu :attr])
+                   :parts (get-in parts [:context-menu :parts])
                    :on-click #(swap! show-menu? not)]
                   (when @show-menu?
                     [box/v-box
@@ -631,6 +638,7 @@
                                     :text-align "left" :padding "6px 6px"}
                                    (get-in parts [:operator-button :style]))
                      :attr (get-in parts [:operator-button :attr])
+                     :parts (get-in parts [:operator-button :parts])
                      :on-click #(swap! show-menu? not)]
                     [text/label
                      :label (case operator :and "And" :or "Or")
@@ -719,10 +727,11 @@
                                  (get-in parts [:context-menu :style]))
                    :attr (get-in parts [:context-menu :attr])
                    :on-click #(swap! show-menu? not)
-                   :parts {:wrapper {:style {:align-self "stretch"
-                                             :min-height "15px"
-                                             :max-height "34px"
-                                             :display "flex"}}}]
+                   :parts (merge {:wrapper {:style {:align-self "stretch"
+                                                    :min-height "15px"
+                                                    :max-height "34px"
+                                                    :display "flex"}}}
+                                 (get-in parts [:context-menu :parts]))]
                   (when @show-menu?
                     [box/v-box
                      :class "filter-context-menu"
@@ -800,7 +809,11 @@
                   [buttons/md-icon-button
                    :md-icon-name "zmdi-alert-triangle"
                    :size :smaller
-                   :style {:color "red" :pointer-events "none"}
+                   :style (merge {:color "red" :pointer-events "none"}
+                                 (get-in parts [:warning-icon :style]))
+                   :class (get-in parts [:warning-icon :class])
+                   :attr (get-in parts [:warning-icon :attr])
+                   :parts (get-in parts [:warning-icon :parts])
                    :tooltip "Invalid rule"])]]))
 
 (defn group-component
@@ -847,7 +860,8 @@
                                                                                :min-width "52px" 
                                                                                :text-align "center"}
                                                                               (get-in parts [:where-label :style]))
-                                                                :attr (get-in parts [:where-label :attr])])]
+                                                                :attr (get-in parts [:where-label :attr])
+                                                                :parts (get-in parts [:where-label :parts])])]
                                              [box/h-box
                                               :align :center
                                               :gap "4px"
@@ -923,6 +937,7 @@
                          :class (get-in parts [:header :class])
                          :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
                                        (get-in parts [:header :style]))
-                         :attr (get-in parts [:header :attr])]
+                         :attr (get-in parts [:header :attr])
+                         :parts (get-in parts [:header :parts])]
                         [box/gap :size "10px"]
                         [group-component table-spec @internal-model update-state! max-depth-defaulted 0 :parts parts :disabled? disabled?]]])))))))
