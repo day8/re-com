@@ -20,7 +20,9 @@
 ;; Helpers
 ;; ----------------------------------------------------------------------------
 ;; ID generation for filters and groups
-(defn generate-id []
+(defn generate-id 
+  "Generates a unique ID string for filter and group nodes."
+  []
   (str "item-" (random-uuid)))
 
 (def number-regex #"^-?\d+(?:\.\d+)?$")
@@ -260,7 +262,8 @@
                      #(assoc % :children (conj (:children %) new-item))))
 
 (defn find-parent-group
-  "Find the parent group that contains the item with target-id"
+  "Finds the parent group that contains the item with target-id.
+  Returns the parent group node or nil if not found."
   [tree target-id]
   (when (= (:type tree) :group)
     (if (some #(= (:id %) target-id) (:children tree))
@@ -268,7 +271,8 @@
       (some #(find-parent-group % target-id) (:children tree)))))
 
 (defn duplicate-item-by-id
-  "Duplicate an item and add it to the same parent group"
+  "Duplicates an item by ID and adds the copy to the same parent group.
+  Returns the updated tree with the duplicated item added."
   [tree target-id]
   (when-let [parent (find-parent-group tree target-id)]
     (when-let [item (some #(when (= (:id %) target-id) %) (:children parent))]
@@ -276,7 +280,8 @@
         (add-child-to-group tree (:id parent) new-item)))))
 
 (defn convert-filter-to-group
-  "Convert a filter to a group containing that filter"
+  "Converts a filter node to a group node containing that filter.
+  Used to enable nesting when adding subgroups to existing filters."
   [tree target-id]
   (update-item-by-id tree target-id
                      (fn [item]
@@ -286,7 +291,8 @@
                          item))))
 
 (defn clean-empty-groups
-  "Recursively remove groups with no children, except the root group"
+  "Recursively removes groups with no children, except the root group.
+  Helps maintain a clean tree structure after deletions."
   ([tree] (clean-empty-groups tree (:id tree)))  ; Start with root ID
   ([tree root-id]
    (if (= (:type tree) :group)
