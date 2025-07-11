@@ -5,8 +5,7 @@
    [reagent.core      :as r]
    [re-com.dropdown   :as dd]
    [re-com.config     :refer [include-args-desc?]]
-   [re-com.box        :refer [line border flex-child-style]]
-   [re-com.core       :refer [at v-box h-box box popover-anchor-wrapper popover-content-wrapper]]
+   [re-com.box        :refer [line border v-box h-box box flex-child-style]]
    [re-com.validate   :refer [date-like? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]
    [re-com.theme      :as theme]
    [re-com.util       :refer [deref-or-value now->utc]]
@@ -188,8 +187,6 @@
   [h-box
    :src src
    :debug-as debug-as
-   #_#_:size "none"
-   #_#_:height "250px"
    :class "rc-daterange-wrapper"
    :children [[border
                :src (at)
@@ -663,9 +660,8 @@
   [shown? model format goog? placeholder width disabled?]
   (let [format-str (or format "dd MMM, yyyy")]
     (cond
-      (not (date-like? (:start (deref-or-value model)))) (do
-                                                           (prn (:start (deref-or-value model)))
-                                                           [:span {:style {:color "#bbb"}} placeholder])
+      (not (date-like? (:start (deref-or-value model))))
+      [:span {:style {:color "#bbb"}} placeholder]
       goog? (str
              (.format (DateTimeFormat. (if (seq format) format format-str)) (:start (deref-or-value model)))
              " - "

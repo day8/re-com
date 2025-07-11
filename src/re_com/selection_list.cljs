@@ -30,7 +30,7 @@
      base-style)))
 
 (defn- as-checked
-  [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
+  [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts only-button?]
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   (let [item-id (id-fn item)]
     [box
@@ -49,16 +49,38 @@
                                (on-change (disj selections item-id))
                                (on-change (conj selections item-id))))))}
              (get-in parts [:list-group-item :attr]))
-     :child [checkbox
-             :src         (at)
-             :class       (str "rc-selection-list-checkbox " (get-in parts [:checkbox :class]))
-             :style       (get-in parts [:checkbox :style])
-             :attr        (get-in parts [:checkbox :attr])
-             :model       (some? (selections item-id))
-             :on-change   #()                                 ;; handled by enclosing box
-             :disabled?   disabled?
-             :label-style (label-style (selections item-id) as-exclusions?)
-             :label       (label-fn item)]]))
+     :child [h-box
+             :src      (at)
+             :size "auto"
+             :align    :center
+             :justify  :between
+             :children [[checkbox
+                         :src         (at)
+                         :class       (str "rc-selection-list-checkbox " (get-in parts [:checkbox :class]))
+                         :style       (get-in parts [:checkbox :style])
+                         :attr        (get-in parts [:checkbox :attr])
+                         :model       (some? (selections item-id))
+                         :on-change   #()                                 ;; handled by enclosing box
+                         :disabled?   disabled?
+                         :label-style (label-style (selections item-id) as-exclusions?)
+                         :label       (label-fn item)]
+                        (when only-button?
+                          [:button
+                           {:class (get-in parts [:only-button :class])
+                            :style (merge {:background "none"
+                                           :border "none"
+                                           :color "#007bff"
+                                           :cursor "pointer"
+                                           :font-size "12px"
+                                           :padding "2px 6px"
+                                           :line-height "1.2"}
+                                          (get-in parts [:only-button :style]))
+                            :disabled disabled?
+                            :on-click (handler-fn
+                                       (.stopPropagation event)
+                                       (when (not disabled?)
+                                         (on-change #{item-id})))}
+                           "only"])]]]))
 
 (defn- radio-clicked
   [selections item-id]
@@ -120,7 +142,8 @@
      {:name :list-group      :level 1 :class "rc-selection-list-group"        :impl "[:div]"           :notes "Container for the selection list items."}
      {:name :list-group-item :level 2 :class "rc-selection-list-group-item"   :impl "[box]"}
      {:name :checkbox        :level 3 :class "rc-selection-list-checkbox"     :impl "[checkbox]"}
-     {:name :radio-button    :level 3 :class "rc-selection-list-radio-button" :impl "[radio-button]"}]))
+     {:name :radio-button    :level 3 :class "rc-selection-list-radio-button" :impl "[radio-button]"}
+     {:name :only-button     :level 3 :class "rc-selection-list-only-button"  :impl "[:button]"        :notes "The 'only' button displayed next to each item when :only-button? is true"}]))
 
 (def selection-list-parts
   (when include-args-desc?
@@ -142,7 +165,8 @@
      {:name :disabled?      :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the time input will be disabled. Can be atom or value"}
      {:name :hide-border?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the list will be displayed without a border"}
      {:name :item-renderer  :required false                 :type "choice, id-fn, selected, on-change, disabled?, label-fn, required?, as-exclusions? -> hiccup | r/atom"                      :validate-fn fn?                           :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
-     {:name :class          :required false                 :type "string"                               :validate-fn css-class?                       :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :only-button?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, an 'only' button will be displayed next to each item, allowing the user to select only that item"}
+     {:name :class          :required false                 :type "string"                               :validate-fn css-class?                    :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style          :required false                 :type "CSS style map"                        :validate-fn css-style?                    :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr           :required false                 :type "HTML attr map"                        :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts          :required false                 :type "map"                                  :validate-fn (parts? selection-list-parts) :description "See Parts section below."}
@@ -154,12 +178,13 @@
 ;;      this approach may be not ideal for very large list choices.
 (defn selection-list
   "Produce a list box with items arranged vertically"
-  [& {:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts src debug-as]
+  [& {:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer only-button? class style attr parts src debug-as]
       :or   {multi-select?  true
              as-exclusions? false
              required?      false
              disabled?      false
              hide-border?   false
+             only-button?   false
              id-fn          :id
              label-fn       :label}
       :as   args}]
@@ -177,11 +202,12 @@
          disabled?      (deref-or-value disabled?)
          hide-border?   (deref-or-value hide-border?)
          item-renderer  (deref-or-value item-renderer)
+         only-button?   (deref-or-value only-button?)
          selected       (if multi-select? model (-> model first vector set))
          items          (map (if item-renderer
                                #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
                                (if multi-select?
-                                 #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
+                                 #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts only-button?)
                                  #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
                              choices)
          bounds         (select-keys args [:width :height :max-height])

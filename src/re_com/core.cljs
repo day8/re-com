@@ -8,6 +8,7 @@
    [re-com.checkbox        :as checkbox]
    [re-com.close-button    :as close-button]
    [re-com.datepicker      :as datepicker]
+   [re-com.daterange       :as daterange]
    [re-com.debug           :as debug]
    [re-com.dropdown        :as dropdown]
    [re-com.input-text      :as input-text]
@@ -33,6 +34,7 @@
    [re-com.v-table         :as v-table]
    [re-com.simple-v-table  :as simple-v-table]
    [re-com.nested-grid     :as nested-grid]
+   [re-com.table-filter    :as table-filter]
    [re-com.theme           :as theme]))
 
 ;; -----------------------------------------------------------------------------
@@ -60,6 +62,7 @@
 (def show-row-data-on-alt-click v-table/show-row-data-on-alt-click)
 (def simple-v-table             simple-v-table/simple-v-table)
 (def nested-grid                nested-grid/nested-grid)
+(def table-filter               table-filter/table-filter)
 
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)
@@ -73,6 +76,9 @@
 
 (def datepicker                 datepicker/datepicker)
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
+
+(def daterange                  daterange/daterange)
+(def daterange-dropdown         daterange/daterange-dropdown)
 
 (def single-dropdown            dropdown/single-dropdown)
 (def dropdown                   dropdown/dropdown)

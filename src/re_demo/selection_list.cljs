@@ -6,7 +6,8 @@
    [re-com.selection-list :refer [selection-list-parts-desc selection-list-args-desc]]
    [re-demo.utils         :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
    [re-com.util           :refer [px]]
-   [reagent.core          :as    reagent]))
+   [reagent.core          :as    reagent]
+   [re-demo.multi-select :as multi-select]))
 
 (defn- list-with-options
   [width]
@@ -14,6 +15,7 @@
         multi-select?  (reagent/atom true)
         required?      (reagent/atom true)
         as-exclusions? (reagent/atom false)
+        only-button?   (reagent/atom false)
         items          (reagent/atom [{:id "1" :label "1st RULE: You do not talk about FIGHT CLUB." :short "1st RULE"}
                                       {:id "2" :label "2nd RULE: You DO NOT talk about FIGHT CLUB." :short "2nd RULE"}
                                       {:id "3" :label "3rd RULE: If someone says \"stop\" or goes limp, taps out the fight is over." :short "3rd RULE"}
@@ -32,7 +34,7 @@
                   [v-box :src (at) ;; TODO: v-box required to constrain height of internal border.
                    :children [[stack-spy
                                :component [selection-list :src (at)
-                                           :width          "391px"      ;; manual hack for width of variation panel A+B 1024px
+                                           :width          "500px"      ;; manual hack for width of variation panel A+B 1024px
                                            :max-height     "95px"       ;; based on compact style @ 19px x 5 rows
                                            :model          selections
                                            :choices        items
@@ -41,6 +43,7 @@
                                            :multi-select?  multi-select?
                                            :disabled?      disabled?
                                            :required?      required?
+                                           :only-button?   only-button?
                                            :on-change      #(reset! selections %)]]
                               [gap :src (at) :size "10px"]
                               [h-box :src (at)
@@ -75,7 +78,12 @@
                               [checkbox :src (at)
                                :label       [box :src (at) :align :start :child [:code ":as-exclusions?"]]
                                :model       as-exclusions?
-                               :on-change   #(reset! as-exclusions? %)]]]]])))
+                               :on-change   #(reset! as-exclusions? %)]
+                              [checkbox :src (at)
+                               :label       [box :src (at) :align :start :child [:code ":only-button?"]]
+                               :model       only-button?
+                               :disabled?   (not @multi-select?)
+                               :on-change   #(reset! only-button? %)]]]]])))
 
 (defn panel2
   []
