@@ -206,13 +206,17 @@
                                    :title status-tooltip}]))))]]))))))
 
 (defn input-text
-  [& args]
-  (apply input-text-base :input-type :input :debug-as (reflect-current-component) args))
+  [& {:as args}]
+  (input-text-base (merge {:input-type :input :debug-as (reflect-current-component)}
+                          args)))
 
 (defn input-password
-  [& args]
-  (apply input-text-base :input-type :password :debug-as (reflect-current-component) args))
+  [& {:as args}]
+  (input-text-base (merge {:input-type :password :debug-as (reflect-current-component)}
+                          args)))
 
 (defn input-textarea
   [& args]
-  (apply input-text-base :input-type :textarea :debug-as (reflect-current-component) args))
+  (input-text-base (merge {:input-type :textarea :debug-as (reflect-current-component)}
+                          args)))
+
