@@ -36,7 +36,7 @@
    {:name "David Wilson" :age 42 :email "david@company.com" :salary 105000 :department "sales" :active true :hire-date "2020-05-03" :skills #{"python" "clojure"}}
    {:name "Eva Martinez" :age 26 :email "eva@company.com" :salary 72000 :department "marketing" :active true :hire-date "2023-06-18" :skills #{"java" "javascript"}}])
 
-(defn demo2 [max-depth-model top-label-model hide-border-model disabled-model filter-model filter-valid?]
+(defn demo2 [max-depth-model disabled-model filter-model filter-valid?]
   (fn []
     [v-box
      :children
@@ -44,7 +44,6 @@
       [table-filter
        :src (at)
        :max-depth @max-depth-model
-       :hide-border? @hide-border-model
        :disabled? @disabled-model
        :table-spec sample-table-spec
        :model @filter-model
@@ -124,8 +123,6 @@
   (let [filter-model (r/atom nil)
         filter-valid? (r/atom false)
         disabled-model (r/atom false)
-        hide-border-model (r/atom false)
-        top-label-model (r/atom "Select rows")
         max-depth-model (r/atom 2)]
     (fn []
       [v-box :src (at)
@@ -164,8 +161,6 @@
              [[table-filter
                :src (at)
                :max-depth @max-depth-model
-               :top-label @top-label-model
-               :hide-border? @hide-border-model
                :disabled? @disabled-model
                :table-spec sample-table-spec
                :model @filter-model
@@ -181,14 +176,6 @@
                :children
                [[h-box :gap "15px" :align :center
                  :children
-                 [[label :label "Top Label:"]
-                  [input-text
-                   :model top-label-model
-                   :on-change #(reset! top-label-model %)
-                   :width "200px"
-                   :placeholder "Enter header text"]]]
-                [h-box :gap "15px" :align :center
-                 :children
                  [[label :label "Max Depth:"]
                   [slider
                    :model max-depth-model
@@ -198,10 +185,7 @@
                    :step 1
                    :width "200px"]
                   [label :label (str @max-depth-model)]]]
-                [checkbox
-                 :label "Hide Border?"
-                 :model hide-border-model
-                 :on-change #(reset! hide-border-model %)]
+                
                 [checkbox
                  :label "Disabled?"
                  :model disabled-model
@@ -213,7 +197,7 @@
                    :class "btn-outline"
                    :style {:font-size "13px" :color "#dc2626" :font-weight "500"
                            :padding "8px 16px" :border "1px solid #dc2626"
-                           :border-radius "6px" }
+                           :border-radius "6px"}
                    :disabled? @disabled-model
                    :on-click #(reset! filter-model nil)]
                   [label :label "Reset the filter to empty state"]]]]]
@@ -234,8 +218,6 @@
               [table-filter
                :src (at)
                :max-depth @max-depth-model
-               :top-label @top-label-model
-               :hide-border? @hide-border-model
                :disabled? @disabled-model
                :table-spec sample-table-spec
                :model @filter-model
@@ -321,7 +303,7 @@
                                                :color "#64748b"
                                                :height "20px"}}}]
 
-              [demo2 max-depth-model top-label-model hide-border-model disabled-model filter-model filter-valid?]
+              [demo2 max-depth-model disabled-model filter-model filter-valid?]
               ]]]]]]
               [parts-table "table-filter" table-filter-parts-desc]]
               ])))
