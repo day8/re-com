@@ -9,6 +9,7 @@
    [re-com.box      :refer [flex-child-style v-box h-box gap]]
    [re-com.validate :refer [vector-of-maps? css-style? css-class? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list part?] :refer-macros [validate-args-macro]]
+   [re-com.part     :as part]
    [clojure.string  :as    string]
    [reagent.core    :as    reagent]
    [goog.string     :as    gstring]
@@ -310,18 +311,18 @@
       :reagent-render
       (fn [{:keys [theme children post-props]}]
         (let [[left top] (deref anchor-position)]
-          (u/part (get parts :body-wrapper (get parts ::body-wrapper))
-                  {:theme      theme
-                   :part       ::body-wrapper
-                   :props
-                   {:position    :fixed
-                    :anchor-top  top
-                    :anchor-left left
-                    :top         top
-                    :left        left
-                    :attr        {:ref set-body-ref!}
-                    :children    children}
-                   :post-props post-props})))})))
+          (part/part (get parts :body-wrapper (get parts ::body-wrapper))
+                     {:theme      theme
+                      :part       ::body-wrapper
+                      :props
+                      {:position    :fixed
+                       :anchor-top  top
+                       :anchor-left left
+                       :top         top
+                       :left        left
+                       :attr        {:ref set-body-ref!}
+                       :children    children}
+                      :post-props post-props})))})))
 
 (defn indicator [{:keys [state style]}]
   [:span {:style style}
@@ -411,9 +412,11 @@
                                                          :anchor-wrapper ::anchor-wrapper
                                                          :body-header ::body-header
                                                          :body-footer ::body-footer]))
-                    part       (fn [id & [opts]]
-                                 (u/part {:parts parts} id
-                                   (assoc opts :theme theme)))]
+                    part       (fn [id & {:as opts}]
+                                 (part/part (get parts id
+                                              (get parts (keyword (name id))))
+                                         (merge opts {:theme theme
+                                                      :part  id})))]
                 (part ::wrapper
                       {:impl       v-box
                        :post-props {:class (:class args)

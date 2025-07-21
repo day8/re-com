@@ -5,6 +5,7 @@
    [reagent.core         :as reagent]
    [cljs-time.core       :as cljs-time]
    [re-com.config        :refer [include-args-desc?]]
+   [re-com.part :as part]
    [re-com.validate      :refer [date-like? css-style? css-class? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
    [cljs-time.predicates :refer [sunday?]]
    [cljs-time.format     :refer [parse unparse formatters formatter]]
@@ -446,7 +447,7 @@
                                     (and today (=date cell-date today) (not disabled?)) (into class ["rc-datepicker-today"])
                                     :else class)
                       class       (conj class "rc-datepicker-date")]
-                  (u/part date-cell
+                  (part/part date-cell
                     {:props {:date          cell-date
                              :label         (cljs-time/day cell-date)
                              :focus-month   focus-month

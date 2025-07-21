@@ -1,13 +1,10 @@
 (ns re-com.part
-  (:refer-clojure :exclude [name get])
   (:require
    [clojure.core :as clj]
    [clojure.set :as set]
    [clojure.string :as str]
-   [re-com.debug :as debug]
    [re-com.theme.util :as tu]
-   [re-com.validate :as validate]
-   [re-com.util :as u]))
+   [re-com.validate :as validate]))
 
 (def id first)
 
@@ -125,39 +122,39 @@
                   " See the parts section below for details."]})))
         (describe structure)))
 
-(defn get [part-structure props k]
+(defn get-part [part-structure props k]
   (let [part-name (unqualify k)]
     (or (when (top-level-arg? part-structure part-name)
-          (clj/get props part-name))
-        (clj/get-in props [:parts part-name]))))
+          (get props part-name))
+        (get-in props [:parts part-name]))))
 
 (defn default [{:keys [class style attr children tag]
                 :or   {tag :div}}]
   (into [tag (merge {:class class :style style} attr)]
         children))
 
+(def hiccup? vector?)
+
 (defn part
   ([structure props k opts]
-   (part (get structure props k)
+   (part (get-part structure props k)
      (assoc opts :part k)))
   ([part-value {:keys   [impl key theme post-props props]
                 part-id :part
                 :or     {impl default}}]
    (->
     (cond
-      (u/hiccup? part-value) part-value
-      (string? part-value)   part-value
-      :else                  (let [component (cond (map? part-value) impl
-                                                   (ifn? part-value) part-value
-                                                   :else             impl)
-                                   part-fn  (when (ifn? part-value) part-value)
-                                   part-map (when (map? part-value) part-value)
-                                   props
-                                   (cond-> {:part part-id}
-                                     :do        (merge props)
-                                     theme      (theme component)
-                                     part-map   (tu/merge-props part-map)
-                                     post-props (tu/merge-props post-props))]
-                               [component props]))
-     (cond-> key (with-meta {:key key})))))
-
+      (hiccup? part-value) part-value
+      (string? part-value) part-value
+      :else                (let [component (cond (map? part-value) impl
+                                                 (ifn? part-value) part-value
+                                                 :else             impl)
+                                 part-map  (when (map? part-value) part-value)
+                                 props
+                                 (cond-> {:part part-id}
+                                   :do        (merge props)
+                                   theme      (theme component)
+                                   part-map   (tu/merge-props part-map)
+                                   post-props (tu/merge-props post-props))]
+                             [component props]))
+    (cond-> key (with-meta {:key key})))))

@@ -240,41 +240,6 @@
          (map tsv-line)
          (apply str))))
 
-(def hiccup? vector?)
-
-(defn default-part   [{:keys [class style attr children tag]
-                       :or {tag :div}}]
-  (into [tag (merge {:class class :style style} attr)]
-        children))
-
-(def part-name (memoize (comp keyword name)))
-
-(defn part
-  ([{:keys [parts]} id opts]
-   (part (get parts id
-              (get parts (part-name id)))
-     (assoc opts :part id)))
-  ([part-value {:keys   [impl key theme post-props props]
-                part-id :part
-                :or     {impl default-part}}]
-   (if (or (hiccup? part-value) (string? part-value))
-     (cond-> part-value
-       key (with-meta {:key key}))
-     (let [component (cond (map? part-value) impl
-                           (ifn? part-value) part-value
-                           :else             impl)]
-       (cond-> (if (hiccup? component)
-                 component
-                 (let [props
-                       (cond-> {:part part-id}
-                         :do               (merge props)
-                         theme             (theme component)
-                         (map? part-value) (tu/merge-props part-value)
-                         post-props        (tu/merge-props post-props))]
-                   (cond->
-                    [component props]
-                     key (with-meta {:key key})))))))))
-
 (defn triangle [& {:keys [width height fill direction]
                    :or   {width "9px" height "9px" fill "currentColor"}
                    :as props}]

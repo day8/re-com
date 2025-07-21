@@ -7,6 +7,7 @@
     [re-com.debug    :refer [->attr]]
     [re-com.box      :refer [v-box box line flex-child-style]]
     [re-com.theme    :as    theme]
+    [re-com.part     :as    part]
     [re-com.util     :as    u :refer [deep-merge]]
     [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup? css-class?]]))
 
@@ -107,7 +108,7 @@
         :style    (get-in parts [:wrapper :style])
         :attr     (get-in parts [:wrapper :attr])
         :children
-        [(u/part u/default-part
+        [(part/part part/default
            {:part  ::title-label
             :theme theme
             :props

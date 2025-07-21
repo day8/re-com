@@ -4,6 +4,7 @@
   (:require
    [reagent.core :as r]
    [re-com.box :as box]
+   [re-com.part :as part]
    [re-com.modal-panel :as mp]
    [re-com.theme :as theme]
    re-com.error-modal.theme
@@ -59,7 +60,7 @@
   (let [theme             (theme/comp pre-theme theme)
         ;;TODO use both ns and raw keywords for parts
         part              (fn [part-value & {:keys [props] :as opts}]
-                            (u/part
+                            (part/part
                               part-value
                               (merge opts
                                      {:theme theme

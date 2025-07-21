@@ -5,12 +5,12 @@
   (:require
    [clojure.string   :as    string]
    [re-com.args     :as    args]
+   [re-com.part      :as part]
    [re-com.config    :refer [include-args-desc?]]
    [re-com.debug     :refer [->attr]]
    [re-com.theme     :as    theme]
-   [re-com.util      :as    u]
    [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
-                             scroll-options-list string-or-hiccup? css-style? css-class? html-attr? part?]]))
+                             string-or-hiccup? css-style? css-class? html-attr? part?]]))
 
 (def visualise-flow? false)
 
@@ -344,7 +344,7 @@
                      :src    (at)
                      :size   gap
                      :height gap]
-                    (u/part gap {})) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
+                    (part/part gap {})) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
          children (if gap
                     (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                     children)]

@@ -8,10 +8,12 @@
    [re-com.config         :refer [include-args-desc?]]
    [re-com.dropdown       :as dd]
    [re-com.util           :refer [deref-or-value remove-id-item ->v] :as u]
+   [re-com.part :as part]
    [re-com.box            :refer [h-box v-box box gap]]
    [re-com.checkbox       :refer [checkbox]]
    [re-com.validate       :as validate :refer [css-style? html-attr? parts? part? css-class?] :refer-macros [validate-args-macro]]
    [re-com.theme :as theme]
+   [re-com.tree-select :as-alias ts]
    re-com.tree-select.theme))
 
 (def tree-select-dropdown-parts-desc
@@ -345,14 +347,14 @@
          :children
          (into
           (vec (repeat level [gap :size "10px"]))
-          [(u/part choice
+          [(part/part choice
              {:props props
               :part  ::choice
               :theme theme
               :impl  re-com.tree-select/choice})
            [gap :size "1"]
            (when (and show-only-button? @hover?)
-             (u/part (:only-button parts)
+             (part/part (:only-button parts)
                {:props props
                 :part  ::only-button
                 :theme theme
@@ -394,12 +396,13 @@
                                       (get-in parts [:expander :class]))
             :child
             [u/triangle {:direction (if open? :down :right)}]]
-           (u/part re-com.tree-select/group-item
+           (part/part re-com.tree-select/group-item
              {:props props
+              :part  ::group-item
               :impl  re-com.tree-select/group-item})
            [gap :size "1"]
            (when (and show-only-button? @hover?)
-             (u/part (:only-button parts)
+             (part/part (:only-button parts)
                {:props props
                 :part  ::only-button
                 :theme theme
@@ -561,7 +564,7 @@
                                                        :show-only-button? show-only-button?
                                                        :level             level}]
                                      [choice-wrapper choice-props]))))]
-         (u/part wrapper
+         (part/part wrapper
            {:part       ::wrapper
             :theme      theme
             :impl       v-box
@@ -664,10 +667,10 @@
                                                :group-label-fn group-label-fn})
               on-reset        (or on-reset (handler-fn (on-change #{} (deref-or-value expanded-groups))))
               body            (fn [{:keys [class style attr]}]
-                                (u/part tree-select
+                                (part/part tree-select
                                   {:theme theme
-                                   :props {:part                    ::dropdown-body
-                                           :choices                 choices
+                                   :part  ::dropdown-body
+                                   :props {:choices                 choices
                                            :choice                  choice
                                            :required?               required?
                                            :group-label-fn          group-label-fn
@@ -687,14 +690,14 @@
                                            :id-fn                   id-fn
                                            :label-fn                label-fn
                                            :model                   (if change-on-blur? internal-model model)}}))]
-          (u/part (get parts :dropdown (get parts ::dropdown))
+          (part/part (get parts :dropdown (get parts ::dropdown))
             {:theme      theme
+             :part       ::dropdown
              :impl       dd/dropdown
              :post-props {:class (:class args)
                           :style (:style args)
                           :attr  (:attr args)}
-             :props      {:part          ::dropdown
-                          :label         (u/part label
+             :props      {:label         (part/part label
                                            {:theme theme
                                             :part  ::label
                                             :props {:src             (at)
@@ -727,22 +730,23 @@
                                            :anchor-wrapper (:dropdown-anchor-wrapper parts)
                                            :anchor         (:dropdown-anchor parts)
                                            :indicator      (fn [props]
-                                                             (u/part (get parts :dropdown-indicator (get parts ::dropdown-indicator))
+                                                             (part/part (get parts :dropdown-indicator (get parts ::dropdown-indicator))
                                                                {:impl  h-box
+                                                                :part  ::dropdown-indicator
                                                                 :theme theme
-                                                                :props {:part ::dropdown-indicator
-                                                                        :children
-                                                                        [(u/part (:counter parts)
+                                                                :props {:children
+                                                                        [(part/part (:counter parts)
                                                                            {:theme theme
-                                                                            :impl box
-                                                                            :props {:part  ::counter
-                                                                                    :child
+                                                                            :impl  box
+                                                                            :part  ::counter
+                                                                            :props {:child
                                                                                     (str (count (if change-on-blur?
                                                                                                   @internal-model
                                                                                                   (u/deref-or-value model))))}})
-                                                                         (u/part dd/indicator
+                                                                         (part/part dd/indicator
                                                                            {:theme theme
-                                                                            :props (merge {:part ::dropdown-indicator} props)})
+                                                                            :part  ::dropdown-indicator
+                                                                            :props props})
                                                                          (when (u/deref-or-value show-reset-button?)
                                                                            [u/x-button
                                                                             {:on-click (when on-reset
