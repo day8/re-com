@@ -18,7 +18,7 @@
                     :else           [x]))
 
 (defn merge-props-rf [acc {:keys [class attr style] :as m}]
-  (merge acc (cond-> (if-not (string? m) m {:style [m]})
+  (merge acc (cond-> m
                (contains? m :class)
                (assoc :class (into (->v (:class acc)) (->v class)))
                (contains? m :attr)
@@ -27,4 +27,3 @@
                (assoc :style (merge (:style acc) style)))))
 
 (defn merge-props [& ms] (reduce merge-props-rf {} ms))
-
