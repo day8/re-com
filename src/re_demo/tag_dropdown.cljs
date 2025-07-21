@@ -22,7 +22,7 @@
         disabled?         (reagent/atom false)
         required?         (reagent/atom false)
         unselect-buttons? (reagent/atom false)
-        only-button?      (reagent/atom false)
+        show-only-button? (reagent/atom false)
         show-counter?     (reagent/atom false)
         placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
@@ -45,7 +45,7 @@
                    :required?         required?
                    :placeholder       (when @placeholder? "placeholder message")
                    :unselect-buttons? unselect-buttons?
-                   :only-button?      only-button?
+                   :show-only-button? show-only-button?
                    :show-counter?     show-counter?
                    :choices           choices
                    :model             model
@@ -92,9 +92,9 @@
                                           [checkbox :src (at)
                                            :label     [box :src (at)
                                                        :align :start
-                                                       :child [:code ":only-button?"]]
-                                           :model     only-button?
-                                           :on-change #(reset! only-button? %)]
+                                                       :child [:code ":show-only-button?"]]
+                                           :model     show-only-button?
+                                           :on-change #(reset! show-only-button? %)]
                                           [checkbox :src (at)
                                            :label     [box :src (at)
                                                        :align :start

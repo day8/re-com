@@ -3,8 +3,9 @@
    [re-com.core     :refer [handler-fn]])
   (:require
    [cljs.pprint]
-   [re-com.core     :as rc :refer [at button checkbox h-box input-text label
-                                   p-span table-filter v-box p]]
+   [re-com.core     :as rc :refer [at button checkbox h-box input-text label p
+                                   p-span table-filter v-box]]
+   [re-com.dropdown :as dd]
    [re-com.slider   :refer [slider]]
    [re-com.table-filter :refer [table-filter-args-desc table-filter-parts-desc]]
    [re-demo.utils   :refer [args-table panel-title parts-table status-text
@@ -251,14 +252,15 @@
                                         :font-size "14px"
                                         :font-weight "500"}}
                        :filter {:style {:align-items "center" :background-color "transparent"}}  ; Only alignment, no background styling
-                       :add-button {:style {:background-color "#dbeafe"
-                                            :color "#1d4ed8"
-                                            :font-weight "500"
-                                            :font-size "12px"
-                                            :border-radius "4px"
-                                            :height "20px"    ; Consistent height
-                                            :line-height "15px"  ; Center text vertically
-                                            :display "flex"}}
+                       :add-button {:parts {:anchor-wrapper {:style {:background-color "#dbeafe"
+                                                                     :border-radius "4px"
+                                                                     :height "20px"   
+                                                                     }}
+                                            :anchor {:style {:font-size "12px"
+                                                             :color "#1d4ed8"
+                                                             :font-weight "500"
+                                                             :line-height "20px"  ; Center text vertically
+                                                             }}}}
                        :column-dropdown {:style {:font-size "12px"
                                                  :border "1px solid #bfdbfe"
                                                  :border-radius "4px"

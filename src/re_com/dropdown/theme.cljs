@@ -20,48 +20,54 @@
   [{{:keys          [state transition!]
      {:keys [sm-2]} :variables} :re-com
     :as                         props}]
-  (-> props
-      (merge-props
-       {:attr  {:tab-index   (or (:tab-index state) 0)
-                :on-click    #(transition! :toggle)
-                #_#_:on-blur #(do (transition! :blur)
-                                  (transition! :exit))}
-        :style {:outline        (when (and (= :focused (:focusable state))
-                                           (not= :open (:openable state)))
-                                  (str sm-2 " auto #ddd"))
-                :outline-offset (str "-" sm-2)
-                :position       "relative"
-                #_#_:display    "block"
-                :overflow       "hidden"
-                :user-select    "none"
-                #_#_:width      "100%"
-                :z-index        (case (:openable state)
-                                  :open 20 nil)}})))
+  (let [disabled? (= :disabled (:enable state))]
+    (-> props
+        (merge-props
+         {:attr  {:tab-index   (or (:tab-index state) 0)
+                  :on-click    (when-not disabled? #(transition! :toggle))
+                  #_#_:on-blur #(do (transition! :blur)
+                                    (transition! :exit))}
+          :style {:outline        (when (and (= :focused (:focusable state))
+                                             (not= :open (:openable state)))
+                                    (str sm-2 " auto #ddd"))
+                  :outline-offset (str "-" sm-2)
+                  :position       "relative"
+                  #_#_:display    "block"
+                  :overflow       "hidden"
+                  :user-select    "none"
+                  #_#_:width      "100%"
+                  :z-index        (case (:openable state)
+                                    :open 20 nil)}}))))
 
 (defmethod main ::dd/anchor-wrapper
   [{:as                props
     {:keys [state]
      $     :variables} :re-com}]
-  (let [open?   (= :open (:openable state))
-        closed? (= :closed (:openable state))]
+  (let [open?     (= :open (:openable state))
+        closed?   (= :closed (:openable state))
+        disabled? (= :disabled (:enable state))]
     (-> props
         (merge-props
          {:align :center
-          :style {:background-color (:background $)
-                  :background-clip  "padding-box"
-                  :border           (str "1px solid "
-                                         (cond
-                                           closed? (:border $)
-                                           open?   "#66afe9"))
-                  :border-radius    "4px"
-                  :box-shadow       (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
-                                      open? (str ", 0 0 8px rgba(82, 168, 236, .6)"))
-                  :color            (:foreground $)
-                  :height           "34px"
-                  :padding          "0 8px 0 8px"
-                  :text-decoration  "none"
-                  :white-space      "nowrap"
-                  :transition       "border 0.2s box-shadow 0.2s"}}))))
+          :style (merge {:background-color (:background $)
+                         :background-clip  "padding-box"
+                         :border           (str "1px solid "
+                                                (cond
+                                                  disabled? "#d1d5db"
+                                                  closed?   (:border $)
+                                                  open?     "#66afe9"))
+                         :border-radius    "4px"
+                         :box-shadow       (when-not disabled?
+                                             (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
+                                               open? (str ", 0 0 8px rgba(82, 168, 236, .6)")))
+                         :color            (if disabled? "#9ca3af" (:foreground $))
+                         :height           "34px"
+                         :padding          "0 8px 0 8px"
+                         :text-decoration  "none"
+                         :white-space      "nowrap"
+                         :transition       "border 0.2s box-shadow 0.2s"}
+                        (when disabled?
+                          {:background-color "#EEE"}))}))))
 
 (defmethod base ::dd/backdrop
   [props]

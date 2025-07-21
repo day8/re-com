@@ -87,6 +87,16 @@
     (is (= 1 (count (:children updated-tree))))
     (is (= "filter-2" (get-in updated-tree [:children 0 :id])))))
 
+(deftest test-remove-item-with-cleanup
+  (let [original-tree {:id "group-1" :type :group :logic :and
+                       :children [{:id "filter-1" :type :filter :col :name :op :contains :val "test"}
+                                  {:id "group-2" :type :group :logic :and
+                                   :children [{:id "filter-3" :type :filter :col :age :op :equals :val "25"}]}]}
+
+        updated-tree (table-filter/remove-item-with-cleanup original-tree "filter-3" sample-table-spec)]
+    (is (= 1 (count (:children updated-tree))))
+    (is (= "filter-1" (get-in updated-tree [:children 0 :id])))))
+
 (deftest test-add-child-to-group
   (let [original-tree {:id "group-1" :type :group :logic :and :children []}
         new-filter {:id "filter-1" :type :filter :col :name :op :contains :val "test"}
@@ -117,3 +127,4 @@
                    :on-change identity)]
     (is (vector? component))
     (is (= :div (first component)))))
+

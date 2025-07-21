@@ -15,7 +15,7 @@
         multi-select?  (reagent/atom true)
         required?      (reagent/atom true)
         as-exclusions? (reagent/atom false)
-        only-button?   (reagent/atom false)
+        show-only-button?   (reagent/atom false)
         items          (reagent/atom [{:id "1" :label "1st RULE: You do not talk about FIGHT CLUB." :short "1st RULE"}
                                       {:id "2" :label "2nd RULE: You DO NOT talk about FIGHT CLUB." :short "2nd RULE"}
                                       {:id "3" :label "3rd RULE: If someone says \"stop\" or goes limp, taps out the fight is over." :short "3rd RULE"}
@@ -43,7 +43,7 @@
                                            :multi-select?  multi-select?
                                            :disabled?      disabled?
                                            :required?      required?
-                                           :only-button?   only-button?
+                                           :show-only-button?   show-only-button?
                                            :on-change      #(reset! selections %)]]
                               [gap :src (at) :size "10px"]
                               [h-box :src (at)
@@ -80,10 +80,10 @@
                                :model       as-exclusions?
                                :on-change   #(reset! as-exclusions? %)]
                               [checkbox :src (at)
-                               :label       [box :src (at) :align :start :child [:code ":only-button?"]]
-                               :model       only-button?
+                               :label       [box :src (at) :align :start :child [:code ":show-only-button?"]]
+                               :model       show-only-button?
                                :disabled?   (not @multi-select?)
-                               :on-change   #(reset! only-button? %)]]]]])))
+                               :on-change   #(reset! show-only-button? %)]]]]])))
 
 (defn panel2
   []

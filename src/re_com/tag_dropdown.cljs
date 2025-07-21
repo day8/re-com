@@ -151,7 +151,7 @@
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
      {:name :required?          :required false :default false          :type "boolean | r/atom"                                                 :description "when true, at least one item must be selected."}
      {:name :unselect-buttons?  :required false :default false          :type "boolean"                                                          :description "When true, \"X\" buttons will be added to the display of selected tags (on the right), allowing the user to directly unselect them."}
-     {:name :only-button?       :required false :default false          :type "boolean"                                                          :description "When true, an 'Only' button will be displayed next to each item in the dropdown, allowing the user to select only that item."}
+     {:name :show-only-button?  :required false :default false          :type "boolean"                                                          :description "When true, an 'Only' button will be displayed next to each item in the dropdown, allowing the user to select only that item."}
      {:name :show-counter?      :required false :default false          :type "boolean"                                                          :description "When true, a counter showing the number of selected items will be displayed in the anchor to the left of the close button."}
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
      {:name :description-fn     :required false :default ":description" :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable description. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
@@ -171,12 +171,12 @@
    (validate-args-macro tag-dropdown-args-desc args)
    (let [showing?      (reagent/atom false)]
      (fn tag-dropdown-render
-       [& {:keys [choices model placeholder on-change unselect-buttons? required? only-button? show-counter? abbrev-fn abbrev-threshold label-fn
+       [& {:keys [choices model placeholder on-change unselect-buttons? required? show-only-button? show-counter? abbrev-fn abbrev-threshold label-fn
                   description-fn min-width max-width height style disabled? parts src debug-as]
            :or   {label-fn          :label
                   description-fn    :description
                   height            "25px"
-                  only-button?      false
+                  show-only-button? false
                   show-counter?     false}
            :as   args}]
        (or
@@ -187,7 +187,7 @@
               required?          (deref-or-value required?)
               disabled?          (deref-or-value disabled?)
               unselect-buttons?  (deref-or-value unselect-buttons?)
-              only-button?       (deref-or-value only-button?)
+              show-only-button?  (deref-or-value show-only-button?)
               show-counter?      (deref-or-value show-counter?)
 
               choices-num-chars  (reduce
@@ -216,7 +216,7 @@
                                :attr          (get-in parts [:selection-list :attr])
                                :disabled?     disabled?
                                :required?     required?
-                               :only-button?  only-button?
+                               :show-only-button? show-only-button?
                                :parts         (->
                                                (select-keys parts selection-list/selection-list-parts)
                                                (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")

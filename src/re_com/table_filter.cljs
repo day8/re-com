@@ -20,7 +20,7 @@
 ;; Helpers
 ;; ----------------------------------------------------------------------------
 ;; ID generation for filters and groups
-(defn generate-id 
+(defn generate-id
   "Generates a unique ID string for filter and group nodes."
   []
   (str "item-" (random-uuid)))
@@ -47,13 +47,13 @@
   [node]
   (cond
     (nil? node) nil
-    
+
     (and (map? node) (:type node))
     (let [node-with-id (assoc node :id (str (random-uuid)))]
       (if (= (:type node) :group)
         (update node-with-id :children #(mapv add-ids %))
         node-with-id))
-    
+
     :else node))
 
 (defn remove-ids
@@ -62,13 +62,13 @@
   [node]
   (cond
     (nil? node) nil
-    
+
     (map? node)
     (let [cleaned (dissoc node :id)]
       (if (= (:type node) :group)
         (update cleaned :children #(mapv remove-ids %))
         cleaned))
-    
+
     :else node))
 
 ;; ----------------------------------------------------------------------------
@@ -123,12 +123,12 @@
    :select       [:is :is-not :is-any-of :is-none-of :empty :not-empty]})
 
 (def op-label
-  {:equals "is" :not-equals "is not" :contains "contains" :not-contains "does not contain" 
+  {:equals "is" :not-equals "is not" :contains "contains" :not-contains "does not contain"
    :starts-with "starts with" :ends-with "ends with" :empty "is empty" :not-empty "is not empty"
    :> ">" :>= ">=" :< "<" :<= "<="
    :before "before" :after "after" :on "on" :not-on "not on" :on-or-before "on/before"
    :on-or-after "on/after" :between "between" :not-between "not between"
-   :is "is" :is-not "is not" 
+   :is "is" :is-not "is not"
    :contains-text "contains text" :not-contains-text "not contains text"
    :is-any-of "is any of" :is-none-of "is none of"})
 
@@ -367,413 +367,367 @@
   [model table-spec]
   (cond
     (nil? model) true
-    
+
     (= (:type model) :filter)
     (rule-valid? model table-spec)
-    
+
     (= (:type model) :group)
     (every? #(model-valid? % table-spec) (:children model))
-    
+
     :else false))
 
 ;; ----------------------------------------------------------------------------
 ;; Components
 ;; ----------------------------------------------------------------------------
 
-(defn value-entry-box
+(defn- common-props
+  "Extract common properties for input components as keyword args.
+   Includes model, on-change, width, disabled, and styling props."
+  [filter-rule on-change parts part-key disabled?]
+  (let [val (:val filter-rule)]
+    [:model val
+     :on-change #(on-change (assoc filter-rule :val %))
+     :width "220px"
+     :disabled? disabled?
+     :class (get-in parts [part-key :class])
+     :style (get-in parts [part-key :style])
+     :attr (get-in parts [part-key :attr])
+     :parts (get-in parts [part-key :parts])]))
+
+(defmulti value-entry-box
   "Depending on the spec for a given column, the value entry box behaves differently
    There are options for most sql-like types)"
-  [row-spec filter-rule on-change & {:keys [parts disabled?]}]
-  (let [{:keys [type options]} row-spec
-        op  (:op filter-rule)
+  (fn [& {:keys [row-spec filter-rule]}]
+    (let [{:keys [type]} row-spec
+          op (:op filter-rule)]
+      (if (#{:empty :not-empty} op)
+        :empty-operation
+        type))))
+;; Empty operation case - same for all types
+(defmethod value-entry-box :empty-operation
+  [& {:keys []}]
+  [text/label :label "" :style {:width "220px"}])
+
+;; Text input case
+(defmethod value-entry-box :text
+  [& {:keys [filter-rule on-change parts disabled?]}]
+  (into [input-text/input-text]
+        (common-props filter-rule on-change parts :text-input disabled?)))
+
+;; Number input case
+(defmethod value-entry-box :number
+  [& {:keys [filter-rule on-change parts disabled?]}]
+  (into [input-text/input-text]
+        (common-props filter-rule on-change parts :text-input disabled?)))
+
+;; Date input case
+(defmethod value-entry-box :date
+  [& {:keys [filter-rule on-change parts disabled?]}]
+  (let [op (:op filter-rule)
         val (:val filter-rule)]
-    (case type
-      :text (if (#{:empty :not-empty} op)
-              ;; No input field needed for empty/not-empty operators
-              [text/label :label "" :style {:width "220px"}]
-              [input-text/input-text
-               :model val
-               :on-change #(on-change (assoc filter-rule :val %))
-               :width "220px"
-               :class (get-in parts [:text-input :class])
-               :style (get-in parts [:text-input :style])
-               :attr (get-in parts [:text-input :attr])
-               :parts (get-in parts [:text-input :parts])
-               :disabled? disabled?])
-      :number (if
-               (#{:empty :not-empty} op)
-                ;; No input field needed for empty/not-empty operators
-                [text/label :label ""]
-                [input-text/input-text :model val :width "220px"
-                 :class (get-in parts [:text-input :class])
-                 :style (get-in parts [:text-input :style])
-                 :attr (get-in parts [:text-input :attr])
-                 :parts (get-in parts [:text-input :parts])
+    (if (#{:between :not-between} op)
+      (into [daterange/daterange-dropdown
+             :placeholder "Select date range"
+             :show-today? true]
+            (common-props filter-rule on-change parts :daterange-input disabled?))
+
+      [datepicker/datepicker-dropdown
+       :model val
+       :width "220px"
+       :placeholder "Select a date"
+       :show-today? true
+       :on-change #(on-change (assoc filter-rule :val %))
+       :class (get-in parts [:date-input :class])
+       :style (get-in parts [:date-input :style])
+       :attr (get-in parts [:date-input :attr])
+       :parts (merge {:anchor-label {:style {:height "34px"}}}
+                     (get-in parts [:date-input :parts]))
+       :disabled? disabled?])))
+
+;; Boolean input case
+(defmethod value-entry-box :boolean
+  [& {:keys [filter-rule on-change parts disabled?]}]
+  (into [dropdown/single-dropdown
+         :choices [{:id true :label "True"}
+                   {:id false :label "False"}]]
+        (common-props filter-rule on-change parts :dropdown-input disabled?)))
+
+;; Select input case
+(defmethod value-entry-box :select
+  [& {:keys [row-spec filter-rule on-change parts disabled?]}]
+  (let [{:keys [options]} row-spec
+        op (:op filter-rule)
+        val (:val filter-rule)]
+    (if (#{:is-any-of :is-none-of :contains :not-contains} op)
+      ;; Multi-value selection for these operators
+      [tag-dropdown/tag-dropdown
+       :model (or val #{})
+       :height (or (get-in parts [:tag-dropdown-input :style :height]) "34px")
+       :choices options
+       :placeholder "Select values..."
+       :min-width "220px"
+       :show-only-button? true
+       :show-counter? true
+       :on-change #(on-change (assoc filter-rule :val %))
+       :style (merge {:color "#333333"
+                      :background-color "#ffffff"}
+                     (get-in parts [:tag-dropdown-input :style]))
+       :parts (get-in parts [:tag-dropdown-input :parts])
+       :disabled? disabled?]
+
+      ;; Single value selection for equals/not-equals
+      (into [dropdown/single-dropdown
+             :choices options]
+            (common-props filter-rule on-change parts :dropdown-input disabled?)))))
+
+;; Default case for unknown types
+(defmethod value-entry-box :default
+  [& {:keys []}]
+  [text/label :label ""])
+
+
+(defn group-context-menu-v2
+  "Re-com dropdown version of group context menu - no JS interop"
+  [& {:keys [group-id update-state! table-spec disabled? parts]}]
+  (let [choices [{:id :delete :label "Delete group" :color "#dc2626"}]]
+    [dropdown/dropdown
+     :model (r/atom nil)
+     :disabled? disabled?
+     :direction :toward-center
+     :anchor [text/label :label "⋯" 
+              :style (merge {:color "#9ca3af" 
+                             :font-size "20px" 
+                             :padding "6px 8px" 
+                             :cursor "pointer"}
+                            (get-in parts [:context-menu :parts :anchor :style]))]
+     :attr (get-in parts [:context-menu :attr])
+     :parts (let [default-parts {:anchor-wrapper {:style (merge {:border "none"
+                                                                 :background "transparent" 
+                                                                 :border-radius "4px"
+                                                                 :box-shadow "none"
+                                                                 :width "100%"
+                                                                 :height "100%"
+                                                                 :display "flex"
+                                                                 :align-items "center"
+                                                                 :justify-content "center"
+                                                                 :cursor "pointer"}
+                                                                 (get-in parts [:context-menu :style]))}
+                                 :indicator {:style {:display "none"}}
+                                 :body-wrapper {:style {:background-color "#ffffff"
+                                                        :border "1px solid #e1e5e9"
+                                                        :border-radius "8px"
+                                                        :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                                        :min-width "160px"
+                                                        :margin-top "4px"}}}
+                  user-parts (get-in parts [:context-menu :parts])]
+              (merge-with (fn [default-part user-part]
+                            (if (and (map? default-part) (map? user-part))
+                              (merge-with (fn [default-val user-val]
+                                            (if (and (map? default-val) (map? user-val))
+                                              (merge default-val user-val)
+                                              (or user-val default-val)))
+                                          default-part user-part)
+                              (or user-part default-part)))
+                          default-parts
+                          user-parts))
+     
+     :body [box/v-box
+            :style {:padding "0"}
+            :children (for [choice choices]
+                        [buttons/button
+                         :label (:label choice)
+                         :class "btn-link"
+                         :style (merge {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
+                                       (get-in parts [:context-menu :parts :body-wrapper :style]))
+                         :on-click (case (:id choice)
+                                     :delete #(update-state! (fn [state]
+                                                               ;; Safety check: don't delete root group
+                                                               (if (= (:id state) group-id)
+                                                                 state
+                                                                 (remove-item-with-cleanup state group-id table-spec)))))])]]))
+
+(defn and-or-dropdown-v2
+  "New dropdown component using re-com dropdown - maintains exact visual styling"
+  [{:keys [operator update-state! group-id depth interactable? disabled? parts]}]
+  [box/h-box
+   :children [(if interactable?
+                [dropdown/dropdown
+                 :model (r/atom nil)
                  :disabled? disabled?
-                 :on-change #(on-change (assoc filter-rule :val %))])
-      :date (cond
-              (#{:empty :not-empty} op)
-              ;; No input field needed for empty/not-empty operators
-              [text/label :label "" :style {:width "220px"}]
-
-              (#{:between :not-between} op)
-              [daterange/daterange-dropdown
-               :model val
-               :width "220px"
-               :class (get-in parts [:daterange-input :class])
-               :style (get-in parts [:daterange-input :style])
-               :attr (get-in parts [:daterange-input :attr])
-               :parts (get-in parts [:daterange-input :parts])
-               :placeholder "Select date range"
-               :show-today? true
-               :disabled? disabled?
-               :on-change #(on-change (assoc filter-rule :val %))]
-
-              :else
-              [datepicker/datepicker-dropdown
-               :model val
-               :width "220px"
-               :placeholder "Select a date"
-               :class (get-in parts [:date-input :class])
-               :style (get-in parts [:date-input :style])
-               :attr (get-in parts [:date-input :attr])
-               :parts (merge {:anchor-label {:style {:height "34px"}}} (get-in parts [:date-input :parts]))
-               :show-today? true
-               :disabled? disabled?
-               :on-change #(on-change (assoc filter-rule :val %))])
-      :boolean (if (#{:empty :not-empty} op)
-                 ;; No input field needed for empty/not-empty operators
-                 [text/label :label "" :style {:width "220px"}]
-                 [dropdown/single-dropdown
-                  :model val
-                  :choices [{:id true :label "True"}
-                            {:id false :label "False"}]
-                  :width "220px"
-                  :class (get-in parts [:dropdown-input :class])
-                  :style (get-in parts [:dropdown-input :style])
-                  :attr (get-in parts [:dropdown-input :attr])
-                  :parts (get-in parts [:dropdown-input :parts])
-                  :disabled? disabled?
-                  :on-change #(on-change (assoc filter-rule :val %))])
-      :select (cond
-                (#{:empty :not-empty} op)
-                ;; No input field needed for empty/not-empty operators
-                [text/label :label "" :style {:width "220px"}]
-
-                (#{:is-any-of :is-none-of :contains :not-contains} op)
-                ;; Multi-value selection for these operators
-                [tag-dropdown/tag-dropdown
-                 :model (or val #{})
-                 :height (or  (get-in parts [:tag-dropdown-input :style :height]) "34px")
-                 :choices options
-                 :placeholder "Select values..."
-                 :min-width "220px"
-                 :only-button? true
-                 :show-counter? true
-                 ;:class (get-in parts [:tag-dropdown-input :class])
-                 :style (merge {:color "#333333"
-                                :background-color "#ffffff"}
-                               (get-in parts [:tag-dropdown-input :style]))
-                 ;:attr (get-in parts [:tag-dropdown-input :attr])
-                 :parts (get-in parts [:tag-dropdown-input :parts])
-                 :disabled? disabled?
-                 :on-change #(on-change (assoc filter-rule :val %))]
-
-                :else
-                ;; Single value selection for equals/not-equals
-                [dropdown/single-dropdown
-                 :model val
-                 :choices options
-                 :width "220px"
-                 :class (get-in parts [:dropdown-input :class])
-                 :style (get-in parts [:dropdown-input :style])
-                 :attr (get-in parts [:dropdown-input :attr])
-                 :parts (get-in parts [:dropdown-input :parts])
-                 :disabled? disabled?
-                 :on-change #(on-change (assoc filter-rule :val %))])
-      [text/label :label ""])))
-
-(defn add-filter-dropdown
-  "The button to add filters, not an actual dropdown component for visual reason
-   Has some JS stuff to add expected click away behaviour"
-  []
-  (let [show-menu? (r/atom false)
-        close-menu! #(reset! show-menu? false)]
-    (fn [group-id update-state! table-spec max-depth depth disabled? parts]
-      ;; Add click-away listener when menu is open
-      (when @show-menu?
-        (js/setTimeout
-         #(.addEventListener js/document "click"
-                             (fn [e]
-                               (when-not (.. e -target (closest ".add-filter-menu, .add-filter-button"))
-                                 (close-menu!)))
-                             #js {:once true}) 0))
-      [box/h-box
-       :align :center
-       :gap "4px"
-       :style {:position "relative"}
-       :children [[buttons/button
-                   :disabled? disabled?
-                   :label "+ Add filter"
-                   :class (str "btn-outline " (get-in parts [:add-button :class]))
-                   :style (merge {:font-size "13px"
-                                  :padding "2px 4px"
-                                  :color "#46a2da"
-                                  :font-weight "500"
-                                  :border-radius "8px"
-                                  :background-color "transparent"}
-                                 (get-in parts [:add-button :style]))
-                   :attr (get-in parts [:add-button :attr])
-                   :parts (get-in parts [:add-button :parts])
-                   :on-click #(swap! show-menu? not)]
-                  (when @show-menu?
-                    [box/v-box
-                     :class "add-filter-menu"
-                     :style {:position "absolute"
-                             :top "100%"
-                             :left "0"
-                             :z-index "1000"
-                             :background-color "#ffffff"
-                             :border "1px solid #e1e5e9"
-                             :border-radius "8px"
-                             :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                             :min-width "160px"
-                             :margin-top "4px"}
-                     :children (concat
-                                [[buttons/button
-                                  :label "Add a filter"
-                                  :class "btn-link"
-                                  :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                                  :on-click #(do (close-menu!)
-                                                 (update-state! (fn [state]
-                                                                  (add-child-to-group state group-id (empty-filter table-spec)))))]]
-              ;; Only show "Add a filter group" if depth < 2 (max 3 levels: 0, 1, 2)
-                                (when (< depth max-depth)
-                                  [[buttons/button
-                                    :label "Add a filter group"
+                 :label (case operator
+                          :and "And"
+                          :or "Or")
+                 :width "50px"
+                 :parts {:anchor-wrapper {:class (str "btn-link " (get-in parts [:operator-button :class]))
+                                          :style (merge {:font-size "14px" :font-weight "500"
+                                                         :color "#6b7280"
+                                                         :margin-right "0px" :margin-left "0px"
+                                                         :background-color (if (odd? depth) "white" "#f7f7f7")
+                                                         :border-radius "4px"
+                                                         :border "1px solid #e2e8f0"
+                                                         :min-width "50px" :height "34px"
+                                                         :padding "4px 4px"
+                                                         :cursor "pointer"}
+                                                        (get-in parts [:operator-button :style]))}
+                         :anchor {:style {:cursor "pointer"}}
+                         :body-wrapper {:style {:background-color "#ffffff"
+                                                :border "1px solid #e1e5e9"
+                                                :border-radius "8px"
+                                                :min-width "200px"
+                                                :margin-top "4px"
+                                                :padding "8px 0"}}}
+                 :body [box/v-box
+                        :children [[buttons/button
+                                    :label [box/v-box
+                                            :gap "2px"
+                                            :children [[text/label :label "And" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
+                                                       [text/label :label "All filters must match" :style {:color "#6b7280" :font-size "11px"}]]]
                                     :class "btn-link"
-                                    :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                                    :on-click #(do (close-menu!)
-                                                   (update-state! (fn [state]
-                                                                    (add-child-to-group state group-id (empty-group table-spec)))))]]))])]])))
+                                    :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%"
+                                            :background-color (when (= operator :and) "#f3f4f6")}
+                                    :on-click #(update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :and)))))]
+                                   [buttons/button
+                                    :label [box/v-box
+                                            :gap "2px"
+                                            :children [[text/label :label "Or" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
+                                                       [text/label :label "At least one filter must match" :style {:color "#6b7280" :font-size "11px"}]]]
+                                    :class "btn-link"
+                                    :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%"
+                                            :background-color (when (= operator :or) "#f3f4f6")}
+                                    :on-click #(update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :or)))))]]]]
+                [text/label
+                 :label (case operator :and "And" :or "Or")
+                 :class (get-in parts [:operator-text :class])
+                 :style (merge {:font-size "14px" :font-weight "500"
+                                :color "#6b7280"
+                                :margin-right "0px" :margin-left "0px"
+                                :min-width "50px" :height "34px"
+                                :text-align "left" :padding "6px 6px"
+                                :display "flex" :align-items "center"}
+                               (get-in parts [:operator-text :style]))
+                 :attr (get-in parts [:operator-text :attr])])
+              [box/gap :size "2px"]]])
 
-(defn group-context-menu
-  "The little ... button for a group
-   Also not a re-com/dropdown for UI reasons
-   Also has JS clickaway behaviour"
-  []
-  (let [show-menu? (r/atom false)
-        close-menu! #(reset! show-menu? false)]
-    (fn [group-id update-state! table-spec disabled? parts]
-      ;; Add click-away listener when menu is open
-      (when @show-menu?
-        (js/setTimeout
-         #(.addEventListener js/document "click"
-                             (fn [e]
-                               (when-not (.. e -target (closest ".group-context-menu, .group-context-button"))
-                                 (close-menu!)))
-                             #js {:once true}) 0))
-      [box/h-box
-       :style {:position "relative"}
-       :children [[buttons/button
-                   :disabled? disabled?
-                   :label "⋯"
-                   :class (str "btn-link " (get-in parts [:context-menu :class]))
-                   :style (merge {:color "#9ca3af" :font-size "20px" :padding "6px 8px" :border "none" :background "transparent" :border-radius "4px"}
-                                 (get-in parts [:context-menu :style]))
-                   :attr (get-in parts [:context-menu :attr])
-                   :parts (get-in parts [:context-menu :parts])
-                   :on-click #(swap! show-menu? not)]
-                  (when @show-menu?
-                    [box/v-box
-                     :class "group-context-menu"
-                     :style {:position "absolute"
-                             :top "100%"
-                             :right "0"
-                             :z-index "1000"
-                             :background-color "#ffffff"
-                             :border "1px solid #e1e5e9"
-                             :border-radius "8px"
-                             :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                             :min-width "160px"
-                             :margin-top "4px"}
-                     :children [[buttons/button
-                                 :label "Delete group"
-                                 :class "btn-link"
-                                 :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#dc2626"}
-                                 :on-click #(do (close-menu!)
-                                                (update-state! (fn [state]
-                                           ;; Safety check: don't delete root group
-                                                                 (if (= (:id state) group-id)
-                                                                   state
-                                                                   (remove-item-with-cleanup state group-id table-spec)))))]]])]])))
+(defn add-filter-dropdown-v2
+  "Re-com dropdown version of add filter button - no JS interop"
+  [{:keys [group-id update-state! table-spec depth disabled? parts max-depth]}]
+  (let [choices (cond-> [{:id :add-filter :label "Add a filter"}]
+                  (< depth max-depth)
+                  (conj {:id :add-group :label "Add a filter group"}))]
+    [dropdown/dropdown
+     :model (r/atom nil)
+     :disabled? disabled?
+     ;; we have replaced JS jank with very awkwards "parts" handling
+     :anchor [text/label :label "+ Add filter"
+              :style (merge {:font-size "13px" :color "#46a2da"}
+                            (get-in parts [:add-button :parts :anchor :style]))]
+     :attr (get-in parts [:add-button :attr])
+     ;; I kinda hate this, but it seems required to allow styling to have defaults within the dropdown component
+     ;; while also allowing users to taget the parts within the dropdown component itself
+     ;; e.g. lets you have default styling on different parts of the dropdown
+     ;; and also lets you use access/adjust the parts within the dropdown from the table-filter level
+     :parts (let [default-parts {:anchor-wrapper {:class (str "btn-outline " (get-in parts [:add-button :class]))
+                                                  :style (merge {:font-size "13px"
+                                                                 :padding "2px 4px"
+                                                                 :font-weight "500"
+                                                                 :border-radius "8px"
+                                                                 :background-color "transparent"
+                                                                 :width "75px"
+                                                                 :border "none"
+                                                                 :box-shadow "none"
+                                                                 :cursor "pointer"}
+                                                                (get-in parts [:add-button :style]))}
+                                 :indicator {:style {:display "none"}}
+                                 :body-wrapper {:style {:background-color "#ffffff"
+                                                        :border "1px solid #e1e5e9"
+                                                        :border-radius "8px"
+                                                        :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                                        :min-width "160px"
+                                                        :margin-top "4px"}}}
+                  user-parts (get-in parts [:add-button :parts])]
+              (merge-with (fn [default-part user-part]
+                            (if (and (map? default-part) (map? user-part))
+                              (merge-with (fn [default-val user-val]
+                                            (if (and (map? default-val) (map? user-val))
+                                              (merge default-val user-val)
+                                              (or user-val default-val)))
+                                          default-part user-part)
+                              (or user-part default-part)))
+                          default-parts
+                          user-parts))
 
-(defn and-or-dropdown
-  "Custom dropdown component for AND/OR selection with explanations"
-  []
-  (let [show-menu? (r/atom false)
-        close-menu! #(reset! show-menu? false)]
-    (fn [operator update-state! group-id disabled? parts depth interactable?]
-      ;; Add click-away listener when menu is open
-      (when @show-menu?
-        (js/setTimeout
-         #(.addEventListener js/document "click"
-                             (fn [e]
-                               (when-not (.. e -target (closest ".and-or-dropdown-menu, .and-or-dropdown-button"))
-                                 (close-menu!)))
-                             #js {:once true}) 0))
-      [box/h-box
-       :style {:position "relative"}
-       :children [(if interactable?
-                    [buttons/button
-                     :disabled? disabled?
-                     :label [box/h-box
-                             :align :center
-                             :justify :between
-                             :style {:width "100%"}
-                             :children [[text/label :label (case operator :and "And" :or "Or")]
-                                        [text/label :label "▼" :style {:font-size "10px" :color "#6b7280"}]]]
-                     :class (str "btn-link and-or-dropdown-button " (get-in parts [:operator-button :class]))
-                     :style (merge {:font-size "14px" :font-weight "500" 
-                                    :color "#6b7280"
-                                    :margin-right "0px" :margin-left "0px"
-                                    :background-color (if (odd? depth) "white" "#f7f7f7")
-                                    :border-radius "4px"
-                                    :border "1px solid #e2e8f0"
-                                    :min-width "50px" :height "34px"
-                                    :text-align "left" :padding "6px 6px"}
-                                   (get-in parts [:operator-button :style]))
-                     :attr (get-in parts [:operator-button :attr])
-                     :parts (get-in parts [:operator-button :parts])
-                     :on-click #(swap! show-menu? not)]
-                    [text/label
-                     :label (case operator :and "And" :or "Or")
-                     :class (get-in parts [:operator-text :class])
-                     :style (merge {:font-size "14px" :font-weight "500" 
-                                    :color "#6b7280"
-                                    :margin-right "0px" :margin-left "0px"
-                                    :min-width "50px" :height "34px"
-                                    :text-align "left" :padding "6px 6px"
-                                    :display "flex" :align-items "center"}
-                                   (get-in parts [:operator-text :style]))
-                     :attr (get-in parts [:operator-text :attr])])
-                  [box/gap :size "2px"] ; TODO needs paramter, gap the the right of an AND/OR box
-                  ;; internals of dropdown
-                  (when (and @show-menu? interactable?)
-                    [box/v-box
-                     :class "and-or-dropdown-menu"
-                     :style {:position "absolute"
-                             :top "100%"
-                             :left "0"
-                             :z-index "1000"
-                             :background-color "#ffffff"
-                             :border "1px solid #e1e5e9"
-                             :border-radius "8px"
-                             :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                             :min-width "200px"
-                             :margin-top "4px"}
-                     :children [[box/v-box
-                                 :style {:padding "8px 0"}
-                                 :children [[buttons/button
-                                             :label [box/v-box
-                                                     :gap "2px"
-                                                     :children [[text/label :label "And" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
-                                                                [text/label :label "All filters must match" :style {:color "#6b7280" :font-size "11px"}]]]
-                                             :class "btn-link"
-                                             :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" 
-                                                     :background-color (when (= operator :and) "#f3f4f6")}
-                                             :on-click #(do (close-menu!)
-                                                            (update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :and))))))]
-                                            [buttons/button
-                                             :label [box/v-box
-                                                     :gap "2px"
-                                                     :children [[text/label :label "Or" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
-                                                                [text/label :label "At least one filter must match" :style {:color "#6b7280" :font-size "11px"}]]]
-                                             :class "btn-link"
-                                             :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%"
-                                                     :background-color (when (= operator :or) "#f3f4f6")}
-                                             :on-click #(do (close-menu!)
-                                                            (update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :or))))))]]]]])]])))
+     :body [box/v-box
+            :style {:padding "0"}
+            :children (for [choice choices]
+                        [buttons/button
+                         :label (:label choice)
+                         :class "btn-link"
+                         :style (merge {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
+                                       (get-in parts [:add-button :parts :body-wrapper :style]))
+                         :on-click (case (:id choice)
+                                     :add-filter #(update-state! (fn [state] (add-child-to-group state group-id (empty-filter table-spec))))
+                                     :add-group #(update-state! (fn [state] (add-child-to-group state group-id (empty-group table-spec)))))])]]))
 
-(defn filter-context-menu
-  "The ... button associated with a single filter
-   Also not a re-com/dropdown for UI reasons
-   Also has JS clickaway behaviour"
-  []
-  (let [show-menu? (r/atom false)
-        close-menu! #(reset! show-menu? false)]
-    (fn [item-id update-state! filter-item table-spec max-depth depth disabled? parts]
-      ;; Add click-away listener when menu is open
-      (when @show-menu?
-        (js/setTimeout
-         #(.addEventListener js/document "click"
-                             (fn [e]
-                               (when-not (.. e -target (closest ".filter-context-menu, .filter-context-button"))
-                                 (close-menu!)))
-                             #js {:once true}) 0))
-      [box/h-box
-       :style {:position "relative"}
-       :align :center
-       :children [[buttons/button
-                   :disabled? disabled?
-                   :label "⋯" ;⋯
-                   :class (get-in parts [:context-menu :class])
-                   :style (merge {:color "#9ca3af" 
-                                  :font-size "20px"
-                                  :line-height "18px"
-                                  :padding "0px 8px"
-                                  :border "none !important" 
-                                  :background "transparent" 
-                                  :border-radius "4px"
-                                  :width "100%"
-                                  :height "100%"
-                                  :display "flex"
-                                  :min-width "10"
-                                  :min-height "10"}
-                                 (get-in parts [:context-menu :style]))
-                   :attr (get-in parts [:context-menu :attr])
-                   :on-click #(swap! show-menu? not)
-                   :parts (merge {:wrapper {:style {:align-self "stretch"
-                                                    :min-height "15px"
-                                                    :max-height "34px"
-                                                    :display "flex"}}}
-                                 (get-in parts [:context-menu :parts]))]
-                  (when @show-menu?
-                    [box/v-box
-                     :class "filter-context-menu"
-                     :style {:position "absolute"
-                             :top "100%"
-                             :right "0"
-                             :z-index "1000"
-                             :background-color "#ffffff"
-                             :border "1px solid #e1e5e9"
-                             :border-radius "8px"
-                             :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                             :min-width "160px"
-                             :margin-top "4px"
-                             }
-                     :children [[buttons/button
-                                 :label "Delete Filter"
-                                 :class "btn-link"
-                                 :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#dc2626"}
-                                 :on-click #(do (close-menu!)
-                                                (update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec))))]
-                                [buttons/button
-                                 :label "Duplicate"
-                                 :class "btn-link"
-                                 :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                                 :on-click #(do (close-menu!)
-                                                (update-state! (fn [state] (duplicate-item-by-id state item-id))))]
-                                (when (< depth max-depth) [buttons/button
-                                                           :label "Turn into group"
-                                                           :class "btn-link"
-                                                           :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                                                           :on-click #(do (close-menu!)
-                                                                          (update-state! (fn [state] (convert-filter-to-group state item-id))))])]])]])))
+(defn filter-context-menu-v2
+  "Re-com dropdown version of filter context menu - no JS interop"
+  [& {:keys [item-id update-state! table-spec depth disabled? parts max-depth]}]
+  (let [choices (cond-> [{:id :delete :label "Delete Filter" :color "#dc2626"}
+                         {:id :duplicate :label "Duplicate" :color "#374151"}]
+                  (< depth max-depth)
+                  (conj {:id :convert :label "Turn into group" :color "#374151"}))]
+    [dropdown/dropdown
+     :model (r/atom nil)
+     :disabled? disabled?
+     :direction :toward-center
+     :anchor [text/label :label "⋯"
+              :style (merge {:color "#9ca3af"
+                             :font-size "20px"
+                             :line-height "18px"
+                             :padding "0px 8px"
+                             :cursor "pointer"}
+                            (get-in parts [:context-menu :parts :anchor :style]))]
+     :attr (get-in parts [:context-menu :attr])
+     :parts (let [default-parts {:anchor-wrapper {:style (merge {:border "none"
+                                                                 :background "transparent"
+                                                                 :border-radius "4px"
+                                                                 :box-shadow "none"
+                                                                 :height "20px"
+                                                                 :cursor "pointer"}
+                                                                (get-in parts [:context-menu :style]))}
+                                 :indicator {:style {:display "none"}}
+                                 :body-wrapper {:style {:background-color "#ffffff"
+                                                        :border "1px solid #e1e5e9"
+                                                        :border-radius "8px"
+                                                        :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                                        :min-width "160px"
+                                                        :margin-top "4px"}}}
+                  user-parts (get-in parts [:context-menu :parts])]
+              (merge-with (fn [default-part user-part]
+                            (if (and (map? default-part) (map? user-part))
+                              (merge-with (fn [default-val user-val]
+                                            (if (and (map? default-val) (map? user-val))
+                                              (merge default-val user-val)
+                                              (or user-val default-val)))
+                                          default-part user-part)
+                              (or user-part default-part)))
+                          default-parts
+                          user-parts))
+
+     :body [box/v-box
+            :children (for [choice choices]
+                        [buttons/button
+                         :label (:label choice)
+                         :class "btn-link"
+                         :style (merge {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
+                                       (get-in parts [:context-menu :parts :body-wrapper :style]))
+                         :on-click (case (:id choice)
+                                     :delete #(update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec)))
+                                     :duplicate #(update-state! (fn [state] (duplicate-item-by-id state item-id)))
+                                     :convert #(update-state! (fn [state] (convert-filter-to-group state item-id))))])]]))
 
 (defn filter-component
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a ... button"
-  [table-spec filter-item update-state! max-depth depth & {:keys [parts disabled?]}]
+  [& {:keys [table-spec filter-item update-state! parts disabled?] :as args}]
   (let [spec (column-by-id table-spec (:col filter-item))
         ops (ops-by-type (:type spec))
         valid? (rule-valid? filter-item table-spec)
@@ -809,8 +763,11 @@
                  :parts (get-in parts [:operator-dropdown :parts])
                  :disabled? disabled?
                  :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (fn [f] (assoc f :op % :val nil)))))]
-                [value-entry-box spec filter-item #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %)))) :parts parts :disabled? disabled?]
-                [filter-context-menu (:id filter-item) update-state! filter-item table-spec max-depth depth disabled? parts]
+                [value-entry-box (merge args {:row-spec spec
+                                              :filter-rule filter-item
+                                              :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %))))})] 
+                [filter-context-menu-v2 (merge args {:item-id (:id filter-item)
+                                                     :filter-item filter-item})]
                 (when-not valid?
                   [buttons/md-icon-button
                    :md-icon-name "zmdi-alert-triangle"
@@ -822,25 +779,25 @@
                    :parts (get-in parts [:warning-icon :parts])
                    :tooltip "Invalid rule"])]]))
 
-(defn group-component
+(defn filter-group
   "component to group filters together"
-  [table-spec group update-state! max-depth depth & {:keys [parts disabled?]}]
-  (let [children (:children group)
+  [& {:keys [group depth parts] :as args}]
+  (let [group-deref (deref-or-value group)
+        children (:children group-deref)
         is-root? (zero? depth)
-        show-group-ui? (if is-root?
-                         (> (count children) 1)  ; Root group only shows UI when 2+ children
-                         true)]                    ; Non-root groups always show UI
+        show-group-ui? (or (not is-root?) (> (count children) 1))]                    ; Non-root groups always show UI ; Root group only shows UI when 2+ children
     [box/h-box
      :align :start
      :children [[box/v-box
                  :class (get-in parts [:group :class])
-                 :style (merge {:padding (if (and show-group-ui? (not is-root?)) "8px" "0")
-                                :margin "0px 0px"
+                 :style (merge {:padding  0
+                                :margin   "0px 0px"
                                 :position "relative"}
                                (when (and show-group-ui? (not is-root?))
-                                 {:background-color (if (odd? depth) "#f7f7f7" "white")
-                                  :border "1px solid #e1e5e9"
-                                  :border-radius "4px"})
+                                 {:padding 8
+                                  :background-color (if (odd? depth) "#f7f7f7" "white")
+                                  :border           "1px solid #e1e5e9"
+                                  :border-radius    "4px"})
                                (get-in parts [:group :style]))
                  :attr (get-in parts [:group :attr])
                  :children [[box/v-box
@@ -848,22 +805,20 @@
                              :children (concat
                                         (map-indexed
                                          (fn [idx child]
-                                           (let [child-is-group? (= :group (:type (nth (:children group) idx)))
+                                           (let [child-is-group? (= :group (:type (nth (:children group-deref) idx)))
                                                  show-operator? (> idx 0)
                                                  show-where? (= idx 0)  ; Show "Where" for first item
                                                  operator-btn (when show-operator? ;if the child is a group comonent, the self-align should be :start
                                                                 [box/v-box
                                                                  :align-self (if child-is-group? :start :center)
                                                                  :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
-                                                                            [and-or-dropdown (:logic group) update-state! (:id group) disabled? parts depth (= idx 1)]]])
+                                                                            [and-or-dropdown-v2 (merge args {:operator (or (:logic group-deref) :and) :group-id (:id group-deref) :depth depth :interactable? (= idx 1)})]]])
                                                  where-label (when show-where?
                                                                [text/label
                                                                 :label "Where"
                                                                 :class (get-in parts [:where-label :class])
                                                                 :style (merge {:font-size "14px" :font-weight "500" :color "#374151"
-                                                                               ;:padding "10px 2px" 
-                                                                               ;:margin-right "2px"
-                                                                               :min-width "52px" 
+                                                                               :min-width "52px"
                                                                                :text-align "center"}
                                                                               (get-in parts [:where-label :style]))
                                                                 :attr (get-in parts [:where-label :attr])
@@ -875,14 +830,14 @@
                                                          (when where-label [where-label])
                                                          (when operator-btn [operator-btn])
                                                          [(case (:type child)
-                                                            :filter [filter-component table-spec child update-state! max-depth depth :parts parts :disabled? disabled?]
-                                                            :group [group-component table-spec child update-state! max-depth (inc depth) :parts parts :disabled? disabled?])])]))
+                                                            :filter [filter-component (merge args {:filter-item child})]
+                                                            :group [filter-group (merge args {:group child :depth (inc depth)})])])]))
                                          children)
                                         [;[box/gap :size "4px"]
-                                         [add-filter-dropdown (:id group) update-state! table-spec max-depth depth disabled? parts]])]]]
+                                         [add-filter-dropdown-v2 (merge args {:group-id (:id group-deref)})]])]]]
                 (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
                   [box/h-box
-                   :children [[group-context-menu (:id group) update-state! table-spec disabled? parts]]])]]))
+                   :children [[group-context-menu-v2 (merge args {:group-id (:id group-deref)})]]])]]))
 
 (defn table-filter
   "Hierarchical table filter component with dual-state architecture.
@@ -892,16 +847,15 @@
   (or
    (validate-args-macro table-filter-args-desc args)
    (let [external-model (r/atom (deref-or-value model))  ; Track external model changes
-         internal-model (r/atom (add-ids (or (deref-or-value model) 
+         internal-model (r/atom (add-ids (or (deref-or-value model)
                                              (empty-group-external table-spec))))]  ; Convert to internal format
      (fn table-filter-render
-       [& {:keys [table-spec model on-change max-depth top-label hide-border? disabled? class style attr parts src debug-as]
-           :or   {disabled? false hide-border? false}
+       [& {:keys [table-spec model on-change max-depth top-label hide-border?]
+           :or   {hide-border? false max-depth 2}
            :as   args}]
        (or
         (validate-args-macro table-filter-args-desc args)
-        (let [current-ext-model (deref-or-value model)
-              max-depth-defaulted (if max-depth max-depth 2)]
+        (let [current-ext-model (deref-or-value model)]
           ;; Sync external changes to internal state
           (when (not= @external-model current-ext-model)
             (reset! external-model current-ext-model)
@@ -919,31 +873,39 @@
                           is-valid? (model-valid? new-external-model table-spec)]
                       (reset! internal-model new-internal-model)
                       (when on-change (on-change new-external-model is-valid?))))]
-            [box/v-box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    (str "rc-table-filter-wrapper " (get-in parts [:wrapper :class]) " " class)
-             :style    (merge (if hide-border?
-                                {:width "fit-content"
-                                 :min-width "100%"}
-                                {:border "1px solid #e1e5e9"
-                                 :border-radius "8px"
-                                 :padding "20px"
-                                 :background-color "#ffffff"
-                                 :box-shadow "0 2px 4px rgba(0, 0, 0, 0.04)"
-                                 :width "fit-content"
-                                 :min-width "100%"})
-                              (get-in parts [:wrapper :style])
-                              style)
-             :attr     (merge (->attr args)
-                              (get-in parts [:wrapper :attr])
-                              attr)
-             :children [[text/label
-                         :label (or top-label "Select rows")
-                         :class (get-in parts [:header :class])
-                         :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
-                                       (get-in parts [:header :style]))
-                         :attr (get-in parts [:header :attr])
-                         :parts (get-in parts [:header :parts])]
-                        [box/gap :size "10px"]
-                        [group-component table-spec @internal-model update-state! max-depth-defaulted 0 :parts parts :disabled? disabled?]]])))))))
+            [filter-group (merge args {:group internal-model
+                                       :update-state! update-state!
+                                       :depth 0
+                                       :max-depth max-depth})]
+            ; remove surrounding wrapper and build in title
+            #_[box/v-box
+               :src      src
+               :debug-as (or debug-as (reflect-current-component))
+               :class    (str "rc-table-filter-wrapper " (get-in parts [:wrapper :class]) " " class)
+               :style    (merge (if hide-border?
+                                  {:width "fit-content"
+                                   :min-width "100%"}
+                                  {:border "1px solid #e1e5e9"
+                                   :border-radius "8px"
+                                   :padding "20px"
+                                   :background-color "#ffffff"
+                                   :box-shadow "0 2px 4px rgba(0, 0, 0, 0.04)"
+                                   :width "fit-content"
+                                   :min-width "100%"})
+                                (get-in parts [:wrapper :style])
+                                style)
+               :attr     (merge (->attr args)
+                                (get-in parts [:wrapper :attr])
+                                attr)
+               :children [[text/label
+                           :label (or top-label "Select rows")
+                           :class (get-in parts [:header :class])
+                           :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
+                                         (get-in parts [:header :style]))
+                           :attr (get-in parts [:header :attr])
+                           :parts (get-in parts [:header :parts])]
+                          [box/gap :size "10px"]
+                          [filter-group (merge args {:group @internal-model
+                                                     :update-state! update-state!
+                                                     :depth 0
+                                                     :max-depth max-depth})]]])))))))

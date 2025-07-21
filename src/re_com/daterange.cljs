@@ -661,7 +661,7 @@
   (let [format-str (or format "dd MMM, yyyy")]
     (cond
       (not (date-like? (:start (deref-or-value model))))
-      [:span {:style {:color "#bbb"}} placeholder]
+      [box :style {:color "#bbb"} :child placeholder]
       goog? (str
              (.format (DateTimeFormat. (if (seq format) format format-str)) (:start (deref-or-value model)))
              " - "
@@ -708,16 +708,17 @@
                                      (assoc :src (at))
                                      (merge {:hide-border? true}))]
           [dd/dropdown
-           {:class         "rc-daterange-dropdown-wrapper"
-            :on-change     (partial reset! shown?)
-            :model         shown?
-            :label         [anchor-button shown? model format goog? placeholder width disabled?]
-            :indicator     [:i.zmdi.zmdi-apps {:style {:font-size "18px"}}]
-            :width         width
-            :theme         theme
-            :anchor-width  anchor-width
-            :anchor-height anchor-height
-            :body-header   body-header
-            :body-width    "520px"
-            :body-footer   body-footer
-            :body          [daterange passthrough-args]}]))))))
+           :class         "rc-daterange-dropdown-wrapper"
+           :on-change     (partial reset! shown?)
+           :model         shown?
+           :label         [anchor-button shown? model format goog? placeholder width disabled?]
+           :indicator     [:i.zmdi.zmdi-apps {:style {:font-size "18px"}}]
+           :width         width
+           :disabled?     disabled?
+           :theme         theme
+           :anchor-width  anchor-width
+           :anchor-height anchor-height
+           :body-header   body-header
+           :body-width    "520px"
+           :body-footer   body-footer
+           :body          [daterange passthrough-args]]))))))
