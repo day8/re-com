@@ -377,16 +377,16 @@
 ;; ----------------------------------------------------------------------------
 
 (defn- common-props
-  "Extract common properties for input components as keyword args.
+  "Extract common properties for input components as a props map.
    Includes model, on-change, width, disabled, and styling props."
   [{:keys [val] :as filter-spec} on-change parts part-key disabled?]
-  [:model val
+  {:model val
    :on-change #(on-change (assoc filter-spec :val %))
    :width "220px"
    :disabled? disabled?
    :class (get-in parts [part-key :class])
    :style (get-in parts [part-key :style])
-   :attr (get-in parts [part-key :attr])])
+   :attr (get-in parts [part-key :attr])})
 
 (defmulti value-entry-box
   "Depending on the spec for a given column, the value entry box behaves differently
@@ -406,45 +406,36 @@
 ;; Text input case
 (defmethod value-entry-box :text
   [& {:keys [filter-spec on-change parts disabled?]}]
-  (into [input-text/input-text]
-        (common-props filter-spec on-change parts :text-input disabled?)))
+  [input-text/input-text (common-props filter-spec on-change parts :text-input disabled?)])
 
 ;; Number input case
 (defmethod value-entry-box :number
   [& {:keys [filter-spec on-change parts disabled?]}]
-  (into [input-text/input-text]
-        (common-props filter-spec on-change parts :text-input disabled?)))
+  [input-text/input-text (common-props filter-spec on-change parts :text-input disabled?)])
 
 ;; Date input case
 (defmethod value-entry-box :date
   [& {:keys [filter-spec on-change parts disabled?]}]
-  (let [op (:op filter-spec)
-        val (:val filter-spec)]
+  (let [op (:op filter-spec)]
     (if (#{:between :not-between} op)
-      (into [daterange/daterange-dropdown
-             :placeholder "Select date range"
-             :show-today? true]
-            (common-props filter-spec on-change parts :daterange-input disabled?))
+      [daterange/daterange-dropdown 
+       (merge {:placeholder "Select date range"
+               :show-today? true}
+              (common-props filter-spec on-change parts :daterange-input disabled?))]
 
       [datepicker/datepicker-dropdown
-       :model val
-       :width "220px"
-       :placeholder "Select a date"
-       :show-today? true
-       :on-change #(on-change (assoc filter-spec :val %))
-       :class (get-in parts [:date-input :class])
-       :style (get-in parts [:date-input :style])
-       :attr (get-in parts [:date-input :attr])
-       :parts {:anchor-label {:style {:height "34px"}}}
-       :disabled? disabled?])))
+       (merge {:placeholder "Select a date"
+               :show-today? true
+               :parts {:anchor-label {:style {:height "34px"}}}}
+              (common-props filter-spec on-change parts :date-input disabled?))])))
 
 ;; Boolean input case
 (defmethod value-entry-box :boolean
   [& {:keys [filter-spec on-change parts disabled?]}]
-  (into [dropdown/single-dropdown
-         :choices [{:id true :label "True"}
-                   {:id false :label "False"}]]
-        (common-props filter-spec on-change parts :dropdown-input disabled?)))
+  [dropdown/single-dropdown 
+   (merge {:choices [{:id true :label "True"}
+                     {:id false :label "False"}]}
+          (common-props filter-spec on-change parts :dropdown-input disabled?))])
 
 ;; Select input case
 (defmethod value-entry-box :select
@@ -455,23 +446,23 @@
     (if (#{:is-any-of :is-none-of :contains :not-contains} op)
       ;; Multi-value selection for these operators
       [tag-dropdown/tag-dropdown
-       :model (or val #{})
-       :height "34px"
-       :choices options
-       :placeholder "Select values..."
-       :min-width "220px"
-       :show-only-button? true
-       :show-counter? true
-       :on-change #(on-change (assoc filter-spec :val %))
-       :style (merge {:color "#333333"
-                      :background-color "#ffffff"}
-                     (get-in parts [:tag-dropdown-input :style]))
-       :disabled? disabled?]
+       {:model (or val #{})
+        :height "34px"
+        :choices options
+        :placeholder "Select values..."
+        :min-width "220px"
+        :show-only-button? true
+        :show-counter? true
+        :on-change #(on-change (assoc filter-spec :val %))
+        :style (merge {:color "#333333"
+                       :background-color "#ffffff"}
+                      (get-in parts [:tag-dropdown-input :style]))
+        :disabled? disabled?}]
 
       ;; Single value selection for equals/not-equals
-      (into [dropdown/single-dropdown
-             :choices options]
-            (common-props filter-spec on-change parts :dropdown-input disabled?)))))
+      [dropdown/single-dropdown
+       (merge {:choices options}
+              (common-props filter-spec on-change parts :dropdown-input disabled?))])))
 
 ;; Default case for unknown types
 (defmethod value-entry-box :default
