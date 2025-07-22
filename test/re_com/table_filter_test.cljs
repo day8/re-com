@@ -122,8 +122,11 @@
 
 ;; Component render test (basic smoke test)
 (deftest test-table-filter-component
-  (let [component (table-filter/table-filter 
+  (let [test-model (reagent/atom nil)
+        component-fn (table-filter/table-filter)
+        component (component-fn 
                    :table-spec sample-table-spec
+                   :model test-model
                    :on-change identity)]
     (is (vector? component))
     (is (= :div (first component)))))

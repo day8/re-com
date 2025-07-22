@@ -158,23 +158,21 @@
 
 (def table-filter-parts-desc
   (when include-args-desc?
-    [{:name :wrapper            :level 0 :class "rc-table-filter-wrapper"      :impl "[v-box]"         :notes "Outer wrapper of the entire table filter component. No nested :parts"}
-     {:name :header             :level 1 :class "rc-table-filter-header"       :impl "[label]"         :notes "The 'Select rows' header label. Accepts nested :parts"}
-     {:name :group              :level 1 :class "rc-table-filter-group"        :impl "[v-box]"         :notes "Container for a filter group. No nested :parts"}
-     {:name :filter             :level 2 :class "rc-table-filter-filter"       :impl "[h-box]"         :notes "Container for individual filter condition row. No nested :parts"}
-     {:name :column-dropdown    :level 3 :class "rc-table-filter-column"       :impl "[dropdown]"      :notes "Dropdown for selecting table columns. Accepts nested :parts"}
-     {:name :operator-dropdown  :level 3 :class "rc-table-filter-operator"     :impl "[dropdown]"      :notes "Dropdown for selecting filter operators. Accepts nested :parts"}
-     {:name :text-input         :level 3 :class "rc-table-filter-text"         :impl "[input-text]"    :notes "Text input field for text and number values. Accepts nested :parts"}
-     {:name :date-input         :level 3 :class "rc-table-filter-date"         :impl "[datepicker]"    :notes "Date picker for single date values. Accepts nested :parts"}
-     {:name :daterange-input    :level 3 :class "rc-table-filter-daterange"    :impl "[daterange]"     :notes "Date range picker for between/not-between operations. Accepts nested :parts"}
-     {:name :dropdown-input     :level 3 :class "rc-table-filter-dropdown"     :impl "[dropdown]"      :notes "Dropdown for boolean and single-select values. Accepts nested :parts"}
-     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes "Tag-dropdown for selecting multiple values. Accepts nested :parts. Due to unfinished implementation of tag-dropdown, does not accept :class or :attr"}
-     {:name :add-button         :level 2 :class "rc-table-filter-add"          :impl "[button]"        :notes "The '+ Add filter' button and dropdown menu. Accepts nested :parts"}
-     {:name :context-menu       :level 3 :class "rc-table-filter-context"      :impl "[button]"        :notes "The '⋯' context menu button for groups and filters. Accepts nested :parts"}
-     {:name :operator-button    :level 2 :class "rc-table-filter-op-button"    :impl "[button]"        :notes "The AND/OR operator button when interactive (first in group). Accepts nested :parts"}
-     {:name :operator-text      :level 2 :class "rc-table-filter-op-text"      :impl "[label]"         :notes "The AND/OR operator text when non-interactive (subsequent in group). Accepts nested :parts"}
-     {:name :where-label        :level 2 :class "rc-table-filter-where"        :impl "[label]"         :notes "The 'Where' label for first filter. Accepts nested :parts"}
-     {:name :warning-icon       :level 3 :class "rc-table-filter-warning"      :impl "[md-icon-button]" :notes "The warning icon shown for invalid filters. Accepts nested :parts"}]))
+    [{:name :group              :level 1 :class "rc-table-filter-group"        :impl "[v-box]"         :notes "Container for a filter group."}
+     {:name :filter             :level 2 :class "rc-table-filter-filter"       :impl "[h-box]"         :notes "Container for individual filter condition row."}
+     {:name :column-dropdown    :level 3 :class "rc-table-filter-column"       :impl "[dropdown]"      :notes "Dropdown for selecting table columns."}
+     {:name :operator-dropdown  :level 3 :class "rc-table-filter-operator"     :impl "[dropdown]"      :notes "Dropdown for selecting filter operators."}
+     {:name :text-input         :level 3 :class "rc-table-filter-text"         :impl "[input-text]"    :notes "Text input field for text and number values."}
+     {:name :date-input         :level 3 :class "rc-table-filter-date"         :impl "[datepicker]"    :notes "Date picker for single date values."}
+     {:name :daterange-input    :level 3 :class "rc-table-filter-daterange"    :impl "[daterange]"     :notes "Date range picker for between/not-between operations."}
+     {:name :dropdown-input     :level 3 :class "rc-table-filter-dropdown"     :impl "[dropdown]"      :notes "Dropdown for boolean and single-select values."}
+     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes "Tag-dropdown for selecting multiple values. Due to unfinished implementation of tag-dropdown, does not accept :class or :attr"}
+     {:name :add-button         :level 2 :class "rc-table-filter-add"          :impl "[button]"        :notes "The '+ Add filter' button and dropdown menu."}
+     {:name :context-menu       :level 3 :class "rc-table-filter-context"      :impl "[button]"        :notes "The '⋯' context menu button for groups and filters."}
+     {:name :operator-button    :level 2 :class "rc-table-filter-op-button"    :impl "[button]"        :notes "The AND/OR operator button when interactive (first in group)."}
+     {:name :operator-text      :level 2 :class "rc-table-filter-op-text"      :impl "[label]"         :notes "The AND/OR operator text when non-interactive (subsequent in group)."}
+     {:name :where-label        :level 2 :class "rc-table-filter-where"        :impl "[label]"         :notes "The 'Where' label for first filter."}
+     {:name :warning-icon       :level 3 :class "rc-table-filter-warning"      :impl "[md-icon-button]" :notes "The warning icon shown for invalid filters."}]))
 
 (def table-filter-parts
   (when include-args-desc?
@@ -183,11 +181,9 @@
 (def table-filter-args-desc
   (when include-args-desc?
     [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys. Example on the right"}
-     {:name :model           :required false :default nil           :type "map | r/atom"     :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure. If nil, starts with empty filter. Interact with the demo to populate the \"Current Filter Model\" to see how this looks."}
+     {:name :model           :required true                          :type "map | r/atom"    :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure. The UI will always reflect what is in model. Should be updated by the on-change function to maintain proper data flow. If unsure, just pass an empty reagent atom."}
      {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description [:span "Callback function called when user interacts with the filter component. Receives two arguments: " [:code "[model is-valid?]"] " where " [:code "model"] " is the updated filter structure and " [:code "is-valid?"] " is a boolean indicating if all filters are complete and valid. Use this to update your application state."]}
      {:name :max-depth       :required false :default 2             :type "int"              :validate-fn int?                            :description "Set the maximum amount of nesting possible. 0 is no nesting; user only allowed to add filters. 1 allows user to add filter groups, ect"}
-     ;{:name :top-label       :required false :default "Select rows" :type "string | hiccup"  :validate-fn string-or-hiccup?               :description "Header label text displayed at the top of the filter component"}
-     ;{:name :hide-border?    :required false :default false         :type "boolean"          :validate-fn boolean?                        :description "If true, hides the border and background styling of the component wrapper"}
      {:name :disabled?       :required false :default false         :type "boolean"          :validate-fn boolean?                        :description "If true, disables all filter interactions"}
      {:name :class           :required false                        :type "string"           :validate-fn css-class?                      :description "CSS class names, space separated (applies to wrapper)"}
      {:name :style           :required false                        :type "CSS style map"    :validate-fn css-style?                      :description "CSS styles to apply to wrapper"}
@@ -391,8 +387,7 @@
      :disabled? disabled?
      :class (get-in parts [part-key :class])
      :style (get-in parts [part-key :style])
-     :attr (get-in parts [part-key :attr])
-     :parts (get-in parts [part-key :parts])]))
+     :attr (get-in parts [part-key :attr])]))
 
 (defmulti value-entry-box
   "Depending on the spec for a given column, the value entry box behaves differently
@@ -440,8 +435,7 @@
        :class (get-in parts [:date-input :class])
        :style (get-in parts [:date-input :style])
        :attr (get-in parts [:date-input :attr])
-       :parts (merge {:anchor-label {:style {:height "34px"}}}
-                     (get-in parts [:date-input :parts]))
+       :parts {:anchor-label {:style {:height "34px"}}}
        :disabled? disabled?])))
 
 ;; Boolean input case
@@ -462,7 +456,7 @@
       ;; Multi-value selection for these operators
       [tag-dropdown/tag-dropdown
        :model (or val #{})
-       :height (or (get-in parts [:tag-dropdown-input :style :height]) "34px")
+       :height "34px"
        :choices options
        :placeholder "Select values..."
        :min-width "220px"
@@ -472,7 +466,6 @@
        :style (merge {:color "#333333"
                       :background-color "#ffffff"}
                      (get-in parts [:tag-dropdown-input :style]))
-       :parts (get-in parts [:tag-dropdown-input :parts])
        :disabled? disabled?]
 
       ;; Single value selection for equals/not-equals
@@ -485,8 +478,7 @@
   [& {:keys []}]
   [text/label :label ""])
 
-
-(defn group-context-menu-v2
+(defn group-context-menu
   "Re-com dropdown version of group context menu - no JS interop"
   [& {:keys [group-id update-state! table-spec disabled? parts]}]
   (let [choices [{:id :delete :label "Delete group" :color "#dc2626"}]]
@@ -494,43 +486,31 @@
      :model (r/atom nil)
      :disabled? disabled?
      :direction :toward-center
-     :anchor [text/label :label "⋯" 
-              :style (merge {:color "#9ca3af" 
-                             :font-size "20px" 
-                             :padding "6px 8px" 
-                             :cursor "pointer"}
-                            (get-in parts [:context-menu :parts :anchor :style]))]
+     :anchor [text/label :label "⋯"
+              :style {:color "#9ca3af"
+                      :font-size "20px"
+                      :padding "6px 8px"
+                      :cursor "pointer"}]
      :attr (get-in parts [:context-menu :attr])
-     :parts (let [default-parts {:anchor-wrapper {:style (merge {:border "none"
-                                                                 :background "transparent" 
-                                                                 :border-radius "4px"
-                                                                 :box-shadow "none"
-                                                                 :width "100%"
-                                                                 :height "100%"
-                                                                 :display "flex"
-                                                                 :align-items "center"
-                                                                 :justify-content "center"
-                                                                 :cursor "pointer"}
-                                                                 (get-in parts [:context-menu :style]))}
-                                 :indicator {:style {:display "none"}}
-                                 :body-wrapper {:style {:background-color "#ffffff"
-                                                        :border "1px solid #e1e5e9"
-                                                        :border-radius "8px"
-                                                        :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                                        :min-width "160px"
-                                                        :margin-top "4px"}}}
-                  user-parts (get-in parts [:context-menu :parts])]
-              (merge-with (fn [default-part user-part]
-                            (if (and (map? default-part) (map? user-part))
-                              (merge-with (fn [default-val user-val]
-                                            (if (and (map? default-val) (map? user-val))
-                                              (merge default-val user-val)
-                                              (or user-val default-val)))
-                                          default-part user-part)
-                              (or user-part default-part)))
-                          default-parts
-                          user-parts))
-     
+     :parts {:anchor-wrapper {:style (merge {:border "none"
+                                             :background "transparent"
+                                             :border-radius "4px"
+                                             :box-shadow "none"
+                                             :width "100%"
+                                             :height "100%"
+                                             :display "flex"
+                                             :align-items "center"
+                                             :justify-content "center"
+                                             :cursor "pointer"}
+                                            (get-in parts [:context-menu :style]))}
+             :indicator {:style {:display "none"}}
+             :body-wrapper {:style {:background-color "#ffffff"
+                                    :border "1px solid #e1e5e9"
+                                    :border-radius "8px"
+                                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                    :min-width "160px"
+                                    :margin-top "4px"}}}
+
      :body [box/v-box
             :style {:padding "0"}
             :children (for [choice choices]
@@ -546,9 +526,9 @@
                                                                  state
                                                                  (remove-item-with-cleanup state group-id table-spec)))))])]]))
 
-(defn and-or-dropdown-v2
+(defn and-or-dropdown
   "New dropdown component using re-com dropdown - maintains exact visual styling"
-  [{:keys [operator update-state! group-id depth interactable? disabled? parts]}]
+  [& {:keys [operator update-state! group-id depth interactable? disabled? parts]}]
   [box/h-box
    :children [(if interactable?
                 [dropdown/dropdown
@@ -608,9 +588,9 @@
                  :attr (get-in parts [:operator-text :attr])])
               [box/gap :size "2px"]]])
 
-(defn add-filter-dropdown-v2
+(defn add-filter-dropdown
   "Re-com dropdown version of add filter button - no JS interop"
-  [{:keys [group-id update-state! table-spec depth disabled? parts max-depth]}]
+  [& {:keys [group-id update-state! table-spec depth disabled? parts max-depth]}]
   (let [choices (cond-> [{:id :add-filter :label "Add a filter"}]
                   (< depth max-depth)
                   (conj {:id :add-group :label "Add a filter group"}))]
@@ -619,42 +599,26 @@
      :disabled? disabled?
      ;; we have replaced JS jank with very awkwards "parts" handling
      :anchor [text/label :label "+ Add filter"
-              :style (merge {:font-size "13px" :color "#46a2da"}
-                            (get-in parts [:add-button :parts :anchor :style]))]
+              :style {:font-size "13px" :color "#46a2da"}]
      :attr (get-in parts [:add-button :attr])
-     ;; I kinda hate this, but it seems required to allow styling to have defaults within the dropdown component
-     ;; while also allowing users to taget the parts within the dropdown component itself
-     ;; e.g. lets you have default styling on different parts of the dropdown
-     ;; and also lets you use access/adjust the parts within the dropdown from the table-filter level
-     :parts (let [default-parts {:anchor-wrapper {:class (str "btn-outline " (get-in parts [:add-button :class]))
-                                                  :style (merge {:font-size "13px"
-                                                                 :padding "2px 4px"
-                                                                 :font-weight "500"
-                                                                 :border-radius "8px"
-                                                                 :background-color "transparent"
-                                                                 :width "75px"
-                                                                 :border "none"
-                                                                 :box-shadow "none"
-                                                                 :cursor "pointer"}
-                                                                (get-in parts [:add-button :style]))}
-                                 :indicator {:style {:display "none"}}
-                                 :body-wrapper {:style {:background-color "#ffffff"
-                                                        :border "1px solid #e1e5e9"
-                                                        :border-radius "8px"
-                                                        :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                                        :min-width "160px"
-                                                        :margin-top "4px"}}}
-                  user-parts (get-in parts [:add-button :parts])]
-              (merge-with (fn [default-part user-part]
-                            (if (and (map? default-part) (map? user-part))
-                              (merge-with (fn [default-val user-val]
-                                            (if (and (map? default-val) (map? user-val))
-                                              (merge default-val user-val)
-                                              (or user-val default-val)))
-                                          default-part user-part)
-                              (or user-part default-part)))
-                          default-parts
-                          user-parts))
+     :parts {:anchor-wrapper {:class (str "btn-outline " (get-in parts [:add-button :class]))
+                              :style (merge {:font-size "13px"
+                                             :padding "2px 4px"
+                                             :font-weight "500"
+                                             :border-radius "8px"
+                                             :background-color "transparent"
+                                             :width "75px"
+                                             :border "none"
+                                             :box-shadow "none"
+                                             :cursor "pointer"}
+                                            (get-in parts [:add-button :style]))}
+             :indicator {:style {:display "none"}}
+             :body-wrapper {:style {:background-color "#ffffff"
+                                    :border "1px solid #e1e5e9"
+                                    :border-radius "8px"
+                                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                    :min-width "160px"
+                                    :margin-top "4px"}}}
 
      :body [box/v-box
             :style {:padding "0"}
@@ -668,7 +632,7 @@
                                      :add-filter #(update-state! (fn [state] (add-child-to-group state group-id (empty-filter table-spec))))
                                      :add-group #(update-state! (fn [state] (add-child-to-group state group-id (empty-group table-spec)))))])]]))
 
-(defn filter-context-menu-v2
+(defn filter-context-menu
   "Re-com dropdown version of filter context menu - no JS interop"
   [& {:keys [item-id update-state! table-spec depth disabled? parts max-depth]}]
   (let [choices (cond-> [{:id :delete :label "Delete Filter" :color "#dc2626"}
@@ -680,38 +644,26 @@
      :disabled? disabled?
      :direction :toward-center
      :anchor [text/label :label "⋯"
-              :style (merge {:color "#9ca3af"
-                             :font-size "20px"
-                             :line-height "18px"
-                             :padding "0px 8px"
-                             :cursor "pointer"}
-                            (get-in parts [:context-menu :parts :anchor :style]))]
+              :style {:color "#9ca3af"
+                      :font-size "20px"
+                      :line-height "18px"
+                      :padding "0px 8px"
+                      :cursor "pointer"}]
      :attr (get-in parts [:context-menu :attr])
-     :parts (let [default-parts {:anchor-wrapper {:style (merge {:border "none"
-                                                                 :background "transparent"
-                                                                 :border-radius "4px"
-                                                                 :box-shadow "none"
-                                                                 :height "20px"
-                                                                 :cursor "pointer"}
-                                                                (get-in parts [:context-menu :style]))}
-                                 :indicator {:style {:display "none"}}
-                                 :body-wrapper {:style {:background-color "#ffffff"
-                                                        :border "1px solid #e1e5e9"
-                                                        :border-radius "8px"
-                                                        :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                                        :min-width "160px"
-                                                        :margin-top "4px"}}}
-                  user-parts (get-in parts [:context-menu :parts])]
-              (merge-with (fn [default-part user-part]
-                            (if (and (map? default-part) (map? user-part))
-                              (merge-with (fn [default-val user-val]
-                                            (if (and (map? default-val) (map? user-val))
-                                              (merge default-val user-val)
-                                              (or user-val default-val)))
-                                          default-part user-part)
-                              (or user-part default-part)))
-                          default-parts
-                          user-parts))
+     :parts {:anchor-wrapper {:style (merge {:border "none"
+                                             :background "transparent"
+                                             :border-radius "4px"
+                                             :box-shadow "none"
+                                             :height "20px"
+                                             :cursor "pointer"}
+                                            (get-in parts [:context-menu :style]))}
+             :indicator {:style {:display "none"}}
+             :body-wrapper {:style {:background-color "#ffffff"
+                                    :border "1px solid #e1e5e9"
+                                    :border-radius "8px"
+                                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                    :min-width "160px"
+                                    :margin-top "4px"}}}
 
      :body [box/v-box
             :children (for [choice choices]
@@ -748,7 +700,6 @@
                  :class (get-in parts [:column-dropdown :class])
                  :style (get-in parts [:column-dropdown :style])
                  :attr (get-in parts [:column-dropdown :attr])
-                 :parts (get-in parts [:column-dropdown :parts])
                  :disabled? disabled?
                  :on-change #(let [cs (column-by-id table-spec %)]
                                (update-state! (fn [state] (update-item-by-id state (:id filter-item)
@@ -760,13 +711,12 @@
                  :class (get-in parts [:operator-dropdown :class])
                  :style (get-in parts [:operator-dropdown :style])
                  :attr (get-in parts [:operator-dropdown :attr])
-                 :parts (get-in parts [:operator-dropdown :parts])
                  :disabled? disabled?
                  :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (fn [f] (assoc f :op % :val nil)))))]
                 [value-entry-box (merge args {:row-spec spec
                                               :filter-rule filter-item
-                                              :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %))))})] 
-                [filter-context-menu-v2 (merge args {:item-id (:id filter-item)
+                                              :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %))))})]
+                [filter-context-menu (merge args {:item-id (:id filter-item)
                                                      :filter-item filter-item})]
                 (when-not valid?
                   [buttons/md-icon-button
@@ -776,7 +726,6 @@
                                  (get-in parts [:warning-icon :style]))
                    :class (get-in parts [:warning-icon :class])
                    :attr (get-in parts [:warning-icon :attr])
-                   :parts (get-in parts [:warning-icon :parts])
                    :tooltip "Invalid rule"])]]))
 
 (defn filter-group
@@ -812,7 +761,7 @@
                                                                 [box/v-box
                                                                  :align-self (if child-is-group? :start :center)
                                                                  :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
-                                                                            [and-or-dropdown-v2 (merge args {:operator (or (:logic group-deref) :and) :group-id (:id group-deref) :depth depth :interactable? (= idx 1)})]]])
+                                                                            [and-or-dropdown (merge args {:operator (or (:logic group-deref) :and) :group-id (:id group-deref) :depth depth :interactable? (= idx 1)})]]])
                                                  where-label (when show-where?
                                                                [text/label
                                                                 :label "Where"
@@ -821,8 +770,7 @@
                                                                                :min-width "52px"
                                                                                :text-align "center"}
                                                                               (get-in parts [:where-label :style]))
-                                                                :attr (get-in parts [:where-label :attr])
-                                                                :parts (get-in parts [:where-label :parts])])]
+                                                                :attr (get-in parts [:where-label :attr])])]
                                              [box/h-box
                                               :align :center
                                               :gap "4px"
@@ -834,78 +782,44 @@
                                                             :group [filter-group (merge args {:group child :depth (inc depth)})])])]))
                                          children)
                                         [;[box/gap :size "4px"]
-                                         [add-filter-dropdown-v2 (merge args {:group-id (:id group-deref)})]])]]]
+                                         [add-filter-dropdown (merge args {:group-id (:id group-deref)})]])]]]
                 (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
                   [box/h-box
-                   :children [[group-context-menu-v2 (merge args {:group-id (:id group-deref)})]]])]]))
+                   :children [[group-context-menu (merge args {:group-id (:id group-deref)})]]])]]))
 
 (defn table-filter
-  "Hierarchical table filter component with dual-state architecture.
+  "Hierarchical table filter component with external state as single source of truth.
    External model (user-facing): {:type :group :logic :and :children [...]} - no IDs required
    Internal model automatically adds IDs for component state management."
-  [& {:keys [table-spec model] :as args}]
-  (or
-   (validate-args-macro table-filter-args-desc args)
-   (let [external-model (r/atom (deref-or-value model))  ; Track external model changes
-         internal-model (r/atom (add-ids (or (deref-or-value model)
-                                             (empty-group-external table-spec))))]  ; Convert to internal format
-     (fn table-filter-render
-       [& {:keys [table-spec model on-change max-depth top-label hide-border?]
-           :or   {hide-border? false max-depth 2}
-           :as   args}]
-       (or
-        (validate-args-macro table-filter-args-desc args)
-        (let [current-ext-model (deref-or-value model)]
-          ;; Sync external changes to internal state
-          (when (not= @external-model current-ext-model)
-            (reset! external-model current-ext-model)
-            (reset! internal-model (add-ids (or current-ext-model
-                                                (empty-group-external table-spec)))))
-          ;; slightly odd pattern when we provide other "lower level" functions the ability to update the internal state
-          ;; by passing them the (probably) effectful user defined function to do so.
-          ;; We need to be able to update the internal state to pass it to the users on-change function.
-          ;; If the users on-change function doesnt do anything to the external model, the internal state will "revert"
-          (letfn [(update-state! [update-fn]
-                    ;; Apply update to current internal model and call user's on-change
-                    ;; Convert internal model to external format for callback
-                    (let [new-internal-model (update-fn @internal-model)
-                          new-external-model (remove-ids new-internal-model)
-                          is-valid? (model-valid? new-external-model table-spec)]
-                      (reset! internal-model new-internal-model)
-                      (when on-change (on-change new-external-model is-valid?))))]
-            [filter-group (merge args {:group internal-model
-                                       :update-state! update-state!
-                                       :depth 0
-                                       :max-depth max-depth})]
-            ; remove surrounding wrapper and build in title
-            #_[box/v-box
-               :src      src
-               :debug-as (or debug-as (reflect-current-component))
-               :class    (str "rc-table-filter-wrapper " (get-in parts [:wrapper :class]) " " class)
-               :style    (merge (if hide-border?
-                                  {:width "fit-content"
-                                   :min-width "100%"}
-                                  {:border "1px solid #e1e5e9"
-                                   :border-radius "8px"
-                                   :padding "20px"
-                                   :background-color "#ffffff"
-                                   :box-shadow "0 2px 4px rgba(0, 0, 0, 0.04)"
-                                   :width "fit-content"
-                                   :min-width "100%"})
-                                (get-in parts [:wrapper :style])
-                                style)
-               :attr     (merge (->attr args)
-                                (get-in parts [:wrapper :attr])
-                                attr)
-               :children [[text/label
-                           :label (or top-label "Select rows")
-                           :class (get-in parts [:header :class])
-                           :style (merge {:font-size "14px" :font-weight "600" :color "#374151" :margin-bottom "0px"}
-                                         (get-in parts [:header :style]))
-                           :attr (get-in parts [:header :attr])
-                           :parts (get-in parts [:header :parts])]
-                          [box/gap :size "10px"]
-                          [filter-group (merge args {:group @internal-model
-                                                     :update-state! update-state!
-                                                     :depth 0
-                                                     :max-depth max-depth})]]])))))))
+  []
+  ;; Create stable atom once for child component identity
+  (let [internal-model (r/atom nil)]
+    ;; Render function called on every re-render
+    (fn [& {:keys [table-spec model on-change max-depth] ;; Pull out passed in model
+            :or   {max-depth 2}
+            :as   args}]
+      (or
+       (validate-args-macro table-filter-args-desc args)
+       (let [;; Always derive canonical state from props
+             external-model-val (or (deref-or-value model) (empty-group-external table-spec)) ;; Passed in model, if nil we still want to display one empty filter
+              ;; Check if external structure changed (ignoring IDs)
+             current-external   (when @internal-model (remove-ids @internal-model))] ;; User shouldn't have to worry about ID's
+
+          ;; Only regenerate IDs if external structure actually changed
+         (when (not= current-external external-model-val)
+           (reset! internal-model (add-ids external-model-val)))
+
+         (let [model-with-ids (or @internal-model (add-ids external-model-val))
+                ;; Pure function - calculates new state and notifies parent
+                ;; Does NOT mutate local state - external state is source of truth
+               update-state! (fn [update-fn]
+                               (let [new-internal-model (update-fn model-with-ids)
+                                     new-external-model (remove-ids new-internal-model)
+                                     is-valid?          (model-valid? new-external-model table-spec)]
+                                 (when on-change
+                                   (on-change new-external-model is-valid?))))]
+           
+           [filter-group (merge args {:group         internal-model
+                                      :update-state! update-state!
+                                      :depth         0
+                                      :max-depth     max-depth})]))))))

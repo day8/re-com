@@ -458,3 +458,12 @@ test/
 - Check existing component implementations
 - Refer to `docs/ai-docs.md` for Reagent-specific issues
 - Use browser dev tools with source maps enabled
+```
+
+## Development Best Practices
+
+### Functional Programming Notes
+
+- **letfn Usage**:
+  * Only use `letfn` when mutual recursion is required
+  * Prefer `let` with anonymous functions for most scenarios
