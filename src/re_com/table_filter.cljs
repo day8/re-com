@@ -2,19 +2,19 @@
   (:require-macros [re-com.core :refer [handler-fn at reflect-current-component]]
                    [re-com.validate :refer [validate-args-macro]])
   (:require [clojure.walk :as walk]
-            [reagent.core :as r]
             [re-com.box :as box]
             [re-com.buttons :as buttons]
+            [re-com.config :refer [include-args-desc?]]
             [re-com.datepicker :as datepicker]
             [re-com.daterange :as daterange]
             [re-com.dropdown :as dropdown]
             [re-com.input-text :as input-text]
             [re-com.tag-dropdown :as tag-dropdown]
             [re-com.text :as text]
-            [re-com.debug :refer [->attr]]
+            [re-com.theme :as theme]
             [re-com.util :as u :refer [deref-or-value]]
-            [re-com.config :refer [include-args-desc?]]
-            [re-com.validate :refer [string-or-hiccup? css-class? css-style? html-attr? parts?]]))
+            [re-com.validate :refer [css-class? css-style? html-attr? parts?]]
+            [reagent.core :as r]))
 
 ;; ----------------------------------------------------------------------------
 ;; Helpers
@@ -379,25 +379,25 @@
 (defn- common-props
   "Extract common properties for input components as keyword args.
    Includes model, on-change, width, disabled, and styling props."
-  [filter-rule on-change parts part-key disabled?]
-  (let [val (:val filter-rule)]
-    [:model val
-     :on-change #(on-change (assoc filter-rule :val %))
-     :width "220px"
-     :disabled? disabled?
-     :class (get-in parts [part-key :class])
-     :style (get-in parts [part-key :style])
-     :attr (get-in parts [part-key :attr])]))
+  [{:keys [val] :as filter-spec} on-change parts part-key disabled?]
+  [:model val
+   :on-change #(on-change (assoc filter-spec :val %))
+   :width "220px"
+   :disabled? disabled?
+   :class (get-in parts [part-key :class])
+   :style (get-in parts [part-key :style])
+   :attr (get-in parts [part-key :attr])])
 
 (defmulti value-entry-box
   "Depending on the spec for a given column, the value entry box behaves differently
    There are options for most sql-like types)"
-  (fn [& {:keys [row-spec filter-rule]}]
-    (let [{:keys [type]} row-spec
-          op (:op filter-rule)]
+  (fn [& {:keys [row-spec filter-spec]}]
+    (let [{row-type :type} row-spec
+          {op :op} filter-spec]
       (if (#{:empty :not-empty} op)
         :empty-operation
-        type))))
+        row-type))))
+
 ;; Empty operation case - same for all types
 (defmethod value-entry-box :empty-operation
   [& {:keys []}]
@@ -405,33 +405,33 @@
 
 ;; Text input case
 (defmethod value-entry-box :text
-  [& {:keys [filter-rule on-change parts disabled?]}]
+  [& {:keys [filter-spec on-change parts disabled?]}]
   (into [input-text/input-text]
-        (common-props filter-rule on-change parts :text-input disabled?)))
+        (common-props filter-spec on-change parts :text-input disabled?)))
 
 ;; Number input case
 (defmethod value-entry-box :number
-  [& {:keys [filter-rule on-change parts disabled?]}]
+  [& {:keys [filter-spec on-change parts disabled?]}]
   (into [input-text/input-text]
-        (common-props filter-rule on-change parts :text-input disabled?)))
+        (common-props filter-spec on-change parts :text-input disabled?)))
 
 ;; Date input case
 (defmethod value-entry-box :date
-  [& {:keys [filter-rule on-change parts disabled?]}]
-  (let [op (:op filter-rule)
-        val (:val filter-rule)]
+  [& {:keys [filter-spec on-change parts disabled?]}]
+  (let [op (:op filter-spec)
+        val (:val filter-spec)]
     (if (#{:between :not-between} op)
       (into [daterange/daterange-dropdown
              :placeholder "Select date range"
              :show-today? true]
-            (common-props filter-rule on-change parts :daterange-input disabled?))
+            (common-props filter-spec on-change parts :daterange-input disabled?))
 
       [datepicker/datepicker-dropdown
        :model val
        :width "220px"
        :placeholder "Select a date"
        :show-today? true
-       :on-change #(on-change (assoc filter-rule :val %))
+       :on-change #(on-change (assoc filter-spec :val %))
        :class (get-in parts [:date-input :class])
        :style (get-in parts [:date-input :style])
        :attr (get-in parts [:date-input :attr])
@@ -440,18 +440,18 @@
 
 ;; Boolean input case
 (defmethod value-entry-box :boolean
-  [& {:keys [filter-rule on-change parts disabled?]}]
+  [& {:keys [filter-spec on-change parts disabled?]}]
   (into [dropdown/single-dropdown
          :choices [{:id true :label "True"}
                    {:id false :label "False"}]]
-        (common-props filter-rule on-change parts :dropdown-input disabled?)))
+        (common-props filter-spec on-change parts :dropdown-input disabled?)))
 
 ;; Select input case
 (defmethod value-entry-box :select
-  [& {:keys [row-spec filter-rule on-change parts disabled?]}]
+  [& {:keys [row-spec filter-spec on-change parts disabled?]}]
   (let [{:keys [options]} row-spec
-        op (:op filter-rule)
-        val (:val filter-rule)]
+        op (:op filter-spec)
+        val (:val filter-spec)]
     (if (#{:is-any-of :is-none-of :contains :not-contains} op)
       ;; Multi-value selection for these operators
       [tag-dropdown/tag-dropdown
@@ -462,7 +462,7 @@
        :min-width "220px"
        :show-only-button? true
        :show-counter? true
-       :on-change #(on-change (assoc filter-rule :val %))
+       :on-change #(on-change (assoc filter-spec :val %))
        :style (merge {:color "#333333"
                       :background-color "#ffffff"}
                      (get-in parts [:tag-dropdown-input :style]))
@@ -471,7 +471,7 @@
       ;; Single value selection for equals/not-equals
       (into [dropdown/single-dropdown
              :choices options]
-            (common-props filter-rule on-change parts :dropdown-input disabled?)))))
+            (common-props filter-spec on-change parts :dropdown-input disabled?)))))
 
 ;; Default case for unknown types
 (defmethod value-entry-box :default
@@ -479,13 +479,12 @@
   [text/label :label ""])
 
 (defn group-context-menu
-  "Re-com dropdown version of group context menu - no JS interop"
+  "Menu for operations on groups, currently only delete"
   [& {:keys [group-id update-state! table-spec disabled? parts]}]
   (let [choices [{:id :delete :label "Delete group" :color "#dc2626"}]]
     [dropdown/dropdown
      :model (r/atom nil)
      :disabled? disabled?
-     :direction :toward-center
      :anchor [text/label :label "⋯"
               :style {:color "#9ca3af"
                       :font-size "20px"
@@ -517,8 +516,7 @@
                         [buttons/button
                          :label (:label choice)
                          :class "btn-link"
-                         :style (merge {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
-                                       (get-in parts [:context-menu :parts :body-wrapper :style]))
+                         :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
                          :on-click (case (:id choice)
                                      :delete #(update-state! (fn [state]
                                                                ;; Safety check: don't delete root group
@@ -527,7 +525,7 @@
                                                                  (remove-item-with-cleanup state group-id table-spec)))))])]]))
 
 (defn and-or-dropdown
-  "New dropdown component using re-com dropdown - maintains exact visual styling"
+  "Dropdown to choose the logical combination of a group, e.g. AND/OR"
   [& {:keys [operator update-state! group-id depth interactable? disabled? parts]}]
   [box/h-box
    :children [(if interactable?
@@ -538,7 +536,7 @@
                           :and "And"
                           :or "Or")
                  :width "50px"
-                 :parts {:anchor-wrapper {:class (str "btn-link " (get-in parts [:operator-button :class]))
+                 :parts {:anchor-wrapper {:class (theme/merge-class "btn-link" (get-in parts [:operator-button :class]))
                                           :style (merge {:font-size "14px" :font-weight "500"
                                                          :color "#6b7280"
                                                          :margin-right "0px" :margin-left "0px"
@@ -589,7 +587,7 @@
               [box/gap :size "2px"]]])
 
 (defn add-filter-dropdown
-  "Re-com dropdown version of add filter button - no JS interop"
+  "A dropdown that looks like a button for adding new filter-builders or filter-groups"
   [& {:keys [group-id update-state! table-spec depth disabled? parts max-depth]}]
   (let [choices (cond-> [{:id :add-filter :label "Add a filter"}]
                   (< depth max-depth)
@@ -626,14 +624,13 @@
                         [buttons/button
                          :label (:label choice)
                          :class "btn-link"
-                         :style (merge {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                                       (get-in parts [:add-button :parts :body-wrapper :style]))
+                         :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
                          :on-click (case (:id choice)
                                      :add-filter #(update-state! (fn [state] (add-child-to-group state group-id (empty-filter table-spec))))
                                      :add-group #(update-state! (fn [state] (add-child-to-group state group-id (empty-group table-spec)))))])]]))
 
 (defn filter-context-menu
-  "Re-com dropdown version of filter context menu - no JS interop"
+  "A dropdown which exposes the options you can take on a filter, e.g. delete, dupe or promote to group"
   [& {:keys [item-id update-state! table-spec depth disabled? parts max-depth]}]
   (let [choices (cond-> [{:id :delete :label "Delete Filter" :color "#dc2626"}
                          {:id :duplicate :label "Duplicate" :color "#374151"}]
@@ -670,19 +667,18 @@
                         [buttons/button
                          :label (:label choice)
                          :class "btn-link"
-                         :style (merge {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
-                                       (get-in parts [:context-menu :parts :body-wrapper :style]))
+                         :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
                          :on-click (case (:id choice)
                                      :delete #(update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec)))
                                      :duplicate #(update-state! (fn [state] (duplicate-item-by-id state item-id)))
                                      :convert #(update-state! (fn [state] (convert-filter-to-group state item-id))))])]]))
 
-(defn filter-component
-  "A single filter, contains a row selection box, an operator selection box, a value entry box and a ... button"
-  [& {:keys [table-spec filter-item update-state! parts disabled?] :as args}]
-  (let [spec (column-by-id table-spec (:col filter-item))
+(defn filter-builder
+  "A single filter, contains a row selection box, an operator selection box, a value entry box and a context button"
+  [& {:keys [table-spec filter-spec update-state! parts disabled?] :as args}]
+  (let [spec (column-by-id table-spec (:col filter-spec))
         ops (ops-by-type (:type spec))
-        valid? (rule-valid? filter-item table-spec)
+        valid? (rule-valid? filter-spec table-spec)
         col-opts (mapv #(hash-map :id (:id %) :label (:name %)) table-spec)
         op-opts (mapv #(hash-map :id % :label (get op-label % (name %))) ops)]
     [box/h-box
@@ -694,7 +690,7 @@
                    (get-in parts [:filter :style]))
      :attr (get-in parts [:filter :attr])
      :children [[dropdown/single-dropdown
-                 :model (:col filter-item)
+                 :model (:col filter-spec)
                  :choices col-opts
                  :width "140px"
                  :class (get-in parts [:column-dropdown :class])
@@ -702,22 +698,22 @@
                  :attr (get-in parts [:column-dropdown :attr])
                  :disabled? disabled?
                  :on-change #(let [cs (column-by-id table-spec %)]
-                               (update-state! (fn [state] (update-item-by-id state (:id filter-item)
+                               (update-state! (fn [state] (update-item-by-id state (:id filter-spec)
                                                                              (fn [f] (assoc f :col % :op (first (ops-by-type (:type cs))) :val nil))))))]
                 [dropdown/single-dropdown
-                 :model (:op filter-item)
+                 :model (:op filter-spec)
                  :choices op-opts
                  :width "130px"
                  :class (get-in parts [:operator-dropdown :class])
                  :style (get-in parts [:operator-dropdown :style])
                  :attr (get-in parts [:operator-dropdown :attr])
                  :disabled? disabled?
-                 :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (fn [f] (assoc f :op % :val nil)))))]
+                 :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))]
                 [value-entry-box (merge args {:row-spec spec
-                                              :filter-rule filter-item
-                                              :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-item) (constantly %))))})]
-                [filter-context-menu (merge args {:item-id (:id filter-item)
-                                                     :filter-item filter-item})]
+                                              :filter-spec filter-spec
+                                              :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (constantly %))))})]
+                [filter-context-menu (merge args {:item-id (:id filter-spec)
+                                                  :filter-spec filter-spec})]
                 (when-not valid?
                   [buttons/md-icon-button
                    :md-icon-name "zmdi-alert-triangle"
@@ -729,7 +725,7 @@
                    :tooltip "Invalid rule"])]]))
 
 (defn filter-group
-  "component to group filters together"
+  "Contains 1 or more filter-builders and has an associated context menu"
   [& {:keys [group depth parts] :as args}]
   (let [group-deref (deref-or-value group)
         children (:children group-deref)
@@ -778,7 +774,7 @@
                                                          (when where-label [where-label])
                                                          (when operator-btn [operator-btn])
                                                          [(case (:type child)
-                                                            :filter [filter-component (merge args {:filter-item child})]
+                                                            :filter [filter-builder (merge args {:filter-spec child})]
                                                             :group [filter-group (merge args {:group child :depth (inc depth)})])])]))
                                          children)
                                         [;[box/gap :size "4px"]
@@ -818,7 +814,7 @@
                                      is-valid?          (model-valid? new-external-model table-spec)]
                                  (when on-change
                                    (on-change new-external-model is-valid?))))]
-           
+
            [filter-group (merge args {:group         internal-model
                                       :update-state! update-state!
                                       :depth         0
