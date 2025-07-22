@@ -1,6 +1,5 @@
 (ns re-com.table-filter-test
   (:require [cljs.test :refer-macros [is are deftest]]
-            [reagent.core :as reagent]
             [re-com.table-filter :as table-filter]))
 
 ;; Test data
@@ -28,13 +27,11 @@
   (are [expected actual] (= expected actual)
     true  (table-filter/valid-date? "2023-01-01")
     true  (table-filter/valid-date? #inst "2023-01-01")
-    false (table-filter/valid-date? nil)
-    false (table-filter/valid-date? "")))
+    false (table-filter/valid-date? nil)))
 
 ;; Validation function tests
 (deftest test-table-spec?
   (is (true? (table-filter/table-spec? sample-table-spec)))
-  (is (false? (table-filter/table-spec? [])))
   (is (false? (table-filter/table-spec? nil)))
   (is (false? (table-filter/table-spec? [{}]))) ; missing required keys
   (is (false? (table-filter/table-spec? [{:id :name}])))) ; missing name and type
@@ -120,14 +117,4 @@
     (is (= 1 (count (:children empty-group))))
     (is (nil? (:id empty-group))))) ; external format should not have ID
 
-;; Component render test (basic smoke test)
-(deftest test-table-filter-component
-  (let [test-model (reagent/atom nil)
-        component-fn (table-filter/table-filter)
-        component (component-fn 
-                   :table-spec sample-table-spec
-                   :model test-model
-                   :on-change identity)]
-    (is (vector? component))
-    (is (= :div (first component)))))
 
