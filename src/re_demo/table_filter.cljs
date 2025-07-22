@@ -60,15 +60,15 @@
            :children
            [[title2 "Notes"]
             [status-text "Alpha" {:color "red"}]
-            [p "Build complex, hierarchical filter conditions with an intuitive UI. Perfect for allowing end users to create sophisticated queries against tabular data without writing code."]
-            [p "The component uses a " [:code "table-spec"] " to automatically generate appropriate UI controls for each column type:"]
+            [p "Allows users to create hierarchical filter queries against tabular data. Think \"nested where clauses\" in SQL."
+               "Supports nested filter groups with AND/OR logic, configurable nesting depth, and real-time validation."]
+            [p "You provide a " [:code "table-spec"] " describing the tabular data to be filtered, and it will generate appropriate UI controls for each column type with appropriate operators:"]
             [:ul {:style {:margin-left "20px" :margin-bottom "15px"}}
-             [:li [:strong "Text columns:"] " is, contains, starts with, ends with, is empty operators with text input"]
-             [:li [:strong "Number columns:"] " comparison operators (>, >=, =, etc.) with numeric input"]
-             [:li [:strong "Date columns:"] " before, after, between operators with date pickers"]
-             [:li [:strong "Boolean columns:"] " simple true/false selection"]
-             [:li [:strong "Select columns:"] " single or multi-value selection from predefined options"]]
-            [p "Supports nested filter groups with AND/OR logic, configurable nesting depth, and real-time validation."]
+             [:li [:strong "Text columns:"] " a text input together with operators like contains, starts with, ends with, is empty"]
+             [:li [:strong "Number columns:"] " a numeric input with operators like >, >=, ="]
+             [:li [:strong "Date columns:"] " a date picker or date range picker with operators like before, after, between"]
+             [:li [:strong "Boolean columns:"] " a simple true/false selection"]
+             [:li [:strong "Select columns:"] " a single or multi-value selection with operators like is, is not, etc"]]
             [args-table table-filter-args-desc]]]
           [v-box
            :src (at)
