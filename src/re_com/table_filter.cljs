@@ -1,6 +1,6 @@
 (ns re-com.table-filter
-  (:require-macros [re-com.core :refer [handler-fn at reflect-current-component]]
-                   [re-com.validate :refer [validate-args-macro]])
+  (:require-macros
+   [re-com.validate :refer [validate-args-macro]])
   (:require [clojure.walk :as walk]
             [re-com.box :as box]
             [re-com.buttons :as buttons]
@@ -116,21 +116,21 @@
 
 ;; dropdown options for valid operations for sql value types
 (def ops-by-type
-  {:text         [:equals :not-equals :contains :not-contains :starts-with :ends-with :empty :not-empty]
-   :number       [:equals :not-equals :> :>= :< :<= :empty :not-empty]
-   :date         [:before :after :on :not-on :on-or-before :on-or-after :between :not-between :empty :not-empty]
-   :boolean      [:is :empty :not-empty]
-   :select       [:is :is-not :is-any-of :is-none-of :empty :not-empty]})
+  {:text    [:equals :not-equals :contains :not-contains :starts-with :ends-with :empty :not-empty]
+   :number  [:equals :not-equals :> :>= :< :<= :empty :not-empty]
+   :date    [:before :after :on :not-on :on-or-before :on-or-after :between :not-between :empty :not-empty]
+   :boolean [:is :empty :not-empty]
+   :select  [:is :is-not :is-any-of :is-none-of :empty :not-empty]})
 
 (def op-label
-  {:equals "is" :not-equals "is not" :contains "contains" :not-contains "does not contain"
-   :starts-with "starts with" :ends-with "ends with" :empty "is empty" :not-empty "is not empty"
-   :> ">" :>= ">=" :< "<" :<= "<="
-   :before "before" :after "after" :on "on" :not-on "not on" :on-or-before "on/before"
-   :on-or-after "on/after" :between "between" :not-between "not between"
-   :is "is" :is-not "is not"
+  {:equals        "is"            :not-equals        "is not"    :contains    "contains" :not-contains "does not contain"
+   :starts-with   "starts with"   :ends-with         "ends with" :empty       "is empty" :not-empty    "is not empty"
+   :>             ">"             :>=                ">="        :<           "<"        :<=           "<="
+   :before        "before"        :after             "after"     :on          "on"       :not-on       "not on" :on-or-before "on/before"
+   :on-or-after   "on/after"      :between           "between"   :not-between "not between"
+   :is            "is"            :is-not            "is not"
    :contains-text "contains text" :not-contains-text "not contains text"
-   :is-any-of "is any of" :is-none-of "is none of"})
+   :is-any-of     "is any of"     :is-none-of        "is none of"})
 
 ;; This is what a table spec should look like, id must be unique. id is for identification
 ;; :name is used for displaying in UI e.g. dropdown components
@@ -140,13 +140,13 @@
    {:id :age :name "Age" :type :number}
    {:id :email :name "Email" :type :text}
    {:id :salary :name "Salary" :type :number}
-   {:id :department :name "Department" :type :select
+   {:id      :department :name "Department" :type :select
     :options [{:id "engineering" :label "Engineering"}
               {:id "marketing" :label "Marketing"}
               {:id "sales" :label "Sales"}]}
    {:id :active :name "Active" :type :boolean}
    {:id :hire-date :name "Hire Date" :type :date}
-   {:id :skills :name "Skills" :type :select
+   {:id      :skills :name "Skills" :type :select
     :options [{:id "clojure" :label "Clojure"}
               {:id "javascript" :label "JavaScript"}
               {:id "python" :label "Python"}
@@ -200,7 +200,7 @@
    to create the initial empty filter with unique ID"
   [table-spec]
   (let [first-col (first table-spec)
-        first-op (first (ops-by-type (:type first-col)))]
+        first-op  (first (ops-by-type (:type first-col)))]
     {:id (generate-id) :type :filter :col (:id first-col) :op first-op :val nil}))
 
 (defn empty-group
@@ -213,7 +213,7 @@
   "Create empty filter without IDs for external format"
   [table-spec]
   (let [first-col (first table-spec)
-        first-op (first (ops-by-type (:type first-col)))]
+        first-op  (first (ops-by-type (:type first-col)))]
     {:type :filter :col (:id first-col) :op first-op :val nil}))
 
 (defn empty-group-external
@@ -282,7 +282,7 @@
   (update-item-by-id tree target-id
                      (fn [item]
                        (if (= (:type item) :filter)
-                         {:id (generate-id) :type :group :logic :and
+                         {:id       (generate-id) :type :group :logic :and
                           :children [(assoc item :id (generate-id))]}
                          item))))
 
@@ -323,36 +323,36 @@
 (defn rule-valid?
   "Return true if rule satisfies built-in and custom validators."
   [rule table-spec]
-  (let [spec (column-by-id table-spec (:col rule))
+  (let [spec                  (column-by-id table-spec (:col rule))
         {:keys [type valid?]} spec
-        op   (:op rule)
-        val  (:val rule)]
+        op                    (:op rule)
+        val                   (:val rule)]
     (and spec
          (or (#{:empty :not-empty} op) (some? val))  ; empty/not-empty don't need values
          (or (and (fn? valid?) (valid? val))
              (case type
-               :text (if (#{:empty :not-empty} op)
-                       true  ; empty/not-empty are always valid
-                       (string? val))
-               :number (if (#{:empty :not-empty} op)
-                         true  ; empty/not-empty are always valid
-                         (valid-number? val))
-               :date   (case op
-                         (:empty :not-empty)
-                         true  ; empty/not-empty are always valid
-                         (:between :not-between) (and (map? val)
-                                                      (contains? val :start)
-                                                      (contains? val :end)
-                                                      (valid-date? (:start val))
-                                                      (valid-date? (:end val)))
-                         (valid-date? val))
-               :select (case op
-                         (:empty :not-empty)
-                         true  ; empty/not-empty are always valid
-                         (:is-any-of :is-none-of :contains :not-contains)
-                         (and (set? val) (seq val))
-                         ;; For single value operators
-                         (some? val))
+               :text    (if (#{:empty :not-empty} op)
+                          true  ; empty/not-empty are always valid
+                          (string? val))
+               :number  (if (#{:empty :not-empty} op)
+                          true  ; empty/not-empty are always valid
+                          (valid-number? val))
+               :date    (case op
+                          (:empty :not-empty)
+                          true  ; empty/not-empty are always valid
+                          (:between :not-between) (and (map? val)
+                                                       (contains? val :start)
+                                                       (contains? val :end)
+                                                       (valid-date? (:start val))
+                                                       (valid-date? (:end val)))
+                          (valid-date? val))
+               :select  (case op
+                          (:empty :not-empty)
+                          true  ; empty/not-empty are always valid
+                          (:is-any-of :is-none-of :contains :not-contains)
+                          (and (set? val) (seq val))
+                          ;; For single value operators
+                          (some? val))
                :boolean (if (#{:empty :not-empty} op)
                           true  ; empty/not-empty are always valid
                           (boolean? val))
@@ -380,20 +380,20 @@
   "Extract common properties for input components as a props map.
    Includes model, on-change, width, disabled, and styling props."
   [{:keys [val] :as filter-spec} on-change parts part-key disabled?]
-  {:model val
+  {:model     val
    :on-change #(on-change (assoc filter-spec :val %))
-   :width "220px"
+   :width     "220px"
    :disabled? disabled?
-   :class (get-in parts [part-key :class])
-   :style (get-in parts [part-key :style])
-   :attr (get-in parts [part-key :attr])})
+   :class     (get-in parts [part-key :class])
+   :style     (get-in parts [part-key :style])
+   :attr      (get-in parts [part-key :attr])})
 
 (defmulti value-entry-box
   "Depending on the spec for a given column, the value entry box behaves differently
    There are options for most sql-like types)"
   (fn [& {:keys [row-spec filter-spec]}]
     (let [{row-type :type} row-spec
-          {op :op} filter-spec]
+          {op :op}         filter-spec]
       (if (#{:empty :not-empty} op)
         :empty-operation
         row-type))))
@@ -418,7 +418,7 @@
   [& {:keys [filter-spec on-change parts disabled?]}]
   (let [op (:op filter-spec)]
     (if (#{:between :not-between} op)
-      [daterange/daterange-dropdown 
+      [daterange/daterange-dropdown
        (merge {:placeholder "Select date range"
                :show-today? true}
               (common-props filter-spec on-change parts :daterange-input disabled?))]
@@ -426,13 +426,13 @@
       [datepicker/datepicker-dropdown
        (merge {:placeholder "Select a date"
                :show-today? true
-               :parts {:anchor-label {:style {:height "34px"}}}}
+               :parts       {:anchor-label {:style {:height "34px"}}}}
               (common-props filter-spec on-change parts :date-input disabled?))])))
 
 ;; Boolean input case
 (defmethod value-entry-box :boolean
   [& {:keys [filter-spec on-change parts disabled?]}]
-  [dropdown/single-dropdown 
+  [dropdown/single-dropdown
    (merge {:choices [{:id true :label "True"}
                      {:id false :label "False"}]}
           (common-props filter-spec on-change parts :dropdown-input disabled?))])
@@ -441,23 +441,23 @@
 (defmethod value-entry-box :select
   [& {:keys [row-spec filter-spec on-change parts disabled?]}]
   (let [{:keys [options]} row-spec
-        op (:op filter-spec)
-        val (:val filter-spec)]
+        op                (:op filter-spec)
+        val               (:val filter-spec)]
     (if (#{:is-any-of :is-none-of :contains :not-contains} op)
       ;; Multi-value selection for these operators
       [tag-dropdown/tag-dropdown
-       {:model (or val #{})
-        :height "34px"
-        :choices options
-        :placeholder "Select values..."
-        :min-width "220px"
+       {:model             (or val #{})
+        :height            "34px"
+        :choices           options
+        :placeholder       "Select values..."
+        :min-width         "220px"
         :show-only-button? true
-        :show-counter? true
-        :on-change #(on-change (assoc filter-spec :val %))
-        :style (merge {:color "#333333"
-                       :background-color "#ffffff"}
-                      (get-in parts [:tag-dropdown-input :style]))
-        :disabled? disabled?}]
+        :show-counter?     true
+        :on-change         #(on-change (assoc filter-spec :val %))
+        :style             (merge {:color            "#333333"
+                                   :background-color "#ffffff"}
+                                  (get-in parts [:tag-dropdown-input :style]))
+        :disabled?         disabled?}]
 
       ;; Single value selection for equals/not-equals
       [dropdown/single-dropdown
@@ -477,29 +477,29 @@
      :model (r/atom nil)
      :disabled? disabled?
      :anchor [text/label :label "⋯"
-              :style {:color "#9ca3af"
+              :style {:color     "#9ca3af"
                       :font-size "20px"
-                      :padding "6px 8px"
-                      :cursor "pointer"}]
+                      :padding   "6px 8px"
+                      :cursor    "pointer"}]
      :attr (get-in parts [:context-menu :attr])
-     :parts {:anchor-wrapper {:style (merge {:border "none"
-                                             :background "transparent"
-                                             :border-radius "4px"
-                                             :box-shadow "none"
-                                             :width "100%"
-                                             :height "100%"
-                                             :display "flex"
-                                             :align-items "center"
+     :parts {:anchor-wrapper {:style (merge {:border          "none"
+                                             :background      "transparent"
+                                             :border-radius   "4px"
+                                             :box-shadow      "none"
+                                             :width           "100%"
+                                             :height          "100%"
+                                             :display         "flex"
+                                             :align-items     "center"
                                              :justify-content "center"
-                                             :cursor "pointer"}
+                                             :cursor          "pointer"}
                                             (get-in parts [:context-menu :style]))}
-             :indicator {:style {:display "none"}}
-             :body-wrapper {:style {:background-color "#ffffff"
-                                    :border "1px solid #e1e5e9"
-                                    :border-radius "8px"
-                                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                    :min-width "160px"
-                                    :margin-top "4px"}}}
+             :indicator      {:style {:display "none"}}
+             :body-wrapper   {:style {:background-color "#ffffff"
+                                      :border           "1px solid #e1e5e9"
+                                      :border-radius    "8px"
+                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                      :min-width        "160px"
+                                      :margin-top       "4px"}}}
 
      :body [box/v-box
             :style {:padding "0"}
@@ -525,26 +525,26 @@
                  :disabled? disabled?
                  :label (case operator
                           :and "And"
-                          :or "Or")
+                          :or  "Or")
                  :width "50px"
                  :parts {:anchor-wrapper {:class (theme/merge-class "btn-link" (get-in parts [:operator-button :class]))
-                                          :style (merge {:font-size "14px" :font-weight "500"
-                                                         :color "#6b7280"
-                                                         :margin-right "0px" :margin-left "0px"
+                                          :style (merge {:font-size        "14px" :font-weight "500"
+                                                         :color            "#6b7280"
+                                                         :margin-right     "0px"  :margin-left "0px"
                                                          :background-color (if (odd? depth) "white" "#f7f7f7")
-                                                         :border-radius "4px"
-                                                         :border "1px solid #e2e8f0"
-                                                         :min-width "50px" :height "34px"
-                                                         :padding "4px 4px"
-                                                         :cursor "pointer"}
+                                                         :border-radius    "4px"
+                                                         :border           "1px solid #e2e8f0"
+                                                         :min-width        "50px" :height      "34px"
+                                                         :padding          "4px 4px"
+                                                         :cursor           "pointer"}
                                                         (get-in parts [:operator-button :style]))}
-                         :anchor {:style {:cursor "pointer"}}
-                         :body-wrapper {:style {:background-color "#ffffff"
-                                                :border "1px solid #e1e5e9"
-                                                :border-radius "8px"
-                                                :min-width "200px"
-                                                :margin-top "4px"
-                                                :padding "8px 0"}}}
+                         :anchor         {:style {:cursor "pointer"}}
+                         :body-wrapper   {:style {:background-color "#ffffff"
+                                                  :border           "1px solid #e1e5e9"
+                                                  :border-radius    "8px"
+                                                  :min-width        "200px"
+                                                  :margin-top       "4px"
+                                                  :padding          "8px 0"}}}
                  :body [box/v-box
                         :children [[buttons/button
                                     :label [box/v-box
@@ -552,7 +552,7 @@
                                             :children [[text/label :label "And" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
                                                        [text/label :label "All filters must match" :style {:color "#6b7280" :font-size "11px"}]]]
                                     :class "btn-link"
-                                    :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%"
+                                    :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
                                             :background-color (when (= operator :and) "#f3f4f6")}
                                     :on-click #(update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :and)))))]
                                    [buttons/button
@@ -561,18 +561,18 @@
                                             :children [[text/label :label "Or" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
                                                        [text/label :label "At least one filter must match" :style {:color "#6b7280" :font-size "11px"}]]]
                                     :class "btn-link"
-                                    :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%"
+                                    :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
                                             :background-color (when (= operator :or) "#f3f4f6")}
                                     :on-click #(update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :or)))))]]]]
                 [text/label
                  :label (case operator :and "And" :or "Or")
                  :class (get-in parts [:operator-text :class])
-                 :style (merge {:font-size "14px" :font-weight "500"
-                                :color "#6b7280"
-                                :margin-right "0px" :margin-left "0px"
-                                :min-width "50px" :height "34px"
-                                :text-align "left" :padding "6px 6px"
-                                :display "flex" :align-items "center"}
+                 :style (merge {:font-size    "14px" :font-weight "500"
+                                :color        "#6b7280"
+                                :margin-right "0px"  :margin-left "0px"
+                                :min-width    "50px" :height      "34px"
+                                :text-align   "left" :padding     "6px 6px"
+                                :display      "flex" :align-items "center"}
                                (get-in parts [:operator-text :style]))
                  :attr (get-in parts [:operator-text :attr])])
               [box/gap :size "2px"]]])
@@ -591,23 +591,23 @@
               :style {:font-size "13px" :color "#46a2da"}]
      :attr (get-in parts [:add-button :attr])
      :parts {:anchor-wrapper {:class (str "btn-outline " (get-in parts [:add-button :class]))
-                              :style (merge {:font-size "13px"
-                                             :padding "2px 4px"
-                                             :font-weight "500"
-                                             :border-radius "8px"
+                              :style (merge {:font-size        "13px"
+                                             :padding          "2px 4px"
+                                             :font-weight      "500"
+                                             :border-radius    "8px"
                                              :background-color "transparent"
-                                             :width "75px"
-                                             :border "none"
-                                             :box-shadow "none"
-                                             :cursor "pointer"}
+                                             :width            "75px"
+                                             :border           "none"
+                                             :box-shadow       "none"
+                                             :cursor           "pointer"}
                                             (get-in parts [:add-button :style]))}
-             :indicator {:style {:display "none"}}
-             :body-wrapper {:style {:background-color "#ffffff"
-                                    :border "1px solid #e1e5e9"
-                                    :border-radius "8px"
-                                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                    :min-width "160px"
-                                    :margin-top "4px"}}}
+             :indicator      {:style {:display "none"}}
+             :body-wrapper   {:style {:background-color "#ffffff"
+                                      :border           "1px solid #e1e5e9"
+                                      :border-radius    "8px"
+                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                      :min-width        "160px"
+                                      :margin-top       "4px"}}}
 
      :body [box/v-box
             :style {:padding "0"}
@@ -618,7 +618,7 @@
                          :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
                          :on-click (case (:id choice)
                                      :add-filter #(update-state! (fn [state] (add-child-to-group state group-id (empty-filter table-spec))))
-                                     :add-group #(update-state! (fn [state] (add-child-to-group state group-id (empty-group table-spec)))))])]]))
+                                     :add-group  #(update-state! (fn [state] (add-child-to-group state group-id (empty-group table-spec)))))])]]))
 
 (defn filter-context-menu
   "A dropdown which exposes the options you can take on a filter, e.g. delete, dupe or promote to group"
@@ -632,26 +632,26 @@
      :disabled? disabled?
      :direction :toward-center
      :anchor [text/label :label "⋯"
-              :style {:color "#9ca3af"
-                      :font-size "20px"
+              :style {:color       "#9ca3af"
+                      :font-size   "20px"
                       :line-height "18px"
-                      :padding "0px 8px"
-                      :cursor "pointer"}]
+                      :padding     "0px 8px"
+                      :cursor      "pointer"}]
      :attr (get-in parts [:context-menu :attr])
-     :parts {:anchor-wrapper {:style (merge {:border "none"
-                                             :background "transparent"
+     :parts {:anchor-wrapper {:style (merge {:border        "none"
+                                             :background    "transparent"
                                              :border-radius "4px"
-                                             :box-shadow "none"
-                                             :height "20px"
-                                             :cursor "pointer"}
+                                             :box-shadow    "none"
+                                             :height        "20px"
+                                             :cursor        "pointer"}
                                             (get-in parts [:context-menu :style]))}
-             :indicator {:style {:display "none"}}
-             :body-wrapper {:style {:background-color "#ffffff"
-                                    :border "1px solid #e1e5e9"
-                                    :border-radius "8px"
-                                    :box-shadow "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                    :min-width "160px"
-                                    :margin-top "4px"}}}
+             :indicator      {:style {:display "none"}}
+             :body-wrapper   {:style {:background-color "#ffffff"
+                                      :border           "1px solid #e1e5e9"
+                                      :border-radius    "8px"
+                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                      :min-width        "160px"
+                                      :margin-top       "4px"}}}
 
      :body [box/v-box
             :children (for [choice choices]
@@ -660,24 +660,24 @@
                          :class "btn-link"
                          :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
                          :on-click (case (:id choice)
-                                     :delete #(update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec)))
+                                     :delete    #(update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec)))
                                      :duplicate #(update-state! (fn [state] (duplicate-item-by-id state item-id)))
-                                     :convert #(update-state! (fn [state] (convert-filter-to-group state item-id))))])]]))
+                                     :convert   #(update-state! (fn [state] (convert-filter-to-group state item-id))))])]]))
 
 (defn filter-builder
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a context button"
   [& {:keys [table-spec filter-spec update-state! parts disabled?] :as args}]
-  (let [spec (column-by-id table-spec (:col filter-spec))
-        ops (ops-by-type (:type spec))
-        valid? (rule-valid? filter-spec table-spec)
+  (let [spec     (column-by-id table-spec (:col filter-spec))
+        ops      (ops-by-type (:type spec))
+        valid?   (rule-valid? filter-spec table-spec)
         col-opts (mapv #(hash-map :id (:id %) :label (:name %)) table-spec)
-        op-opts (mapv #(hash-map :id % :label (get op-label % (name %))) ops)]
+        op-opts  (mapv #(hash-map :id % :label (get op-label % (name %))) ops)]
     [box/h-box
      :align :center
      :gap "4px"
      :class (get-in parts [:filter :class])
      :style (merge {:background-color "transparent"
-                    :white-space "nowrap"}
+                    :white-space      "nowrap"}
                    (get-in parts [:filter :style]))
      :attr (get-in parts [:filter :attr])
      :children [[dropdown/single-dropdown
@@ -700,10 +700,10 @@
                  :attr (get-in parts [:operator-dropdown :attr])
                  :disabled? disabled?
                  :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))]
-                [value-entry-box (merge args {:row-spec spec
+                [value-entry-box (merge args {:row-spec    spec
                                               :filter-spec filter-spec
-                                              :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (constantly %))))})]
-                [filter-context-menu (merge args {:item-id (:id filter-spec)
+                                              :on-change   #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (constantly %))))})]
+                [filter-context-menu (merge args {:item-id     (:id filter-spec)
                                                   :filter-spec filter-spec})]
                 (when-not valid?
                   [buttons/md-icon-button
@@ -718,9 +718,9 @@
 (defn filter-group
   "Contains 1 or more filter-builders and has an associated context menu"
   [& {:keys [group depth parts] :as args}]
-  (let [group-deref (deref-or-value group)
-        children (:children group-deref)
-        is-root? (zero? depth)
+  (let [group-deref    (deref-or-value group)
+        children       (:children group-deref)
+        is-root?       (zero? depth)
         show-group-ui? (or (not is-root?) (> (count children) 1))]                    ; Non-root groups always show UI ; Root group only shows UI when 2+ children
     [box/h-box
      :align :start
@@ -730,7 +730,7 @@
                                 :margin   "0px 0px"
                                 :position "relative"}
                                (when (and show-group-ui? (not is-root?))
-                                 {:padding 8
+                                 {:padding          8
                                   :background-color (if (odd? depth) "#f7f7f7" "white")
                                   :border           "1px solid #e1e5e9"
                                   :border-radius    "4px"})
@@ -742,22 +742,22 @@
                                         (map-indexed
                                          (fn [idx child]
                                            (let [child-is-group? (= :group (:type (nth (:children group-deref) idx)))
-                                                 show-operator? (> idx 0)
-                                                 show-where? (= idx 0)  ; Show "Where" for first item
-                                                 operator-btn (when show-operator? ;if the child is a group comonent, the self-align should be :start
-                                                                [box/v-box
-                                                                 :align-self (if child-is-group? :start :center)
-                                                                 :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
-                                                                            [and-or-dropdown (merge args {:operator (or (:logic group-deref) :and) :group-id (:id group-deref) :depth depth :interactable? (= idx 1)})]]])
-                                                 where-label (when show-where?
-                                                               [text/label
-                                                                :label "Where"
-                                                                :class (get-in parts [:where-label :class])
-                                                                :style (merge {:font-size "14px" :font-weight "500" :color "#374151"
-                                                                               :min-width "52px"
-                                                                               :text-align "center"}
-                                                                              (get-in parts [:where-label :style]))
-                                                                :attr (get-in parts [:where-label :attr])])]
+                                                 show-operator?  (> idx 0)
+                                                 show-where?     (= idx 0)  ; Show "Where" for first item
+                                                 operator-btn    (when show-operator? ;if the child is a group comonent, the self-align should be :start
+                                                                   [box/v-box
+                                                                    :align-self (if child-is-group? :start :center)
+                                                                    :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
+                                                                               [and-or-dropdown (merge args {:operator (or (:logic group-deref) :and) :group-id (:id group-deref) :depth depth :interactable? (= idx 1)})]]])
+                                                 where-label     (when show-where?
+                                                                   [text/label
+                                                                    :label "Where"
+                                                                    :class (get-in parts [:where-label :class])
+                                                                    :style (merge {:font-size  "14px" :font-weight "500" :color "#374151"
+                                                                                   :min-width  "52px"
+                                                                                   :text-align "center"}
+                                                                                  (get-in parts [:where-label :style]))
+                                                                    :attr (get-in parts [:where-label :attr])])]
                                              [box/h-box
                                               :align :center
                                               :gap "4px"
@@ -766,7 +766,7 @@
                                                          (when operator-btn [operator-btn])
                                                          [(case (:type child)
                                                             :filter [filter-builder (merge args {:filter-spec child})]
-                                                            :group [filter-group (merge args {:group child :depth (inc depth)})])])]))
+                                                            :group  [filter-group (merge args {:group child :depth (inc depth)})])])]))
                                          children)
                                         [;[box/gap :size "4px"]
                                          [add-filter-dropdown (merge args {:group-id (:id group-deref)})]])]]]
@@ -789,7 +789,7 @@
        (validate-args-macro table-filter-args-desc args)
        (let [;; Always derive canonical state from props
              external-model-val (or (deref-or-value model) (empty-group-external table-spec)) ;; Passed in model, if nil we still want to display one empty filter
-              ;; Check if external structure changed (ignoring IDs)
+             ;; Check if external structure changed (ignoring IDs)
              current-external   (when @internal-model (remove-ids @internal-model))] ;; User shouldn't have to worry about ID's
 
           ;; Only regenerate IDs if external structure actually changed
@@ -797,14 +797,14 @@
            (reset! internal-model (add-ids external-model-val)))
 
          (let [model-with-ids (or @internal-model (add-ids external-model-val))
-                ;; Pure function - calculates new state and notifies parent
-                ;; Does NOT mutate local state - external state is source of truth
-               update-state! (fn [update-fn]
-                               (let [new-internal-model (update-fn model-with-ids)
-                                     new-external-model (remove-ids new-internal-model)
-                                     is-valid?          (model-valid? new-external-model table-spec)]
-                                 (when on-change
-                                   (on-change new-external-model is-valid?))))]
+               ;; Pure function - calculates new state and notifies parent
+               ;; Does NOT mutate local state - external state is source of truth
+               update-state!  (fn [update-fn]
+                                (let [new-internal-model (update-fn model-with-ids)
+                                      new-external-model (remove-ids new-internal-model)
+                                      is-valid?          (model-valid? new-external-model table-spec)]
+                                  (when on-change
+                                    (on-change new-external-model is-valid?))))]
 
            [filter-group (merge args {:group         internal-model
                                       :update-state! update-state!
