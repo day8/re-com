@@ -44,7 +44,7 @@
                                   :col :skills,
                                   :op :is-any-of,
                                   :val #{"clojure" "javascript" "python"}}]}]})
-        filter-valid? (r/atom false)
+        filter-valid? (r/atom true)
         disabled-model (r/atom false)
         max-depth-model (r/atom 2)]
     (fn []
