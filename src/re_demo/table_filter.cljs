@@ -5,13 +5,11 @@
    [cljs.pprint]
    [re-com.core     :as rc :refer [at button checkbox h-box input-text label p
                                    p-span table-filter v-box]]
-   [re-com.dropdown :as dd]
    [re-com.slider   :refer [slider]]
    [re-com.table-filter :refer [table-filter-args-desc table-filter-parts-desc]]
    [re-demo.utils   :refer [args-table panel-title parts-table status-text
                             title2 title3]]
    [reagent.core    :as r]
-   [re-demo.h-box :as h-box]
    [re-com.box :as box]))
 
 (def sample-table-spec
@@ -31,16 +29,21 @@
               {:id "python" :label "Python"}
               {:id "java" :label "Java"}]}])
 
-(def sample-data
-  [{:name "Alice Johnson" :age 28 :email "alice@company.com" :salary 85000 :department "engineering" :active true :hire-date "2022-03-15" :skills #{"clojure" "javascript"}}
-   {:name "Bob Smith" :age 34 :email "bob@company.com" :salary 92000 :department "engineering" :active true :hire-date "2021-08-22" :skills #{"python" "java"}}
-   {:name "Carol Davis" :age 29 :email "carol@company.com" :salary 78000 :department "marketing" :active false :hire-date "2023-01-10" :skills #{"javascript"}}
-   {:name "David Wilson" :age 42 :email "david@company.com" :salary 105000 :department "sales" :active true :hire-date "2020-05-03" :skills #{"python" "clojure"}}
-   {:name "Eva Martinez" :age 26 :email "eva@company.com" :salary 72000 :department "marketing" :active true :hire-date "2023-06-18" :skills #{"java" "javascript"}}])
-
 (defn panel
   []
-  (let [filter-model (r/atom nil)
+  (let [filter-model (r/atom {:type :group,
+                              :logic :and,
+                              :children
+                              [{:type :filter, :col :age, :op :>=, :val "40"}
+                               {:type :filter, :col :active, :op :is, :val true}
+                               {:type :group,
+                                :logic :or,
+                                :children
+                                [{:type :filter, :col :department, :op :is, :val "engineering"}
+                                 {:type :filter,
+                                  :col :skills,
+                                  :op :is-any-of,
+                                  :val #{"clojure" "javascript" "python"}}]}]})
         filter-valid? (r/atom false)
         disabled-model (r/atom false)
         max-depth-model (r/atom 2)]
@@ -92,8 +95,7 @@
 
               [h-box :gap "20px" :align :center
                :children
-               [[p-span " • Filter contains " [:strong (str (count (tree-seq #(= (:type %) :group) :children @filter-model)) " nodes")]]
-                [p-span " • Filter is " [:strong {:style {:color (if @filter-valid? "green" "red")}} (if @filter-valid? "Valid" "Invalid")]]]]
+               [[p-span " • Filter is " [:strong {:style {:color (if @filter-valid? "green" "red")}} (if @filter-valid? "Valid" "Invalid")]]]]
               [title3 "Interactive Parameters"]
               [v-box :gap "15px" :style {:background-color "#f7f7f7" :padding "15px" :border-radius "8px"}
                :children
@@ -123,28 +125,7 @@
                            :border-radius "6px"}
                    :disabled? @disabled-model
                    :on-click #(reset! filter-model nil)]
-                  [label :label "Reset the filter to empty state"]]]
-                [h-box :gap "15px" :align :center
-                 :children [[button
-                             :label "Set filters"
-                             :class "btn-outline"
-                             :style {:font-size "13px" :color "#094435ff" :font-weight "500"
-                                     :padding "8px 16px" :border "1px solid #094435ff"
-                                     :border-radius "6px"}
-                             :on-click #(reset! filter-model {:type :group,
-                                                              :logic :and,
-                                                              :children
-                                                              [{:type :filter, :col :age, :op :>=, :val "40"}
-                                                               {:type :filter, :col :active, :op :is, :val true}
-                                                               {:type :group,
-                                                                :logic :or,
-                                                                :children
-                                                                [{:type :filter, :col :department, :op :is, :val "engineering"}
-                                                                 {:type :filter,
-                                                                  :col :skills,
-                                                                  :op :is-any-of,
-                                                                  :val #{"clojure" "javascript" "python"}}]}]})]
-                            [label :label "Set the filter model to a pre-defined state. The filter model is the source of truth for the UI and can be adjusted externally."]]]]]
+                  [label :label "Reset the filter to empty state"]]]]]
 
               [title3 "Current Filter Model:"]
               [:pre {:style {:background-color "#f9f9f9" :padding "15px" :font-size "11px" :max-height "250px" :overflow "auto" :border-radius "4px" :border "1px solid #e9ecef"}}
