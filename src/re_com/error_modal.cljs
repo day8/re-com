@@ -94,133 +94,133 @@
                                    "You might be able to close this pop-up and continue on. Otherwise, restart this app."
                                    "You'll have to restart this app."))))]
     (part modal
-          {:part ::modal
-           :impl mp/modal-panel
+      {:part ::modal
+       :impl mp/modal-panel
+       :props
+       {:backdrop-on-click backdrop-on-click
+        :parts             {:child-container {:style {:z-index 50}}}
+        :child
+        (part inner-wrapper
+          {:part ::inner-wrapper
+           :impl box/v-box
            :props
-           {:backdrop-on-click backdrop-on-click
-            :parts             {:child-container {:style {:z-index 50}}}
-            :child
-            (part inner-wrapper
-                  {:part ::inner-wrapper
-                   :impl box/v-box
-                   :props
-                   {:src (at)
-                    :children
-                    [(part top-bar
-                           {:part ::top-bar
-                            :impl box/h-box
-                            :props
-                            {:src (at)
-                             :children
-                             [(part title-wrapper
-                                    {:part  ::title-wrapper
-                                     :impl  text/title
-                                     :props {:label (part title {:part ::title})
-                                             :level :level2}})
-                              (when closeable? [close-button {:on-click on-close
-                                                              :height   "12px"
-                                                              :width    "12px"}])]}})
-                     (part triangle
-                           {:part  ::triangle
-                            :props {:tag      :svg
-                                    :style    {:width     (px arrow-side-length)
-                                               :height    (px arrow-midpoint)
-                                               :transform (str "translateX("
-                                                               (-> panel-padding (- arrow-midpoint) px) ")")}
-                                    :children [[:polygon {:points arrow-points}]]}})
-                     (part body
-                           {:part  ::body
-                            :impl  box/v-box
-                            :props {:gap [:<>
-                                          [box/gap :size "19px"]
-                                          [box/line]
-                                          [box/gap :size "7px"]]
-                                    :children
-                                    [(when header
-                                       [:<>
-                                        [box/gap :size "19px"]
-                                        (part header
-                                              {:part ::header})])
-                                     [:<>
-                                      (when action
-                                        (part heading
-                                              {:part  ::heading
-                                               :impl  text/title
-                                               :props {:level :level2
-                                                       :label (part action {:part ::action})}}))
-                                      (when instructions
-                                        (part text
-                                              {:part  ::text
-                                               :impl  text/p
-                                               :props {:children [(part instructions
-                                                                        {:part ::instructions})]}}))
-                                      (when what-happened
-                                        [:<>
-                                         (when what-happened-title
-                                           (part heading
-                                                 {:part  ::heading
-                                                  :impl  text/title
-                                                  :props {:label (part what-happened-title
-                                                                       {:part ::what-happened-title})
-                                                          :level :level3}}))
-                                         (when what-happened
-                                           (part text
-                                                 {:part  ::text
-                                                  :impl  text/p
-                                                  :props {:children [(part what-happened
-                                                                           {:part ::what-happened})]}}))])
-                                      (when implications
-                                        [:<>
-                                         (part heading
-                                               {:part  ::heading
-                                                :impl  text/title
-                                                :props {:label (part implications-title
-                                                                     {:part ::implications-title
-                                                                      :impl [:<> implications-title]})
-                                                        :level :level3}})
-                                         (part text
-                                               {:part  ::text
-                                                :impl  text/p
-                                                :props {:children [(part implications
-                                                                         {:part ::implications
-                                                                          :impl [:<> implications]})]}})])
-                                      (when what-to-do
-                                        [:<>
-                                         (part heading
-                                               {:part  ::heading
-                                                :impl  text/title
-                                                :props {:label (part what-to-do-title
-                                                                     {:part ::what-to-do-title})
-                                                        :level :level3}})
-                                         (part text
-                                               {:part  ::text
-                                                :impl  text/p
-                                                :props {:children [(part what-to-do
-                                                                         {:part ::what-to-do
-                                                                          :impl [:<> what-to-do]})]}})])]
-                                     (when (or details error context)
-                                       [:<>
-                                        (part heading
-                                              {:part  ::heading
-                                               :props {:label    (part details-title
-                                                                       {:part ::details-title})
-                                                       :level    :level4
-                                                       :children [[:strong {:style {:font-size 12}}
-                                                                   (part details-title
-                                                                         {:part ::details-title})]]}})
-                                        (part code
-                                              {:part ::code
-                                               :props
-                                               {:children
-                                                [(when details
-                                                   (part details
-                                                         {:part ::details}))
-                                                 (when error
-                                                   (part error
-                                                         {:part ::error}))
-                                                 (when context
-                                                   (part context
-                                                         {:part ::context}))]}})])
-                                     (when footer
-                                       (part footer
-                                             {:part ::footer}))]}})]}})}})))
+           {:src (at)
+            :children
+            [(part top-bar
+               {:part ::top-bar
+                :impl box/h-box
+                :props
+                {:src (at)
+                 :children
+                 [(part title-wrapper
+                    {:part  ::title-wrapper
+                     :impl  text/title
+                     :props {:label (part title {:part ::title})
+                             :level :level2}})
+                  (when closeable? [close-button {:on-click on-close
+                                                  :height   "12px"
+                                                  :width    "12px"}])]}})
+             (part triangle
+               {:part  ::triangle
+                :props {:tag      :svg
+                        :style    {:width     (px arrow-side-length)
+                                   :height    (px arrow-midpoint)
+                                   :transform (str "translateX("
+                                                   (-> panel-padding (- arrow-midpoint) px) ")")}
+                        :children [[:polygon {:points arrow-points}]]}})
+             (part body
+               {:part  ::body
+                :impl  box/v-box
+                :props {:gap [:<>
+                              [box/gap :size "19px"]
+                              [box/line]
+                              [box/gap :size "7px"]]
+                        :children
+                        [(when header
+                           [:<>
+                            [box/gap :size "19px"]
+                            (part header
+                              {:part ::header})])
+                         [:<>
+                          (when action
+                            (part heading
+                              {:part  ::heading
+                               :impl  text/title
+                               :props {:level :level2
+                                       :label (part action {:part ::action})}}))
+                          (when instructions
+                            (part text
+                              {:part  ::text
+                               :impl  text/p
+                               :props {:children [(part instructions
+                                                    {:part ::instructions})]}}))
+                          (when what-happened
+                            [:<>
+                             (when what-happened-title
+                               (part heading
+                                 {:part  ::heading
+                                  :impl  text/title
+                                  :props {:label (part what-happened-title
+                                                   {:part ::what-happened-title})
+                                          :level :level3}}))
+                             (when what-happened
+                               (part text
+                                 {:part  ::text
+                                  :impl  text/p
+                                  :props {:children [(part what-happened
+                                                       {:part ::what-happened})]}}))])
+                          (when implications
+                            [:<>
+                             (part heading
+                               {:part  ::heading
+                                :impl  text/title
+                                :props {:label (part implications-title
+                                                 {:part ::implications-title
+                                                  :impl [:<> implications-title]})
+                                        :level :level3}})
+                             (part text
+                               {:part  ::text
+                                :impl  text/p
+                                :props {:children [(part implications
+                                                     {:part ::implications
+                                                      :impl [:<> implications]})]}})])
+                          (when what-to-do
+                            [:<>
+                             (part heading
+                               {:part  ::heading
+                                :impl  text/title
+                                :props {:label (part what-to-do-title
+                                                 {:part ::what-to-do-title})
+                                        :level :level3}})
+                             (part text
+                               {:part  ::text
+                                :impl  text/p
+                                :props {:children [(part what-to-do
+                                                     {:part ::what-to-do
+                                                      :impl [:<> what-to-do]})]}})])]
+                         (when (or details error context)
+                           [:<>
+                            (part heading
+                              {:part  ::heading
+                               :props {:label    (part details-title
+                                                   {:part ::details-title})
+                                       :level    :level4
+                                       :children [[:strong {:style {:font-size 12}}
+                                                   (part details-title
+                                                     {:part ::details-title})]]}})
+                            (part code
+                              {:part ::code
+                               :props
+                               {:children
+                                [(when details
+                                   (part details
+                                     {:part ::details}))
+                                 (when error
+                                   (part error
+                                     {:part ::error}))
+                                 (when context
+                                   (part context
+                                     {:part ::context}))]}})])
+                         (when footer
+                           (part footer
+                             {:part ::footer}))]}})]}})}})))

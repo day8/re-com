@@ -134,6 +134,8 @@
 ;;  Component: p
 ;; ------------------------------------------------------------------------------------
 
+(def standard-impl-keys [:attr :children :part :re-com :state :theme])
+
 (defn p
   "acts like [:p ] but uses a [:span] in place of the [:p] and adds bottom margin of 0.7ems which
   produces the same visual result.
@@ -172,7 +174,9 @@
                                                       :min-width     "450px"
                                                       :margin-bottom "0.7em"}}
                                              m)]
-    [:span.rc-p m (into [:span] (concat children hiccup-children))]))
+    [:span.rc-p
+     (apply dissoc m standard-impl-keys)
+     (into [:span] (concat children hiccup-children))]))
 
 ;; Alias for backwards compatibility; p and p-span used to be different implementations.
 (def p-span p)
