@@ -216,7 +216,7 @@
                           args)))
 
 (defn input-textarea
-  [& args]
+  [& {:as args}]
   (input-text-base (merge {:input-type :textarea :debug-as (reflect-current-component)}
                           args)))
 
