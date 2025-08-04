@@ -430,7 +430,7 @@
                                                          virtualize? (merge {:window-start (- (or @scroll-left 0) 20)
                                                                              :window-end   (+ @scroll-left @content-width 50)}))))
         complete-row-traversal           (r/reaction
-                                           (ngu/window {:header-tree        @internal-row-tree
+                                           (ngu/window {:header-tree        @prev-row-tree
                                                         :size-cache         row-size-cache
                                                         :dimension          :row
                                                         :show-branch-cells? show-row-branches?
@@ -442,7 +442,7 @@
                                                                      (:keypaths @complete-row-traversal))
                                                              (range)))
         complete-column-traversal        (r/reaction
-                                           (ngu/window {:header-tree        @internal-column-tree
+                                           (ngu/window {:header-tree        @prev-column-tree
                                                         :size-cache         column-size-cache
                                                         :dimension          :column
                                                         :show-branch-cells? show-column-branches?
