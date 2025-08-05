@@ -46,10 +46,6 @@
   (when include-args-desc?
     (part/describe part-structure)))
 
-(def part-names
-  (when include-args-desc?
-    (-> (map :name parts-desc) set)))
-
 (def args-desc
   (let [special-args
         [{:name        :row-tree
@@ -372,24 +368,24 @@
     (into (vec (concat v (repeat (- idx (count v)) nil))) [val])))
 
 (defn nested-grid [{:keys [row-tree column-tree
-                             row-tree-depth column-tree-depth
-                             row-header-widths column-header-heights
-                             row-height column-width
-                             row-header-width column-header-height
-                             show-row-branches? show-column-branches?
-                             show-root-headers?
-                             on-init-export-fn on-export-cell
-                             on-export
-                             on-export-row-header on-export-column-header
-                             on-export-corner-header
-                             theme pre-theme
-                             virtualize?]
-                      :or   {row-header-width   40 column-header-height 20
-                             row-height         20 column-width         40
-                             virtualize?        true
-                             show-root-headers? true
-                             on-export          (fn on-export [{:keys [rows]}]
-                                                  (->> rows (map u/tsv-line) str/join u/clipboard-write!))}}]
+                           row-tree-depth column-tree-depth
+                           row-header-widths column-header-heights
+                           row-height column-width
+                           row-header-width column-header-height
+                           show-row-branches? show-column-branches?
+                           show-root-headers?
+                           on-init-export-fn on-export-cell
+                           on-export
+                           on-export-row-header on-export-column-header
+                           on-export-corner-header
+                           theme pre-theme
+                           virtualize?]
+                    :or   {row-header-width   40 column-header-height 20
+                           row-height         20 column-width         40
+                           virtualize?        true
+                           show-root-headers? true
+                           on-export          (fn on-export [{:keys [rows]}]
+                                                (->> rows (map u/tsv-line) str/join u/clipboard-write!))}}]
   (let [[scroll-left scroll-top content-height content-width
          !wrapper-ref scroll-listener resize-observer overlay hide-resizers?]
         (repeatedly #(r/atom nil))
@@ -414,41 +410,41 @@
         row-size-cache                   (volatile! {})
         column-size-cache                (volatile! {})
         row-traversal                    (r/reaction
-                                           (ngu/window (cond-> {:header-tree        @internal-row-tree
-                                                                :size-cache         row-size-cache
-                                                                :show-branch-cells? show-row-branches?
-                                                                :default-size       (u/deref-or-value row-height)
-                                                                :hide-root?         (not show-root-headers?)}
-                                                         virtualize? (merge {:window-start (- (or @scroll-top 0) 20)
-                                                                             :window-end   (+ @scroll-top @content-height)}))))
+                                          (ngu/window (cond-> {:header-tree        @internal-row-tree
+                                                               :size-cache         row-size-cache
+                                                               :show-branch-cells? show-row-branches?
+                                                               :default-size       (u/deref-or-value row-height)
+                                                               :hide-root?         (not show-root-headers?)}
+                                                        virtualize? (merge {:window-start (- (or @scroll-top 0) 20)
+                                                                            :window-end   (+ @scroll-top @content-height)}))))
         column-traversal                 (r/reaction
-                                           (ngu/window (cond-> {:header-tree        @internal-column-tree
-                                                                :size-cache         column-size-cache
-                                                                :show-branch-cells? show-column-branches?
-                                                                :default-size       (u/deref-or-value column-width)
-                                                                :hide-root?         (not show-root-headers?)}
-                                                         virtualize? (merge {:window-start (- (or @scroll-left 0) 20)
-                                                                             :window-end   (+ @scroll-left @content-width 50)}))))
+                                          (ngu/window (cond-> {:header-tree        @internal-column-tree
+                                                               :size-cache         column-size-cache
+                                                               :show-branch-cells? show-column-branches?
+                                                               :default-size       (u/deref-or-value column-width)
+                                                               :hide-root?         (not show-root-headers?)}
+                                                        virtualize? (merge {:window-start (- (or @scroll-left 0) 20)
+                                                                            :window-end   (+ @scroll-left @content-width 50)}))))
         complete-row-traversal           (r/reaction
-                                           (ngu/window {:header-tree        @internal-row-tree
-                                                        :size-cache         row-size-cache
-                                                        :dimension          :row
-                                                        :show-branch-cells? show-row-branches?
-                                                        :default-size       (u/deref-or-value row-height)
-                                                        :hide-root?         (not show-root-headers?)
-                                                        :skip-tail?         false}))
+                                          (ngu/window {:header-tree        @internal-row-tree
+                                                       :size-cache         row-size-cache
+                                                       :dimension          :row
+                                                       :show-branch-cells? show-row-branches?
+                                                       :default-size       (u/deref-or-value row-height)
+                                                       :hide-root?         (not show-root-headers?)
+                                                       :skip-tail?         false}))
         showing?                         (comp (some-fn :show? :leaf?) meta)
         row-keypath->showing-index       (r/reaction (zipmap (filter showing?
                                                                      (:keypaths @complete-row-traversal))
                                                              (range)))
         complete-column-traversal        (r/reaction
-                                           (ngu/window {:header-tree        @internal-column-tree
-                                                        :size-cache         column-size-cache
-                                                        :dimension          :column
-                                                        :show-branch-cells? show-column-branches?
-                                                        :default-size       (u/deref-or-value column-width)
-                                                        :hide-root?         (not show-root-headers?)
-                                                        :skip-tail?         false}))
+                                          (ngu/window {:header-tree        @internal-column-tree
+                                                       :size-cache         column-size-cache
+                                                       :dimension          :column
+                                                       :show-branch-cells? show-column-branches?
+                                                       :default-size       (u/deref-or-value column-width)
+                                                       :hide-root?         (not show-root-headers?)
+                                                       :skip-tail?         false}))
         column-depth                     (r/reaction (or (u/deref-or-value column-tree-depth)
                                                          (cond-> (:depth @column-traversal)
                                                            (not show-root-headers?) dec)))
@@ -460,17 +456,17 @@
         internal-column-header-heights   (r/atom (or (u/deref-or-value column-header-heights)
                                                      (vec (repeat @row-depth (u/deref-or-value column-header-height)))))
         safe-column-header-heights       (r/reaction
-                                           (->> (concat @internal-column-header-heights
-                                                        (repeat (u/deref-or-value column-header-height)))
-                                                (map #(or % column-header-height))
-                                                (take @column-depth)
-                                                vec))
+                                          (->> (concat @internal-column-header-heights
+                                                       (repeat (u/deref-or-value column-header-height)))
+                                               (map #(or % column-header-height))
+                                               (take @column-depth)
+                                               vec))
         safe-row-header-widths           (r/reaction
-                                           (->> (concat @internal-row-header-widths
-                                                        (repeat (u/deref-or-value row-header-width)))
-                                                (take @row-depth)
-                                                (map #(or % row-header-width))
-                                                vec))
+                                          (->> (concat @internal-row-header-widths
+                                                       (repeat (u/deref-or-value row-header-width)))
+                                               (take @row-depth)
+                                               (map #(or % row-header-width))
+                                               vec))
         column-header-height-total       (r/reaction (apply + @safe-column-header-heights))
         column-width-total               (r/reaction (:sum-size @column-traversal))
         column-paths                     (r/reaction (:header-paths @column-traversal))
@@ -559,21 +555,20 @@
         (let [[_ & {:keys [row-tree column-tree
                            on-export on-export-cell on-export-row-header on-export-column-header on-export-corner-header]}]
               (r/argv this)]
-          (doseq [[external-prop prev-external-prop internal-prop] [[row-tree prev-row-tree internal-row-tree]
-                                                                    [column-tree prev-column-tree internal-column-tree]
-                                                                    [row-header-widths prev-row-header-widths internal-row-header-widths]
-                                                                    [column-header-heights prev-column-header-heights internal-column-header-heights]]
-                  :let                                             [external-value (u/deref-or-value external-prop)
-                                                                    prev-external-value (u/deref-or-value prev-external-prop)]]
-            (when (not= prev-external-value external-value)
-              (reset! prev-external-prop external-value)
-              (reset! internal-prop external-value)))
-          (doseq [[external-prop internal-prop] {on-export               internal-on-export
-                                                 on-export-cell          internal-on-export-cell
-                                                 on-export-row-header    internal-on-export-row-header
-                                                 on-export-column-header internal-on-export-column-header
-                                                 on-export-corner-header internal-on-export-corner-header}
-                  :let                          [external-value (u/deref-or-value external-prop)]]
+          (doseq [[external-prop prev-external-prop internal-prop] [[row-tree                prev-row-tree              internal-row-tree]
+                                                                    [column-tree             prev-column-tree           internal-column-tree]
+                                                                    [row-header-widths       prev-row-header-widths     internal-row-header-widths]
+                                                                    [column-header-heights   prev-column-header-heights internal-column-header-heights]
+                                                                    [on-export               nil                        internal-on-export]
+                                                                    [on-export-cell          nil                        internal-on-export-cell]
+                                                                    [on-export-row-header    nil                        internal-on-export-row-header]
+                                                                    [on-export-column-header nil                        internal-on-export-column-header]
+                                                                    [on-export-corner-header nil                        internal-on-export-corner-header]]
+                  :let                                             [external-value      (u/deref-or-value external-prop)
+                                                                    prev-external-value (u/deref-or-value prev-external-prop)]
+                  :when                                            (not= prev-external-value external-value)]
+            (when prev-external-prop
+              (reset! prev-external-prop external-value))
             (reset! internal-prop external-value))))
       :reagent-render
       (fn [{:keys
@@ -712,19 +707,19 @@
                                                                       (not show-root-headers?) dec)
                                                  :grid-column-end   -1}}
                             props (assoc props :children [(part ::row-header-label
-                                                                {:props (assoc props
-                                                                               :style (merge {:height (- size 5)}
-                                                                                             (when-not leaf?
-                                                                                               {:position :sticky
-                                                                                                :top      @column-header-height-total})
-                                                                                             (when-not branch-end?
-                                                                                               {:width (- cross-size 10)})))
-                                                                 :impl  ngp/row-header-label})])]]
+                                                            {:props (assoc props
+                                                                           :style (merge {:height (- size 5)}
+                                                                                         (when-not leaf?
+                                                                                           {:position :sticky
+                                                                                            :top      @column-header-height-total})
+                                                                                         (when-not branch-end?
+                                                                                           {:width (- cross-size 10)})))
+                                                             :impl  ngp/row-header-label})])]]
                  (part ::row-header
-                       {:part  ::row-header
-                        :props props
-                        :key   [::row-header keypath branch-end?]
-                        :theme (when theme-cells? theme)}))
+                   {:part  ::row-header
+                    :props props
+                    :key   [::row-header keypath branch-end?]
+                    :theme (when theme-cells? theme)}))
 
                column-headers
                (for [i         (range (count @column-paths))
@@ -756,13 +751,13 @@
                                                                           (not show-root-headers?) dec)
                                                      :grid-row-end      -1}}
                                 props (assoc props :children    [(part ::column-header-label
-                                                                       {:props props
-                                                                        :impl  ngp/column-header-label})])]]
+                                                                   {:props props
+                                                                    :impl  ngp/column-header-label})])]]
                  (part ::column-header
-                       {:part  ::column-header
-                        :theme (when theme-cells? theme)
-                        :props props
-                        :key   [::column-header keypath branch-end?]}))
+                   {:part  ::column-header
+                    :theme (when theme-cells? theme)
+                    :props props
+                    :key   [::column-header keypath branch-end?]}))
 
                corner-headers
                (for [column-index (range @row-depth)
@@ -777,21 +772,21 @@
                                    props (merge props {:edge edge})
                                    props (assoc props :children
                                                 [(part ::corner-header-label
-                                                       {:part  ::corner-header-label
-                                                        :props props})])
+                                                   {:part  ::corner-header-label
+                                                    :props props})])
                                    borders (merge {}
                                                   (when (edge :top) {:border-top border-light})
                                                   (when (edge :right) {:border-right border-light})
                                                   (when (edge :bottom) {:border-bottom border-light})
                                                   (when (edge :left) {:border-left border-light}))]]
                  (part ::corner-header
-                       {:part  ::corner-header
-                        :theme (when true #_theme-cells? theme)
-                        :props (cond-> props
-                                 :do                (update :style merge borders)
-                                 show-root-headers? (merge {:row-index    (dec row-index)
-                                                            :column-index (dec column-index)}))
-                        :key   [::corner-header row-index column-index]}))
+                   {:part  ::corner-header
+                    :theme (when true #_theme-cells? theme)
+                    :props (cond-> props
+                             :do                (update :style merge borders)
+                             show-root-headers? (merge {:row-index    (dec row-index)
+                                                        :column-index (dec column-index)}))
+                    :key   [::corner-header row-index column-index]}))
 
                cells
                (for [ri    (range (count @row-paths))
@@ -823,73 +818,73 @@
                                          (update cell-props :attr assoc :on-click (debug/log-on-alt-click cell-props))
                                          cell-props)]]
                  (part ::cell
-                       {:part  ::cell
-                        :props cell-props
-                        :theme (when theme-cells? theme)
-                        :key   [row-path column-path]}))]
+                   {:part  ::cell
+                    :props cell-props
+                    :theme (when theme-cells? theme)
+                    :key   [row-path column-path]}))]
            (part ::wrapper
-                 {:part       ::wrapper
-                  :theme      theme
-                  :post-props {:style style
-                               :class class}
-                  :props
-                  {:sticky-child? sticky-child?
-                   :attr          {:ref wrapper-ref!}
-                   :style
-                   {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
-                    :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
-                   :children
-                   [(part ::cell-grid
-                          {:theme theme
-                           :part  ::cell-grid
-                           :props {:children (cond-> cells
-                                               (and resize? (not @hide-resizers?))
-                                               (concat
-                                                (when resize-row-height?
-                                                  (row-height-resizers {:offset -1}))
-                                                (when resize-column-width?
-                                                  (column-width-resizers {:style  {:grid-row-end -1}
-                                                                          :offset -1}))))
-                                   :style    {:grid-template-rows    @row-template
-                                              :grid-template-columns @column-template}}})
-                    (part ::column-header-grid
-                          {:theme theme
-                           :part  ::column-header-grid
-                           :props {:sticky-top sticky-top
-                                   :children   (cond-> column-headers
-                                                 (and resize? (not @hide-resizers?))
-                                                 (concat
-                                                  (when resize-column-header-height?
-                                                    column-height-resizers)
-                                                  (when resize-column-width?
-                                                    (column-width-resizers {:offset -1}))))
-                                   :style      {:grid-template-rows    @column-cross-template
-                                                :grid-template-columns @column-template}}})
-                    (part ::row-header-grid
-                          {:theme theme
-                           :part  ::row-header-grid
-                           :props {:sticky-left sticky-left
-                                   :children    (cond-> row-headers
-                                                  (and resize? (not @hide-resizers?))
-                                                  (concat
-                                                   (when resize-row-header-width?
-                                                     row-width-resizers)
-                                                   (when resize-row-height?
-                                                     (row-height-resizers {:offset -1}))))
-                                   :style       {:grid-template-rows    @row-template
-                                                 :grid-template-columns @row-cross-template}}})
-                    (part ::corner-header-grid
-                          {:theme theme
-                           :part  ::corner-header-grid
-                           :props {:sticky-top  sticky-top
-                                   :sticky-left sticky-left
-                                   :children    (cond-> corner-headers
-                                                  (and resize? (not @hide-resizers?))
-                                                  (concat
-                                                   (when resize-row-header-width?
-                                                     row-width-resizers)
-                                                   (when resize-column-header-height?
-                                                     column-height-resizers)))
-                                   :style       {:grid-template-rows    @column-cross-template
-                                                 :grid-template-columns @row-cross-template}}})
-                    (u/deref-or-value overlay)]}}))))})))
+             {:part       ::wrapper
+              :theme      theme
+              :post-props {:style style
+                           :class class}
+              :props
+              {:sticky-child? sticky-child?
+               :attr          {:ref wrapper-ref!}
+               :style
+               {:grid-template-rows    (ngu/grid-cross-template [@column-header-height-total @row-height-total])
+                :grid-template-columns (ngu/grid-cross-template [@row-header-width-total @column-width-total])}
+               :children
+               [(part ::cell-grid
+                  {:theme theme
+                   :part  ::cell-grid
+                   :props {:children (cond-> cells
+                                       (and resize? (not @hide-resizers?))
+                                       (concat
+                                        (when resize-row-height?
+                                          (row-height-resizers {:offset -1}))
+                                        (when resize-column-width?
+                                          (column-width-resizers {:style  {:grid-row-end -1}
+                                                                  :offset -1}))))
+                           :style    {:grid-template-rows    @row-template
+                                      :grid-template-columns @column-template}}})
+                (part ::column-header-grid
+                  {:theme theme
+                   :part  ::column-header-grid
+                   :props {:sticky-top sticky-top
+                           :children   (cond-> column-headers
+                                         (and resize? (not @hide-resizers?))
+                                         (concat
+                                          (when resize-column-header-height?
+                                            column-height-resizers)
+                                          (when resize-column-width?
+                                            (column-width-resizers {:offset -1}))))
+                           :style      {:grid-template-rows    @column-cross-template
+                                        :grid-template-columns @column-template}}})
+                (part ::row-header-grid
+                  {:theme theme
+                   :part  ::row-header-grid
+                   :props {:sticky-left sticky-left
+                           :children    (cond-> row-headers
+                                          (and resize? (not @hide-resizers?))
+                                          (concat
+                                           (when resize-row-header-width?
+                                             row-width-resizers)
+                                           (when resize-row-height?
+                                             (row-height-resizers {:offset -1}))))
+                           :style       {:grid-template-rows    @row-template
+                                         :grid-template-columns @row-cross-template}}})
+                (part ::corner-header-grid
+                  {:theme theme
+                   :part  ::corner-header-grid
+                   :props {:sticky-top  sticky-top
+                           :sticky-left sticky-left
+                           :children    (cond-> corner-headers
+                                          (and resize? (not @hide-resizers?))
+                                          (concat
+                                           (when resize-row-header-width?
+                                             row-width-resizers)
+                                           (when resize-column-header-height?
+                                             column-height-resizers)))
+                           :style       {:grid-template-rows    @column-cross-template
+                                         :grid-template-columns @row-cross-template}}})
+                (u/deref-or-value overlay)]}}))))})))
