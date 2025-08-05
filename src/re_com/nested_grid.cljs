@@ -410,13 +410,16 @@
         row-size-cache                   (volatile! {})
         column-size-cache                (volatile! {})
         row-traversal                    (r/reaction
-                                          (ngu/window (cond-> {:header-tree        @internal-row-tree
-                                                               :size-cache         row-size-cache
-                                                               :show-branch-cells? show-row-branches?
-                                                               :default-size       (u/deref-or-value row-height)
-                                                               :hide-root?         (not show-root-headers?)}
-                                                        virtualize? (merge {:window-start (- (or @scroll-top 0) 20)
-                                                                            :window-end   (+ @scroll-top @content-height)}))))
+                                          (js/console.log "traversal!" (gensym))
+                                          (let [res (ngu/window (cond-> {:header-tree        @internal-row-tree
+                                                                         :size-cache         row-size-cache
+                                                                         :show-branch-cells? show-row-branches?
+                                                                         :default-size       (u/deref-or-value row-height)
+                                                                         :hide-root?         (not show-root-headers?)}
+                                                                  virtualize? (merge {:window-start (- (or @scroll-top 0) 20)
+                                                                                      :window-end   (+ @scroll-top @content-height)})))]
+                                            (js/console.log "branches" (count (:keypaths res)))
+                                            res))
         column-traversal                 (r/reaction
                                           (ngu/window (cond-> {:header-tree        @internal-column-tree
                                                                :size-cache         column-size-cache
@@ -426,6 +429,8 @@
                                                         virtualize? (merge {:window-start (- (or @scroll-left 0) 20)
                                                                             :window-end   (+ @scroll-left @content-width 50)}))))
         complete-row-traversal           (r/reaction
+                                          (js/console.log "complete-traversal!" (gensym)
+                                                          "internal-row-tree changed:" (hash @internal-row-tree))
                                           (ngu/window {:header-tree        @internal-row-tree
                                                        :size-cache         row-size-cache
                                                        :dimension          :row
@@ -434,10 +439,14 @@
                                                        :hide-root?         (not show-root-headers?)
                                                        :skip-tail?         false}))
         showing?                         (comp (some-fn :show? :leaf?) meta)
-        row-keypath->showing-index       (r/reaction (zipmap (filter showing?
-                                                                     (:keypaths @complete-row-traversal))
-                                                             (range)))
+        row-keypath->showing-index       (r/reaction
+                                          (js/console.log "index!" (gensym)
+                                                          "complete-row-traversal hash:" (hash @complete-row-traversal))
+                                          (zipmap (filter showing?
+                                                          (:keypaths @complete-row-traversal))
+                                                  (range)))
         complete-column-traversal        (r/reaction
+                                          (js/console.log "complete columns, too!")
                                           (ngu/window {:header-tree        @internal-column-tree
                                                        :size-cache         column-size-cache
                                                        :dimension          :column
@@ -555,18 +564,19 @@
         (let [[_ & {:keys [row-tree column-tree
                            on-export on-export-cell on-export-row-header on-export-column-header on-export-corner-header]}]
               (r/argv this)]
-          (doseq [[external-prop prev-external-prop internal-prop] [[row-tree                prev-row-tree              internal-row-tree]
-                                                                    [column-tree             prev-column-tree           internal-column-tree]
-                                                                    [row-header-widths       prev-row-header-widths     internal-row-header-widths]
-                                                                    [column-header-heights   prev-column-header-heights internal-column-header-heights]
-                                                                    [on-export               nil                        internal-on-export]
-                                                                    [on-export-cell          nil                        internal-on-export-cell]
-                                                                    [on-export-row-header    nil                        internal-on-export-row-header]
-                                                                    [on-export-column-header nil                        internal-on-export-column-header]
-                                                                    [on-export-corner-header nil                        internal-on-export-corner-header]]
-                  :let                                             [external-value      (u/deref-or-value external-prop)
-                                                                    prev-external-value (u/deref-or-value prev-external-prop)]
-                  :when                                            (not= prev-external-value external-value)]
+          (doseq [[external-prop prev-external-prop internal-prop prop-name] [[row-tree                prev-row-tree              internal-row-tree                "row-tree"]
+                                                                              [column-tree             prev-column-tree           internal-column-tree             "column-tree"]
+                                                                              [row-header-widths       prev-row-header-widths     internal-row-header-widths       "row-header-widths"]
+                                                                              [column-header-heights   prev-column-header-heights internal-column-header-heights   "column-header-heights"]
+                                                                              [on-export               nil                        internal-on-export               "on-export"]
+                                                                              [on-export-cell          nil                        internal-on-export-cell          "on-export-cell"]
+                                                                              [on-export-row-header    nil                        internal-on-export-row-header    "on-export-row-header"]
+                                                                              [on-export-column-header nil                        internal-on-export-column-header "on-export-column-header"]
+                                                                              [on-export-corner-header nil                        internal-on-export-corner-header "on-export-corner-header"]]
+                  :let                                                       [external-value      (u/deref-or-value external-prop)
+                                                                              prev-external-value (u/deref-or-value prev-external-prop)]
+                  :when                                                      (not= prev-external-value external-value)]
+            (js/console.log "UPDATING internal prop:" prop-name "from" (hash prev-external-value) "to" (hash external-value))
             (when prev-external-prop
               (reset! prev-external-prop external-value))
             (reset! internal-prop external-value))))
