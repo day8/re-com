@@ -61,6 +61,7 @@
   (merge-props props
                {:style {:font-family "monospace"
                         :white-space "pre-wrap"
+                        :word-break  :break-all
                         :font-size   :font-size/xx-small
                         :color       (:neutral $)}}))
 
