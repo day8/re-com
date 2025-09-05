@@ -6,21 +6,27 @@
 
 #### Added
 
- - `table-filter`: New UI component for creating filters for tabular data 
- - `selection-list`: `:only-button` and `:show-counter` props
- - `tag-dropdown`: `:only-button` and `:show-counter` props
+- `table-filter`: New UI component for creating filters for tabular data
+- `selection-list`: `:only-button` and `:show-counter` props
+- `tag-dropdown`: `:only-button` and `:show-counter` props
+- Turned `nested-v-grid` into the one and only `nested-grid` (deleted the old `nested-grid`).
+- `nested-grid`: `:show-zebra-stripes?` prop
+- `nested-grid`: `:sticky-child?`, `:sticky-top` and `:sticky-left` props
+- `input-text`: now can accept a single map argument
+- `input-password`: now can accept a single map argument
+- `input-textarea`: now can accept a single map argument
 
 #### Fixed
 
- - `daterange`: Fix daterange availability in re-com public API
+- `daterange`: Fix daterange availability in re-com public API
+- `p`: no longer shows a "bad-attribute" error (caused by re-com internals)
+- `error-modal`: fixed text wrapping in code blocks
+- Fixed missing cljdocs - https://cljdoc.org/d/re-com/re-com/2.28.0
 
 ## 2.27.0 (2025-06-06)
 
 #### Added
 
-- Turned `nested-v-grid` into the one and only `nested-grid` (deleted the old `nested-grid`).
-- `nested-grid`: `:show-zebra-stripes?` prop
-- `nested-grid`: `:sticky-child?`, `:sticky-top` and `:sticky-left` props
 
 ## 2.26.2 (2025-06-05)
 
