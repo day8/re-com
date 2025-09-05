@@ -34,10 +34,7 @@
     (println "Writing pom.xml...")
     (b/write-pom opts)
     (b/copy-dir {:src-dirs   ["src"]
-                 :include    "re_com/**"
                  :target-dir class-dir})
-    (b/copy-file {:src    "src/deps.cljs"
-                  :target (str class-dir "/deps.cljs")})
     (b/copy-dir {:src-dirs   ["run/resources"]
                  :include    "public/assets/**"
                  :target-dir class-dir})
