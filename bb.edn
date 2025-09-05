@@ -26,11 +26,11 @@
                     (def tag (release-tag))
                     (def latest-hash  (latest-hash))
                     (def release-hash (release-hash))
-                    (def version  (cond-> tag
-                                    (not= release-hash latest-hash)
-                                    (str "--" latest-hash)))
-                    (def opts {:extra-env {"DAY8_RELEASE_TAG" tag
-                                           "RE_COM_VERSION"   version}}))
+                    (def version (apply str (drop-while #{\v} tag)))
+                    (def opts {:extra-env {"RE_COM_TAG"     tag
+                                           "RE_COM_VERSION" (cond-> tag
+                                                              (not= release-hash latest-hash)
+                                                              (str "--" latest-hash))}}))
   clean           (let [clean-targets ["node_modules"
                                        "run/resources/public/compiled_dev "
                                        "run/resources/public/compiled_prod"
