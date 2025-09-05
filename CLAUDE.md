@@ -14,11 +14,11 @@ bb watch           # Full dev server (http://localhost:3449/)
 bb watch-demo      # Demo app only
 
 # Run tests
-bb test            # Full test suite with Karma
+bb test            # run tests
 bb browser-test    # Browser test watching (http://localhost:8021/)
 
 # Build & deploy
-bb ci              # Run tests and release build
+bb test            # Run tests
 bb clean           # Clean compiled artifacts
 ```
 

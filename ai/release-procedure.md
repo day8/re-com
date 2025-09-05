@@ -13,7 +13,7 @@ Note that all these commands are entered at the repo root folder.
 
       bb watch
       bb release-demo
-      bb ci
+      bb test
 
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 

@@ -96,7 +96,7 @@ To run these commands, you'll need these programs installed on your machine:
 3. Run The (erm, modest) Tests
    
    ```shell
-   bb ci
+   bb test
    ```
    
    This will:
