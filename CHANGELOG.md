@@ -1,7 +1,3 @@
-## N.N.N (YYYY-MM-DD)
-
-> Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below.
-
 ## 2.28.0 (2025-07-10)
 
 #### Added
