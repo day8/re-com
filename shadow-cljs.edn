@@ -4,7 +4,6 @@
  :builds {:demo
           {:target           :browser
            :modules          {:demo {:init-fn re-demo.core/mount-demo}}
-           :build-hooks      [(shadow-git-inject.core/hook)]
            :compiler-options {:closure-defines {re-com.config/version                  #env "RE_COM_VERSION"
                                                 ;; For production builds of the demo app, set goog.DEBUG
                                                 ;; to be true so that the debugging demo page works as expected.
