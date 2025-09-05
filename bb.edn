@@ -40,7 +40,7 @@
                       (fs/delete-tree target)))
   install         (shell "npm install")
   test            {:depends [clean install]
-                   :task    (do (shell opts "npx shadow-cljs compile karma-test")
+                   :task    (do (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli compile karma-test")
                                 (shell opts "npx karma start --single-run --reporters junit,dots"))}
   release-clojars (do
                     (let [f (fs/file ".version")]
@@ -50,13 +50,15 @@
                       (fs/update-file f (constantly version)))
                     (shell opts "clojure -M:clein deploy"))
   release-demo    {:depends [clean install]
-                   :task    (shell opts "npx shadow-cljs release demo")}
+                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli release demo")}
   watch           {:depends [install]
-                   :task    (shell opts "npx shadow-cljs watch demo browser-test karma-test")}
+                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch"
+                                   "demo" "browser-test" "karma-test")}
   watch-demo      {:depends [install]
-                   :task    (shell opts "npx shadow-cljs watch demo")}
+                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch"
+                                   "demo")}
   browser-test    {:depends [install]
-                   :task    (shell opts "npx shadow-cljs watch browser-test")}
+                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch browser-test")}
   deploy-aws      {:depends [release-demo]
                    :task    (shell opts "aws s3 sync run/resources/public s3://re-demo/ --acl"
                                    "public-read"
