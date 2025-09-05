@@ -39,8 +39,9 @@ jobs:
       - name: Fix git dubious directory ownership error
         run: git config --global --add safe.directory /__w/re-com/re-com
 
-      - run: bb ci
+      - run: bb test
 
+      - run: bb release-demo
 
       - uses: actions/upload-artifact@v4
         with:

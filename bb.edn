@@ -47,14 +47,13 @@
                    :task    (shell opts "clojure -T:build clojars")}
   release-demo    {:depends [clean install]
                    :task    (shell opts "npx shadow-cljs release demo")}
-  ci              (do (run 'test) (run 'release-demo))
   watch           {:depends [install]
                    :task    (shell opts "npx shadow-cljs watch demo browser-test karma-test")}
   watch-demo      {:depends [install]
                    :task    (shell opts "npx shadow-cljs watch demo")}
   browser-test    {:depends [install]
                    :task    (shell opts "npx shadow-cljs watch browser-test")}
-  deploy-aws      {:depends [ci]
+  deploy-aws      {:depends [release-demo]
                    :task    (shell opts "aws s3 sync run/resources/public s3://re-demo/ --acl"
                                    "public-read"
                                    "--cache-control"
