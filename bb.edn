@@ -23,13 +23,14 @@
                            (shell {:out :string})
                            :out
                            str/trim))
-                    (def opts (let [tag          (release-tag)
-                                    latest-hash  (latest-hash)
-                                    release-hash (release-hash)]
-                                {:extra-env {"DAY8_RELEASE_TAG" tag
-                                             "RE_COM_VERSION"   (cond-> tag
-                                                                  (not= release-hash latest-hash)
-                                                                  (str "--" latest-hash))}})))
+                    (def tag (release-tag))
+                    (def latest-hash  (latest-hash))
+                    (def release-hash (release-hash))
+                    (def version  (cond-> tag
+                                    (not= release-hash latest-hash)
+                                    (str "--" latest-hash)))
+                    (def opts {:extra-env {"DAY8_RELEASE_TAG" tag
+                                           "RE_COM_VERSION"   version}}))
   clean           (let [clean-targets ["node_modules"
                                        "run/resources/public/compiled_dev "
                                        "run/resources/public/compiled_prod"
@@ -41,10 +42,13 @@
   test            {:depends [clean install]
                    :task    (do (shell opts "npx shadow-cljs compile karma-test")
                                 (shell opts "npx karma start --single-run --reporters junit,dots"))}
-  jar             {:depends [clean]
-                   :task    (shell opts "clojure -T:build jar")}
-  release-clojars {:depends [jar]
-                   :task    (shell opts "clojure -T:build clojars")}
+  release-clojars (do
+                    (let [f (fs/file ".version")]
+                      (when-not (fs/exists? f)
+                        (fs/create-file f)
+                        (fs/delete-on-exit f))
+                      (fs/update-file f (constantly version)))
+                    (shell opts "clojure -M:clein deploy"))
   release-demo    {:depends [clean install]
                    :task    (shell opts "npx shadow-cljs release demo")}
   watch           {:depends [install]
