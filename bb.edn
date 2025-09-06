@@ -24,9 +24,15 @@
                            :out
                            str/trim))
                     (def tag (release-tag))
+                    (def version (apply str (drop-while #{\v} tag)))
+                    (defn version-dotfile []
+                      (let [f (fs/file ".version")]
+                        (when-not (fs/exists? f)
+                          (fs/create-file f)
+                          (fs/delete-on-exit f))
+                        (fs/update-file f (constantly version))))
                     (def latest-hash  (latest-hash))
                     (def release-hash (release-hash))
-                    (def version (apply str (drop-while #{\v} tag)))
                     (def opts {:extra-env {"RE_COM_TAG"     tag
                                            "RE_COM_VERSION" (cond-> tag
                                                               (not= release-hash latest-hash)
@@ -40,8 +46,8 @@
                       (fs/delete-tree target)))
   install         (shell "npm install")
   test            {:depends [clean install]
-                   :task    (do (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli compile karma-test")
-                                (shell opts "npx karma start --single-run --reporters junit,dots"))}
+                   :task    (do (shell opts "clojure -M:demo:test -m shadow.cljs.devtools.cli compile browser-test")
+                                (shell opts "clojure -X:test"))}
   release-clojars (do
                     (let [f (fs/file ".version")]
                       (when-not (fs/exists? f)
@@ -53,7 +59,7 @@
                    :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli release demo")}
   watch           {:depends [install]
                    :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch"
-                                   "demo" "browser-test" "karma-test")}
+                                   "demo" "browser-test")}
   watch-demo      {:depends [install]
                    :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch"
                                    "demo")}

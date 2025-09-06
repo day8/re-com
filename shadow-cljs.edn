@@ -13,16 +13,16 @@
                               ;; symbols for display in validation error logging.
                               :pseudo-names true
                               :externs      ["externs/detect-element-resize-externs.js"]}
-           :dev              {:asset-path      "/compiled_dev/demo"
-                              :output-dir      "run/resources/public/compiled_dev/demo"
+           :dev              {:asset-path      "/compiled_dev/"
+                              :output-dir      "run/resources/public/compiled_dev/"
                               :closure-defines {;; When re-com produces validation errors it tries to provide links
                                                 ;; to source code. These links require that you provide the root URL
                                                 ;; to the ClojureScript compiler output with source maps.
                                                 re-com.config/root-url-for-compiler-output
-                                                "http://localhost:3449/compiled_dev/demo/cljs-runtime/"}
+                                                "http://localhost:3449/compiled_dev/cljs-runtime/"}
                               :compiler-options
                               {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
-           :release          {:output-dir "run/resources/public/compiled_prod/demo"}
+           :release          {:output-dir "run/resources/public/compiled_prod/"}
            :devtools         {:http-port        3449
                               :http-root        "run/resources/public"
                               :push-state/index "index_dev.html"
@@ -30,16 +30,10 @@
 
           :browser-test {:target           :browser-test
                          :ns-regexp        "-test$"
-                         :test-dir         "run/resources/public/compiled_test/demo"
+                         :test-dir         "run/resources/public/compiled_test/"
                          :closure-defines  {re-com.config/version #env "RE_COM_VERSION"}
                          :compiler-options {:externs         ["externs/detect-element-resize-externs.js"]
                                             :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
                          :devtools         {:http-port 8021
-                                            :http-root "run/resources/public/compiled_test/demo"
-                                            :preloads  [hashp.core]}}
-          :karma-test   {:target           :karma
-                         :ns-regexp        ".*-test$"
-                         :output-to        "target/karma/test.js"
-                         :closure-defines  {re-com.config/version #env "RE_COM_VERSION"}
-                         :compiler-options {:pretty-print true
-                                            :externs      ["externs/detect-element-resize-externs.js"]}}}}
+                                            :http-root "run/resources/public/compiled_test/"
+                                            :preloads  [hashp.core]}}}}

@@ -39,7 +39,12 @@ jobs:
       - name: Fix git dubious directory ownership error
         run: git config --global --add safe.directory /__w/re-com/re-com
 
-      - run: bb release-demo
+      - uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+        with:
+          chrome-version: 811961
+
+      - run: bb test :chrome-path '"${{ steps.setup-chrome.outputs.chrome-path }}"'
 
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
