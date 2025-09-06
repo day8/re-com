@@ -1,4 +1,9 @@
-## 2.28.0 (2025-07-10)
+## 2.28.3 (2025-09-06)
+
+#### Fixed
+Improved cljdocs: https://cljdoc.org/d/re-com/re-com/2.28.3
+
+## 2.28.0 (2025-09-06)
 
 #### Added
 
