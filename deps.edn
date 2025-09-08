@@ -35,7 +35,7 @@
                          :exec-fn     day8.chrome-shadow-test-runner/run
                          :exec-args   {:test-dir    "run/resources/public/compiled_test"
                                        :chrome-path "chromium"}}
-           :clein       {:extra-deps {io.github.noahtheuke/clein {:mvn/version "0.4.1"}}
+           :clein       {:extra-deps {io.github.noahtheduke/clein {:mvn/version "0.4.1"}}
                          :main-opts  ["-m" "noahtheduke.clein"]}
            :clein/build {:lib           re-com/re-com
                          :main          re-com.core
