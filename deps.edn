@@ -43,5 +43,4 @@
                          :version       ".version"
                          :license       {:name "MIT"
                                          :url  "https://opensource.org/licenses/MIT"}
-                         :src-dirs      ["src"]
-                         :resource-dirs ["run/resources"]}}}
+                         :src-dirs      ["src"]}}}
