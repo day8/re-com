@@ -43,10 +43,10 @@
 
 (deftest describe
   (is (= (part/describe structure)
-         [{:name :wrapper, :class "rc-part-test-wrapper", :level 1, :impl "[:div]"}
-          {:name :cell-grid, :class "rc-part-test-cell-grid", :level 2, :impl "[:div]"}
-          {:name :cell, :class "rc-part-test-cell", :level 3, :impl "[:div]" :top-level-arg? true}
-          {:name :cell-label, :class "rc-part-test-cell-label", :level 4, :impl "[:div]"}])))
+         [{:name :wrapper, :class "rc-part-test-wrapper", :level 0, :impl "[:div]"}
+          {:name :cell-grid, :class "rc-part-test-cell-grid", :level 1, :impl "[:div]"}
+          {:name :cell, :class "rc-part-test-cell", :level 2, :impl "[:div]" :top-level-arg? true}
+          {:name :cell-label, :class "rc-part-test-cell-label", :level 3, :impl "[:div]"}])))
 
 (deftest validate-props
   (are [props problems]

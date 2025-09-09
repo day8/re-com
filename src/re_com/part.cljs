@@ -60,17 +60,22 @@
                   (let [part-id            (id node)
                         part-name          (unqualify part-id)
                         {:keys [tag impl]
-                         :as part-props} (props node)]
+                         :as   part-props} (props node)]
                     (merge
                      part-props
                      {:name  part-name
                       :class (css-class part-id)
-                      :level (depth structure part-name)
-                      :impl  (or (when impl (-> (ns-name impl)
-                                                (str/replace "$" ".")
-                                                (str/replace "_" "-")))
-                                 (when tag (str "[" tag "]"))
-                                 "[:div]")}))))))))
+                      :level (dec (depth structure part-name))
+                      :impl  (str "["
+                                  (or
+                                   (when (string? impl) impl)
+                                   (when impl
+                                     (-> (ns-name impl)
+                                         (str/replace "$" ".")
+                                         (str/replace "_" "-")))
+                                   tag
+                                   ":div")
+                                  "]")}))))))))
 
 (def top-level-arg?
   (memoize
