@@ -1,72 +1,38 @@
 {:min-bb-version "0.4.0"
+ :deps           {day8/dev {:local/root "../dev"} #_{:git/url "https://github.com/day8/dev.git"
+                            :git/sha "e14e36f3e407c5d4e45ed3509458ff2da112d43d"}}
  :tasks
  {:requires       ([babashka.fs :as fs]
-                   [clojure.string :as str])
-  :init           (do
-                    (defn release-tag []
-                      (->> (shell {:out :string}
-                                  "git tag -l --sort=v:refname")
-                           :out
-                           str/split-lines
-                           (filter (fn [s]
-                                     (re-find (re-pattern "^v\\d+\\.\\d+\\.\\d+$") s)))
-                           last
-                           str/trim))
-                    (defn release-hash []
-                      (->> (release-tag)
-                           (str "git rev-parse --short ")
-                           (shell {:out :string})
-                           :out
-                           str/trim))
-                    (defn latest-hash []
-                      (->> "git log -1 --format=%h"
-                           (shell {:out :string})
-                           :out
-                           str/trim))
-                    (def tag (release-tag))
-                    (def version (apply str (drop-while #{\v} tag)))
-                    (defn version-dotfile []
-                      (let [f (fs/file ".version")]
-                        (when-not (fs/exists? f)
-                          (fs/create-file f)
-                          (fs/delete-on-exit f))
-                        (fs/update-file f (constantly version))))
-                    (def latest-hash  (latest-hash))
-                    (def release-hash (release-hash))
-                    (def opts {:extra-env {"RE_COM_TAG"     tag
-                                           "RE_COM_VERSION" (cond-> tag
-                                                              (not= release-hash latest-hash)
-                                                              (str "--" latest-hash))}}))
-  clean           (let [clean-targets ["node_modules"
-                                       "run/resources/public/compiled_dev "
-                                       "run/resources/public/compiled_prod"
-                                       "run/resources/public/compiled_test"]]
-                    (doseq [target clean-targets]
-                      (println "bb clean: deleting" target)
-                      (fs/delete-tree target)))
+                   [babashka.deps :as deps]
+                   [clojure.string :as str]
+                   [day8.dev :as dev])
+  :init           (def clean-targets ["node_modules"
+                                      "run/resources/public/compiled_dev "
+                                      "run/resources/public/compiled_prod"
+                                      "run/resources/public/compiled_test"])
   install         (shell "npm install")
+  app-version     (print (dev/git-app-version!))
+  clean           (doseq [dir clean-targets]
+                    (println "bb clean: deleting" dir)
+                    (fs/delete-tree dir))
   test            {:depends [clean install]
-                   :task    (do (shell opts "clojure -M:demo:test -m shadow.cljs.devtools.cli compile browser-test")
-                                (shell opts "clojure -X:test"))}
-  release-clojars (do
-                    (let [f (fs/file ".version")]
-                      (when-not (fs/exists? f)
-                        (fs/create-file f)
-                        (fs/delete-on-exit f))
-                      (fs/update-file f (constantly version)))
-                    (shell opts "clojure -M:clein deploy"))
+                   :task    (do (clojure "-M:demo:test" "-m" "shadow.cljs.devtools.cli"
+                                         "compile" "browser-test")
+                                (clojure "-X:test"))}
+  release-clojars (do (dev/version-dotfile!)
+                      (clojure "-M:clein" "deploy"))
   release-demo    {:depends [clean install]
-                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli release demo")}
+                   :task    (clojure "-M:demo -m shadow.cljs.devtools.cli"
+                                     "release" "demo")}
   watch           {:depends [install]
-                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch"
-                                   "demo" "browser-test")}
+                   :task    (clojure "-M:demo -m shadow.cljs.devtools.cli"
+                                     "watch" "demo" "browser-test")}
   watch-demo      {:depends [install]
-                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch"
-                                   "demo")}
+                   :task    (clojure "-M:demo -m shadow.cljs.devtools.cli"
+                                     "watch" "demo")}
   browser-test    {:depends [install]
-                   :task    (shell opts "clojure -M:demo -m shadow.cljs.devtools.cli watch browser-test")}
+                   :task    (clojure "-M:demo -m shadow.cljs.devtools.cli"
+                                     "watch" "browser-test")}
   deploy-aws      {:depends [release-demo]
-                   :task    (shell opts "aws s3 sync run/resources/public s3://re-demo/ --acl"
-                                   "public-read"
-                                   "--cache-control"
-                                   "max-age=2592000,public")}}}
+                   :task    (shell "aws s3 sync run/resources/public s3://re-demo/ --acl"
+                                   "public-read" "--cache-control" "max-age=2592000,public")}}}

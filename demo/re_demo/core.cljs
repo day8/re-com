@@ -11,7 +11,7 @@
             [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border
                                                           label p title alert-box h-split]
                                                   :refer-macros [handler-fn]]
-            [re-com.config                 :refer [version]]
+            [day8.dev                      :as dev]
             [re-com.util                   :as u :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.debug                 :as    debug]
@@ -191,7 +191,7 @@
                  :child [label
                          :src   (at)
                          :style {:font-size "10px"}
-                         :label version]]]]))
+                         :label (dev/app-version)]]]]))
 
 (defn re-com-title-box
   []
