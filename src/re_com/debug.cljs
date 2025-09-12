@@ -82,7 +82,8 @@
         src
         (assoc :data-rc-src (str file ":" line))))))
 
-
+(defn instrument [m props]
+  (if-not debug? m (update m :attr merge (->attr props))))
 
 (defn component-stack
   ([el]
