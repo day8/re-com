@@ -55,7 +55,7 @@
          (part ::wrapper
            {:theme      theme
             :post-props (-> (select-keys props [:class :attr])
-                            (update :attr (merge (debug/->attr props))))
+                            (update :attr merge (debug/->attr props)))
             :props      {:on-change on-change
                          :tab-type  tab-type
                          :re-com    {:state {:enable (not disabled?)}}

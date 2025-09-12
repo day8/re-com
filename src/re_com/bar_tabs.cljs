@@ -73,7 +73,7 @@
          (part ::wrapper
            {:theme      theme
             :post-props (-> (select-keys props [:class :attr])
-                            (update :attr (merge (debug/->attr props))))
+                            (update :attr merge (debug/->attr props)))
             :props      {:on-change on-change
                          :vertical? vertical?
                          :tab-type  tab-type
