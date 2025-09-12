@@ -1,3 +1,9 @@
+## 2.28.4 (...)
+
+#### Added
+
+- `alert-box`, `alert-list`: full support for `:parts` & `:theme`
+
 ## 2.28.3 (2025-09-06)
 
 #### Fixed

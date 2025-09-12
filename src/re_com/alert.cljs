@@ -2,13 +2,16 @@
   (:require-macros
    [re-com.core         :refer [at reflect-current-component]])
   (:require
+   re-com.alert-box.theme
    [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
    [re-com.close-button :refer [close-button]]
    [re-com.config       :refer [include-args-desc?]]
    [re-com.debug        :as debug]
    [re-com.part         :as part]
+   [re-com.alert-box    :as-alias ab]
+   [re-com.alert-list   :as-alias al]
    [re-com.theme        :as    theme]
-   [re-com.alert-box    :as-alias alert-box]
+   [re-com.theme.util   :as    tu]
    [re-com.util         :refer [deref-or-value]]
    [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
                                 vector-of-maps? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]))
@@ -18,12 +21,17 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def part-structure
-  [::alert-box/wrapper {:impl 're-com.core/alert-box
-                        :type :legacy}
-   [::alert-box/heading {:impl 're-com.core/h-box}
-    [::alert-box/h4 {:tag :h4}]
-    [::alert-box/close-button {:impl 're-com.close-button/close-button}]]
-   [::alert-box/body {:impl 're-com.core/h-box}]])
+  [::ab/wrapper {:impl 're-com.core/alert-box
+                 :type :legacy}
+   [::ab/top-section {:impl 're-com.core/h-box}
+    [::ab/heading-wrapper {:tag :h4}
+     [::ab/heading {:top-level-arg? true
+                    :impl           "empty"}]]
+    [::ab/close-button {:impl 're-com.close-button/close-button}]]
+   [::ab/body-section {:impl 're-com.core/h-box}
+    [::ab/body-wrapper
+     [::ab/body {:top-level-arg? true
+                 :impl           "empty"}]]]])
 
 (def alert-box-parts-desc
   (when include-args-desc?
@@ -51,77 +59,77 @@
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
-  [& {:keys [id alert-type heading body padding closeable? on-close class style attr parts src]
+  [& {:keys [id alert-type body padding closeable? on-close pre-theme theme]
       :or   {alert-type :info}
       :as   props}]
   (or
    (validate-args-macro alert-box-args-desc props)
-   (let [close-alert [close-button
-                      :src       (at)
-                      :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
-                      :style     (get-in parts [:close-button :style])
-                      :attr      (get-in parts [:close-button :attr])
-                      :on-click  #(on-close id)
-                      :div-size  20
-                      :font-size 20]
-         alert-class (alert-type {:none    ""
-                                  :info    "alert-success"
-                                  :warning "alert-warning"
-                                  :danger  "alert-danger"})
-         part        (partial part/part part-structure props)]
-     (part ::wrapper
-           {:post-props (-> (select-keys props [:class :style :attr])
-                            (update :class theme/merge-class alert-class)
-                            (debug/instrument props))
-            :props      {:class (theme/merge-class "rc-alert" "alert" "fade in")
-                         :style (merge (flex-child-style "none")
-                                       {:padding padding}
-                                       style)
-                         :children
-                         [(when heading
-                            (part ::heading
-                                  {:post-props {:src (at)}
-                                   :props
-                                   {:justify :between
-                                    :align   :center
-                                    :class   "rc-alert-heading"
-                                    :style   (merge {:margin-bottom (if body "10px" "0px")}
-                                                    (get-in parts [:heading :style]))
-                                    :attr    (get-in parts [:heading :attr] {})
-                                    :children
-                                    [[:h4
-                                      (merge
-                                       {:class (theme/merge-class "rc-alert-h4" (get-in parts [:h4 :class]))
-                                        :style (merge {:margin-bottom "0px"}
-                                                      (get-in parts [:h4 :style]))}
-                                       (get-in parts [:h4 :attr])) ;; Override h4
-                                      heading]
-                                     (when (and closeable? on-close)
-                                       close-alert)]}}))
-                          (when body
-                            [h-box
-                             :src      (at)
-                             :justify  :between
-                             :align    :center
-                             :class    (str "rc-alert-body " (get-in parts [:body :class]))
-                             :style    (get-in parts [:body :style] {})
-                             :attr     (get-in parts [:body :attr] {})
-                             :children [[:div body]
-                                        (when (and (not heading) closeable? on-close)
-                                          close-alert)]])]}}))))
+   (let [part              (partial part/part part-structure props)
+         theme             (theme/comp pre-theme theme)
+         heading-provided? (part/get-part part-structure props ::ab/heading)
+         body-provided?    (part/get-part part-structure props ::ab/body)
+         alert-class       (alert-type {:none    ""
+                                        :info    "alert-success"
+                                        :warning "alert-warning"
+                                        :danger  "alert-danger"})
+         close-alert       (part ::ab/close-button
+                             {:impl       close-button
+                              :post-props {:src (at)}
+                              :props      {:on-click  #(on-close id)
+                                           :div-size  20
+                                           :font-size 20}})]
+     (part ::ab/wrapper
+       {:post-props (-> props
+                        (cond-> padding (tu/style {:padding padding}))
+                        (select-keys [:class :style :attr])
+                        (update :class theme/merge-class alert-class)
+                        (debug/instrument props))
+        :theme      theme
+        :props
+        {:children
+         [(when heading-provided?
+            (part ::ab/top-section
+              {:impl       h-box
+               :theme      theme
+               :style      {:margin-bottom (if body "10px" "0px")}
+               :post-props {:src (at)}
+               :props
+               {:children
+                [(part ::ab/heading-wrapper
+                   {:theme      theme
+                    :post-props {:src (at)}
+                    :props      {:tag      :h4
+                                 :children [(part ::ab/heading
+                                              {:theme theme})]}})
+                 (when (and closeable? on-close)
+                   close-alert)]}}))
+          (when body-provided?
+            (part ::ab/body-section
+              {:impl       h-box
+               :theme      theme
+               :post-props {:src (at)}
+               :props      {:children
+                            [(part ::ab/body-wrapper
+                               {:props {:children [(part ::ab/body {})]}})
+                             (when (and (not heading-provided?) closeable? on-close)
+                               close-alert)]}}))]}}))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list
 ;;--------------------------------------------------------------------------------------------------
 
+(def alert-list-part-structure
+  [::al/wrapper {:impl 're-com.alert/alert-list}
+   [::al/body {:impl 're-com.box/border}
+    [::al/scroller {:impl 're-com.box/scroller}]
+    [::al/v-box {:impl 're-com.box/v-box}
+     [::ab/alert-box {:impl       're-com.alert/alert-box
+                      :name-label [:span "Use " [:code ":alert-class"] " or "
+                                   [:code ":alert-style"] " arguments instead."]}]]]])
+
 (def alert-list-parts-desc
   (when include-args-desc?
-    [{:name :wrapper  :level 0 :class "rc-alert-list-wrapper"  :impl "[alert-list]"}
-     {:type :legacy   :level 1 :class "rc-alert-list"          :impl "[border]"}
-     {:name :scroller :level 2 :class "rc-alert-list-scroller" :impl "[scroller]"}
-     {:name :v-box    :level 2 :class "rc-alert-list-v-box"    :impl "[v-box]"}
-     {:type :legacy   :level 3 :class "rc-alert-box"           :impl "[alert-box]"
-      :name-label [:span "Use " [:code ":alert-class"] " or " [:code ":alert-style"] " arguments instead."]}]))
+    (part/describe alert-list-part-structure)))
 
 (def alert-list-parts
   (when include-args-desc?
@@ -143,6 +151,7 @@
      {:name :src          :required false                                :type "map"                     :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as     :required false                                :type "map"                     :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+
 (defn alert-list
   "Displays a list of alert-box components in a v-box. Sample alerts object:
      [{:id 2
@@ -155,48 +164,51 @@
        :alert-type :info
        :heading \"Heading\"
        :body \"Body\"}]"
-  [& {:keys [alerts on-close max-height padding border-style alert-class alert-style class style attr parts src debug-as]
+  [& {:keys [alerts on-close max-height padding border-style alert-class alert-style pre-theme theme]
       :or   {padding "4px"}
-      :as   args}]
+      :as   props}]
   (or
-   (validate-args-macro alert-list-args-desc args)
-   (let [alerts (deref-or-value alerts)]
-     [box
-      :src      src
-      :debug-as (or debug-as (reflect-current-component))
-      :class    (str "rc-alert-list-wrapper " (get-in parts [:wrapper :class]))
-      :style    (get-in parts [:wrapper :style] {})
-      :attr     (get-in parts [:wrapper :attr] {})
-      :child    [border
-                 :src     (at)
-                 :class   (str "rc-alert-list " class)
-                 :style   style
-                 :attr    attr
-                 :padding padding
-                 :border  border-style
-                 :child   [scroller
-                           :src      (at)
-                           :v-scroll :auto
-                           :class    (str "rc-alert-list-scroller " (get-in parts [:scroller :class]))
-                           :style    (merge {:max-height max-height}
-                                            (get-in parts [:scroller :style]))
-                           :attr     (get-in parts [:scroller :attr])
-                           :child    [v-box
-                                      :src      (at)
-                                      :size     "auto"
-                                      :class    (str "rc-alert-list-v-box " (get-in parts [:v-box :class]))
-                                      :style    (get-in parts [:v-box :style])
-                                      :attr     (get-in parts [:v-box :attr])
-                                      :children [(for [alert alerts]
-                                                   (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                                     ^{:key id} [alert-box
-                                                                 :src        (at)
-                                                                 :id         id
-                                                                 :alert-type alert-type
-                                                                 :heading    heading
-                                                                 :body       body
-                                                                 :padding    padding
-                                                                 :closeable? closeable?
-                                                                 :on-close   on-close
-                                                                 :class      alert-class
-                                                                 :style      (merge alert-style (:style alert))]))]]]]])))
+   (validate-args-macro alert-list-args-desc props)
+   (let [alerts (deref-or-value alerts)
+         theme  (theme/comp pre-theme theme)
+         part   (partial part/part alert-list-part-structure props)]
+     (part ::al/wrapper
+       {:impl       box
+        :theme      theme
+        :post-props (debug/instrument {} props)
+        :props
+        {:child
+         (part ::al/body
+           {:impl       border
+            :theme      theme
+            :post-props (merge (select-keys props [:class :style :attr])
+                               {:border  border-style
+                                :padding padding}
+                               (tu/style {:max-height max-height}))
+            :props
+            {:child
+             (part ::al/scroller
+               {:impl  scroller
+                :theme theme
+                :props
+                {:child
+                 (part ::al/v-box
+                   {:impl  v-box
+                    :theme theme
+                    :props
+                    {:children
+                     (for [alert alerts]
+                       (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                         (part ::al/alert-box
+                           {:impl       alert-box
+                            :theme      theme
+                            :key        id
+                            :post-props {:class alert-class
+                                         :style alert-style}
+                            :props      {:id         id
+                                         :alert-type alert-type
+                                         :heading    heading
+                                         :body       body
+                                         :padding    padding
+                                         :closeable? closeable?
+                                         :on-close   on-close}})))}})}})}})}}))))
