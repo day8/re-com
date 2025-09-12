@@ -3,6 +3,7 @@
   (:require
    [re-com.theme.util :as tu]
    [re-com.part :as part]
+   [re-com.debug :as debug]
    [re-com.theme.default :as theme.default]))
 
 (def ^:dynamic *variables* theme.default/variables)

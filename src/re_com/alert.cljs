@@ -1,13 +1,14 @@
 (ns re-com.alert
   (:require-macros
-   [re-com.core         :refer [handler-fn at reflect-current-component]])
+   [re-com.core         :refer [at reflect-current-component]])
   (:require
    [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
-   [re-com.buttons      :refer [button]]
    [re-com.close-button :refer [close-button]]
    [re-com.config       :refer [include-args-desc?]]
-   [re-com.debug        :refer [->attr]]
+   [re-com.debug        :as debug]
+   [re-com.part         :as part]
    [re-com.theme        :as    theme]
+   [re-com.alert-box    :as-alias alert-box]
    [re-com.util         :refer [deref-or-value]]
    [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
                                 vector-of-maps? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]))
@@ -16,13 +17,17 @@
 ;; Component: alert
 ;;--------------------------------------------------------------------------------------------------
 
+(def part-structure
+  [::alert-box/wrapper {:impl 're-com.core/alert-box
+                        :type :legacy}
+   [::alert-box/heading {:impl 're-com.core/h-box}
+    [::alert-box/h4 {:tag :h4}]
+    [::alert-box/close-button {:impl 're-com.close-button/close-button}]]
+   [::alert-box/body {:impl 're-com.core/h-box}]])
+
 (def alert-box-parts-desc
   (when include-args-desc?
-    [{:type :legacy       :level 0 :class "rc-alert-box"          :impl "[alert-box]"}
-     {:name :heading      :level 1 :class "rc-alert-heading"      :impl "[h-box]"}
-     {:name :h4           :level 2 :class "rc-alert-h4"           :impl "[:h4]"}
-     {:name :close-button :level 2 :class "rc-alert-close-button" :impl "[close-button]"}
-     {:name :body         :level 1 :class "rc-alert-body"         :impl "[h-box]"}]))
+    (part/describe part-structure)))
 
 (def alert-box-parts
   (when include-args-desc?
@@ -46,59 +51,64 @@
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
-  [& {:keys [id alert-type heading body padding closeable? on-close class style attr parts]
+  [& {:keys [id alert-type heading body padding closeable? on-close class style attr parts src]
       :or   {alert-type :info}
-      :as   args}]
+      :as   props}]
   (or
-   (validate-args-macro alert-box-args-desc args)
-   (let [close-alert  [close-button
-                       :src       (at)
-                       :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
-                       :style     (get-in parts [:close-button :style])
-                       :attr      (get-in parts [:close-button :attr])
-                       :on-click  #(on-close id)
-                       :div-size  20
-                       :font-size 20]
-         alert-class  (alert-type {:none           ""
-                                   :info           "alert-success"
-                                   :warning        "alert-warning"
-                                   :danger         "alert-danger"})]
-     [:div
-      (merge {:class (theme/merge-class "rc-alert" "alert" "fade in" alert-class class)
-              :style (merge (flex-child-style "none")
-                            {:padding padding}
-                            style)}
-             (->attr args)
-             attr)
-      (when heading
-        [h-box
-         :src      (at)
-         :justify  :between
-         :align    :center
-         :class    (str "rc-alert-heading " (get-in parts [:heading :class]))
-         :style    (merge {:margin-bottom (if body "10px" "0px")}
-                          (get-in parts [:heading :style]))
-         :attr     (get-in parts [:heading :attr] {})
-         :children [[:h4
-                     (merge
-                      {:class (theme/merge-class "rc-alert-h4" (get-in parts [:h4 :class]))
-                       :style (merge {:margin-bottom "0px"}
-                                     (get-in parts [:h4 :style]))}
-                      (get-in parts [:h4 :attr])) ;; Override h4
-                     heading]
-                    (when (and closeable? on-close)
-                      close-alert)]])
-      (when body
-        [h-box
-         :src      (at)
-         :justify  :between
-         :align    :center
-         :class    (str "rc-alert-body " (get-in parts [:body :class]))
-         :style    (get-in parts [:body :style] {})
-         :attr     (get-in parts [:body :attr] {})
-         :children [[:div body]
-                    (when (and (not heading) closeable? on-close)
-                      close-alert)]])])))
+   (validate-args-macro alert-box-args-desc props)
+   (let [close-alert [close-button
+                      :src       (at)
+                      :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
+                      :style     (get-in parts [:close-button :style])
+                      :attr      (get-in parts [:close-button :attr])
+                      :on-click  #(on-close id)
+                      :div-size  20
+                      :font-size 20]
+         alert-class (alert-type {:none    ""
+                                  :info    "alert-success"
+                                  :warning "alert-warning"
+                                  :danger  "alert-danger"})
+         part        (partial part/part part-structure props)]
+     (part ::wrapper
+           {:post-props (-> (select-keys props [:class :style :attr])
+                            (update :class theme/merge-class alert-class)
+                            (debug/instrument props))
+            :props      {:class (theme/merge-class "rc-alert" "alert" "fade in")
+                         :style (merge (flex-child-style "none")
+                                       {:padding padding}
+                                       style)
+                         :children
+                         [(when heading
+                            (part ::heading
+                                  {:post-props {:src (at)}
+                                   :props
+                                   {:justify :between
+                                    :align   :center
+                                    :class   "rc-alert-heading"
+                                    :style   (merge {:margin-bottom (if body "10px" "0px")}
+                                                    (get-in parts [:heading :style]))
+                                    :attr    (get-in parts [:heading :attr] {})
+                                    :children
+                                    [[:h4
+                                      (merge
+                                       {:class (theme/merge-class "rc-alert-h4" (get-in parts [:h4 :class]))
+                                        :style (merge {:margin-bottom "0px"}
+                                                      (get-in parts [:h4 :style]))}
+                                       (get-in parts [:h4 :attr])) ;; Override h4
+                                      heading]
+                                     (when (and closeable? on-close)
+                                       close-alert)]}}))
+                          (when body
+                            [h-box
+                             :src      (at)
+                             :justify  :between
+                             :align    :center
+                             :class    (str "rc-alert-body " (get-in parts [:body :class]))
+                             :style    (get-in parts [:body :style] {})
+                             :attr     (get-in parts [:body :attr] {})
+                             :children [[:div body]
+                                        (when (and (not heading) closeable? on-close)
+                                          close-alert)]])]}}))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list
