@@ -4,6 +4,10 @@
    [re-com.theme.util :as tu]
    [re-com.theme.default :refer [bootstrap base]]))
 
+(defmethod base ::al/wrapper
+  [props]
+  (merge props {:size "auto"}))
+
 (defmethod bootstrap ::al/wrapper
   [props]
   (tu/class props "rc-alert-list"))
@@ -14,4 +18,4 @@
 
 (defmethod base ::al/v-box
   [props]
-  (merge props {:size :auto}))
+  (merge props {:gap "4px"}))

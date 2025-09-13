@@ -3,6 +3,7 @@
    [re-com.core         :refer [at reflect-current-component]])
   (:require
    re-com.alert-box.theme
+   re-com.alert-list.theme
    [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
    [re-com.close-button :refer [close-button]]
    [re-com.config       :refer [include-args-desc?]]
@@ -79,7 +80,8 @@
                                            :div-size  20
                                            :font-size 20}})]
      (part ::ab/wrapper
-       {:post-props (-> props
+       {:impl       v-box
+        :post-props (-> props
                         (cond-> padding (tu/style {:padding padding}))
                         (select-keys [:class :style :attr])
                         (update :class theme/merge-class alert-class)

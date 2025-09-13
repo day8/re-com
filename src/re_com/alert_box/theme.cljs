@@ -7,11 +7,13 @@
 
 (defmethod base ::ab/wrapper
   [props]
-  (tu/style props  (flex-child-style "none")))
+  (-> props
+      (tu/style (flex-child-style "none"))
+      (merge {:gap "10px"})))
 
 (defmethod bootstrap ::ab/wrapper
   [props]
-  (tu/class props  "rc-alert" "alert" "fade" "in"))
+  (tu/class props "rc-alert" "alert" "fade" "in"))
 
 (defmethod base ::ab/top-section
   [props]
@@ -21,10 +23,6 @@
 (defmethod bootstrap ::ab/top-section
   [props]
   (tu/class props "rc-alert-heading"))
-
-(defmethod base ::ab/heading-wrapper
-  [props]
-  (tu/style props {:margin-bottom 0}))
 
 (defmethod bootstrap ::ab/heading-wrapper
   [props]
