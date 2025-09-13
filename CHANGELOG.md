@@ -2,7 +2,7 @@
 
 #### Added
 
-- `alert-box`, `alert-list`: full support for `:parts` & `:theme`
+- `alert-box`, `alert-list`, `checkbox`: full support for `:parts` & `:theme`
 
 ## 2.28.3 (2025-09-06)
 
