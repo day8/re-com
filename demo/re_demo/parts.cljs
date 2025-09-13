@@ -22,8 +22,9 @@
           "Passing a " [:code ":parts"] " map to a re-com component gives you control over the details "
           "of each hiccup in the tree: its component function, its props and its children. "
           "The keys are " [:i "part"] "-ids. The vals are " [:i "part"] "-specs. "
-          "They specify how to customize each part."
-          "This customization works differently, depending on the type of val you declare."]
+          "They specify how to customize each part. "
+          "This customization works differently, depending on what type of data structure "
+          "you declare for each " [:i "part"] "-spec."]
          [rc/p {:style {:background-color "#eee" :padding 7}}
           [:strong "Note"] ": Some re-com components only support the " [:i "map"] " type. "
           "Our effort to bring full support to all components is "

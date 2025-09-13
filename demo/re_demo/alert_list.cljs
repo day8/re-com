@@ -17,7 +17,7 @@
   []
   (let [alerts       (reagent/atom [])]
     (add-alert alerts 0 :danger  {:heading "Woa! something bad happened" :body "Next time you should take more care pressing that button! Did you read the fine print?  No, I didn't think so."})
-    (add-alert alerts 1 :info    {:heading "No Wait!" :body "The rain in Spain often falls on the mountatins too."})
+    (add-alert alerts 1 :info    {:heading "No Wait!" :body "The rain in Spain often falls on the mountains too."})
     (add-alert alerts 2 :info    {:heading "Here's some info" :body "The rain in Spain falls mainly on the plain."})
     (add-alert alerts 3 :warning {:heading "\"Oh bother\", said Pooh. And then ..." :body "\"Some people care too much. I think it's called love.\""})
 

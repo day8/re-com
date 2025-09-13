@@ -49,7 +49,7 @@
           [:ul
            [:li [:i "flexibility"] ": such as, applying design conditionally, based on some dynamic state."]
            [:li [:i "specificity"] ": such as, building custom view logic into one instance of a component. "]
-           [:li [:i "parsimony"] ": such as, applying a design system over an entire app, "]]]
+           [:li [:i "parsimony"] ": such as, applying a design system over an entire app."]]]
          [rc/p
           "Given a re-com component function, which returns a tree of hiccups, "
           "we need deeper mechanics we can use, both individually and in combination. "
