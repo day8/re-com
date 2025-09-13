@@ -63,18 +63,127 @@ You can register a theme globally with `reg-theme`:
 
 By default, this replaces the function at the `:user` layer. You can pass two arguments—a layer-id and a theme-function—to replace a different layer.
 
-## Theme Layers
+## Theme Layers (Detailed Composition)
 
-To fully determine the props for a part, re-com composes multiple theme functions in order:
+To fully determine the props for a part, re-com composes multiple theme functions **in order**. Each layer can modify the props map before passing it to the next layer:
 
-1. **`:variables`** - Adds static data under `[:re-com :variables]`. Includes color palettes, spacing units, and other standard values.
-2. **`:pre-user`** - Empty by default. For implementing spacing or color schemes by changing values within `[:re-com :variables]`.
-3. **`:pre-theme`** - Cannot be registered. Contains any function you pass as the `:pre-theme` argument to a component.
-4. **`:base`** - Contains re-com's essential functionality (box-model positioning, event handling). Replace at your own risk.
-5. **`:main`** - Contains re-com's default visual styling for all components.
-6. **`:user`** - Empty by default. Calling `reg-theme` replaces this layer unless you specify a different layer.
-7. **`:re-com-meta`** - Cannot be registered. Adds `rc-component-name` class and `data-rc` HTML attribute.
-8. **`:theme`** - Cannot be registered. Contains any function you pass as the `:theme` argument to a component.
+### Layer Order & Purpose
+
+1. **`:variables`** 
+   - **Purpose**: Adds static design tokens
+   - **Location**: `[:re-com :variables]` path in props
+   - **Content**: Color palettes, spacing units, breakpoints, etc.
+   - **Registrable**: Yes, via `(reg-theme :variables theme-fn)`
+   - **Example**:
+   ```clojure
+   (defmethod variables ::my-component/wrapper [props]
+     (assoc-in props [:re-com :variables] 
+               {:primary-color "#007bff"
+                :spacing-unit  "8px"
+                :border-radius "4px"}))
+   ```
+
+2. **`:pre-user`**
+   - **Purpose**: Global theme modifications that should apply before user customizations
+   - **Registrable**: Yes, via `(reg-theme :pre-user theme-fn)`
+   - **Use case**: Implementing design systems, dark mode, or accessibility themes
+   - **Example**:
+   ```clojure
+   (defmethod pre-user ::my-component/wrapper [props]
+     (let [vars (get-in props [:re-com :variables])]
+       (tu/style props {:background (if dark-mode? (:dark-bg vars) (:light-bg vars))})))
+   ```
+
+3. **`:pre-theme`**
+   - **Purpose**: Component-specific theme that applies before other themes
+   - **Registrable**: No - only via `:pre-theme` argument to components
+   - **Use case**: Conditional theming, A/B testing, contextual styling
+   - **Example**:
+   ```clojure
+   [my-component :pre-theme (fn [props]
+                              (if urgent?
+                                (tu/class props "urgent-styling")
+                                props))]
+   ```
+
+4. **`:base`**
+   - **Purpose**: Essential functionality and behavior
+   - **Content**: Box model, event handling, core positioning
+   - **Registrable**: Yes, but **dangerous** - can break components
+   - **Warning**: Only modify if you know what you're doing
+   - **Example**:
+   ```clojure
+   (defmethod base ::my-component/wrapper [props]
+     (merge props {:size "auto"            ; Flexbox sizing
+                   :justify :start         ; Layout behavior
+                   :on-click-capture ...})) ; Event handling
+   ```
+
+5. **`:main`** 
+   - **Purpose**: Default visual styling for components
+   - **Content**: Colors, fonts, spacing, borders - the "look" of re-com
+   - **Registrable**: Yes, to override re-com's default appearance
+   - **Example**:
+   ```clojure
+   (defmethod main ::my-component/wrapper [props]
+     (tu/style props {:padding "12px"
+                      :border "1px solid #ddd"
+                      :background-color "#f8f9fa"}))
+   ```
+
+6. **`:user`**
+   - **Purpose**: Global user customizations
+   - **Default**: Empty by default
+   - **Registrable**: Yes, this is the **primary layer** for `reg-theme`
+   - **Use case**: App-wide theming, brand customization
+   - **Example**:
+   ```clojure
+   ;; This goes to :user layer by default:
+   (reg-theme (fn [props]
+                (case (:part props)
+                  :re-com.button/wrapper (tu/class props "my-brand-button")
+                  props)))
+   ```
+
+7. **`:re-com-meta`**
+   - **Purpose**: Debug and development metadata
+   - **Content**: `rc-component-name` class, `data-rc` attributes
+   - **Registrable**: No - managed internally by re-com
+   - **Automatic**: Applied to all components for debugging
+
+8. **`:theme`**
+   - **Purpose**: Component-instance specific theming
+   - **Registrable**: No - only via `:theme` argument to components  
+   - **Use case**: One-off styling, component-specific overrides
+   - **Example**:
+   ```clojure
+   [my-component :theme (fn [props]
+                          (tu/style props {:border "2px solid red"}))]
+   ```
+
+### Theme Composition Process
+
+```clojure
+;; Conceptual flow - actual implementation is more complex
+(defn compose-theme [layers]
+  (reduce (fn [props layer-fn]
+            (layer-fn props))          ; Each layer transforms props
+          initial-props
+          [variables-fn pre-user-fn pre-theme-fn base-fn 
+           main-fn user-fn re-com-meta-fn theme-fn]))
+```
+
+### Advanced: Layer Registration
+
+```clojure
+;; Register to specific layer
+(reg-theme :main my-main-theme)      ; Override default styling
+(reg-theme :pre-user my-global-theme) ; Global app theme
+(reg-theme :variables my-tokens)     ; Design system tokens
+
+;; Default registration goes to :user
+(reg-theme my-user-theme)            ; Same as (reg-theme :user my-user-theme)
+```
 
 ### Using Variables Layer
 

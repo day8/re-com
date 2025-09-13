@@ -21,13 +21,14 @@ bb clean         # Clean compiled artifacts
 
 ## Detailed Guides
 
-- [Development Workflow](./ai/development-workflow.md) - Commands, testing, and development loop
-- [Component Creation](./ai/component-creation-modern.md) - Modern component creation patterns and templates
-- [Parts System](./ai/parts-system.md) - Granular styling and customization system  
-- [Theme System](./ai/theme-system.md) - Theming integration and CSS handling
-- [Architecture](./ai/architecture.md) - Dependencies, file structure, and technical foundations
-- [Troubleshooting](./ai/troubleshooting.md) - Common issues and Reagent gotchas
-- [Migration Guide](./ai/migration-parts-theme.md) - Migrating to modern parts & theme system
+@ai/development-workflow.md - Commands, testing, and development loop
+@ai/component-creation-modern.md - Modern component creation patterns and templates  
+@ai/parts-system.md - Granular styling and customization system
+@ai/theme-system.md - Theming integration and CSS handling
+@ai/performance-best-practices.md - Optimization techniques for parts & theme system
+@ai/architecture.md - Dependencies, file structure, and technical foundations
+@ai/troubleshooting.md - Common issues and Reagent gotchas
+@ai/migration-parts-theme.md - Migrating to modern parts & theme system
 
 ## Important Notes
 
