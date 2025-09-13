@@ -179,7 +179,21 @@ This is crucial for performance since theme composition is expensive and should 
 2. Call `theme/comp` at mount time in outer function
 3. Replace manual hiccup with `part/part` calls in render function
 4. Use `part/get-part` to check for provided parts
-5. Apply composed theme to each part via `:theme` parameter
+5. **CRITICAL**: Apply composed theme to **every** part via `:theme` parameter
+
+**Common mistake**: Forgetting to pass `:theme` to parts:
+```clojure
+;; ❌ WRONG: Theme not passed to parts
+(part ::my-component/wrapper
+  {:impl h-box
+   :props {...}})
+
+;; ✅ CORRECT: Theme passed to all parts
+(part ::my-component/wrapper
+  {:impl  h-box
+   :theme composed-theme  ; <- Essential!
+   :props {...}})
+```
 
 ### Step 4: Handle Legacy Support
 1. Mark legacy parts with `:type :legacy` 
@@ -206,6 +220,48 @@ This is crucial for performance since theme composition is expensive and should 
 4. **Component form** - Must be form-2 for proper theme composition timing
 5. **Import requirements** - Need `re-com.part` and theme namespaces
 
+## Wrapper-Centric Styling Approach
+
+**Recommended Pattern**: Consolidate styling to the wrapper component for simpler, more maintainable themes:
+
+### Before: Individual Part Styling
+```clojure
+;; Each part needs individual styling
+(defmethod base ::my-component/input [props]
+  (tu/style props {:flex "0 0 auto" :cursor "default"}))
+
+(defmethod base ::my-component/label [props]
+  (tu/style props {:flex "0 0 auto" :padding-left "8px" :cursor "default"}))
+```
+
+### After: Wrapper-Centric Styling
+```clojure
+;; Wrapper handles layout and shared properties
+(defmethod base ::my-component/wrapper [props]
+  (-> props
+      (merge {:align :start :gap "8px"})        ; Layout via h-box
+      (tu/style {:cursor "default"})))          ; Shared properties
+
+;; Individual parts only need their specific classes
+(defmethod bootstrap ::my-component/input [props]
+  (tu/class props "rc-my-component-input"))
+
+(defmethod bootstrap ::my-component/label [props]
+  (tu/class props "rc-my-component-label"))
+```
+
+### Benefits
+- **Fewer theme methods** - Most styling centralized on wrapper
+- **Natural layout** - Use h-box `:gap` instead of manual padding
+- **Shared properties** - Cursor, colors, etc. inherited from wrapper
+- **User-friendly** - Label parts can accept strings and still get themed
+- **Maintainable** - Layout changes in one place
+
+### When to Use Individual Part Styling
+- **Visual distinctions** - Different colors, fonts, borders per part
+- **Specific behaviors** - Individual hover states, animations
+- **Override scenarios** - When wrapper styling isn't sufficient
+
 ## Benefits of Migration
 
 - **Better theme support** - Consistent theming across all parts with multiple layers
@@ -213,6 +269,7 @@ This is crucial for performance since theme composition is expensive and should 
 - **Improved performance** - Memoized theme composition and part lookups
 - **Enhanced user customization** - Top-level part args and theme layers
 - **Maintainable code** - Structured approach vs manual property handling
+- **Simplified styling** - Wrapper-centric approach reduces theme complexity
 - **Future-proof** - Aligned with re-com's architectural direction
 
 ## Migration Checklist

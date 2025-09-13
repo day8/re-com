@@ -93,8 +93,7 @@ Use this template for all new re-com components using the modern parts & theme s
                   {:impl       h-box
                    :theme      composed-theme
                    :props      {:children [(part ::my-component/label
-                                             {:theme composed-theme
-                                              :impl  (constantly nil)})]}}))
+                   {:theme composed-theme})]}}))
               
               (part ::my-component/input-section
                 {:theme      composed-theme
@@ -106,7 +105,7 @@ Use this template for all new re-com components using the modern parts & theme s
                                                  :disabled    disabled?
                                                  :value       (deref-or-value model)
                                                  :on-change   (handler-fn (on-change (-> % .-target .-value)))}
-                                    :impl       (constantly nil)}))]}})]}}))))))
+	}))]}})]}}))))))
 ```
 
 ### Theme File (Required)
@@ -240,3 +239,137 @@ When making changes to files, first understand the file's code conventions. Mimi
 
 - **IMPORTANT: DO NOT ADD ANY COMMENTS** unless asked
 - Only use emojis if the user explicitly requests it
+
+### Threading Macro Conventions
+
+For cleaner, more readable code, consider putting the larger form first in threading macros:
+
+```clojure
+;; PREFERRED: More compact, easier to read
+(-> (select-keys props [:class :style :attr])
+    (debug/instrument props))
+
+;; AVOID: Unnecessary line break for simple first argument
+(-> props
+    (select-keys [:class :style :attr])
+    (debug/instrument props))
+```
+
+This pattern saves lines and improves readability when the first argument is simple, as long as it doesn't make the line too long.
+
+### HTML Attribute Values
+
+Prefer keywords over strings for fixed HTML attribute values, as they better represent enumerated constants:
+
+```clojure
+;; PREFERRED: Keywords for fixed values
+{:type      :checkbox
+ :role      :button
+ :disabled  true}
+
+;; AVOID: Strings suggest the value might be manipulated
+{:type      "checkbox"
+ :role      "button"
+ :disabled  true}
+```
+
+Reagent converts keywords to strings during rendering, so there's no performance difference. Keywords better communicate that these are fixed enumerated values, not strings meant for manipulation.
+
+### HTML Attributes in Parts System
+
+**Critical:** When using `post-props` in the modern parts system, HTML attributes must be properly structured. Many re-com components accept "shortcut" top-level parameters that internally merge into `:attr`, but the parts system requires explicit structure.
+
+```clojure
+;; ✅ CORRECT: HTML attributes in :attr map
+(part ::my-component/input
+  {:post-props {:attr {:type      :text
+                       :disabled  disabled?
+                       :checked   (boolean model)
+                       :on-change (handler-fn (callback-fn))}}})
+
+;; ❌ INCORRECT: Top-level HTML attributes won't be recognized
+(part ::my-component/input
+  {:post-props {:type      :text        ; Won't work!
+                :disabled  disabled?    ; Won't work!
+                :checked   (boolean model)
+                :on-change (handler-fn (callback-fn))}})
+```
+
+**Why this matters:** The parts system's `default` component function expects HTML attributes in the `:attr` key. Top-level shortcuts that work in legacy components don't automatically translate to the parts system.
+
+**Components particularly affected:** `input`, `textarea`, `button`, and other HTML form elements where many attributes have shortcut parameters.
+
+### The `:tag` Prop in Parts System
+
+The `:tag` prop is specifically needed by the `re-com.part/default` component to determine what HTML element to render:
+
+```clojure
+;; ✅ CORRECT: :tag tells part/default what element to create
+(part ::my-component/input
+  {:props      {:tag :input}           ; part/default creates <input>
+   :post-props {:attr {:type :checkbox}}})
+
+(part ::my-component/label
+  {:props      {:tag :span}            ; part/default creates <span>
+   :post-props {:on-click handler}})
+
+;; ❌ WITHOUT :tag, part/default creates generic <div>
+(part ::my-component/input
+  {:post-props {:attr {:type :checkbox}}}) ; Creates <div>, not <input>!
+```
+
+**Important**: The `:tag` prop is **only** used by `re-com.part/default`. If your part uses a different `:impl` (like `'re-com.core/h-box` or `'re-com.core/input-text`), the `:tag` prop is ignored because those components create their own specific elements.
+
+**When you need `:tag`:**
+- Parts that don't specify `:impl` in part-structure (defaults to `re-com.part/default`)
+- Parts with `:impl "empty"` in part-structure
+- When you want `part/default` to create a specific HTML element like `:input`, `:span`, `:button`, etc.
+
+### Critical: Part Structure vs Part Call Implementation
+
+**IMPORTANT**: The `:impl` in `part-structure` is for documentation only - you must specify `:impl` in the actual `part` call:
+
+```clojure
+;; Part structure (documentation)
+(def part-structure
+  [::my-component/wrapper {:impl 're-com.core/h-box}])  ; <- Documentation only!
+
+;; ❌ WRONG: Missing :impl in part call
+(part ::my-component/wrapper
+  {:theme theme :props {...}})  ; Uses part/default, not h-box!
+
+;; ✅ CORRECT: Specify :impl in part call
+(part ::my-component/wrapper
+  {:impl h-box                   ; <- Actually uses h-box!
+   :theme theme :props {...}})
+```
+
+**Why this matters**: Without `:impl` in the part call, you get `part/default` (a generic div) instead of the intended component (like h-box with proper flexbox styling). This causes missing CSS classes, wrong styling, and incorrect component behavior.
+
+**Common symptoms of missing `:impl`:**
+- Missing `rc-h-box display-flex` classes on containers
+- No flexbox styling (flex-flow, justify-content, etc.)
+- Generic `<div>` instead of intended HTML element
+- Layout/alignment issues
+
+### Theme Method Conventions
+
+Only define theme methods that actually modify props. Avoid empty pass-through methods:
+
+```clojure
+;; ✅ GOOD: Method adds value
+(defmethod bootstrap ::my-component/label
+  [props]
+  (tu/class props "rc-my-component-label"))
+
+;; ❌ AVOID: Empty method that does nothing
+(defmethod base ::my-component/label
+  [props]
+  props)
+```
+
+The theme system will automatically pass props through when no matching method exists, so empty methods are unnecessary clutter.
+
+### File Formatting
+
+Always end code files with a newline character for better git diffs and POSIX compliance.
