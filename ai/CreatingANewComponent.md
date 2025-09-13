@@ -1,6 +1,10 @@
-# Creating a re-com Component
+# Creating a re-com Component (Legacy - See component-creation-modern.md)
 
-This guide describes how to create your own re-com component. 
+**Note: This file is kept for reference but is outdated. Please refer to [component-creation-modern.md](./component-creation-modern.md) for the current approach using the modern parts and theme system.**
+
+## Legacy Approach (Pre-2025)
+
+This guide describes the older approach to creating re-com components. 
 
 ## 1. Namespace setup
 
