@@ -1,6 +1,6 @@
 (ns re-com.part-test
   (:require
-   [cljs.test :refer-macros [is are deftest]]
+   [cljs.test :refer-macros [is are deftest testing]]
    [re-com.part :as part]))
 
 (def structure
@@ -66,3 +66,42 @@
                                :arg-name :cell}
                               {:problem  :part-top-level-unsupported
                                :arg-name :wrapper}]))
+
+;;--------------------------------------------------------------------------------------------------
+;; Part-Value Rendering Tests
+;;--------------------------------------------------------------------------------------------------
+
+(defn component
+  "Minimal component to test part-value rendering"
+  [& {:as props}]
+  (let [part (partial part/part structure props)]
+    (part ::wrapper
+          {:props {:props    {:style {:color :blue}}
+                   :children [(part ::cell {})]}})))
+
+(deftest as-string
+  (let [part-val "A"
+        result (component :cell part-val)]
+    (is (= part-val (get-in result [1 :children 0])))))
+
+(deftest as-hiccup
+  (let [part-val [:a]
+        result   (component :cell part-val)]
+    (is (= part-val (get-in result [1 :children 0])))))
+
+(deftest as-fn
+  (let [part-val      (fn [_])
+        result        (component :cell part-val)
+        rendered-part (get-in result [1 :children 0])]
+    (is (= part-val (first rendered-part)))
+    (is (= ::cell (:part (second rendered-part))))))
+
+(deftest as-map
+  (let [part-val   {:class "A"
+                    :style {:color :red}
+                    :attr  {:title "B"}}
+        result     (component :parts {:cell part-val})
+        part-props (get-in result [1 :children 0 1])]
+    (is (sequential? (:class part-props)))
+    (is (= {:color :red} (:style part-props)))
+    (is (= {:title "B"} (:attr part-props)))))
