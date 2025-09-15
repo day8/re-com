@@ -1,27 +1,35 @@
 (ns re-com.buttons
   (:require-macros
-   [re-com.core     :refer [handler-fn at reflect-current-component]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-   [re-com.theme    :as    theme]
-   [re-com.util     :refer [deref-or-value px]]
+   re-com.button.theme
    [re-com.config   :refer [include-args-desc?]]
-   [re-com.debug    :refer [->attr]]
+   [re-com.debug    :as debug]
+   [re-com.part     :as part]
+   [re-com.theme    :as theme]
+   [re-com.button :as-alias btn]
+   [re-com.util     :refer [deref-or-value px]]
    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
-                            string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]
-    :refer-macros [validate-args-macro]]
+                            string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]]
    [re-com.popover  :refer [popover-tooltip]]
-   [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
-   [reagent.core    :as    reagent]))
+   [re-com.box      :refer [box flex-child-style]]
+   [reagent.core    :as reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: button
 ;; ------------------------------------------------------------------------------------
 
+(def part-structure
+  [::btn/wrapper {:impl 're-com.box/box}
+   [::btn/tooltip-wrapper {:impl 're-com.popover/popover-tooltip}
+    [::btn/tooltip {:top-level-arg? true}]]
+   [::btn/button {:tag :button}
+    [::btn/label {:top-level-arg? true}]]])
+
 (def button-parts-desc
   (when include-args-desc?
-    [{:name :wrapper :level 0 :class "rc-button-wrapper" :impl "[box]"              :notes "Outer wrapper of the button, tooltip (if any), everything."}
-     {:name :tooltip :level 1 :class "rc-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-     {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}]))
+    (part/describe part-structure)))
 
 (def button-parts
   (when include-args-desc?
@@ -29,66 +37,64 @@
 
 (def button-args-desc
   (when include-args-desc?
-    [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup?     :description "label for the button"}
-     {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?                   :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-     {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?     :description "what to show in the tooltip"}
-     {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?             :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :disabled?        :required false :default false         :type "boolean | atom"                                     :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn css-class?               :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-     {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to the button, not the wrapping div)"}
-     {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-     {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as         :required false                        :type "map"             :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (concat
+     [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup?     :description "label for the button"}
+      {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?                   :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+      {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?     :description "what to show in the tooltip"}
+      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?             :description [:span "relative to this anchor. One of " position-options-list]}
+      {:name :disabled?        :required false :default false         :type "boolean | atom"                                     :description "if true, the user can't click the button"}
+      {:name :pre-theme        :required false                        :type "map -> map"      :validate-fn fn?                   :description "Pre-theme function"}
+      {:name :theme            :required false                        :type "map -> map"      :validate-fn fn?                   :description "Theme function"}
+      {:name :class            :required false                        :type "string"          :validate-fn css-class?            :description "CSS class names, space separated (applies to wrapper)"}
+      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to wrapper)"}
+      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description "HTML attributes (applies to wrapper)"}
+      {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "Map of part names to styling"}
+      {:name :src              :required false                        :type "map"             :validate-fn map?                  :description "Source code coordinates for debugging"}
+      {:name :debug-as         :required false                        :type "map"             :validate-fn map?                  :description "Debug output masquerading"}]
+     (part/describe-args part-structure))))
 
 (defn button
   "Returns the markup for a basic button"
-  []
-  (let [showing? (reagent/atom false)]
-    (fn
-      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as]
-          :or   {class "btn-default"}
-          :as   args}]
+  [& {:keys [pre-theme theme]}]
+  (let [showing? (reagent/atom false)
+        theme    (theme/comp pre-theme theme)]
+    (fn [& {:keys [on-click tooltip-position disabled? class style attr]
+            :or   {class "btn-default"} :as props}]
       (or
-       (validate-args-macro button-args-desc args)
-       (do
-         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-         (let [disabled? (deref-or-value disabled?)
-               the-button [:button
-                           (merge
-                            {:class    (str "rc-button btn " class)
-                             :style    (merge
-                                        (flex-child-style "none")
-                                        style)
-                             :disabled disabled?
-                             :on-click (handler-fn
-                                        (when (and on-click (not disabled?))
-                                          (on-click event)))}
-                            (when tooltip
-                              {:on-mouse-over (handler-fn (reset! showing? true))
-                               :on-mouse-out  (handler-fn (reset! showing? false))})
-                            attr)
-                           label]]
-           (when disabled?
-             (reset! showing? false))
-           [box
-            :src      src
-            :debug-as (or debug-as (reflect-current-component))
-            :class    (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-            :style    (get-in parts [:wrapper :style])
-            :attr     (get-in parts [:wrapper :attr])
-            :align    :start
-            :child    (if tooltip
-                        [popover-tooltip
-                         :src      (at)
-                         :label    tooltip
-                         :position (or tooltip-position :below-center)
-                         :showing? showing?
-                         :anchor   the-button
-                         :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
-                         :style    (get-in parts [:tooltip :style])
-                         :attr     (get-in parts [:tooltip :attr])]
-                        the-button)]))))))
+       (validate-args-macro button-args-desc props)
+       (let [disabled?   (deref-or-value disabled?)
+             part        (partial part/part part-structure props)
+             tooltip?    (part/get-part part-structure props ::tooltip)
+             button-part (part ::btn/button
+                           {:theme      theme
+                            :post-props {:class class
+                                         :style style
+                                         :attr  (merge {:disabled disabled?
+                                                        :on-click (handler-fn
+                                                                   (when (and on-click (not disabled?))
+                                                                     (on-click event)))}
+                                                       (when tooltip?
+                                                         {:on-mouse-over (handler-fn (reset! showing? true))
+                                                          :on-mouse-out  (handler-fn (reset! showing? false))})
+                                                       attr)}
+                            :props      {:tag      :button
+                                         :children [(part ::btn/label {:theme theme})]}})]
+         (when (or disabled? (not tooltip?))
+           (reset! showing? false))
+         (part ::btn/wrapper
+           {:impl       box
+            :theme      theme
+            :post-props {:attr (debug/->attr props)}
+            :props      {:child (if tooltip?
+                                  (part ::btn/tooltip-wrapper
+                                    {:impl  popover-tooltip
+                                     :theme theme
+                                     :props {:src      (at)
+                                             :label    (part ::btn/tooltip {:theme theme})
+                                             :position (or tooltip-position :below-center)
+                                             :showing? showing?
+                                             :anchor   button-part}})
+                                  button-part)}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-circle-icon-button

@@ -264,6 +264,37 @@ For parts with no `:name` in old `parts-desc`, choose names using this priority:
 
 Always check: **auto-generated class** (`"rc-{namespace-suffix}-{part-name}"`) vs **legacy class** - if they differ, add the legacy class in the `bootstrap` theme layer.
 
+**⚠️ Important**: User styling target must match old implementation:
+
+The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes other arguments) selectively to specific inner hiccup elements, not always to the outermost wrapper. The modern migration must preserve this exact behavior for backward compatibility.
+
+```clojure
+;; Example: Button component
+;; OLD: Applied user styling to the <button> element, not wrapper
+[:div {:class "rc-button-wrapper"}
+ [:button {:class class :style style :attr attr}]]
+
+;; NEW: Must match - apply to ::button part, not ::wrapper
+(part ::wrapper {...})
+(part ::button
+  {:post-props (select-keys props [:class :style :attr])})
+
+;; Example: Input-text component
+;; OLD: Applied user styling to the <input>, other props to wrapper
+[h-box {:width width :class "rc-input-text"}
+ [:div
+  [:input {:class class :style style :attr attr :placeholder placeholder}]]]
+
+;; NEW: Must match - styling to ::input, other props to ::wrapper
+(part ::wrapper
+  {:post-props (cond-> {} width (tu/style {:width width}))})
+(part ::input
+  {:post-props {:class class :style style
+                :attr (merge {:placeholder placeholder} attr)}})
+```
+
+**Migration Rule**: Examine the old implementation carefully to see exactly which hiccup element received each user argument, then apply those same arguments to the corresponding part in the modern implementation. This ensures existing user code continues to work identically.
+
 ### Step 2: Add Theme Support
 1. Add `:pre-theme` and `:theme` to component args-desc
 2. Create theme file in component subdirectory
