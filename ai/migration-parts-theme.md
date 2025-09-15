@@ -141,6 +141,33 @@ Components now have dedicated theme files supporting multiple theme layers:
 
 **Available theme methods**: `variables`, `pre-user`, `base`, `main`, `bootstrap`, `user`
 
+### Theme Efficiency Best Practice
+
+**Auto-generated CSS Classes**: The `re-com.theme/re-com-meta` layer automatically adds CSS classes based on part names using the pattern `"rc-{namespace-suffix}-{part-name}"`.
+
+**When to skip `bootstrap` theme methods**:
+- ✅ **Skip** when auto-generated class matches exactly what you want
+- ❌ **Need** when you want Bootstrap built-in classes (`"progress"`, `"progress-bar"`, `"btn"`, etc.)
+- ❌ **Need** when auto-generated class doesn't match desired legacy class name
+
+**Examples**:
+```clojure
+;; ❌ REDUNDANT - re-com-meta auto-generates "rc-progress-bar-wrapper"
+(defmethod bootstrap ::progress-bar/wrapper [props]
+  (tu/class props "rc-progress-bar-wrapper"))
+
+;; ✅ NEEDED - adds Bootstrap classes + legacy class
+(defmethod bootstrap ::progress-bar/container [props]
+  (tu/class props "progress" "rc-progress-bar"))
+
+;; ✅ NEEDED - auto-generated would be "rc-progress-bar-progress-portion"
+;;             but we want legacy "rc-progress-bar-portion"
+(defmethod bootstrap ::progress-bar/portion [props]
+  (tu/class props "progress-bar" "rc-progress-bar-portion"))
+```
+
+This keeps theme files clean and avoids duplicate class application.
+
 ## Critical: Theme Composition Timing
 
 **⚠️ Important**: `theme/comp` should be called at **mount time** (outside render functions), not at **render time**:
