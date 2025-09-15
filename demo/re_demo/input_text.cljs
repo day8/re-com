@@ -25,7 +25,7 @@
        :gap      "10px"
        :children [[panel-title  "Input Text Components"
                    "src/re_com/input_text.cljs"
-                   "src/re_demo/input_text.cljs"]
+                   "demo/re_demo/input_text.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"

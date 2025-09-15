@@ -832,7 +832,7 @@
      :gap      "10px"
      :children [[panel-title "[single-dropdown ... ]"
                  "src/re_com/dropdown.cljs"
-                 "src/re_demo/dropdowns.cljs"]
+                 "demo/re_demo/dropdowns.cljs"]
                 [h-box
                  :src      (at)
                  :gap      "100px"

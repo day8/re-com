@@ -79,7 +79,7 @@
    :gap      "10px"
    :children [[panel-title  "Tour Components"
                "src/re_com/tour.cljs"
-               "src/re_demo/tour.cljs"]
+               "demo/re_demo/tour.cljs"]
               [h-box :src (at)
                :gap      "100px"
                :children [[v-box :src (at)

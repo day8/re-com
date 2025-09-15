@@ -53,7 +53,7 @@
        :gap      "10px"
        :children [[panel-title  "[typeahead ... ]"
                    "src/re_com/typeahead.cljs"
-                   "src/re_demo/typeahead.cljs"]
+                   "demo/re_demo/typeahead.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"

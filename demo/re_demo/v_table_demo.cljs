@@ -614,8 +614,8 @@
   [v-box :src (at)
    :size "1"
    :children [[title2 "Demo"]
-              [p [:b [:i "First,"]] " the " [:i "Notes"] " part of this page contains two diagrams describing " [:code "v-table"] " which are built using the " [:code "v-table"] " component. Start by looking at the " [github-hyperlink "source code" "src/re_demo/v_table_sections.cljs"]
-               " for " [github-hyperlink "both of them" "src/re_demo/v_table_renderers.cljs"]
+              [p [:b [:i "First,"]] " the " [:i "Notes"] " part of this page contains two diagrams describing " [:code "v-table"] " which are built using the " [:code "v-table"] " component. Start by looking at the " [github-hyperlink "source code" "demo/re_demo/v_table_sections.cljs"]
+               " for " [github-hyperlink "both of them" "demo/re_demo/v_table_renderers.cljs"]
                ". They provide a bare bones introduction."]
               [p [:b [:i "Next,"]] " look at " [:code "simple-v-table"] " (see LHS navigation) to understand what is possible if you want rectangular data displays."]
               [p [:b [:i "Finally,"]] " the demo below showing various more advanced capabilities: "]
@@ -634,7 +634,7 @@
                        [:li "To aid debugging, you can Alt+Click on a row to print the data element for that row in DevTools (works best in dev mode with cljs-devtools)"]
                        [:li "row rendering is automatically virtualised - only the ones visible are rendered"]
 
-                       [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]]])
+                       [:li [source-reference "for this v-table" "demo/re_demo/v_table_demo.cljs"]]]]]])
 
 ;; MT Notes
 ;;

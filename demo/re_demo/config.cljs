@@ -53,7 +53,7 @@
    :children [[panel-title
                "Config"
                "project.clj"
-               "src/re_demo/config.cljs"]
+               "demo/re_demo/config.cljs"]
 
               [v-box
                :src      (at)

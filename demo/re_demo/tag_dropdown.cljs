@@ -184,7 +184,7 @@
    :gap      "10px"
    :children [[panel-title "[tag-dropdown ... ]"
                "src/re_com/tag_dropdown.cljs"
-               "src/re_demo/tag_dropdown.cljs"]
+               "demo/re_demo/tag_dropdown.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

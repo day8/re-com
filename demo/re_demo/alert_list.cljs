@@ -28,7 +28,7 @@
        :gap      "10px"
        :children [[panel-title "[alert-list ... ]"
                    "src/re_com/alert.cljs"
-                   "src/re_demo/alert_list.cljs"]
+                   "demo/re_demo/alert_list.cljs"]
                   [h-box
                    :src      (at)
                    :gap      "100px"

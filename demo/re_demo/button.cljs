@@ -30,7 +30,7 @@
        :gap      "10px"
        :children [[panel-title "[button ... ]"
                    "src/re_com/buttons.cljs"
-                   "src/re_demo/button.cljs"]
+                   "demo/re_demo/button.cljs"]
 
                   [h-box
                    :src      (at)

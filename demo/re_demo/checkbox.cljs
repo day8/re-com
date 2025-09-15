@@ -39,7 +39,7 @@
        :gap      "10px"
        :children [[panel-title "[checkbox ... ]"
                    "src/re_com/checkbox.cljs"
-                   "src/re_demo/checkbox.cljs"]
+                   "demo/re_demo/checkbox.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"

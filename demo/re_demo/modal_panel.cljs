@@ -164,7 +164,7 @@
    :gap      "10px"
    :children [[panel-title "[modal-panel ... ]"
                "src/re_com/modal_panel.cljs"
-               "src/re_demo/modal_panel.cljs"]
+               "demo/re_demo/modal_panel.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

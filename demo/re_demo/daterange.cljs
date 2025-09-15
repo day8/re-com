@@ -42,7 +42,7 @@
        :gap "10px"
        :children [[panel-title "[daterange ...] & [daterange-dropdown ...]"
                    "src/re_com/daterange.cljs" ;; TODO [GR-REMOVE] corrected links
-                   "src/re_demo/daterange.cljs"]
+                   "demo/re_demo/daterange.cljs"]
                   [h-box
                    :gap "100px"
                    :children [[v-box

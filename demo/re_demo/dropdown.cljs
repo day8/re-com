@@ -28,7 +28,7 @@
        :children
        [[panel-title "[dropdown ... ]"
          "src/re_com/dropdown.cljs"
-         "src/re_demo/dropdown.cljs"]
+         "demo/re_demo/dropdown.cljs"]
         [h-box :src (at) :gap "100px"
          :children
          [[v-box :src (at) :gap "10px" :width "450px"

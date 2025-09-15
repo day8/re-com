@@ -52,7 +52,7 @@
    :gap      "10px"
    :children [[panel-title "Splitter Components"
                "src/re_com/splits.cljs"
-               "src/re_demo/splits.cljs"]
+               "demo/re_demo/splits.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

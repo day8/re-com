@@ -16,7 +16,7 @@
        :gap      "10px"
        :children [[panel-title "[radio-button ... ]"
                    "src/re_com/radio_button.cljs"
-                   "src/re_demo/radio_button.cljs"]
+                   "demo/re_demo/radio_button.cljs"]
                   [h-box :src (at)
                    :gap      "100px"
                    :children [[v-box :src (at)

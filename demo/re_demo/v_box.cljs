@@ -10,7 +10,7 @@
    :gap      "10px"
    :children [[panel-title "[v-box ... ]"
                "src/re_com/box.cljs"
-               "src/re_demo/v_box.cljs"]
+               "demo/re_demo/v_box.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

@@ -34,7 +34,7 @@
        :gap      "10px"
        :children [[panel-title "[md-circle-icon-button ... ]"
                    "src/re_com/buttons.cljs"
-                   "src/re_demo/md_circle_icon_button.cljs"]
+                   "demo/re_demo/md_circle_icon_button.cljs"]
                   [h-box :src (at)
                    :gap "100px"
                    :children [[v-box :src (at)

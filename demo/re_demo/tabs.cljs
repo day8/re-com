@@ -179,7 +179,7 @@
        :gap      "10px"
        :children [[panel-title "Tab Components"
                    "src/re_com/tabs.cljs"
-                   "src/re_demo/tabs.cljs"]
+                   "demo/re_demo/tabs.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"

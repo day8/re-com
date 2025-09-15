@@ -79,7 +79,7 @@
 (defn panel* []
   [rc/v-box
    {:children
-    [[rdu/panel-title "Customization" nil "src/re_demo/customization.cljs"]
+    [[rdu/panel-title "Customization" nil "demo/re_demo/customization.cljs"]
      [basics]
      [rc/line]
      [composition]]}])

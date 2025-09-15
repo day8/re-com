@@ -586,7 +586,7 @@
                          (operator left right)))}])
     [source-reference
      "for above nested-grid"
-     "src/re_demo/nested_grid.cljs"]
+     "demo/re_demo/nested_grid.cljs"]
     [rc/p "Here, we use " [:i "specs"] " like " [:code "multiply"]
      " and " [:code "lookup"] " to build a multi-modal view of the source data."
      " In other words, a " [:code ":column-spec"] " or " [:code ":row-spec"] " can express not just " [:i "what"] " to show in the cell, but also " [:i "how"] " to show it."]
@@ -630,7 +630,7 @@
                            [{:mode :bar-line :label "Bar Line"} 1 2 3]
                            [{:mode :spark-line :label "Spark Line"}]]
       :cell-label         multimodal-cell}]
-    [source-reference "for above nested-grid" "src/re_demo/nested_grid.cljs"]
+    [source-reference "for above nested-grid" "demo/re_demo/nested_grid.cljs"]
     [rc/p "Unlike many spreadsheet libraries, " [:code "nested-grid"] " has no concept"
      " of a \"heat map\" or \"spark line\". "
      "There's less for you to use, but also less you need to learn."]
@@ -937,7 +937,7 @@
                                                      (get ["apple" "banan" "grapefruit" "coconut" "lemon"] column-index))])}}]
     [source-reference
      "for above nested-grid"
-     "src/re_demo/nested_grid.cljs"]
+     "demo/re_demo/nested_grid.cljs"]
     "Window width"
     [rc/slider {:model ww :on-change (partial reset! ww) :min 200 :max 800}]
     "Window height"
@@ -1020,7 +1020,7 @@
        :children
        [[panel-title "[nested-grid ... ]"
          "src/re_com/nested_v_grid.cljs"
-         "src/re_demo/nested_v_grid.cljs"
+         "demo/re_demo/nested_v_grid.cljs"
          :status "alpha"
          :new-in-version "v2.20.0"]
         [rc/h-box

@@ -147,7 +147,7 @@
    :children [[panel-title
                "Debugging"
                nil
-               "src/re_demo/debug.cljs"]
+               "demo/re_demo/debug.cljs"]
 
               [h-box
                :src      (at)
