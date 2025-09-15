@@ -196,6 +196,49 @@ This is crucial for performance since theme composition is expensive and should 
 2. Mark top-level args with `:top-level-arg? true`
 3. Replace manual `parts-desc` with `(part/describe part-structure)`
 
+**Part Renaming Best Practices:**
+
+When migrating, clean up part names by removing redundant/obsolete semantics:
+- ✅ `::progress-container` → `::container` (remove redundant namespace prefix)
+- ✅ `::alert-heading` → `::heading` (namespace already indicates it's alert-related)
+
+For parts with no `:name` in old `parts-desc`, choose names using this priority:
+1. **`wrapper`** - if it's the outermost part and wrapper is appropriate
+2. **Re-com component name** - use the name portion (not namespace) when `:impl` uses another re-com component
+   - `{:impl 're-com.core/h-box}` → `::h-box` or contextual name like `::header`
+3. **Semantic name** - make up the best descriptive name when other strategies don't work
+
+**Examples:**
+```clojure
+;; Old redundant names
+[::progress-bar/progress-container  ; redundant "progress-"
+ [::progress-bar/progress-portion]] ; redundant "progress-"
+
+;; New clean names
+[::container  ; clean, semantic
+ [::portion]] ; clean, semantic
+
+;; Component-based naming
+[::wrapper {:impl 're-com.core/v-box}     ; outer container
+ [::header {:impl 're-com.core/h-box}     ; uses h-box impl
+  [::title {:impl "empty"}]]]             ; semantic content name
+```
+
+**⚠️ Important**: When renaming parts, verify CSS class compatibility:
+
+```clojure
+;; Old part name: ::progress-container
+;; Old CSS class: "rc-progress-bar" (from legacy manual assignment)
+;; New part name: ::container
+;; Auto-generated: "rc-progress-bar-container" (from re-com-meta)
+
+;; Since they differ, add bootstrap theme method:
+(defmethod bootstrap ::progress-bar/container [props]
+  (tu/class props "progress" "rc-progress-bar"))  ; Apply legacy class
+```
+
+Always check: **auto-generated class** (`"rc-{namespace-suffix}-{part-name}"`) vs **legacy class** - if they differ, add the legacy class in the `bootstrap` theme layer.
+
 ### Step 2: Add Theme Support
 1. Add `:pre-theme` and `:theme` to component args-desc
 2. Create theme file in component subdirectory
