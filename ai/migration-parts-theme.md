@@ -215,6 +215,31 @@ This is crucial for performance since theme composition is expensive and should 
   [::input {:impl "input"}]]]                 ; Unclear - is this a component?
 ```
 
+**Namespace Alias Strategy:**
+
+Each component should use a dedicated namespace alias for its parts, even if the namespace doesn't physically exist:
+
+```clojure
+;; ✅ CORRECT - Dedicated alias per component
+[re-com.button :as-alias btn]
+[re-com.md-circle-icon-button :as-alias ci-btn]
+
+(def part-structure
+  [::btn/wrapper {:impl 're-com.box/box}])     ; Regular button parts
+
+(def md-circle-icon-button-part-structure
+  [::ci-btn/wrapper {:impl 're-com.box/box}]) ; MD circle button parts
+
+;; ❌ AVOID - Shared alias with long prefixes
+[re-com.button :as-alias btn]
+
+(def part-structure
+  [::btn/wrapper {:impl 're-com.box/box}])
+
+(def md-circle-icon-button-part-structure
+  [::btn/md-circle-wrapper {:impl 're-com.box/box}]) ; Long, unclear names
+```
+
 **In part calls:** Always specify `:impl` explicitly, and `:tag` when using `part/default`:
 ```clojure
 (part ::wrapper {:impl h-box ...})            ; Component function
@@ -306,6 +331,95 @@ The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes
 3. Replace manual hiccup with `part/part` calls in render function
 4. Use `part/get-part` to check for provided parts
 5. **CRITICAL**: Apply composed theme to **every** part via `:theme` parameter
+
+**Implementation Best Practices:**
+
+**Let-bind reused parts** - If the original component reused hiccup in multiple places, create let-bound part variables:
+
+```clojure
+;; ✅ CORRECT - Let-bind parts used multiple times
+(let [part      (partial part/part part-structure props)
+      icon-part (part ::icon {:theme theme :post-props {...}})
+      btn-part  (part ::button {:theme theme :props {:children [icon-part]}})]
+  ;; Use btn-part in multiple places (tooltip anchor, direct child, etc.)
+  (part ::wrapper {...}))
+
+;; ❌ INEFFICIENT - Duplicate part creation
+(part ::wrapper
+  {:child (if tooltip?
+            (part ::tooltip {:anchor (part ::button {...})}) ; Creates button part
+            (part ::button {...}))})                         ; Creates button part again
+```
+
+**Separate concerns cleanly** - Component functions handle Reagent state/reactions, parts handle rendering:
+
+```clojure
+;; ✅ CORRECT - Clean separation
+(let [disabled?  (deref-or-value disabled?)    ; Reagent state management
+      showing?   (reagent/atom false)          ; Local component state
+      part       (partial part/part ...)       ; Part creation helper
+      ;; Pass pure values to theme via :re-com context
+      btn-part   (part ::button
+                   {:theme theme
+                    :post-props (select-keys props [:class :style :attr])
+                    :props {:re-com {:disabled? disabled?
+                                     :showing?  @showing?
+                                     :tooltip?  tooltip?}}})]
+  ;; Theme methods handle conditional styling based on :re-com context
+  )
+
+;; ❌ MIXED CONCERNS - Styling logic in component body
+(part ::button
+  {:post-props {:class (str "base-class"
+                           (when disabled? " disabled-class")  ; Styling in component
+                           (when @showing? " active-class"))   ; Styling in component
+   :style (merge base-style
+                 (when disabled? disabled-style))}            ; Styling in component
+```
+
+**The `:re-com` context pattern** - Pass component state to themes for conditional styling:
+
+Component functions compute state and pass pure values to themes:
+```clojure
+;; In component function - compute state, pass to theme
+(part ::button
+  {:theme theme
+   :props {:re-com {:disabled? (deref-or-value disabled?)
+                    :size      size
+                    :active?   @showing?}}})
+```
+
+Theme methods handle all conditional styling based on the `:re-com` context:
+```clojure
+;; In theme file - handle conditional styling
+(defmethod bootstrap ::my-component/button [props]
+  (let [{:keys [disabled? size active?]} (get-in props [:re-com])]
+    (tu/class props "btn"
+              (case size :small "btn-sm" :large "btn-lg" "")
+              (when disabled? "disabled")
+              (when active? "active"))))
+```
+
+This keeps the component function focused on state management and the theme focused on presentation logic.
+
+**Args building pattern** - Use `into` for clean args-desc composition:
+
+```clojure
+;; ✅ CORRECT - Clean composition with into
+(def component-args-desc
+  (when include-args-desc?
+    (into [{:name :my-prop :required true ...}
+           {:name :another-prop :required false ...}]
+          (part/describe-args part-structure))))
+
+;; ❌ VERBOSE - Manual concatenation
+(def component-args-desc
+  (when include-args-desc?
+    (concat
+     [{:name :my-prop :required true ...}
+      {:name :another-prop :required false ...}]
+     (part/describe-args part-structure))))
+```
 
 **Common mistake**: Forgetting to pass `:theme` to parts:
 ```clojure
