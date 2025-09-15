@@ -7,7 +7,7 @@
   [rc/v-box
    {:src (rc/at)
     :children
-    [[rdu/panel-title "Theme" nil "src/re_demo/theme.cljs"]
+    [[rdu/panel-title "Theme" nil "demo/re_demo/theme.cljs"]
      [rc/gap :size "19px"]
      [rc/h-box
       :gap "31px"

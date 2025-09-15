@@ -37,7 +37,7 @@
    :gap      "10px"
    :children [[panel-title "[multi-select ... ]"
                "src/re_com/multi_select.cljs"
-               "src/re_demo/multi_select.cljs"]
+               "demo/re_demo/multi_select.cljs"]
 
               [h-box
                :src      (at)

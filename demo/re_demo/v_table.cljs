@@ -103,7 +103,7 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs"]
+       :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "demo/re_demo/v_table.cljs"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

@@ -98,7 +98,7 @@
        :gap      "10px"
        :children [[panel-title  "[row-button ... ]"
                    "src/re_com/buttons.cljs"
-                   "src/re_demo/row_button.cljs"]
+                   "demo/re_demo/row_button.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"

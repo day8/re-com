@@ -92,7 +92,7 @@
    :gap      "10px"
    :children [[panel-title "[selection-list ... ]"
                "src/re_com/selection_list.cljs"
-               "src/re_demo/selection_list.cljs"]
+               "demo/re_demo/selection_list.cljs"]
               [h-box :src (at)
                :gap      "100px"
                :children [[v-box :src (at)

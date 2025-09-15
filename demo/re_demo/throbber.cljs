@@ -16,7 +16,7 @@
    :gap      "10px"
    :children [[panel-title "[throbber ... ]"
                "src/re_com/throbber.cljs"
-               "src/re_demo/throbber.cljs"]
+               "demo/re_demo/throbber.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

@@ -808,7 +808,7 @@
      :gap      "10px"
      :children [[panel-title "[h-box ... ]"
                  "src/re_com/box.cljs"
-                 "src/re_demo/h_box.cljs"]
+                 "demo/re_demo/h_box.cljs"]
 
                 [h-box
                  :src      (at)

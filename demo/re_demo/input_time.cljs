@@ -115,7 +115,7 @@
    :gap      "10px"
    :children [[panel-title "[input-time ... ]"
                "src/re_com/input_time.cljs"
-               "src/re_demo/input_time.cljs"]
+               "demo/re_demo/input_time.cljs"]
               [h-box :src (at)
                :gap "100px"
                :children [[v-box :src (at)

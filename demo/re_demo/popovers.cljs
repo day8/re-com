@@ -150,7 +150,7 @@
    :gap      "10px"
    :children [[panel-title "Popover Reference"
                "src/re_com/popover.cljs"
-               "src/re_demo/popovers.cljs"]
+               "demo/re_demo/popovers.cljs"]
 
               [title2 "The Basics"]
               [p "Here is the actual code for a very simple popover along with the popover it produces:"]
@@ -565,7 +565,7 @@
    :gap      "10px"
    :children [[panel-title "Popover Components"
                "src/re_com/popover.cljs"
-               "src/re_demo/popovers.cljs"]
+               "demo/re_demo/popovers.cljs"]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]

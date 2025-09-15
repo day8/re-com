@@ -54,7 +54,7 @@
        :children
        [[panel-title "[table-filter ... ]"
          "src/re_com/table_filter.cljs"
-         "src/re_demo/table_filter.cljs"]
+         "demo/re_demo/table_filter.cljs"]
         [h-box
          :src (at)
          :gap "50px"

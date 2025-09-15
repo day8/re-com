@@ -23,7 +23,7 @@
        :gap      "10px"
        :children [[panel-title "[slider ... ]"
                    "src/re_com/slider.cljs"
-                   "src/re_demo/slider.cljs"]
+                   "demo/re_demo/slider.cljs"]
 
                   [h-box
                    :src      (at)

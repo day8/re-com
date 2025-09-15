@@ -10,7 +10,7 @@
    :gap      "10px"
    :children [[panel-title "[scroller ... ]"
                "src/re_com/box.cljs"
-               "src/re_demo/scroller.cljs"]
+               "demo/re_demo/scroller.cljs"]
 
               [h-box :src (at)
                :gap      "100px"

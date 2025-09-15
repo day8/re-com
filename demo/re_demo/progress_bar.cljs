@@ -16,7 +16,7 @@
        :gap      "10px"
        :children [[panel-title "[progress-bar ... ]"
                    "src/re_com/progress_bar.cljs"
-                   "src/re_demo/progress_bar.cljs"]
+                   "demo/re_demo/progress_bar.cljs"]
                   [h-box :src (at)
                    :gap      "100px"
                    :children [[v-box :src (at)

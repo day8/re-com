@@ -103,7 +103,7 @@
        :src      (at)
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title "[simple-v-table ... ]" "src/re_com/simple_v_table.cljs" "src/re_demo/simple_v_table.cljs"]
+       :children [[panel-title "[simple-v-table ... ]" "src/re_com/simple_v_table.cljs" "demo/re_demo/simple_v_table.cljs"]
                   [h-box
                    :src      (at)
                    :gap      "50px"
@@ -127,7 +127,7 @@
                                            :src      (at)
                                            :size "15px"]
                                           [simple-v-table-sales/demo]
-                                          [source-reference "for above simple-v-table" "src/re_demo/simple_v_table_sales.cljs"]
+                                          [source-reference "for above simple-v-table" "demo/re_demo/simple_v_table_sales.cljs"]
                                           [gap
                                            :src      (at)
                                            :size "40px"]
@@ -137,5 +137,5 @@
                                            :src      (at)
                                            :size "15px"]
                                           [simple-v-table-periodic-table/demo]
-                                          [source-reference "for above simple-v-table" "src/re_demo/simple_v_table_periodic_table.cljs"]]]]]
+                                          [source-reference "for above simple-v-table" "demo/re_demo/simple_v_table_periodic_table.cljs"]]]]]
                   [parts-table "simple-v-table" simple-v-table-parts-desc]]])))

@@ -278,7 +278,7 @@
        :gap      "10px"
        :children [[panel-title "Date Components"
                    "src/re_com/datepicker.cljs"
-                   "src/re_demo/datepicker.cljs"]
+                   "demo/re_demo/datepicker.cljs"]
                   [h-box
                    :src      (at)
                    :gap      "100px"

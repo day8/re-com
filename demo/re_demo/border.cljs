@@ -14,7 +14,7 @@
    :gap      "10px"
    :children [[panel-title  "[border ... ]"
                "src/re_com/box.cljs"
-               "src/re_demo/border.cljs"]
+               "demo/re_demo/border.cljs"]
 
               [h-box
                :src      (at)
