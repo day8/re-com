@@ -178,7 +178,7 @@
 
       :part-top-level-collision
       (js/console.log
-       (str "• %cParameter %c" arg-name "%c has been passed both as a top-level argument and within %c:props%c"
+       (str "• %cParameter %c" arg-name "%c has been passed both as a top-level argument and within %c:parts%c"
             "\n  - Re-com doesn't know which value to use for configuring the %c" arg-name
             "%c part. \n  - Please delete one or the other.")
        error-style code-style error-style code-style error-style code-style error-style)
@@ -187,8 +187,8 @@
       (js/console.log
        (str "• %cParameter %c" arg-name "%c has been passed as a top-level argument."
             "\n  - This is unsupported. "
-            "However, it is supported within %c:props%c \n  - Please declare %c" arg-name
-            "%c within the %c:props%c map.")
+            "However, it is supported within %c:parts%c \n  - Please declare %c" arg-name
+            "%c within the %c:parts%c map.")
        error-style code-style error-style code-style error-style code-style error-style code-style error-style)
 
       (js/console.log "• " confused-icon " Unknown problem reported"))))
