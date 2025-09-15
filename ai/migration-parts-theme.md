@@ -196,6 +196,31 @@ This is crucial for performance since theme composition is expensive and should 
 2. Mark top-level args with `:top-level-arg? true`
 3. Replace manual `parts-desc` with `(part/describe part-structure)`
 
+**Part Structure Metadata Conventions:**
+
+- **`:impl`** - Only for actual component functions (e.g., `'re-com.core/h-box`, `'re-com.close-button/close-button`)
+- **`:tag`** - For HTML tags when using `part/default` (e.g., `:tag :div`, `:tag :span`, `:tag :input`)
+- **No metadata** - When using `part/default` with default `<div>` tag
+
+```clojure
+;; ✅ CORRECT - Clear distinction
+[::wrapper {:impl 're-com.core/h-box}        ; Uses h-box component
+ [::container {:tag :div}                     ; Uses part/default with <div>
+  [::input {:tag :input}]]                    ; Uses part/default with <input>
+ [::label]]                                   ; Uses part/default with default <div>
+
+;; ❌ OLD STYLE - Confusing mix
+[::wrapper {:impl 're-com.core/h-box}
+ [::container {:impl "div"}                   ; Unclear - is this a component?
+  [::input {:impl "input"}]]]                 ; Unclear - is this a component?
+```
+
+**In part calls:** Always specify `:impl` explicitly, and `:tag` when using `part/default`:
+```clojure
+(part ::wrapper {:impl h-box ...})            ; Component function
+(part ::input {:props {:tag :input} ...})     ; HTML tag via part/default
+```
+
 **Part Renaming Best Practices:**
 
 When migrating, clean up part names by removing redundant/obsolete semantics:

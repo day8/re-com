@@ -15,12 +15,12 @@
   [props]
   (tu/class props "rc-alert" "alert" "fade" "in"))
 
-(defmethod base ::ab/top-section
+(defmethod base ::ab/header
   [props]
   (merge props {:justify :between
                 :align   :center}))
 
-(defmethod bootstrap ::ab/top-section
+(defmethod bootstrap ::ab/header
   [props]
   (tu/class props "rc-alert-heading"))
 
@@ -28,12 +28,12 @@
   [props]
   (tu/class props "rc-alert-h4"))
 
-(defmethod base ::ab/body-section
+(defmethod base ::ab/body-wrapper
   [props]
   (merge props {:justify :between
                 :align   :center}))
 
-(defmethod bootstrap ::ab/body-section
+(defmethod bootstrap ::ab/body-wrapper
   [props]
   (tu/class props "rc-alert-body"))
 

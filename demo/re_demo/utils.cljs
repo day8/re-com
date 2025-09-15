@@ -183,7 +183,7 @@
                :child [:span "Notes"]]]])
 
 (defn parts-row
-  [{:keys [type name-label name level class impl notes]} odd-row?]
+  [{:keys [type name-label name level class impl tag notes]} odd-row?]
   [h-box
    :align    :start
    :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")
@@ -207,7 +207,7 @@
               [box
                :width "212px"
                :style {:padding "5px 12px"}
-               :child [:code impl]]
+               :child [:code (or impl tag)]]
               [line :src (at) :color (if odd-row? "white" "#f4f4f4")]
               [box
                :style {:padding "5px 12px"}

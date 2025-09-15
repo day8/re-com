@@ -24,15 +24,12 @@
 (def part-structure
   [::ab/wrapper {:impl 're-com.core/alert-box
                  :type :legacy}
-   [::ab/top-section {:impl 're-com.core/h-box}
+   [::ab/header {:impl 're-com.core/h-box}
     [::ab/heading-wrapper {:tag :h4}
-     [::ab/heading {:top-level-arg? true
-                    :impl           "empty"}]]
+     [::ab/heading {:top-level-arg? true}]]
     [::ab/close-button {:impl 're-com.close-button/close-button}]]
-   [::ab/body-section {:impl 're-com.core/h-box}
-    [::ab/body-wrapper
-     [::ab/body {:top-level-arg? true
-                 :impl           "empty"}]]]])
+   [::ab/body-wrapper
+    [::ab/body {:top-level-arg? true}]]])
 
 (def alert-box-parts-desc
   (when include-args-desc?
@@ -90,7 +87,7 @@
         :props
         {:children
          [(when heading-provided?
-            (part ::ab/top-section
+            (part ::ab/header
               {:impl       h-box
                :theme      theme
                :style      {:margin-bottom (if body "10px" "0px")}
@@ -106,14 +103,13 @@
                  (when (and closeable? on-close)
                    close-alert)]}}))
           (when body-provided?
-            (part ::ab/body-section
+            (part ::ab/body-wrapper
               {:impl       h-box
                :theme      theme
                :post-props {:src (at)}
                :props      {:children
-                            [(part ::ab/body-wrapper
-                               {:props {:children [(part ::ab/body
-                                                     {:theme theme})]}})
+                            [(part ::ab/body
+                               {:theme theme})
                              (when (and (not heading-provided?) closeable? on-close)
                                close-alert)]}}))]}}))))
 

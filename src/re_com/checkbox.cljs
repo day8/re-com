@@ -4,7 +4,6 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    re-com.checkbox.theme
-   [re-com.checkbox :as-alias cb]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug]
    [re-com.part     :as part]
@@ -12,17 +11,16 @@
    [re-com.theme.util :as tu]
    [re-com.util     :refer [deref-or-value]]
    [re-com.box      :refer [h-box]]
-   [re-com.validate :refer [string-or-hiccup? css-style? css-class? html-attr? parts?]]
-   [reagent.core    :as reagent]))
+   [re-com.validate :refer [string-or-hiccup? css-style? css-class? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: checkbox
 ;; ------------------------------------------------------------------------------------
 
 (def part-structure
-  [::cb/wrapper {:impl 're-com.core/h-box}
-   [::cb/input {:impl "input"}]
-   [::cb/label {:top-level-arg? true :impl "span"}]])
+  [::wrapper {:impl 're-com.core/h-box}
+   [::input {:tag :input}]
+   [::label {:top-level-arg? true}]])
 
 (def checkbox-parts-desc
   (when include-args-desc?
@@ -53,8 +51,7 @@
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "Displays a single checkbox with optional label"
-  [& {:keys [model on-change disabled? label-class label-style pre-theme theme]
-      :as   props}]
+  [& {:keys [pre-theme theme]}]
   (let [theme (theme/comp pre-theme theme)]
     (fn [& {:keys [model on-change disabled? label-class label-style]
             :as   props}]
@@ -63,17 +60,17 @@
        (let [part            (partial part/part part-structure props)
              model           (deref-or-value model)
              disabled?       (deref-or-value disabled?)
-             label-provided? (part/get-part part-structure props ::cb/label)
+             label-provided? (part/get-part part-structure props ::label)
              callback-fn     #(when (and on-change (not disabled?))
                                 (on-change (not model)))]
-         (part ::cb/wrapper
+         (part ::wrapper
            {:impl       h-box
             :post-props (-> (select-keys props [:class :style :attr])
                             (debug/instrument props))
             :theme      theme
             :props
             {:children
-             [(part ::cb/input
+             [(part ::input
                 {:theme      theme
                  :props      {:tag :input}
                  :post-props {:attr {:type      :checkbox
@@ -82,7 +79,7 @@
                                      :on-change (handler-fn (callback-fn))}}})
 
               (when label-provided?
-                (part ::cb/label
+                (part ::label
                   {:theme      theme
                    :post-props (cond-> {:on-click (handler-fn (callback-fn))}
                                  label-class (tu/class label-class)
