@@ -4,11 +4,13 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    re-com.button.theme
+   re-com.md-circle-icon-button.theme
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug]
    [re-com.part     :as part]
    [re-com.theme    :as theme]
    [re-com.button :as-alias btn]
+   [re-com.md-circle-icon-button :as-alias ci-btn]
    [re-com.util     :refer [deref-or-value px]]
    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
                             string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]]
@@ -100,12 +102,17 @@
 ;; Component: md-circle-icon-button
 ;;--------------------------------------------------------------------------------------------------
 
+(def md-circle-icon-button-part-structure
+  [::ci-btn/wrapper {:impl 're-com.box/box}
+   [::ci-btn/tooltip-wrapper {:impl  're-com.popover/popover-tooltip
+                              :notes "Tooltip, if enabled by passing a :tooltip part"}
+    [::ci-btn/tooltip {:top-level-arg? true}]]
+   [::ci-btn/button
+    [::ci-btn/icon {:tag :i}]]])
+
 (def md-circle-icon-button-parts-desc
   (when include-args-desc?
-    [{:name :wrapper :level 0 :class "rc-md-circle-icon-button-wrapper" :impl "[md-circle-icon-button]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
-     {:name :tooltip :level 1 :class "rc-md-circle-icon-button-tooltip" :impl "[popover-tooltip]"       :notes "Tooltip, if enabled."}
-     {:type :legacy  :level 1 :class "rc-md-circle-icon-button"         :impl "[:div]"                  :notes "The actual button."}
-     {:name :icon    :level 2 :class "rc-md-circle-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
+    (part/describe md-circle-icon-button-part-structure)))
 
 (def md-circle-icon-button-parts
   (when include-args-desc?
@@ -113,80 +120,69 @@
 
 (def md-circle-icon-button-args-desc
   (when include-args-desc?
-    [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?                              :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
-     {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?                                  :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-     {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?                         :description [:span "one of " button-sizes-list]}
-     {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?                    :description "what to show in the tooltip"}
-     {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?                            :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :emphasise?       :required false :default false         :type "boolean"                                                           :description "if true, use emphasised styling so the button really stands out"}
-     {:name :disabled?        :required false :default false         :type "boolean"                                                           :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn css-class?                              :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-     {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                           :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-     {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-     {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as         :required false                        :type "map"             :validate-fn map?                                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (into [{:name :md-icon-name :required true :default "zmdi-plus" :type "string" :validate-fn string? :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
+           {:name :on-click :required false :type "-> nil" :validate-fn fn? :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+           {:name :size :required false :default :regular :type "keyword" :validate-fn button-size? :description [:span "one of " button-sizes-list]}
+           {:name :tooltip :required false :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+           {:name :tooltip-position :required false :default :below-center :type "keyword" :validate-fn position? :description [:span "relative to this anchor. One of " position-options-list]}
+           {:name :emphasise? :required false :default false :type "boolean" :description "if true, use emphasised styling so the button really stands out"}
+           {:name :disabled? :required false :default false :type "boolean" :description "if true, the user can't click the button"}
+           {:name :pre-theme :required false :type "map -> map" :validate-fn fn? :description "Pre-theme function"}
+           {:name :theme :required false :type "map -> map" :validate-fn fn? :description "Theme function"}
+           {:name :class :required false :type "string" :validate-fn css-class? :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+           {:name :style :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
+           {:name :attr :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+           {:name :parts :required false :type "map" :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
+           {:name :src :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+           {:name :debug-as :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]
+          (part/describe-args md-circle-icon-button-part-structure))))
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
-  []
-  (let [showing? (reagent/atom false)]
+  [& {:keys [pre-theme theme debug-as]}]
+  (let [showing? (reagent/atom false)
+        theme    (theme/comp pre-theme theme)]
     (fn md-circle-icon-button-render
-      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts src debug-as]
-          :or   {md-icon-name "zmdi-plus"}
-          :as   args}]
+      [& {:keys [md-icon-name tooltip-position on-click disabled?]
+          :as   args
+          :or   {md-icon-name "zmdi-plus"}}]
       (or
        (validate-args-macro md-circle-icon-button-args-desc args)
-       (do
-         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-         (let [the-button [:div
-                           (merge
-                            {:class    (str
-                                        "noselect rc-md-circle-icon-button "
-                                        (case size
-                                          :smaller "rc-circle-smaller "
-                                          :larger "rc-circle-larger "
-                                          " ")
-                                        (when emphasise? "rc-circle-emphasis ")
-                                        (when disabled? "rc-circle-disabled ")
-                                        class)
-                             :style    (merge
-                                        {:cursor (when-not disabled? "pointer")}
-                                        style)
-                             :on-click (handler-fn
+       (let [part      (partial part/part md-circle-icon-button-part-structure args)
+             tooltip?  (part/get-part md-circle-icon-button-part-structure args ::ci-btn/tooltip)
+             icon-part (part ::ci-btn/icon
+                         {:theme      theme
+                          :post-props {:class md-icon-name}
+                          :props      {:tag :i}})
+             btn-part  (part ::ci-btn/button
+                         {:theme      theme
+                          :post-props (select-keys args [:class :style :attr])
+                          :props      (merge args {:children [icon-part]})})]
+         ;; Prevent tooltip from still showing after button drag/drop
+         (when-not tooltip? (reset! showing? false))
+         (part ::ci-btn/wrapper
+           {:impl       box
+            :theme      theme
+            :post-props {:attr (merge {:on-click
+                                       (handler-fn
                                         (when (and on-click (not disabled?))
                                           (on-click event)))}
-                            (when tooltip
-                              {:on-mouse-over (handler-fn (reset! showing? true))
-                               :on-mouse-out  (handler-fn (reset! showing? false))})
-                            attr)
-                           [:i
-                            (merge
-                             {:class (theme/merge-class "zmdi"
-                                                        "zmdi-hc-fw-rc"
-                                                        md-icon-name
-                                                        "rc-md-circle-icon-button-icon"
-                                                        (get-in parts [:icon :class]))
-                              :style (get-in parts [:icon :style] {})}
-                             (get-in parts [:icon :attr]))]]]
-           [box
-            :src      src
-            :debug-as (or debug-as (reflect-current-component))
-            :align    :start
-            :class    (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
-            :style    (get-in parts [:wrapper :style])
-            :attr     (get-in parts [:wrapper :attr])
-            :child    (if tooltip
-                        [popover-tooltip
-                         :src      (at)
-                         :label    tooltip
-                         :position (or tooltip-position :below-center)
-                         :showing? showing?
-                         :anchor   the-button
-                         :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
-                         :style    (get-in parts [:tooltip :style])
-                         :attr     (get-in parts [:tooltip :attr])]
-                        the-button)]))))))
+                                      (when tooltip?
+                                        {:on-mouse-over (handler-fn (reset! showing? true))
+                                         :on-mouse-out  (handler-fn (reset! showing? false))})
+                                      (debug/->attr args))}
+            :props
+            {:debug-as (or debug-as (reflect-current-component))
+             :child    (if-not tooltip?
+                         btn-part
+                         (part ::ci-btn/tooltip-wrapper
+                           {:impl  popover-tooltip
+                            :theme theme
+                            :props {:src      (at)
+                                    :label    (part ::ci-btn/tooltip {:theme theme})
+                                    :position (or tooltip-position :below-center)
+                                    :showing? showing?
+                                    :anchor   btn-part}}))}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-icon-button
