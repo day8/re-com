@@ -3,7 +3,7 @@
    [re-com.button :as-alias btn]
    [re-com.theme.util :as tu]
    [re-com.box :refer [flex-child-style]]
-   [re-com.theme.default :refer [variables base main bootstrap]]))
+   [re-com.theme.default :refer [base bootstrap]]))
 
 (defmethod base ::btn/wrapper [props]
   (merge props {:align :start

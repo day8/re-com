@@ -5,12 +5,14 @@
   (:require
    re-com.button.theme
    re-com.md-circle-icon-button.theme
+   re-com.info-button.theme
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug]
    [re-com.part     :as part]
    [re-com.theme    :as theme]
    [re-com.button :as-alias btn]
    [re-com.md-circle-icon-button :as-alias ci-btn]
+   [re-com.info-button :as-alias info-btn]
    [re-com.util     :refer [deref-or-value px]]
    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
                             string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]]
@@ -280,11 +282,14 @@
 ;; Component: info-button
 ;;--------------------------------------------------------------------------------------------------
 
+(def info-button-part-structure
+  [::info-btn/tooltip-wrapper {:impl 're-com.popover/popover-tooltip}
+   [::info-btn/button
+    [::info-btn/icon {:tag :svg}]]])
+
 (def info-button-parts-desc
   (when include-args-desc?
-    [{:name :tooltip :level 0 :class "rc-info-button-popover-anchor-wrapper" :impl "[popover-tooltip]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
-     {:type :legacy  :level 1 :class "rc-info-button"                        :impl "[:div]"                  :notes "The actual button."}
-     {:name :icon    :level 2 :class "rc-info-button-icon"                   :impl "[:svg]"                    :notes "The button icon."}]))
+    (part/describe info-button-part-structure)))
 
 (def info-button-parts
   (when include-args-desc?
@@ -292,62 +297,62 @@
 
 (def info-button-args-desc
   (when include-args-desc?
-    [{:name :info      :required true                        :type "string | hiccup" :validate-fn string-or-hiccup?          :description "what's shown in the popover"}
-     {:name :position  :required false :default :right-below :type "keyword"         :validate-fn position?                  :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :width     :required false :default "250px"      :type "string"          :validate-fn string?                    :description "width in px"}
-     {:name :disabled? :required false :default false        :type "boolean"                                                 :description "if true, the user can't click the button"}
-     {:name :class     :required false                       :type "string"          :validate-fn css-class?                    :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
-     {:name :style     :required false                       :type "CSS style map"   :validate-fn css-style?                 :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
-     {:name :attr      :required false                       :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
-     {:name :parts     :required false                       :type "map"             :validate-fn (parts? info-button-parts) :description "See Parts section below."}
-     {:name :src       :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as  :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (into [{:name :info      :required true                        :type "string | hiccup" :validate-fn string-or-hiccup?          :description "what's shown in the popover"}
+           {:name :position  :required false :default :right-below :type "keyword"         :validate-fn position?                  :description [:span "relative to this anchor. One of " position-options-list]}
+           {:name :width     :required false :default "250px"      :type "string"          :validate-fn string?                    :description "width in px"}
+           {:name :disabled? :required false :default false        :type "boolean"                                                 :description "if true, the user can't click the button"}
+           {:name :pre-theme :required false                       :type "map -> map"      :validate-fn fn?                        :description "Pre-theme function"}
+           {:name :theme     :required false                       :type "map -> map"      :validate-fn fn?                        :description "Theme function"}
+           {:name :class     :required false                       :type "string"          :validate-fn css-class?                 :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
+           {:name :style     :required false                       :type "CSS style map"   :validate-fn css-style?                 :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
+           {:name :attr      :required false                       :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
+           {:name :parts     :required false                       :type "map"             :validate-fn (parts? info-button-parts) :description "See Parts section below."}
+           {:name :src       :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+           {:name :debug-as  :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]
+          (part/describe-args info-button-part-structure))))
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobtrusive.
   When pressed, displays a popup assumedly containing helpful information.
   Primarily designed to be nestled against the label of an input field, explaining the purpose of that field.
   Create a very small \"i\" icon via SVG"
-  []
-  (let [showing? (reagent/atom false)]
+  [& {:keys [pre-theme theme]}]
+  (let [showing? (reagent/atom false)
+        theme    (theme/comp pre-theme theme)]
     (fn info-button-render
-      [& {:keys [info position width disabled? class style attr parts src debug-as] :as args}]
+      [& {:keys [info position width disabled?] :as args}]
       (or
        (validate-args-macro info-button-args-desc args)
-       [popover-tooltip
-        :src       src
-        :debug-as  (or debug-as (reflect-current-component))
-        :label     info
-        :status    :info
-        :position  (or position :right-below)
-        :width     (or width "250px")
-        :showing?  showing?
-        :on-cancel #(swap! showing? not)
-        :class     (str "rc-info-button-popover-anchor-wrapper " (get-in parts [:tooltip :class]))
-        :style     (get-in parts [:tooltip :style])
-        :attr      (get-in parts [:tooltip :attr])
-        :anchor    [:div
-                    (merge
-                     {:class    (str "noselect rc-info-button "
-                                     (when disabled? "rc-icon-disabled ")
-                                     class)
-                      :style    (merge
-                                 {:cursor (when-not disabled? "pointer")}
-                                 style)
-                      :on-click (handler-fn
-                                 (when (not disabled?)
-                                   (swap! showing? not)))}
-                     attr)
-                    [:svg
-                     (merge
-                      {:width  "11"
-                       :height "11"
-                       :class  (str "rc-info-button-icon " (get-in parts [:icon :class]))
-                       :style  (get-in parts [:icon :style] {})}
-                      (get-in parts [:icon :attr]))
-                     [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
-                     [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
-                     [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]]))))
+       (let [part        (partial part/part info-button-part-structure args)
+             icon-part   (part ::info-btn/icon
+                           {:theme theme
+                            :props {:tag      :svg
+                                    :attr     {:width "11" :height "11"}
+                                    :children [[:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
+                                               [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
+                                               [:line {:x1     "5.5"   :y1           "5.2" :x2 "5.5" :y2 "9.7"
+                                                       :stroke "white" :stroke-width "2.5"}]]}})
+             button-part (part ::info-btn/button
+                           {:theme      theme
+                            :post-props (-> args
+                                            (select-keys [:class :style :attr])
+                                            (update :attr merge {:on-click (handler-fn
+                                                                            (when (not disabled?)
+                                                                              (swap! showing? not)))}))
+                            :props      {:re-com   {:disabled? disabled?}
+                                         :children [icon-part]}})]
+         (part ::info-btn/tooltip-wrapper
+           {:impl  popover-tooltip
+            :theme theme
+            :props {:src       (:src args)
+                    :debug-as  (or (:debug-as args) (reflect-current-component))
+                    :label     info
+                    :status    :info
+                    :position  (or position :right-below)
+                    :width     (or width "250px")
+                    :showing?  showing?
+                    :on-cancel #(swap! showing? not)
+                    :anchor    button-part}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: row-button
