@@ -402,6 +402,59 @@ Theme methods handle all conditional styling based on the `:re-com` context:
 
 This keeps the component function focused on state management and the theme focused on presentation logic.
 
+**Understanding `:attr` vs `:props` vs `:post-props`** - Critical distinction for proper HTML attributes:
+
+- **`:attr`** - What you as a caller think should go directly onto the hiccup as HTML attributes:
+  - If the component creates an HTML element (like `[:div {...}]`), these become HTML attributes
+  - If the component uses another component, these get passed as `:attr` to that component
+
+- **`:props` and `:post-props`** - Add top-level keys to the hiccup of the component you're using:
+  - The component may use them or ignore them entirely - not guaranteed to be treated as HTML attributes
+  - **`:post-props`** specifically means "post-theme and post-parts" - applied after the theme system processes props
+  - Used to implement "convenience" arguments that many components provide
+
+**What are "convenience" arguments?** - Top-level shortcuts that components provide for common styling patterns:
+
+```clojure
+;; Convenience: :width as top-level shortcut
+[re-com.core/h-box :width "200px" ...]
+;; Is internally converted to:
+[re-com.core/h-box :style {:width "200px"} ...]
+
+;; Convenience: :disabled? as top-level shortcut
+[re-com.core/input-text :disabled? true ...]
+;; Is internally converted to:
+[re-com.core/input-text :attr {:disabled true} ...]
+
+;; Convenience: :gap as top-level shortcut
+[re-com.core/h-box :gap "8px" ...]
+;; Is internally converted to:
+[re-com.core/h-box :style {:gap "8px"} ...]
+```
+
+```clojure
+;; ✅ CORRECT: HTML attributes via :attr
+(part ::my-component/icon
+  {:props {:tag  :svg
+           :attr {:width "11" :height "11"}}})    ; Becomes <svg width="11" height="11">
+
+;; ❌ INCORRECT: Assuming top-level convenience
+(part ::my-component/icon
+  {:post-props {:width "11" :height "11"}})      ; re-com.part/default ignores these entirely
+
+;; ✅ CORRECT: Using convenience props (when component supports them)
+(part ::my-component/h-box
+  {:post-props {:width "200px"                   ; h-box provides this convenience
+                :gap   "8px"}})                  ; converted to {:style {:width "200px" :gap "8px"}}
+
+;; ✅ CORRECT: Direct styling when no convenience exists
+(part ::my-component/element
+  {:post-props {:style {:width "200px"           ; Direct CSS styling
+                        :gap   "8px"}}})         ; when convenience isn't available
+```
+
+**Key insight**: `re-com.part/default` (used with `:tag`) doesn't provide convenience top-level props - you must use `:attr` for HTML attributes and `:style` for CSS. Other re-com components like `h-box`, `input-text`, etc. provide many convenience shortcuts that get converted internally.
+
 **Args building pattern** - Use `into` for clean args-desc composition:
 
 ```clojure
