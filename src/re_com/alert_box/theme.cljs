@@ -6,19 +6,31 @@
    [re-com.theme.default :refer [bootstrap base]]))
 
 (defmethod base ::ab/wrapper
-  [props]
+  [{{{:keys [padding]} :state} :re-com
+    :as                        props}]
   (-> props
-      (tu/style (flex-child-style "none"))
+      (tu/style (merge (flex-child-style "none")
+                       (when padding {:padding padding})))
       (merge {:gap "10px"})))
 
 (defmethod bootstrap ::ab/wrapper
-  [props]
-  (tu/class props "rc-alert" "alert" "fade" "in"))
+  [{{{:keys [alert-type]} :state} :re-com
+    :as                           props}]
+  (let [alert-class (case alert-type
+                      :none    ""
+                      :info    "alert-success"
+                      :warning "alert-warning"
+                      :danger  "alert-danger"
+                      "alert-success")]
+    (tu/class props "rc-alert" "alert" "fade" "in" alert-class)))
 
 (defmethod base ::ab/header
-  [props]
-  (merge props {:justify :between
-                :align   :center}))
+  [{{{:keys [body-provided?]} :state} :re-com
+    :as                               props}]
+  (-> props
+      (merge {:justify :between
+              :align   :center})
+      (tu/style {:margin-bottom (if body-provided? "10px" "0px")})))
 
 (defmethod bootstrap ::ab/header
   [props]
