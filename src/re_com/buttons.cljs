@@ -9,6 +9,7 @@
    re-com.info-button.theme
    re-com.row-button.theme
    re-com.hyperlink.theme
+   re-com.hyperlink-href.theme
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug]
    [re-com.part     :as part]
@@ -19,6 +20,7 @@
    [re-com.info-button :as-alias info-btn]
    [re-com.row-button :as-alias rb]
    [re-com.hyperlink :as-alias hyperlink]
+   [re-com.hyperlink-href :as-alias hyperlink-href]
    [re-com.util     :as u :refer [deref-or-value px]]
    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
                             string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]]
@@ -564,11 +566,16 @@
 ;; Component: hyperlink-href
 ;;--------------------------------------------------------------------------------------------------
 
+(def hyperlink-href-part-structure
+  [::hyperlink-href/wrapper {:impl 're-com.box/box}
+   [::hyperlink-href/popover-tooltip {:impl 're-com.popover/popover-tooltip}
+    [::hyperlink-href/tooltip {:top-level-arg? true}]]
+   [::hyperlink-href/link {:tag :a}
+    [::hyperlink-href/label {:top-level-arg? true}]]])
+
 (def hyperlink-href-parts-desc
   (when include-args-desc?
-    [{:name :wrapper   :level 0 :class "rc-hyperlink-href-wrapper"   :impl "[hyperlink-href]"  :notes "Outer wrapper of the hyperlink-href, tooltip (if any), everything."}
-     {:name :tooltip   :level 1 :class "rc-hyperlink-href-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-     {:type :legacy    :level 2 :class "rc-hyperlink-href"           :impl "[:a]"              :notes "The anchor."}]))
+    (part/describe hyperlink-href-part-structure)))
 
 (def hyperlink-href-parts
   (when include-args-desc?
@@ -576,71 +583,72 @@
 
 (def hyperlink-href-args-desc
   (when include-args-desc?
-    [{:name :label            :required true                         :type "string | hiccup | r/atom" :validate-fn string-or-hiccup?             :description "label/hiccup for the button"}
-     {:name :href             :required true                         :type "string | r/atom"          :validate-fn string-or-atom?               :description "if specified, the link target URL"}
-     {:name :target           :required false :default "_self"       :type "string | r/atom"          :validate-fn string-or-atom?               :description "one of \"_self\" or \"_blank\""}
-     {:name :tooltip          :required false                        :type "string | hiccup"          :validate-fn string-or-hiccup?             :description "what to show in the tooltip"}
-     {:name :tooltip-position :required false :default :below-center :type "keyword"                  :validate-fn position?                     :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :disabled?        :required false :default false         :type "boolean | r/atom"                                                    :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"                   :validate-fn css-class?                       :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
-     {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?                    :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-     {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
-     {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as         :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (vec
+     (concat
+      [{:name :href             :required true                         :type "string | r/atom"          :validate-fn string-or-atom?               :description "if specified, the link target URL"}
+       {:name :target           :required false :default "_self"       :type "string | r/atom"          :validate-fn string-or-atom?               :description "one of \"_self\" or \"_blank\""}
+       {:name :tooltip-position :required false :default :below-center :type "keyword"                  :validate-fn position?                     :description [:span "relative to this anchor. One of " position-options-list]}
+       {:name :disabled?        :required false :default false         :type "boolean | r/atom"                                                    :description "if true, the user can't click the button"}
+       {:name :class            :required false                        :type "string"                   :validate-fn css-class?                       :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+       {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?                    :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
+       {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+       {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}
+       {:name :src              :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+       {:name :debug-as         :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]
+      theme/args-desc
+      (part/describe-args hyperlink-href-part-structure)))))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel"
-  []
-  (let [showing? (reagent/atom false)]
+  [& {:keys [pre-theme theme]}]
+  (let [theme       (theme/comp pre-theme theme)
+        showing?    (reagent/atom false)
+        transition! #(case %
+                       :show   (reset! showing? true)
+                       :hide   (reset! showing? false)
+                       :toggle (swap! showing? not))]
     (fn hyperlink-href-render
-      [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
+      [& {:keys [href target tooltip-position disabled?] :as args}]
       (or
        (validate-args-macro hyperlink-href-args-desc args)
-       (do
-         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-         (let [label      (u/deref-or-value label)
-               href       (u/deref-or-value href)
-               target     (u/deref-or-value target)
-               disabled?  (u/deref-or-value disabled?)
-               the-button [:a
-                           (merge {:class  (str "rc-hyperlink-href noselect " class)
-                                   :style  (merge (flex-child-style "none")
-                                                  {:cursor (if disabled? "default" "pointer")
-                                                   :pointer-events (when disabled? "none")
-                                                   :color  (when disabled? "grey")}
-                                                  style)
-                                   :target target}
-                                   ;; As of HTML5 the href attribute on a elements is not required; when those elements do
-                                   ;; not have href attributes they do not create hyperlinks. These are also known as a
-                                   ;; 'placeholder link'. A placeholder link resembles a traditional hyperlink, but does not
-                                   ;; lead anywhere; i.e. it is disabled.
-                                   ;; Ref: https://www.w3.org/TR/html5/links.html#attr-hyperlink-href
-                                  (when (not disabled?)
-                                    {:href   href})
-                                  (when tooltip
-                                    {:on-mouse-over (handler-fn (reset! showing? true))
-                                     :on-mouse-out  (handler-fn (reset! showing? false))})
-                                  attr)
-                           label]]
-
-           [box
-            :src      src
-            :debug-as (or debug-as (reflect-current-component))
-            :align    :start
-            :class    (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-            :style    (get-in parts [:wrapper :style] {})
-            :attr     (get-in parts [:wrapper :attr] {})
-            :child    (if tooltip
-                        [popover-tooltip
-                         :src      (at)
-                         :label    tooltip
-                         :position (or tooltip-position :below-center)
-                         :showing? showing?
-                         :anchor   the-button
-                         :class    (str "rc-hyperlink-href-tooltip " (get-in parts [:tooltip :class]))
-                         :style    (get-in parts [:tooltip :style] {})
-                         :attr     (get-in parts [:tooltip :attr] {})]
-                        the-button)]))))))
+       (let [href        (u/deref-or-value href)
+             target     (u/deref-or-value target)
+             disabled?  (u/deref-or-value disabled?)
+             part       (partial part/part hyperlink-href-part-structure args)
+             tooltip?   (part/get-part hyperlink-href-part-structure args ::hyperlink-href/tooltip)
+             re-com     {:transition! transition!
+                         :state       {:disabled? disabled?
+                                       :tooltip?  tooltip?
+                                       :href      href
+                                       :target    target}}
+             label-part (part ::hyperlink-href/label
+                          {:theme theme
+                           :props {:re-com re-com}})
+             link-part  (part ::hyperlink-href/link
+                          {:theme      theme
+                           :post-props (select-keys args [:class :style :attr])
+                           :props      {:tag      :a
+                                        :re-com   re-com
+                                        :children [label-part]}})
+             tooltip-part (part ::hyperlink-href/tooltip
+                            {:theme theme
+                             :props {:re-com re-com}})
+             popover-part (part ::hyperlink-href/popover-tooltip
+                            {:impl  popover-tooltip
+                             :theme theme
+                             :props {:src      (at)
+                                     :label    tooltip-part
+                                     :position (or tooltip-position :below-center)
+                                     :showing? showing?
+                                     :anchor   link-part}})]
+         (when-not tooltip? (transition! :hide))
+         (part ::hyperlink-href/wrapper
+           {:impl       box
+            :theme      theme
+            :post-props {:attr (debug/->attr args)}
+            :props      {:src      (:src args)
+                         :debug-as (or (:debug-as args) (reflect-current-component))
+                         :re-com   re-com
+                         :child    (if tooltip? popover-part link-part)}}))))))
