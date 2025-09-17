@@ -1,4 +1,6 @@
 (ns re-com.md-icon-button.theme
+  (:require-macros
+   [re-com.core :refer [handler-fn]])
   (:require
    [re-com.md-icon-button :as-alias md-btn]
    [re-com.theme.util :as tu]
@@ -11,11 +13,11 @@
 (defmethod bootstrap ::md-btn/wrapper [props]
   (tu/class props "rc-md-icon-button-wrapper" "display-inline-flex"))
 
-(defmethod bootstrap ::md-btn/tooltip-wrapper [props]
+(defmethod bootstrap ::md-btn/popover-tooltip [props]
   (tu/class props "rc-md-icon-button-tooltip"))
 
 (defmethod bootstrap ::md-btn/button [props]
-  (let [{:keys [size emphasise? disabled?]} (get-in props [:re-com])]
+  (let [{:keys [size emphasise? disabled?]} (get-in props [:re-com :state])]
     (tu/class props "noselect" "rc-md-icon-button"
               (case size
                 :smaller "rc-icon-smaller"
@@ -24,13 +26,20 @@
               (when emphasise? "rc-icon-emphasis")
               (when disabled? "rc-icon-disabled"))))
 
-(defmethod base ::md-btn/button [props]
-  (let [{:keys [disabled?]} (get-in props [:re-com])]
-    (-> props
-        (tu/style (merge (flex-child-style "none")
-                         {:cursor (if disabled? "default" "pointer")}))
-        (update :re-com dissoc :disabled?))))
+(defmethod base ::md-btn/button
+  [{{{:keys [disabled? tooltip? on-click]} :state
+     :keys                                 [transition!]} :re-com
+    :as                                                   props}]
+  (-> props
+      (tu/style (flex-child-style "none")
+                {:cursor (if disabled? "default" "pointer")})
+      (tu/attr {:on-click (handler-fn
+                           (when (and on-click (not disabled?))
+                             (on-click event)))}
+               (when tooltip?
+                 {:on-mouse-over (handler-fn (transition! :show))
+                  :on-mouse-out  (handler-fn (transition! :hide))}))))
 
-(defmethod bootstrap ::md-btn/icon [props]
-  (let [{:keys [md-icon-name]} (get-in props [:re-com])]
-    (tu/class props "zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-icon-button-icon")))
+(defmethod base ::md-btn/icon [props]
+  (let [{:keys [md-icon-name]} (get-in props [:re-com :state])]
+    (tu/class props "zmdi" "zmdi-hc-fw-rc" md-icon-name)))

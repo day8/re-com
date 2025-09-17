@@ -1,4 +1,5 @@
 (ns re-com.md-circle-icon-button.theme
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require
    [re-com.button :as-alias btn]
    [re-com.md-circle-icon-button :as-alias ci-btn]
@@ -13,25 +14,37 @@
   [props]
   (tu/class props "display-inline-flex" "rc-md-circle-icon-button-wrapper"))
 
-(defmethod bootstrap ::ci-btn/tooltip-wrapper
+(defmethod bootstrap ::ci-btn/popover-tooltip
   [props]
   (tu/class props "rc-md-circle-icon-button-tooltip"))
 
-(defmethod base ::ci-btn/button [{:keys [disabled?]
-                                  :as   props}]
-  (tu/style props {:cursor (when-not disabled? "pointer")}))
+(defmethod base ::ci-btn/button
+  [{{{:keys [disabled? on-click tooltip?]} :state
+     :keys                                 [transition!]} :re-com
+    :as                                                   props}]
+  (-> props
+      (tu/style {:cursor (when-not disabled? "pointer")})
+      (tu/attr {:on-click
+                (handler-fn
+                 (when (and on-click (not disabled?))
+                   (on-click event)))}
+               (when tooltip?
+                 {:on-mouse-over (handler-fn (transition! :show))
+                  :on-mouse-out  (handler-fn (transition! :hide))}))))
 
 (defmethod bootstrap ::ci-btn/button
-  [{:keys [size emphasise? disabled?] :as props}]
-  (tu/class props
-            "noselect" "rc-md-circle-icon-button"
-            (case size
-              :smaller "rc-circle-smaller"
-              :larger  "rc-circle-larger"
-              "")
-            (when emphasise? "rc-circle-emphasis")
-            (when disabled? "rc-circle-disabled")))
+  [props]
+  (let [{:keys [size emphasise? disabled?]} (get-in props [:re-com :state])]
+    (tu/class props
+              "noselect" "rc-md-circle-icon-button"
+              (case size
+                :smaller "rc-circle-smaller"
+                :larger  "rc-circle-larger"
+                "")
+              (when emphasise? "rc-circle-emphasis")
+              (when disabled? "rc-circle-disabled"))))
 
 (defmethod bootstrap ::ci-btn/icon
-  [props]
-  (tu/class props "zmdi" "zmdi-hc-fw-rc"))
+  [{{{:keys [md-icon-name]} :state} :re-com
+    :as                             props}]
+  (tu/class props "zmdi" "zmdi-hc-fw-rc" md-icon-name))

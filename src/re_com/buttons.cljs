@@ -15,7 +15,7 @@
    [re-com.md-circle-icon-button :as-alias ci-btn]
    [re-com.md-icon-button :as-alias md-btn]
    [re-com.info-button :as-alias info-btn]
-   [re-com.util     :refer [deref-or-value px]]
+   [re-com.util     :as u :refer [deref-or-value px]]
    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
                             string-or-hiccup? css-class? css-style? html-attr? string-or-atom? parts?]]
    [re-com.popover  :refer [popover-tooltip]]
@@ -28,7 +28,7 @@
 
 (def part-structure
   [::btn/wrapper {:impl 're-com.box/box}
-   [::btn/tooltip-wrapper {:impl 're-com.popover/popover-tooltip}
+   [::btn/popover-tooltip {:impl 're-com.popover/popover-tooltip}
     [::btn/tooltip {:top-level-arg? true}]]
    [::btn/button {:tag :button}
     [::btn/label {:top-level-arg? true}]]])
@@ -62,45 +62,51 @@
 (defn button
   "Returns the markup for a basic button"
   [& {:keys [pre-theme theme]}]
-  (let [showing? (reagent/atom false)
-        theme    (theme/comp pre-theme theme)]
-    (fn [& {:keys [on-click tooltip-position disabled? class style attr]
-            :or   {class "btn-default"} :as props}]
+  (let [theme       (theme/comp pre-theme theme)
+        showing?    (reagent/atom false)
+        transition! #(case %
+                       :show   (reset! showing? true)
+                       :hide   (reset! showing? false)
+                       :toggle (swap! showing? not))]
+    (fn [& {:keys [tooltip-position disabled? on-click class] :as props}]
       (or
        (validate-args-macro button-args-desc props)
-       (let [disabled?   (deref-or-value disabled?)
-             part        (partial part/part part-structure props)
-             tooltip?    (part/get-part part-structure props ::tooltip)
-             button-part (part ::btn/button
-                           {:theme      theme
-                            :post-props {:class class
-                                         :style style
-                                         :attr  (merge {:disabled disabled?
-                                                        :on-click (handler-fn
-                                                                   (when (and on-click (not disabled?))
-                                                                     (on-click event)))}
-                                                       (when tooltip?
-                                                         {:on-mouse-over (handler-fn (reset! showing? true))
-                                                          :on-mouse-out  (handler-fn (reset! showing? false))})
-                                                       attr)}
-                            :props      {:tag      :button
-                                         :children [(part ::btn/label {:theme theme})]}})]
-         (when (or disabled? (not tooltip?))
-           (reset! showing? false))
+       (let [disabled?    (u/deref-or-value disabled?)
+             part         (partial part/part part-structure props)
+             tooltip?     (part/get-part part-structure props ::tooltip)
+             re-com       {:transition! transition!
+                           :state       {:class     class
+                                         :disabled? disabled?
+                                         :tooltip?  tooltip?
+                                         :on-click  on-click}}
+             label-part   (part ::btn/label
+                            {:theme theme
+                             :props {:re-com re-com}})
+             button-part  (part ::btn/button
+                            {:theme      theme
+                             :post-props (select-keys props [:style :attr :class])
+                             :props      {:tag      :button
+                                          :class    class
+                                          :re-com   re-com
+                                          :children [label-part]}})
+             tooltip-part (part ::btn/tooltip
+                            {:theme theme
+                             :props {:re-com re-com}})
+             popover-part (part ::btn/popover-tooltip
+                            {:impl  popover-tooltip
+                             :theme theme
+                             :props {:src      (at)
+                                     :label    tooltip-part
+                                     :position (or tooltip-position :below-center)
+                                     :showing? showing?
+                                     :anchor   button-part}})]
+         (when (or disabled? (not tooltip?)) (transition! :hide))
          (part ::btn/wrapper
            {:impl       box
             :theme      theme
             :post-props {:attr (debug/->attr props)}
-            :props      {:child (if tooltip?
-                                  (part ::btn/tooltip-wrapper
-                                    {:impl  popover-tooltip
-                                     :theme theme
-                                     :props {:src      (at)
-                                             :label    (part ::btn/tooltip {:theme theme})
-                                             :position (or tooltip-position :below-center)
-                                             :showing? showing?
-                                             :anchor   button-part}})
-                                  button-part)}}))))))
+            :props      {:re-com re-com
+                         :child  (if tooltip? popover-part button-part)}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-circle-icon-button
@@ -108,7 +114,7 @@
 
 (def md-circle-icon-button-part-structure
   [::ci-btn/wrapper {:impl 're-com.box/box}
-   [::ci-btn/tooltip-wrapper {:impl  're-com.popover/popover-tooltip
+   [::ci-btn/popover-tooltip {:impl  're-com.popover/popover-tooltip
                               :notes "Tooltip, if enabled by passing a :tooltip part"}
     [::ci-btn/tooltip {:top-level-arg? true}]]
    [::ci-btn/button
@@ -124,69 +130,75 @@
 
 (def md-circle-icon-button-args-desc
   (when include-args-desc?
-    (into [{:name :md-icon-name :required true :default "zmdi-plus" :type "string" :validate-fn string? :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
-           {:name :on-click :required false :type "-> nil" :validate-fn fn? :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-           {:name :size :required false :default :regular :type "keyword" :validate-fn button-size? :description [:span "one of " button-sizes-list]}
-           {:name :tooltip :required false :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-           {:name :tooltip-position :required false :default :below-center :type "keyword" :validate-fn position? :description [:span "relative to this anchor. One of " position-options-list]}
-           {:name :emphasise? :required false :default false :type "boolean" :description "if true, use emphasised styling so the button really stands out"}
-           {:name :disabled? :required false :default false :type "boolean" :description "if true, the user can't click the button"}
-           {:name :pre-theme :required false :type "map -> map" :validate-fn fn? :description "Pre-theme function"}
-           {:name :theme :required false :type "map -> map" :validate-fn fn? :description "Theme function"}
-           {:name :class :required false :type "string" :validate-fn css-class? :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-           {:name :style :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-           {:name :attr :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-           {:name :parts :required false :type "map" :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
-           {:name :src :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-           {:name :debug-as :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]
-          (part/describe-args md-circle-icon-button-part-structure))))
+    (into
+     [{:name :md-icon-name :required true :default "zmdi-plus" :type "string" :validate-fn string? :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
+      {:name :on-click :required false :type "-> nil" :validate-fn fn? :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+      {:name :size :required false :default :regular :type "keyword" :validate-fn button-size? :description [:span "one of " button-sizes-list]}
+      {:name :tooltip :required false :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+      {:name :tooltip-position :required false :default :below-center :type "keyword" :validate-fn position? :description [:span "relative to this anchor. One of " position-options-list]}
+      {:name :emphasise? :required false :default false :type "boolean" :description "if true, use emphasised styling so the button really stands out"}
+      {:name :disabled? :required false :default false :type "boolean" :description "if true, the user can't click the button"}
+      {:name :pre-theme :required false :type "map -> map" :validate-fn fn? :description "Pre-theme function"}
+      {:name :theme :required false :type "map -> map" :validate-fn fn? :description "Theme function"}
+      {:name :class :required false :type "string" :validate-fn css-class? :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+      {:name :style :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
+      {:name :attr :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+      {:name :parts :required false :type "map" :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
+      {:name :src :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+      {:name :debug-as :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks.  A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]
+     (part/describe-args md-circle-icon-button-part-structure))))
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
   [& {:keys [pre-theme theme debug-as]}]
-  (let [showing? (reagent/atom false)
-        theme    (theme/comp pre-theme theme)]
+  (let [theme       (theme/comp pre-theme theme)
+        showing?    (reagent/atom false)
+        transition! #(case %
+                       :show   (reset! showing? true)
+                       :hide   (reset! showing? false)
+                       :toggle (swap! showing? not))]
     (fn md-circle-icon-button-render
-      [& {:keys [md-icon-name tooltip-position on-click disabled?]
+      [& {:keys [md-icon-name tooltip-position size emphasise? disabled? on-click]
           :as   args
           :or   {md-icon-name "zmdi-plus"}}]
       (or
        (validate-args-macro md-circle-icon-button-args-desc args)
-       (let [part      (partial part/part md-circle-icon-button-part-structure args)
-             tooltip?  (part/get-part md-circle-icon-button-part-structure args ::ci-btn/tooltip)
-             icon-part (part ::ci-btn/icon
-                         {:theme      theme
-                          :post-props {:class md-icon-name}
-                          :props      {:tag :i}})
-             btn-part  (part ::ci-btn/button
-                         {:theme      theme
-                          :post-props (select-keys args [:class :style :attr])
-                          :props      (merge args {:children [icon-part]})})]
+       (let [part         (partial part/part md-circle-icon-button-part-structure args)
+             tooltip?     (part/get-part md-circle-icon-button-part-structure args ::ci-btn/tooltip)
+             re-com       {:transition! transition!
+                           :state       {:size         size
+                                         :emphasise?   emphasise?
+                                         :disabled?    disabled?
+                                         :tooltip?     tooltip?
+                                         :md-icon-name md-icon-name
+                                         :on-click     on-click}}
+             icon-part    (part ::ci-btn/icon
+                            {:theme theme
+                             :props {:re-com re-com
+                                     :tag    :i}})
+             btn-part     (part ::ci-btn/button
+                            {:theme      theme
+                             :post-props (select-keys args [:class :style :attr])
+                             :props      {:re-com   re-com
+                                          :children [icon-part]}})
+             popover-part (part ::ci-btn/tooltip-wrapper
+                            {:impl  popover-tooltip
+                             :theme theme
+                             :props {:src      (at)
+                                     :label    (part ::ci-btn/tooltip {:theme theme :props {:re-com re-com}})
+                                     :position (or tooltip-position :below-center)
+                                     :showing? showing?
+                                     :anchor   btn-part}})]
          ;; Prevent tooltip from still showing after button drag/drop
-         (when-not tooltip? (reset! showing? false))
+         (when-not tooltip? (transition! :hide))
          (part ::ci-btn/wrapper
            {:impl       box
             :theme      theme
-            :post-props {:attr (merge {:on-click
-                                       (handler-fn
-                                        (when (and on-click (not disabled?))
-                                          (on-click event)))}
-                                      (when tooltip?
-                                        {:on-mouse-over (handler-fn (reset! showing? true))
-                                         :on-mouse-out  (handler-fn (reset! showing? false))})
-                                      (debug/->attr args))}
-            :props
-            {:debug-as (or debug-as (reflect-current-component))
-             :child    (if-not tooltip?
-                         btn-part
-                         (part ::ci-btn/tooltip-wrapper
-                           {:impl  popover-tooltip
-                            :theme theme
-                            :props {:src      (at)
-                                    :label    (part ::ci-btn/tooltip {:theme theme})
-                                    :position (or tooltip-position :below-center)
-                                    :showing? showing?
-                                    :anchor   btn-part}}))}}))))))
+            :post-props {:attr (debug/->attr args)}
+            :props      {:re-com   re-com
+                         :debug-as (or debug-as (reflect-current-component))
+                         :child
+                         (if tooltip? popover-part btn-part)}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-icon-button
@@ -194,7 +206,7 @@
 
 (def md-icon-button-part-structure
   [::md-btn/wrapper {:impl 're-com.box/box}
-   [::md-btn/tooltip-wrapper {:impl 're-com.popover/popover-tooltip}
+   [::md-btn/popover-tooltip {:impl 're-com.popover/popover-tooltip}
     [::md-btn/tooltip {:top-level-arg? true}]]
    [::md-btn/button
     [::md-btn/icon {:tag :i}]]])
@@ -202,13 +214,6 @@
 (def md-icon-button-parts-desc
   (when include-args-desc?
     (part/describe md-icon-button-part-structure)))
-
-(def md-icon-button-parts-desc-legacy
-  (when include-args-desc?
-    [{:name :wrapper :level 0 :class "rc-md-icon-button-wrapper" :impl "[md-icon-button]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
-     {:name :tooltip :level 1 :class "rc-md-icon-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-     {:type :legacy  :level 1 :class "rc-md-icon-button"         :impl "[:div]"                  :notes "The actual button."}
-     {:name :icon    :level 2 :class "rc-md-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
 (def md-icon-button-parts
   (when include-args-desc?
@@ -234,56 +239,63 @@
 (defn md-icon-button
   "a square button containing a material design icon"
   [& {:keys [pre-theme theme debug-as]}]
-  (let [showing? (reagent/atom false)
-        theme    (theme/comp pre-theme theme)]
+  (let [showing?    (reagent/atom false)
+        theme       (theme/comp pre-theme theme)
+        transition! #(case %
+                       :show   (reset! showing? true)
+                       :hide   (reset! showing? false)
+                       :toggle (swap! showing? not))]
     (fn md-icon-button-render
-      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
+      [& {:keys [md-icon-name on-click size tooltip-position emphasise? disabled? src]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
        (validate-args-macro md-icon-button-args-desc args)
-       (let [part      (partial part/part md-icon-button-part-structure args)
-             tooltip?  (part/get-part md-icon-button-part-structure args ::md-btn/tooltip)
-             icon-part (part ::md-btn/icon
-                         {:theme      theme
-                          :props      {:tag    :i
-                                       :re-com {:md-icon-name md-icon-name}}})
-             btn-part  (part ::md-btn/button
-                         {:theme      theme
-                          :post-props (-> args
-                                          (select-keys [:class :style :attr])
-                                          (update :attr merge {:on-click (handler-fn
-                                                                          (when (and on-click (not disabled?))
-                                                                            (on-click event)))}
-                                                                        (when tooltip?
-                                                                          {:on-mouse-over (handler-fn (reset! showing? true))
-                                                                           :on-mouse-out  (handler-fn (reset! showing? false))})))
-                          :props      {:re-com   {:size size :emphasise? emphasise? :disabled? disabled?}
-                                       :children [icon-part]}})]
-         (when-not tooltip? (reset! showing? false))
+       (let [part         (partial part/part md-icon-button-part-structure args)
+             tooltip?     (part/get-part md-icon-button-part-structure args ::md-btn/tooltip)
+             re-com       {:transition! transition!
+                           :state       {:size         size
+                                         :on-click     on-click
+                                         :emphasise?   emphasise?
+                                         :disabled?    disabled?
+                                         :tooltip?     tooltip?
+                                         :md-icon-name md-icon-name}}
+             icon-part    (part ::md-btn/icon
+                            {:theme theme
+                             :props {:tag    :i
+                                     :re-com re-com}})
+             btn-part     (part ::md-btn/button
+                            {:theme      theme
+                             :post-props (select-keys args [:class :style :attr])
+                             :props      {:re-com   re-com
+                                          :children [icon-part]}})
+             tooltip-part (part ::md-btn/tooltip {:theme theme
+                                                  :props {:re-com re-com}})
+             popover-part (part ::md-btn/popover-tooltip
+                            {:impl  popover-tooltip
+                             :theme theme
+                             :props {:src      (at)
+                                     :label    tooltip-part
+                                     :position (or tooltip-position :below-center)
+                                     :showing? showing?
+                                     :anchor   btn-part}})]
+         (when-not tooltip? (transition! :hide))
          (part ::md-btn/wrapper
            {:impl       box
             :theme      theme
             :post-props {:attr (debug/->attr args)}
-            :props      {:src      (:src args)
+            :props      {:src      src
                          :debug-as (or debug-as (reflect-current-component))
-                         :child    (if-not tooltip?
-                                     btn-part
-                                     (part ::md-btn/tooltip-wrapper
-                                       {:impl  popover-tooltip
-                                        :theme theme
-                                        :props {:src      (at)
-                                                :label    (part ::md-btn/tooltip {:theme theme})
-                                                :position (or tooltip-position :below-center)
-                                                :showing? showing?
-                                                :anchor   btn-part}}))}}))))))
+                         :re-com   re-com
+                         :child    (if tooltip? popover-part btn-part)}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: info-button
 ;;--------------------------------------------------------------------------------------------------
 
 (def info-button-part-structure
-  [::info-btn/tooltip-wrapper {:impl 're-com.popover/popover-tooltip}
+  [::info-btn/popover-tooltip {:impl 're-com.popover/popover-tooltip}
+   [:info-bn/info {:top-level-arg? true}]
    [::info-btn/button
     [::info-btn/icon {:tag :svg}]]])
 
@@ -317,16 +329,26 @@
   Primarily designed to be nestled against the label of an input field, explaining the purpose of that field.
   Create a very small \"i\" icon via SVG"
   [& {:keys [pre-theme theme]}]
-  (let [showing? (reagent/atom false)
-        theme    (theme/comp pre-theme theme)]
+  (let [theme       (theme/comp pre-theme theme)
+        showing?    (reagent/atom false)
+        transition! #(case %
+                       :show   (reset! showing? true)
+                       :hide   (reset! showing? false)
+                       :toggle (swap! showing? not))]
     (fn info-button-render
-      [& {:keys [info position width disabled?] :as args}]
+      [& {:keys [position width disabled? debug-as]
+          :as   args}]
       (or
        (validate-args-macro info-button-args-desc args)
        (let [part        (partial part/part info-button-part-structure args)
+             re-com      {:transition! transition!
+                          :state       {:disabled? disabled?
+                                        :showing?  @showing?}}
+             info-part (part ::info-btn/info {:theme theme})
              icon-part   (part ::info-btn/icon
                            {:theme theme
                             :props {:tag      :svg
+                                    :re-com   re-com
                                     :attr     {:width "11" :height "11"}
                                     :children [[:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
                                                [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
@@ -334,24 +356,20 @@
                                                        :stroke "white" :stroke-width "2.5"}]]}})
              button-part (part ::info-btn/button
                            {:theme      theme
-                            :post-props (-> args
-                                            (select-keys [:class :style :attr])
-                                            (update :attr merge {:on-click (handler-fn
-                                                                            (when (not disabled?)
-                                                                              (swap! showing? not)))}))
-                            :props      {:re-com   {:disabled? disabled?}
+                            :post-props (select-keys args [:class :style :attr])
+                            :props      {:re-com   re-com
                                          :children [icon-part]}})]
-         (part ::info-btn/tooltip-wrapper
+         (part ::info-btn/popover-tooltip
            {:impl  popover-tooltip
             :theme theme
             :props {:src       (:src args)
-                    :debug-as  (or (:debug-as args) (reflect-current-component))
-                    :label     info
+                    :debug-as  (or debug-as (reflect-current-component))
+                    :label     info-part
                     :status    :info
                     :position  (or position :right-below)
                     :width     (or width "250px")
                     :showing?  showing?
-                    :on-cancel #(swap! showing? not)
+                    :on-cancel (handler-fn (transition! :toggle))
                     :anchor    button-part}}))))))
 
 ;;--------------------------------------------------------------------------------------------------
