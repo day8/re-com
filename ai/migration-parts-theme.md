@@ -377,27 +377,102 @@ The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes
                  (when disabled? disabled-style))}            ; Styling in component
 ```
 
-**The `:re-com` context pattern** - Pass component state to themes for conditional styling:
+## Step 4: Implement New Props Architecture
 
-Component functions compute state and pass pure values to themes:
+### Core Principle: Simplified Props Flow
+
+The new architecture eliminates the validation confusion between theme methods and component implementations:
+
+1. **Theme methods receive ALL props** - no complex filtering needed
+2. **Themes can add ANY props** - including component-specific props like `:width`, `:disabled?`
+3. **Final components handle validation** - they ignore unknown props or validate as needed
+
+### Standardized `:re-com` Structure
+
+All components now use a structured `:re-com` namespace for theme metadata:
+
 ```clojure
-;; In component function - compute state, pass to theme
-(part ::button
-  {:theme theme
-   :props {:re-com {:disabled? (deref-or-value disabled?)
-                    :size      size
-                    :active?   @showing?}}})
+;; NEW STANDARD: Structured :re-com context
+{:re-com {:part        ::my-component/wrapper  ; Required - theme dispatch
+          :state       {...}                   ; Optional - dereferenced state
+          :transition! fn}                     ; Optional - state functions
+ ;; All other props flow to final component
+ :class     "user-class"
+ :style     {:color "red"}
+ :attr      {:on-click handler}
+ :disabled? true
+ :width     "200px"}
 ```
 
-Theme methods handle all conditional styling based on the `:re-com` context:
+### Migration Pattern: `:re-com` Context
+
+**Old Pattern:**
 ```clojure
-;; In theme file - handle conditional styling
+;; Mixed styling logic in component function
+(part ::button
+  {:post-props {:class (str "base-class"
+                           (when disabled? " disabled-class"))
+                :style (when active? active-style)}})
+```
+
+**New Pattern:**
+```clojure
+;; Component function - compute state, build context
+(let [re-com-ctx {:state {:disabled? (deref-or-value disabled?)
+                          :size      size
+                          :active?   @showing?}}]      ; Always deref atoms
+  (part ::button
+    {:theme theme
+     :props {:re-com re-com-ctx}
+     :post-props (select-keys props [:class :style :attr])}))
+
+;; Theme method - handle conditional styling
 (defmethod bootstrap ::my-component/button [props]
-  (let [{:keys [disabled? size active?]} (get-in props [:re-com])]
+  (let [{:keys [disabled? size active?]} (get-in props [:re-com :state])]
     (tu/class props "btn"
               (case size :small "btn-sm" :large "btn-lg" "")
               (when disabled? "disabled")
               (when active? "active"))))
+```
+
+### State Handling Rules
+
+**Critical**: `:state` always contains dereferenced values, never atoms:
+
+```clojure
+;; ✅ CORRECT - Always deref before putting in :state
+:re-com {:state {:disabled? (deref-or-value disabled?)
+                 :showing?  @showing-atom}}
+
+;; ❌ INCORRECT - Never put atoms in :state
+:re-com {:state {:disabled? disabled-atom    ; Confusing for theme authors
+                 :showing?  showing-atom}}
+
+;; ✅ Performance atoms passed separately when needed
+:showing? showing-atom                       ; Raw atom for reactivity
+:re-com   {:state {:showing? @showing-atom}} ; Deref'd value for themes
+
+;; ✅ RARE EXCEPTION - Performance atom in :state with * suffix
+:re-com {:state {:disabled? false
+                 :model*    model-atom}}     ; * suffix indicates atom
+```
+
+### Theme Method Benefits
+
+With the new architecture, theme methods become much simpler:
+
+```clojure
+;; Theme methods get predictable, structured props
+(defmethod bootstrap ::my-component/wrapper [props]
+  (let [{:keys [disabled? size]} (get-in props [:re-com :state])]
+    (-> props
+        ;; Always safe - universal styling
+        (tu/class "my-component"
+                  (when disabled? "disabled"))
+        ;; Safe when you know the :impl (e.g., h-box accepts :gap)
+        (assoc :gap "8px" :align :center)
+        ;; Component will ignore unknown props
+        (assoc :custom-prop "value"))))
 ```
 
 This keeps the component function focused on state management and the theme focused on presentation logic.
@@ -563,17 +638,32 @@ This keeps the component function focused on state management and the theme focu
 - **Enhanced user customization** - Top-level part args and theme layers
 - **Maintainable code** - Structured approach vs manual property handling
 - **Simplified styling** - Wrapper-centric approach reduces theme complexity
+- **No validation conflicts** - Themes can add any props without breaking components
 - **Future-proof** - Aligned with re-com's architectural direction
 
 ## Migration Checklist
 
+### Part Structure & Theme Setup
 - [ ] Define `part-structure` with qualified keywords
 - [ ] Create theme file with appropriate theme method layers
 - [ ] Update component args to include `:pre-theme` and `:theme`
+
+### Component Implementation
 - [ ] Convert to form-2 component structure
 - [ ] Call `theme/comp` at mount time (outer function)
 - [ ] Replace manual hiccup with `part/part` calls in render function
-- [ ] Use `theme/comp` and `part/get-part` utilities
+- [ ] Use `part/get-part` to check for provided parts
+
+### Props Architecture
+- [ ] Implement standardized `:re-com` structure (`:part`, `:state`, `:transition!`)
+- [ ] Always deref atoms before putting in `:state`
+- [ ] Pass `:re-com` context to all parts via `:props`
+- [ ] Move conditional styling logic from component to theme methods
+- [ ] Use `(select-keys props [:class :style :attr])` for user styling
+
+### Testing & Validation
 - [ ] Test theme integration and parts customization
+- [ ] Verify user styling applies to correct parts (maintain legacy behavior)
+- [ ] Test with various prop combinations (including unknown props)
 - [ ] Verify legacy compatibility for existing users
 - [ ] Update demo page to showcase new capabilities

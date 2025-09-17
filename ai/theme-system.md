@@ -238,6 +238,75 @@ Re-com provides comprehensive flexbox utilities via `box` components:
 [rc/box :size "auto" :child component]  ; Flex container
 ```
 
+## Theme Method Props Contract
+
+### What Props Do Theme Methods Receive?
+
+Theme methods receive **all props** that will be passed to the final component, including:
+
+1. **Styling props** - `:class`, `:style`, `:attr` (always safe to modify)
+2. **Component-specific props** - `:width`, `:disabled?`, `:gap`, etc. (depends on target component)
+3. **`:re-com` metadata** - Structured context for theme decisions
+
+```clojure
+;; Example props received by theme method
+{:part        ::my-component/wrapper
+ :re-com      {:state {:disabled? true :size :large}
+               :transition! #(swap! showing? not)}
+ :class       "user-class"
+ :style       {:color "red"}
+ :attr        {:on-click handler}
+ :disabled?   true
+ :width       "200px"
+ :gap         "8px"}
+```
+
+### Theme Method Responsibilities
+
+1. **Read `:re-com :state`** for conditional styling decisions
+2. **Modify any props** as needed (styling, behavior, etc.)
+3. **Trust final component** to handle or ignore unknown props
+4. **Return transformed props map**
+
+### Safe Props Patterns
+
+```clojure
+(defmethod bootstrap ::my-component/wrapper [props]
+  (let [{:keys [disabled? size]} (get-in props [:re-com :state])]
+    (-> props
+        ;; Always safe - universal styling props
+        (tu/class "my-component"
+                  (when disabled? "disabled")
+                  (case size :large "large" :small "small" ""))
+        ;; Safe when you know the :impl (e.g., h-box accepts :gap)
+        (assoc :gap "8px" :align :center)
+        ;; Component will ignore unknown props
+        (assoc :custom-prop "value"))))
+```
+
+### Implementation-Specific Props
+
+Since part declarations specify `:impl`, theme methods can safely add implementation-specific props:
+
+```clojure
+;; Part structure declares h-box implementation
+[::wrapper {:impl 're-com.core/h-box}]
+
+;; Theme can confidently use h-box props
+(defmethod base ::wrapper [props]
+  (merge props {:size "auto"      ; h-box understands :size
+                :gap "8px"        ; h-box understands :gap
+                :justify :center  ; h-box understands :justify
+                :align :start}))  ; h-box understands :align
+```
+
+### Props Architecture Benefits
+
+1. **Simple mental model** - Themes get everything, transform as needed
+2. **No validation conflicts** - Components handle their own prop validation
+3. **Implementation flexibility** - Themes can add any props for known implementations
+4. **User wrapping supported** - Users can wrap strict components with prop filtering
+
 ## Theme Integration with Parts
 
 Themes synergize well with both map and function parts. Hiccup and string parts aren't affected by themes since re-com doesn't control their props.

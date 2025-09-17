@@ -195,6 +195,110 @@ The parts system includes comprehensive validation:
     ))
 ```
 
+## Props Architecture in Parts/Theme System
+
+### Core Principle: Simple Props Flow
+
+The parts/theme system uses a straightforward approach to props handling:
+
+1. **Theme methods receive all props** - No complex filtering or validation concerns
+2. **Themes can add/modify any props** - Including component-specific props like `:width`, `:disabled?`
+3. **Final component responsibility** - Components handle or ignore props as appropriate
+
+### Standardized `:re-com` Structure
+
+The `:re-com` key provides a structured namespace for theme-relevant metadata:
+
+```clojure
+{:re-com {:part        ::my-component/wrapper  ; Required - theme dispatch key
+          :state       {...}                   ; Optional - component state for themes
+          :transition! fn}                     ; Optional - state transition functions
+ ;; All other props flow to final component
+ :class     "user-class"
+ :style     {:color "red"}
+ :attr      {:on-click handler}
+ :disabled? true
+ :width     "200px"}
+```
+
+### `:re-com` Key Definitions
+
+- **`:part`** - Required keyword for theme method dispatch (e.g., `::my-component/wrapper`)
+- **`:state`** - Map of dereferenced component state values that themes need for conditional styling
+- **`:transition!`** - Functions for managing component state transitions (e.g., show/hide)
+
+### State Handling Rules
+
+**Important**: `:state` always contains dereferenced values, never atoms:
+
+```clojure
+;; ✅ CORRECT - Always deref before putting in :state
+:re-com {:state {:disabled? (deref-or-value disabled?)
+                 :size      size
+                 :showing?  @showing?}}
+
+;; ❌ INCORRECT - Never put atoms in :state
+:re-com {:state {:disabled? disabled-atom    ; Confusing for theme authors
+                 :showing?  showing-atom}}
+
+;; ✅ Performance atoms passed separately when needed
+:showing? showing-atom                       ; Raw atom for reactivity
+:re-com   {:state {:showing? @showing-atom}} ; Deref'd value for themes
+```
+
+### Exception: Performance Atoms in `:state`
+
+For rare performance cases, atoms can be passed in `:state` using the `*` suffix convention:
+
+```clojure
+;; ✅ RARE CASE - Performance atom in :state with * suffix
+:re-com {:state {:disabled? false           ; Normal dereferenced value
+                 :model*    model-atom}}    ; Atom marked with * suffix
+
+;; Theme authors know * suffix means atom
+(defmethod bootstrap ::my-component/input [props]
+  (let [{:keys [disabled? model*]} (get-in props [:re-com :state])
+        current-value (when model* @model*)]  ; Theme derefs when needed
+    (tu/class props "input"
+              (when disabled? "disabled")
+              (when (and model* (empty? current-value)) "empty"))))
+```
+
+**Use sparingly**: Only use `*` suffix when proven performance bottleneck exists.
+
+### Theme Method Contract
+
+Theme methods receive a predictable props structure:
+
+```clojure
+(defmethod bootstrap ::my-component/button [props]
+  (let [{:keys [disabled? size]} (get-in props [:re-com :state])]
+    (-> props
+        (tu/class "btn"
+                  (when disabled? "disabled")
+                  (case size :large "btn-lg" :small "btn-sm" ""))
+        ;; Can add component-specific props
+        (assoc :width "auto"))))
+```
+
+### Implementation Pattern
+
+```clojure
+(defn my-component [& {:keys [pre-theme theme] :as props}]
+  (let [theme (theme/comp pre-theme theme)]
+    (fn [& {:keys [disabled? size on-click] :as props}]
+      (let [part       (partial part/part part-structure props)
+            ;; Build :re-com context with dereferenced state
+            re-com-ctx {:state {:disabled? (deref-or-value disabled?)
+                               :size      size}}]
+
+        (part ::my-component/wrapper
+          {:impl       h-box
+           :theme      theme
+           :props      {:re-com re-com-ctx}
+           :post-props (select-keys props [:class :style :attr])})))))
+```
+
 ## Best Practices
 
 1. **Always define part-structure** for components with multiple styleable elements
@@ -204,3 +308,6 @@ The parts system includes comprehensive validation:
 5. **Theme integration** - Ensure each part receives and applies theme
 6. **Performance-conscious** - Remember theme composition happens at mount time
 7. **Validate comprehensively** - Use generated validation from part structure
+8. **Standardize `:re-com`** - Use only `:part`, `:state`, `:transition!` keys
+9. **Deref state values** - Always dereference atoms before putting in `:state`
+10. **Trust theme methods** - Let themes add any props, leave validation to final components

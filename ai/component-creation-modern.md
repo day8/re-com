@@ -70,42 +70,47 @@ Use this template for all new re-com components using the modern parts & theme s
 
 (defn my-component
   "A brief description of what this component does."
-  [& {:keys [model on-change placeholder disabled? pre-theme theme] :as props}]
+  [& {:keys [pre-theme theme] :as props}]
   ;; Mount-time: Compose theme once
-  (let [composed-theme (theme/comp pre-theme theme)]
+  (let [theme (theme/comp pre-theme theme)]
     ;; Render function: Called on every render
     (fn [& {:keys [model on-change placeholder disabled?] :as props}]
       (or
        (validate-args-macro my-component-args-desc props)
-       (let [part         (partial part/part part-structure props)
+       (let [part            (partial part/part part-structure props)
              label-provided? (part/get-part part-structure props ::my-component/label)
-             input-provided? (part/get-part part-structure props ::my-component/input)]
-         
+             input-provided? (part/get-part part-structure props ::my-component/input)
+             ;; Build :re-com context with dereferenced state
+             re-com-ctx      {:state {:disabled? (deref-or-value disabled?)
+                                     :has-label? label-provided?}}]
+
          (part ::my-component/wrapper
-           {:post-props (-> props
+           {:impl       v-box
+            :theme      theme
+            :post-props (-> props
                             (select-keys [:class :style :attr])
                             (debug/instrument props))
-            :theme      composed-theme
-            :props
-            {:children
-             [(when label-provided?
-                (part ::my-component/label-section
-                  {:impl       h-box
-                   :theme      composed-theme
-                   :props      {:children [(part ::my-component/label
-                   {:theme composed-theme})]}}))
-              
-              (part ::my-component/input-section
-                {:theme      composed-theme
-                 :props      {:children
-                              [(when input-provided?
-                                 (part ::my-component/input
-                                   {:theme      composed-theme
-                                    :post-props {:placeholder placeholder
-                                                 :disabled    disabled?
-                                                 :value       (deref-or-value model)
-                                                 :on-change   (handler-fn (on-change (-> % .-target .-value)))}
-	}))]}})]}}))))))
+            :props      {:re-com re-com-ctx
+                         :children
+                         [(when label-provided?
+                            (part ::my-component/label-section
+                              {:impl  h-box
+                               :theme theme
+                               :props {:re-com re-com-ctx
+                                       :children [(part ::my-component/label {:theme theme})]}}))
+
+                          (part ::my-component/input-section
+                            {:theme theme
+                             :props {:re-com re-com-ctx
+                                     :children
+                                     [(when input-provided?
+                                        (part ::my-component/input
+                                          {:theme      theme
+                                           :post-props {:placeholder placeholder
+                                                        :disabled    (deref-or-value disabled?)
+                                                        :value       (deref-or-value model)
+                                                        :on-change   (handler-fn (on-change (-> % .-target .-value)))}
+                                           :props      {:re-com re-com-ctx}}))]}})]}}))))))
 ```
 
 ### Theme File (Required)
@@ -123,7 +128,7 @@ Create `src/re_com/my_component/theme.cljs`:
 (defmethod base ::mc/wrapper [props]
   (merge props {:size "auto"}))
 
-(defmethod base ::mc/input-section [props]  
+(defmethod base ::mc/input-section [props]
   (tu/style props {:margin-top "5px"}))
 
 ;; Bootstrap styling - visual appearance
@@ -134,11 +139,68 @@ Create `src/re_com/my_component/theme.cljs`:
   (tu/class props "rc-my-component-label"))
 
 (defmethod bootstrap ::mc/input [props]
-  (tu/class props "rc-my-component-input" "form-control"))
+  (let [{:keys [disabled?]} (get-in props [:re-com :state])]
+    (tu/class props "rc-my-component-input" "form-control"
+              (when disabled? "disabled"))))
 
 ;; Main theme - component-specific defaults
 (defmethod main ::mc/label-section [props]
-  (tu/style props {:margin-bottom "8px"}))
+  (let [{:keys [has-label?]} (get-in props [:re-com :state])]
+    (tu/style props (when has-label? {:margin-bottom "8px"}))))
+```
+
+## Props Architecture Patterns
+
+### `:re-com` Context Structure
+
+Every part should receive a structured `:re-com` context:
+
+```clojure
+;; Build :re-com context in component function
+re-com-ctx {:state       {:disabled? (deref-or-value disabled?)
+                          :size      size
+                          :showing?  @showing?}    ; Always deref atoms
+            :transition! transition-fn}            ; Optional
+
+;; Pass to parts
+:props {:re-com re-com-ctx
+        :other-prop "value"}
+```
+
+### Theme Method Access Patterns
+
+Theme methods read `:re-com :state` for conditional styling:
+
+```clojure
+(defmethod bootstrap ::my-component/button [props]
+  (let [{:keys [disabled? size]} (get-in props [:re-com :state])]
+    (tu/class props "btn"
+              (when disabled? "disabled")
+              (case size :large "btn-lg" :small "btn-sm" ""))))
+```
+
+### Props Flow Rules
+
+1. **Theme methods receive all props** - including component-specific props
+2. **`:re-com` contains only** - `:part`, `:state` (dereferenced), `:transition!`
+3. **Performance atoms passed separately** when needed for reactivity
+4. **Final components handle validation** - themes don't filter props
+
+```clojure
+;; Component function pattern
+(part ::my-component/input
+  {:theme      theme
+   :post-props {:placeholder placeholder        ; Direct props
+                :disabled    (deref-or-value disabled?)  ; Deref'd
+                :value       (deref-or-value model)}     ; Deref'd
+   :props      {:re-com {:state {:disabled? disabled-val}} ; Deref'd for themes
+                :model  model-atom}})                    ; Raw atom for performance
+
+;; Rare case: Performance atom in :state with * suffix
+(part ::my-component/input
+  {:theme theme
+   :props {:re-com {:state {:disabled? false
+                            :model*    model-atom}}}}) ; Atom with * suffix
 ```
 
 ## Core Component Elements
@@ -149,9 +211,11 @@ Create `src/re_com/my_component/theme.cljs`:
 2. **Args Description** - Defines props with validation
 3. **Validation** - Use `validate-args-macro` for dev-time checking
 4. **Standard Props** - `:class`, `:style`, `:attr`, `:parts`, `:src`, `:debug-as`
-5. **Theme Integration** - Use `theme/merge-class` for styling
+5. **Theme Integration** - Use `theme/comp` at mount time, pass to all parts
 6. **Event Handlers** - Wrap in `handler-fn` for error handling
-7. **Debug Support** - Use `(->attr args)` and `reflect-current-component`
+7. **Debug Support** - Use `(debug/instrument props)` and `reflect-current-component`
+8. **`:re-com` Context** - Structure state for theme access
+9. **Props Dereferencing** - Always deref atoms before putting in `:state`
 
 ## State Management Patterns
 
