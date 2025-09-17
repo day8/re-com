@@ -56,4 +56,3 @@
     "and we want the implementation component to masquerade as the original component in debug output, "
     "such as component stacks. A map optionally containing keys"
     [:code ":component"] "and" [:code ":args"] "."]})
-  

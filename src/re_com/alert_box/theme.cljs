@@ -6,16 +6,15 @@
    [re-com.theme.default :refer [bootstrap base]]))
 
 (defmethod base ::ab/wrapper
-  [{{{:keys [padding]} :state} :re-com
-    :as                        props}]
+  [props]
   (-> props
       (tu/style (merge (flex-child-style "none")
-                       (when padding {:padding padding})))
-      (merge {:gap "10px"})))
+                       {:gap "10px"}))
+      (merge {:size "auto"})))
 
 (defmethod bootstrap ::ab/wrapper
   [{{{:keys [alert-type]} :state} :re-com
-    :as                           props}]
+    :as props}]
   (let [alert-class (case alert-type
                       :none    ""
                       :info    "alert-success"
@@ -25,12 +24,9 @@
     (tu/class props "rc-alert" "alert" "fade" "in" alert-class)))
 
 (defmethod base ::ab/header
-  [{{{:keys [body-provided?]} :state} :re-com
-    :as                               props}]
-  (-> props
-      (merge {:justify :between
-              :align   :center})
-      (tu/style {:margin-bottom (if body-provided? "10px" "0px")})))
+  [props]
+  (merge props {:justify :between
+                :align   :center}))
 
 (defmethod bootstrap ::ab/header
   [props]
@@ -52,4 +48,4 @@
 (defmethod bootstrap ::ab/close-button
   [props]
   (tu/class props "rc-alert-close-button"))
-         
+

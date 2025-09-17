@@ -289,6 +289,36 @@ For parts with no `:name` in old `parts-desc`, choose names using this priority:
 
 Always check: **auto-generated class** (`"rc-{namespace-suffix}-{part-name}"`) vs **legacy class** - if they differ, add the legacy class in the `bootstrap` theme layer.
 
+## ⚠️ Critical: User Styling Precedence & Target Compatibility
+
+### User Styling Must Always Win (Highest Precedence)
+
+**Rule**: Top-level user styling props must **always** override theme and parts styling. This is achieved by applying them via `:post-props` on the target part:
+
+```clojure
+;; ✅ CORRECT - User props in :post-props override theme styling
+(part ::my-component/input
+  {:theme      theme                           ; Applied first (lowest precedence)
+   :post-props {:class "user-class"            ; Applied last (HIGHEST precedence)
+                :style {:color "red"}          ; Overrides any theme color
+                :max-height "200px"}})         ; Overrides any theme max-height
+
+;; ❌ WRONG - User props in :props get overridden by theme
+(part ::my-component/input
+  {:props      {:class "user-class"}           ; Theme can override this!
+   :theme      theme})                         ; Applied after :props
+```
+
+### Props That Must Go to :post-props
+
+**All styling-related top-level props** must go to `:post-props` to maintain precedence:
+
+- **Universal styling**: `:class`, `:style`, `:attr`
+- **Component-specific styling**: `:padding`, `:max-height`, `:border-style`, `:width`, `:gap`, etc.
+- **Behavior overrides**: `:disabled?`, `:placeholder`, etc.
+
+### Target Part Compatibility
+
 **⚠️ Important**: User styling target must match old implementation:
 
 The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes other arguments) selectively to specific inner hiccup elements, not always to the outermost wrapper. The modern migration must preserve this exact behavior for backward compatibility.
@@ -659,7 +689,10 @@ This keeps the component function focused on state management and the theme focu
 - [ ] Always deref atoms before putting in `:state`
 - [ ] Pass `:re-com` context to all parts via `:props`
 - [ ] Move conditional styling logic from component to theme methods
-- [ ] Use `(select-keys props [:class :style :attr])` for user styling
+- [ ] **CRITICAL**: Apply ALL user styling props via `:post-props` (never `:props`)
+- [ ] **CRITICAL**: Apply user props to same target parts as old implementation
+- [ ] Use `(select-keys props [:class :style :attr])` for universal styling
+- [ ] Apply component-specific props (`:padding`, `:max-height`, etc.) via `:post-props`
 
 ### Testing & Validation
 - [ ] Test theme integration and parts customization
