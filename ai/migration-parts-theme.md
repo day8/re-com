@@ -350,6 +350,10 @@ The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes
 
 **Migration Rule**: Examine the old implementation carefully to see exactly which hiccup element received each user argument, then apply those same arguments to the corresponding part in the modern implementation. This ensures existing user code continues to work identically.
 
+**⚠️ Critical**: All original arguments must be preserved in modernized components, including `:src` and `:debug-as`. The original `:debug-as` and `:src` handling (typically applied to the outermost component via `reflect-current-component` and debug attributes) must be maintained in the modern implementation via `:post-props` to ensure debugging and development tools continue to work correctly.
+
+**⚠️ Debug Macro Requirement**: The keyword argument map in the render function must be bound to the symbol `args` (not `props` or other names) because `validate-args-macro` and debug instrumentation macros specifically look for a binding named `args`. Using a different binding name will cause debug and validation features to fail.
+
 ### Step 2: Add Theme Support
 1. Add `:pre-theme` and `:theme` to component args-desc
 2. Create theme file in component subdirectory
