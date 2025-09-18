@@ -9,7 +9,8 @@
    [re-com.bar-tabs :as-alias bt]
    [re-com.theme.default :refer [bootstrap base]]))
 
-(defmethod bootstrap ::bt/wrapper [{:keys [vertical?] :as props}]
+(defmethod bootstrap ::bt/wrapper [{{{:keys [vertical?]} :state} :re-com
+                                    :as                          props}]
   (tu/class props "noselect"
             (if vertical? "btn-group-vertical" "btn-group")
             "rc-tabs"))

@@ -9,7 +9,8 @@
    [re-com.pill-tabs :as-alias pt]
    [re-com.theme.default :refer [bootstrap base]]))
 
-(defmethod bootstrap ::pt/wrapper [{:keys [vertical?] :as props}]
+(defmethod bootstrap ::pt/wrapper [{{{:keys [vertical?]} :state} :re-com
+                                    :as                              props}]
   (tu/class props
             "rc-tabs"
             "noselect"
