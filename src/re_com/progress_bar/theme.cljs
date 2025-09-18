@@ -17,6 +17,7 @@
   (tu/class props "progress-bar"))
 
 (defmethod main ::progress-bar/portion
-  [{:keys [striped?] :as props}]
+  [{{{:keys [striped?]} :state} :re-com
+    :as                         props}]
   (cond-> props
     striped? (tu/class "progress-bar-striped" "active")))
