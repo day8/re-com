@@ -4,6 +4,7 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    re-com.checkbox.theme
+   [re-com.args     :as args]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug]
    [re-com.part     :as part]
@@ -32,21 +33,21 @@
 
 (def checkbox-args-desc
   (when include-args-desc?
-    (concat
-     [{:name :model       :required true                 :type "boolean | r/atom"                                      :description "holds state of the checkbox when it is called"}
-      {:name :on-change   :required true                 :type "boolean -> nil"   :validate-fn fn?                     :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
-      {:name :disabled?   :required false :default false :type "boolean | r/atom"                                      :description "if true, user interaction is disabled"}
-      {:name :label-class :required false                :type "string"           :validate-fn string?                 :description "CSS class names (applies to the label)"}
-      {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?              :description "CSS style map (applies to the label)"}
-      {:name :pre-theme   :required false                :type "map -> map"       :validate-fn fn?                     :description "Pre-theme function"}
-      {:name :theme       :required false                :type "map -> map"       :validate-fn fn?                     :description "Theme function"}
-      {:name :class       :required false                :type "string"           :validate-fn css-class?              :description "CSS class names, space separated (applies to the wrapper)"}
-      {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?              :description "CSS style map (applies to the wrapper)"}
-      {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?              :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the wrapper)"]}
-      {:name :parts       :required false                :type "map"              :validate-fn (parts? checkbox-parts) :description "See Parts section below."}
-      {:name :src         :required false                :type "map"              :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-      {:name :debug-as    :required false                :type "map"              :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]
-     (part/describe-args part-structure))))
+    (vec
+     (concat
+      [{:name :model       :required true                 :type "boolean | r/atom" :validate-fn #(or (boolean? %) (satisfies? IAtom %)) :description "holds state of the checkbox when it is called"}
+       {:name :on-change   :required true                 :type "boolean -> nil"   :validate-fn fn?                     :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
+       {:name :disabled?   :required false :default false :type "boolean | r/atom" :validate-fn #(or (boolean? %) (satisfies? IAtom %)) :description "if true, user interaction is disabled"}
+       {:name :label-class :required false                :type "string"           :validate-fn string?                 :description "CSS class names (applies to the label)"}
+       {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?              :description "CSS style map (applies to the label)"}
+       args/class
+       args/style
+       args/attr
+       (args/parts checkbox-parts)
+       args/src
+       args/debug-as]
+      theme/args-desc
+      (part/describe-args part-structure)))))
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
@@ -62,17 +63,23 @@
              disabled?       (deref-or-value disabled?)
              label-provided? (part/get-part part-structure props ::label)
              callback-fn     #(when (and on-change (not disabled?))
-                                (on-change (not model)))]
+                                (on-change (not model)))
+             re-com          {:state {:model          model
+                                      :disabled?      disabled?
+                                      :label-class    label-class
+                                      :label-style    label-style
+                                      :label-provided? label-provided?}}]
          (part ::wrapper
            {:impl       h-box
             :post-props (-> (select-keys props [:class :style :attr])
                             (debug/instrument props))
             :theme      theme
-            :props
-            {:children
+            :props      {:re-com re-com
+                         :children
              [(part ::input
                 {:theme      theme
-                 :props      {:tag :input}
+                 :props      {:re-com re-com
+                              :tag    :input}
                  :post-props {:attr {:type      :checkbox
                                      :disabled  disabled?
                                      :checked   (boolean model)
@@ -81,6 +88,7 @@
               (when label-provided?
                 (part ::label
                   {:theme      theme
+                   :props      {:re-com re-com}
                    :post-props (cond-> {:on-click (handler-fn (callback-fn))}
                                  label-class (tu/class label-class)
                                  label-style (tu/style label-style))}))]}}))))))
