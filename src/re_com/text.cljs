@@ -5,8 +5,10 @@
    (:require
     re-com.label.theme
     re-com.title.theme
+    re-com.p.theme
     [re-com.label :as-alias l]
     [re-com.title :as-alias title]
+    [re-com.p :as-alias p]
     [re-com.args     :as args]
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :as debug]
@@ -155,7 +157,31 @@
 ;;  Component: p
 ;; ------------------------------------------------------------------------------------
 
-(def standard-impl-keys [:attr :children :part :re-com :state :theme])
+(def p-part-structure
+  [::p/wrapper {:tag :span}
+   [::p/content {:tag :span}]])
+
+(def p-parts-desc
+  (when include-args-desc?
+    (part/describe p-part-structure)))
+
+(def p-parts
+  (when include-args-desc?
+    (-> (map :name p-parts-desc) set)))
+
+(def p-args-desc
+  (when include-args-desc?
+    (into
+     [args/class
+      args/style
+      args/attr
+      (args/parts p-parts)
+      args/src
+      args/debug-as]
+     (concat theme/args-desc
+             (part/describe-args p-part-structure)))))
+
+(def standard-impl-keys [:attr :children :part :re-com :state :theme :pre-theme :parts :debug-as :src])
 
 (defn p
   "acts like [:p ] but uses a [:span] in place of the [:p] and adds bottom margin of 0.7ems which
@@ -186,18 +212,34 @@
 
   By adding, for example, a [hyperlink] component within your `[:p]` (which contains a [:div]), you can get this warning message"
   [& args]
-  (let [arg1                     (first args)    ;; it might be a map of attributes, including styles
+  (let [arg1                     (first args)
         [m hiccup-children]      (if (map? arg1)
                                    [arg1 (rest args)]
                                    [{}   args])
-        {:keys [children] :as m} (deep-merge {:style {:flex          "none"
-                                                      :width         "450px"
-                                                      :min-width     "450px"
-                                                      :margin-bottom "0.7em"}}
-                                             m)]
-    [:span.rc-p
-     (apply dissoc m standard-impl-keys)
-     (into [:span] (concat children hiccup-children))]))
+        {:keys [children pre-theme theme parts debug-as src] :as m} m
+        theme                    (theme/comp pre-theme theme)
+        args-map                 (assoc m :parts parts :debug-as debug-as :src src)
+        part                     (partial part/part p-part-structure args-map)
+        re-com-ctx               {:state {}}
+        user-props               (apply dissoc m standard-impl-keys)
+        content-children         (concat children hiccup-children)]
+    (or
+     (when (and include-args-desc? (or pre-theme theme parts debug-as src))
+       (validate-args-macro p-args-desc args-map))
+     (part ::p/wrapper
+       {:theme      theme
+        :post-props (-> user-props
+                        (assoc :debug-as (or debug-as (reflect-current-component)))
+                        (debug/instrument args-map))
+        :props      {:re-com   re-com-ctx
+                     :src      (at)
+                     :tag      :span
+                     :children [(part ::p/content
+                                  {:theme theme
+                                   :props {:re-com   re-com-ctx
+                                           :src      (at)
+                                           :tag      :span
+                                           :children content-children}})]}}))))
 
 ;; Alias for backwards compatibility; p and p-span used to be different implementations.
 (def p-span p)
