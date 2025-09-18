@@ -4,7 +4,9 @@
     [re-com.validate :refer [validate-args-macro]])
    (:require
     re-com.label.theme
+    re-com.title.theme
     [re-com.label :as-alias l]
+    [re-com.title :as-alias title]
     [re-com.args     :as args]
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :as debug]
@@ -80,11 +82,15 @@
 ;;  Component: title
 ;; ------------------------------------------------------------------------------------
 
+(def title-part-structure
+  [::title/wrapper {:impl 're-com.box/v-box}
+   [::title/label-wrapper {:tag :span}
+    [::title/label {:top-level-arg? true :impl "empty"}]]
+   [::title/underline {:impl 're-com.box/line}]])
+
 (def title-parts-desc
   (when include-args-desc?
-    [{:name :wrapper   :level 0 :class "rc-title-wrapper"   :impl "[title]" :notes "Outer wrapper of the title."}
-     {:type :legacy    :level 1 :class "rc-title"           :impl "[:span]"}
-     {:name :underline :level 2 :class "rc-title-underline" :impl "[line]"}]))
+    (part/describe title-part-structure)))
 
 (def title-parts
   (when include-args-desc?
@@ -92,59 +98,58 @@
 
 (def title-args-desc
   (when include-args-desc?
-    [{:name :label         :required true                    :type "anything"                                          :description "title or hiccup or anything to display"}
-     {:name :level         :required false                   :type "keyword"         :validate-fn title-level-type?    :description [:span "one of " title-levels-list ". If not provided then style the title using " [:code ":class"] " or " [:code ":style"]]}
-     {:name :underline?    :required false  :default false   :type "boolean"                                           :description "if true, the title is underlined"}
-     {:name :margin-top    :required false  :default "0.4em" :type "string"          :validate-fn string?              :description "CSS size for space above the title"}
-     {:name :margin-bottom :required false  :default "0.1em" :type "string"          :validate-fn string?              :description "CSS size for space below the title"}
-     {:name :class         :required false                   :type "string"          :validate-fn css-class?              :description "CSS class names, space separated (applies to the title, not the wrapping div)"}
-     {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?           :description "CSS styles to add or override (applies to the title, not the wrapping div)"}
-     {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the title, not the wrapping div)"]}
-     {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}
-     {:name :theme         :required false                   :type "map"         :description "alpha"}
-     {:name :pre-theme      :required false                   :type "map"         :description "alpha"}
-     {:name :src           :required false                   :type "map"             :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as      :required false                   :type "map"             :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (into
+     [{:name :level         :required false                   :type "keyword"         :validate-fn title-level-type?    :description [:span "one of " title-levels-list ". If not provided then style the title using " [:code ":class"] " or " [:code ":style"]]}
+      {:name :underline?    :required false  :default false   :type "boolean"                                           :description "if true, the title is underlined"}
+      {:name :margin-top    :required false  :default "0.6em" :type "string"          :validate-fn string?              :description "CSS size for space above the title"}
+      {:name :margin-bottom :required false  :default "0.3em" :type "string"          :validate-fn string?              :description "CSS size for space below the title"}
+      args/class
+      args/style
+      args/attr
+      (args/parts title-parts)
+      args/src
+      args/debug-as]
+     (concat theme/args-desc
+             (part/describe-args title-part-structure)))))
 
 (defn title
   "A title with four preset levels"
-  [& {:keys [label level underline? margin-top margin-bottom class style attr parts src debug-as pre-theme theme]
-      :or   {margin-top "0.6em" margin-bottom "0.3em"}
-      :as   args}]
-  (or
-   (validate-args-macro title-args-desc args)
-   (let [preset-class (if (nil? level) "" (name level))
-         theme        (theme/comp pre-theme theme)]
-     [v-box
-      (theme
-       {:src      src
-        :part     ::title-wrapper
-        :debug-as (or debug-as (reflect-current-component))
-        :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
-        :style    (get-in parts [:wrapper :style])
-        :attr     (get-in parts [:wrapper :attr])
-        :children
-        [(part/part part/default
-           {:part  ::title-label
-            :theme theme
-            :props
-            (merge
-             {:tag      :span
-              :class    (theme/merge-class "display-flex" "rc-title" preset-class class)
-              :style    (merge (flex-child-style "none")
-                               {:margin-top margin-top}
-                               {:line-height 1}             ;; so that the margins are correct
-                               (when-not underline? {:margin-bottom margin-bottom})
-                               style)
-              :children [label]}
-             attr)})
-         (when underline? [line
-                           :src  (at)
-                           :size "1px"
-                           :class (theme/merge-class "rc-title-underline"
-                                                     (get-in parts [:underline :class]))
-                           :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))
-                           :attr  (get-in parts [:underline :attr])])]})])))
+  [& {:keys [pre-theme theme debug-as]}]
+  (let [theme (theme/comp pre-theme theme)]
+    (fn [& {:keys [level underline? margin-top margin-bottom]
+            :or   {margin-top "0.6em" margin-bottom "0.3em"}
+            :as   args}]
+      (or
+       (validate-args-macro title-args-desc args)
+       (let [part   (partial part/part title-part-structure args)
+             re-com {:state {:level         level
+                             :underline?    underline?
+                             :margin-top    margin-top
+                             :margin-bottom margin-bottom}}]
+         (part ::title/wrapper
+           {:impl       v-box
+            :theme      theme
+            :post-props (-> {:debug-as (or debug-as (reflect-current-component))}
+                            (debug/instrument args))
+            :props      {:re-com   re-com
+                         :src      (at)
+                         :children [(part ::title/label-wrapper
+                                      {:theme      theme
+                                       :post-props (-> (select-keys args [:class :style :attr]))
+                                       :props      {:re-com   re-com
+                                                    :src      (at)
+                                                    :tag      :span
+                                                    :children [(part ::title/label
+                                                                 {:theme theme
+                                                                  :props {:re-com re-com}
+                                                                  :src   (at)})]}}),
+                                    (when underline?
+                                      (part ::title/underline
+                                        {:impl  line
+                                         :theme theme
+                                         :props {:re-com re-com
+                                                 :src    (at)
+                                                 :size   "1px"}}))]}}))))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: p
