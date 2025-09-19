@@ -6,7 +6,9 @@
    [re-com.theme.default :refer [base main bootstrap]]))
 
 (defmethod base ::title/wrapper [props]
-  (merge props {:size "auto"}))
+  (-> props
+      (merge {:size "auto"})
+      (tu/style (flex-child-style "none"))))
 
 (defmethod base ::title/label-wrapper [props]
   (let [{:keys [margin-top margin-bottom underline?]} (get-in props [:re-com :state])]
