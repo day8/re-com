@@ -191,6 +191,12 @@
             "%c within the %c:parts%c map.")
        error-style code-style error-style code-style error-style code-style error-style code-style error-style)
 
+      :part-req-missing
+      (js/console.log
+       (str "• %cPart %c" arg-name "%c is required but undeclared."
+            "\n - Please declare %c" arg-name "%c within the %c:parts%c map.")
+       error-style code-style error-style code-style error-style code-style error-style)
+
       (js/console.log "• " confused-icon " Unknown problem reported"))))
 
 (defn log-validate-args-error

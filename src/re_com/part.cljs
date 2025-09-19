@@ -86,6 +86,9 @@
 
 (defn args-valid? [part-structure args problems]
   (let [part-seq  (tree-seq branch? children part-structure)
+        req-ks    (unqualify-set
+                   (map id (filter (comp :part-required? props)
+                                   part-seq)))
         ks        (unqualify-set (map id part-seq))
         top-ks    (unqualify-set (top-level-args part-structure))
         top-args  (set (filter top-ks (keys args)))
@@ -100,10 +103,16 @@
              (set/intersection ks)
              (remove top-ks)
              (map #(do {:problem  :part-top-level-unsupported
+                        :arg-name %})))
+        missing-req-keys
+        (->> (set/union top-args part-args)
+             (set/difference req-ks)
+             (map #(do {:problem   :part-req-missing
                         :arg-name %})))]
     (vec (concat problems
                  top-level-collisions
-                 top-level-unsupported-keys))))
+                 top-level-unsupported-keys
+                 missing-req-keys))))
 
 (def part? (some-fn map? string? vector? ifn? nil?))
 

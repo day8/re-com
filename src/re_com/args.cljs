@@ -56,3 +56,7 @@
     "and we want the implementation component to masquerade as the original component in debug output, "
     "such as component stacks. A map optionally containing keys"
     [:code ":component"] "and" [:code ":args"] "."]})
+
+(def debug [src debug-as])
+
+(def std (concat [class style attr theme pre] debug))

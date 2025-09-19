@@ -3,6 +3,7 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
+   [re-com.args :as args]
    re-com.button.theme
    re-com.md-circle-icon-button.theme
    re-com.md-icon-button.theme
@@ -37,7 +38,7 @@
    [::btn/popover-tooltip {:impl 're-com.popover/popover-tooltip}
     [::btn/tooltip {:top-level-arg? true}]]
    [::btn/button {:tag :button}
-    [::btn/label {:top-level-arg? true}]]])
+    [::btn/label {:top-level-arg? true :part-required? true}]]])
 
 (def button-parts-desc
   (when include-args-desc?
@@ -50,18 +51,23 @@
 (def button-args-desc
   (when include-args-desc?
     (concat
-     [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup?     :description "label for the button"}
-      {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?                   :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-      {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?     :description "what to show in the tooltip"}
-      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?             :description [:span "relative to this anchor. One of " position-options-list]}
-      {:name :disabled?        :required false :default false         :type "boolean | atom"                                     :description "if true, the user can't click the button"}
-      {:name :class            :required false                        :type "string"          :validate-fn css-class?            :description "CSS class names, space separated (applies to wrapper)"}
-      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to wrapper)"}
-      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description "HTML attributes (applies to wrapper)"}
-      {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "Map of part names to styling"}
-      {:name :src              :required false                        :type "map"             :validate-fn map?                  :description "Source code coordinates for debugging"}
-      {:name :debug-as         :required false                        :type "map"             :validate-fn map?                  :description "Debug output masquerading"}]
-     theme/args-desc
+     [{:description
+       "a function which takes no params and returns nothing. Called when the button is clicked",
+       :name        :on-click,
+       :required    false,
+       :type        "-> nil",       :validate-fn fn?}
+      {:default     :below-center,
+       :description [:span "relative to this anchor. One of " position-options-list],
+       :name        :tooltip-position,
+       :required    false,
+       :type        "keyword",
+       :validate-fn position?}
+      {:default     false,
+       :description "if true, the user can't click the button",
+       :name        :disabled?,
+       :required    false,
+       :type        "boolean | atom"}]
+     args/std
      (part/describe-args part-structure))))
 
 (defn button
