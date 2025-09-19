@@ -123,7 +123,7 @@
           :validate-fn       (validate/parts?
                               (set (map :name (describe structure))))
           :parts-validate-fn (partial args-valid? structure)
-          :description       "See Parts section below."}]
+          :description       [:span "See " [:a {:href "#/parts"} "Parts"]]}]
         (comp
          (filter (comp (top-level-args structure) :name))
          (map #(merge

@@ -28,11 +28,15 @@
    :required false,
    :type "map",
    :validate-fn (parts? part-names),
-   :description "See Parts section below."})
+   :description [:span "See " [:a {:href "#/parts"} "Parts"]]})
 
-(def pre {:name :pre-theme, :description "alpha"})
+(def pre {:name        :pre-theme
+          :type        "map -> map"
+          :description [:span "See " [:a {:href "#/theme"} "Theme"]]})
 
-(def theme {:name :theme, :description "alpha"})
+(def theme {:name        :theme
+            :type        "map -> map"
+            :description [:span "See " [:a {:href "#/theme"} "Theme"]]})
 
 (def ref {:name :ref :description "re-com internal"})
 (def data-rc-src {:name :data-rc-src :description "re-com internal"})
