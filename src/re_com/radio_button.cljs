@@ -3,8 +3,13 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
+   re-com.radio-button.theme
+   [re-com.radio-button :as-alias rb]
+   [re-com.args     :as args]
    [re-com.config   :refer [include-args-desc?]]
-   [re-com.debug    :refer [->attr]]
+   [re-com.debug    :as debug]
+   [re-com.theme    :as theme]
+   [re-com.part     :as part]
    [re-com.util     :refer [deref-or-value px]]
    [re-com.popover  :refer [popover-tooltip]]
    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
@@ -15,12 +20,14 @@
 ;;  Component: radio-button
 ;; ------------------------------------------------------------------------------------
 
+(def radio-button-part-structure
+  [::rb/wrapper {:impl 're-com.box/h-box}
+   [::rb/input {:tag :input}]
+   [::rb/label {:top-level-arg? true :impl "empty"}]])
+
 (def radio-button-parts-desc
   (when include-args-desc?
-    [{:name :wrapper :level 0 :class "rc-radio-button-wrapper" :impl "[radio-button]" :notes "Outer wrapper of the radio-button, label, everything."}
-     {:type :legacy  :level 1 :class "rc-radio-button"         :impl "[:input]"       :notes "The actual input field."}
-     {:type :legacy  :level 1 :class "rc-radio-button-label"   :impl "[:span]"        :notes "The label of the radio button."
-      :name-label [:span "Use " [:code ":label-class"] " or " [:code ":label-style"] " instead."]}]))
+    (part/describe radio-button-part-structure)))
 
 (def radio-button-parts
   (when include-args-desc?
@@ -28,57 +35,63 @@
 
 (def radio-button-args-desc
   (when include-args-desc?
-    [{:name :model       :required true                 :type "anything | r/atom"                               :description [:span "selected value of the radio button group. See also " [:code ":value"]]}
-     {:name :value       :required false                :type "anything"                                        :description [:span "if " [:code ":model"]  " equals " [:code ":value"] " then this radio button is selected"]}
-     {:name :on-change   :required true                 :type "anything -> nil"  :validate-fn fn?               :description [:span "called when the radio button is clicked. Passed " [:code ":value"]]}
-     {:name :label       :required false                :type "string | hiccup"  :validate-fn string-or-hiccup? :description "the label shown to the right"}
-     {:name :disabled?   :required false :default false :type "boolean | r/atom"                                :description "if true, the user can't click the radio button"}
-     {:name :label-class :required false                :type "string"           :validate-fn string?           :description "CSS class names (applies to the label)"}
-     {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the label)"}
-     {:name :class       :required false                :type "string"           :validate-fn css-class?           :description "CSS class names, space separated (applies to the radio-button, not the wrapping div)"}
-     {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the radio-button, not the wrapping div)"}
-     {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the radio-button, not the wrapping div)"]}
-     {:name :parts       :required false                :type "map"              :validate-fn (parts? radio-button-parts) :description "See Parts section below."}
-     {:name :src         :required false                :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as    :required false                :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (into
+     [{:name :model       :required true                 :type "anything | r/atom"                               :description [:span "selected value of the radio button group. See also " [:code ":value"]]}
+      {:name :value       :required false                :type "anything"                                        :description [:span "if " [:code ":model"]  " equals " [:code ":value"] " then this radio button is selected"]}
+      {:name :on-change   :required true                 :type "anything -> nil"  :validate-fn fn?               :description [:span "called when the radio button is clicked. Passed " [:code ":value"]]}
+      {:name :label       :required false                :type "string | hiccup"  :validate-fn string-or-hiccup? :description "the label shown to the right"}
+      {:name :disabled?   :required false :default false :type "boolean | r/atom"                                :description "if true, the user can't click the radio button"}
+      {:name :label-class :required false                :type "string"           :validate-fn string?           :description "CSS class names (applies to the label)"}
+      {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the label)"}
+      args/class
+      args/style
+      args/attr
+      (args/parts radio-button-parts)
+      args/src
+      args/debug-as]
+     (concat theme/args-desc
+             (part/describe-args radio-button-part-structure)))))
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"
-  [& {:keys [model value on-change label disabled? label-class label-style class style attr parts src debug-as]
-      :as   args}]
-  (or
-   (validate-args-macro radio-button-args-desc args)
-   (let [cursor      "default"
-         model       (deref-or-value model)
-         disabled?   (deref-or-value disabled?)
-         checked?    (= model value)
-         callback-fn #(when (and on-change (not disabled?) (not checked?))
-                        (on-change value))]
-     [h-box
-      :src      src
-      :debug-as (or debug-as (reflect-current-component))
-      :class    (str "noselect rc-radio-button-wrapper " (get-in parts [:wrapper :class]))
-      :style    (get-in parts [:wrapper :style])
-      :attr     (get-in parts [:wrapper :attr])
-      :align    :start
-      :children [[:input
-                  (merge
-                   {:class     (str "rc-radio-button " class)
-                    :style     (merge
-                                (flex-child-style "none")
-                                {:cursor cursor}
-                                style)
-                    :type      "radio"
-                    :disabled  disabled?
-                    :checked   checked?
-                    :on-change (handler-fn (callback-fn))}
-                   attr)]
-                 (when label
-                   [:span
-                    {:class    (str "rc-radio-button-label " label-class)
-                     :style    (merge (flex-child-style "none")
-                                      {:padding-left "8px"
-                                       :cursor       cursor}
-                                      label-style)
-                     :on-click (handler-fn (callback-fn))}
-                    label])]])))
+  [& {:keys [pre-theme theme debug-as]}]
+  (let [theme (theme/comp pre-theme theme)]
+    (fn [& {:keys [model value on-change disabled? label-class label-style]
+            :as   args}]
+      (or
+       (validate-args-macro radio-button-args-desc args)
+       (let [model       (deref-or-value model)
+             disabled?   (deref-or-value disabled?)
+             checked?    (= model value)
+             callback-fn #(when (and on-change (not disabled?) (not checked?))
+                            (on-change value))
+             part        (partial part/part radio-button-part-structure args)
+             re-com-ctx  {:state {:disabled?   disabled?
+                                  :checked?    checked?
+                                  :label-class label-class
+                                  :label-style label-style}}
+             input-part  (part ::rb/input
+                               {:theme      theme
+                                :post-props (-> (select-keys args [:class :style :attr])
+                                                (update :attr merge {:type      "radio"
+                                                                     :disabled  disabled?
+                                                                     :checked   checked?
+                                                                     :on-change (handler-fn (callback-fn))}))
+                                :props      {:re-com re-com-ctx
+                                             :src    (at)
+                                             :tag    :input}})
+             label?     (part/get-part radio-button-part-structure args ::rb/label)
+             label-part (when label?
+                          (part ::rb/label
+                                {:theme      theme
+                                 :post-props {:on-click (handler-fn (callback-fn))}
+                                 :props      {:re-com re-com-ctx
+                                              :src    (at)}}))]
+         (part ::rb/wrapper
+               {:impl       h-box
+                :theme      theme
+                :post-props (-> {:debug-as (or debug-as (reflect-current-component))}
+                                (debug/instrument args))
+                :props      {:re-com   re-com-ctx
+                             :src      (at)
+                             :children [input-part label-part]}}))))))
