@@ -160,6 +160,7 @@
      {:name :min-width          :required false                         :type "string"                  :validate-fn string?                     :description [:span "the CSS min-width, like \"100px\" or \"20em\". This is the natural display width of the Component. It prevents the width from becoming smaller than the value specified, yet allows growth horizontally if sufficient choices are selected up to " [:code ":max-width"] " or unbounded growth if " [:code ":max-width"] " is not provided."]}
      {:name :max-width          :required false                         :type "string"                  :validate-fn string?                     :description "the CSS max-width, like \"100px\" or \"20em\". It prevents the width from becoming larger than the value specified. If sufficient choices are selected to go beyond the maximum then some choices will be hidden by overflow."}
      {:name :height             :required false :default "25px"         :type "string"                  :validate-fn string?                     :description "the specific height of the component"}
+     {:name :max-height         :required false :default "380px"        :type "string"                  :validate-fn string?                     :description "the maximum height of the dropdown menu"}
      {:name :style              :required false                         :type "map"                     :validate-fn map?                        :description "CSS styles to add or override"}
      {:name :parts              :required false                         :type "map"                     :validate-fn (parts? tag-dropdown-parts) :description "See Parts section below."}
      {:name :src                :required false                         :type "map"                     :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
@@ -172,10 +173,11 @@
    (let [showing?      (reagent/atom false)]
      (fn tag-dropdown-render
        [& {:keys [choices model placeholder on-change unselect-buttons? required? show-only-button? show-counter? abbrev-fn abbrev-threshold label-fn
-                  description-fn min-width max-width height style disabled? parts src debug-as]
+                  description-fn min-width max-width height max-height style disabled? parts src debug-as]
            :or   {label-fn          :label
                   description-fn    :description
                   height            "25px"
+                  max-height        "380px"
                   show-only-button? false
                   show-counter?     false}
            :as   args}]
@@ -217,6 +219,7 @@
                                :disabled?     disabled?
                                :required?     required?
                                :show-only-button? show-only-button?
+                               :max-height    max-height
                                :parts         (->
                                                (select-keys parts selection-list/selection-list-parts)
                                                (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")

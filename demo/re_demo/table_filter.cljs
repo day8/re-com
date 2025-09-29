@@ -27,7 +27,9 @@
     :options [{:id "clojure" :label "Clojure"}
               {:id "javascript" :label "JavaScript"}
               {:id "python" :label "Python"}
-              {:id "java" :label "Java"}]}])
+              {:id "java" :label "Java"}
+              {:id "rust" :label "Rust"}
+              {:id "C" :label "C"}]}])
 
 (defn panel
   []
