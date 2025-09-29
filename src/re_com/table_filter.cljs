@@ -451,6 +451,7 @@
         :choices           options
         :placeholder       "Select values..."
         :min-width         "220px"
+        :max-width         "600px"
         :show-only-button? true
         :show-counter?     true
         :on-change         #(on-change (assoc filter-spec :val %))

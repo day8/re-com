@@ -1,3 +1,9 @@
+## 2.28.4 (2025-09-29)
+
+#### Added
+ - `tag-dropdown`: added `:max-height` parameter with reasonable default for dropdown menu
+ - `table-filter`: improved `tag-dropdown` sizing defaults within filter interface
+
 ## 2.28.4 (...)
 
 #### Added
