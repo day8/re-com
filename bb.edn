@@ -19,8 +19,7 @@
                    :task    (do (clojure "-M:demo:test" "-m" "shadow.cljs.devtools.cli"
                                          "compile" "browser-test")
                                 (clojure "-X:test"))}
-  release-clojars (do (dev/version-dotfile!)
-                      (clojure "-M:clein" "deploy"))
+  release-clojars (clojure "-M:clein" "deploy")
   release-demo    {:depends [clean install]
                    :task    (clojure "-M:demo -m shadow.cljs.devtools.cli"
                                      "release" "demo")}
