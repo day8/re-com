@@ -270,7 +270,8 @@
                       :width     "300px"]
                      [gap :src (at) :size "5px"]
                      [label :src (at) :label (cond-> @prop
-                                               unit (str unit))]])]])))
+                                               unit (str unit)
+                                               :do  str)]])]])))
 
 (defn prop-checkbox [{:keys [prop db default value id show-value?]
                       :or   {show-value? true}
