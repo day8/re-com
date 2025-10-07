@@ -51,6 +51,7 @@
                {:src        (at)
                 :id         1
                 :alert-type :info
+                :parts      {:close-button {:parts {:button {:style {:color :red}}}}}
                 :heading    "This Is An Alert Heading"
                 :body       [:p "This is an alert body. This alert has an :alert-type "
                              "of :info which makes it green, and it includes a :heading, "
