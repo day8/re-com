@@ -62,6 +62,7 @@
                                           [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
                                           [alert-list
                                            :src          (at)
+                                           :re-com       {:from [:re-demo/alert-list]}
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))
                                            :max-height   "300px"

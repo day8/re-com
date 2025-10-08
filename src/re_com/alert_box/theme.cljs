@@ -33,8 +33,13 @@
   (tu/class props "rc-alert-heading"))
 
 (defmethod bootstrap ::ab/heading-wrapper
-  [props]
-  (tu/class props "rc-alert-h4"))
+  [{{:keys [from]} :re-com :as props}]
+  (cond-> props
+    :do (tu/class "rc-alert-h4")
+    (and (contains? (set from) :re-com/alert-list)
+         (contains? (set from) :re-demo/alert-list))
+    (tu/attr {:title (str "This tooltip only appears on an alert-box "
+                          "which descends from an alert-list!")})))
 
 (defmethod base ::ab/body-wrapper
   [props]
