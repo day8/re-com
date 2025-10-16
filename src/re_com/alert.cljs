@@ -189,47 +189,47 @@
                          :alert-class  alert-class
                          :alert-style  alert-style}}]
      (part ::al/wrapper
-           {:impl       box
+       {:impl       box
+        :theme      theme
+        :post-props (debug/instrument {} props)
+        :props
+        {:re-com re-com
+         :child
+         (part ::al/body
+           {:impl       border
             :theme      theme
-            :post-props (debug/instrument {} props)
+            :post-props (-> props
+                            (select-keys [:class :style :attr])
+                            (assoc :border border-style
+                                   :padding padding))
             :props
             {:re-com re-com
              :child
-             (part ::al/body
-                   {:impl       border
-                    :theme      theme
-                    :post-props (-> props
-                                    (select-keys [:class :style :attr])
-                                    (assoc :border border-style
-                                           :padding padding))
-                    :props
-                    {:re-com re-com
-                     :child
-                     (part ::al/scroller
-                           {:impl       scroller
-                            :theme      theme
-                            :post-props {:style (when max-height {:max-height max-height})}
-                            :props      {:re-com re-com
+             (part ::al/scroller
+               {:impl       scroller
+                :theme      theme
+                :post-props {:style (when max-height {:max-height max-height})}
+                :props      {:re-com re-com
                              :child
                              (part ::al/v-box
-                                   {:impl  v-box
-                                    :theme theme
-                                    :props
-                                    {:re-com re-com
-                                     :children
-                                     (for [alert alerts]
-                                       (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                         (part ::al/alert-box
-                                               {:impl       alert-box
-                                                :theme      theme
-                                                :key        id
-                                                :post-props {:class alert-class
-                                                             :style alert-style}
-                                                :props
-                                                {:id         id
-                                                 :alert-type alert-type
-                                                 :heading    heading
-                                                 :body       body
-                                                 :padding    padding
-                                                 :closeable? closeable?
-                                                 :on-close   on-close}})))}})}})}})}}))))
+                               {:impl  v-box
+                                :theme theme
+                                :props
+                                {:re-com re-com
+                                 :children
+                                 (for [alert alerts]
+                                   (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                     (part ::al/alert-box
+                                       {:impl       alert-box
+                                        :theme      theme
+                                        :key        id
+                                        :post-props {:class alert-class
+                                                     :style alert-style}
+                                        :props
+                                        {:id         id
+                                         :alert-type alert-type
+                                         :heading    heading
+                                         :body       body
+                                         :padding    padding
+                                         :closeable? closeable?
+                                         :on-close   on-close}})))}})}})}})}}))))
