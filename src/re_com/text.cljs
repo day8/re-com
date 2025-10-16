@@ -172,7 +172,8 @@
 (def p-args-desc
   (when include-args-desc?
     (into
-     [args/class
+     [(merge args/children {:required false})
+      args/class
       args/style
       args/attr
       (args/parts p-parts)

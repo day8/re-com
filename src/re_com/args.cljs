@@ -2,6 +2,13 @@
   (:require
    [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps? css-class?]]))
 
+(def children
+  {:description "Pass a list of hiccups for this component to use, or contain."
+   :name        :children
+   :required    true
+   :type        "vector of hiccups | list of hiccups"
+   :validate-fn sequential?})
+
 (def class
   {:name        :class,
    :required    false,

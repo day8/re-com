@@ -226,7 +226,7 @@
 
 (def h-box-args-desc
   (when include-args-desc?
-    [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
+    [args/children
      {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
      {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
@@ -291,7 +291,7 @@
 
 (def v-box-args-desc
   (when include-args-desc?
-    [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
+    [args/children
      {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"] ", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
      {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}

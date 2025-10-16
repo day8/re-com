@@ -3,6 +3,7 @@
    [re-com.validate :refer [validate-args-macro]])
   (:require
    [clojure.string :as str]
+   [re-com.args :as args]
    [re-com.config :as config :refer [include-args-desc?]]
    [re-com.validate]
    [re-com.util :as u]
@@ -18,7 +19,7 @@
   [{:name :row-path}
    {:name :column-path}
    {:name :value}
-   {:name :children}])
+   args/children])
 
 (def part-structure
   [::wrapper

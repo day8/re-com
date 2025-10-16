@@ -3,6 +3,7 @@
    [re-com.core         :refer [handler-fn at reflect-current-component]]
    [re-com.validate     :refer [validate-args-macro]])
   (:require
+   [re-com.args :as args]
    [re-com.config       :refer [include-args-desc?]]
    [re-com.debug        :refer [->attr]]
    [re-com.theme        :as theme]
@@ -272,7 +273,7 @@
 
 (def popover-border-args-desc
   (when include-args-desc?
-    [{:name :children             :required true                        :type "vector"           :validate-fn sequential?                   :description "a vector of component markups"}
+    [args/children
      {:name :position             :required true                        :type "keyword r/atom"   :validate-fn position?                     :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :optimize-position? :required false :type "boolean" :default "true" :description "When true, dynamically repositions the popover body to fit within the available viewport space."}
      {:name :position-offset      :required false                       :type "integer"          :validate-fn number?                       :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
