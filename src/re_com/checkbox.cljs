@@ -35,9 +35,9 @@
   (when include-args-desc?
     (vec
      (concat
-      [{:name :model       :required true                 :type "boolean | r/atom" :validate-fn #(or (boolean? %) (satisfies? IAtom %)) :description "holds state of the checkbox when it is called"}
+      [{:name :model       :required true                 :type "boolean | r/atom" :validate-fn #(or (nil? %) (some? %) (satisfies? IAtom %)) :description "holds state of the checkbox when it is called"}
        {:name :on-change   :required true                 :type "boolean -> nil"   :validate-fn fn?                     :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
-       {:name :disabled?   :required false :default false :type "boolean | r/atom" :validate-fn #(or (boolean? %) (satisfies? IAtom %)) :description "if true, user interaction is disabled"}
+       {:name :disabled?   :required false :default false :type "boolean | r/atom" :validate-fn #(or (nil? %) (some? %) (satisfies? IAtom %)) :description "if true, user interaction is disabled"}
        {:name :label-class :required false                :type "string"           :validate-fn string?                 :description "CSS class names (applies to the label)"}
        {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?              :description "CSS style map (applies to the label)"}
        args/class
@@ -54,7 +54,7 @@
   "Displays a single checkbox with optional label"
   [& {:keys [pre-theme theme]}]
   (let [theme (theme/comp pre-theme theme)]
-    (fn [& {:keys [model on-change disabled? label-class label-style]
+    (fn [& {:keys [model on-change disabled? label-class label-style class style attr]
             :as   props}]
       (or
        (validate-args-macro checkbox-args-desc props)
@@ -64,31 +64,34 @@
              label-provided? (part/get-part part-structure props ::label)
              callback-fn     #(when (and on-change (not disabled?))
                                 (on-change (not model)))
-             re-com          {:state {:model          model
-                                      :disabled?      disabled?
-                                      :label-class    label-class
-                                      :label-style    label-style
+             re-com          {:state {:model           model
+                                      :disabled?       disabled?
+                                      :label-class     label-class
+                                      :label-style     label-style
                                       :label-provided? label-provided?}}]
          (part ::wrapper
            {:impl       h-box
-            :post-props (-> (select-keys props [:class :style :attr])
-                            (debug/instrument props))
+            :post-props (debug/instrument {} props)
             :theme      theme
             :props      {:re-com re-com
                          :children
-             [(part ::input
-                {:theme      theme
-                 :props      {:re-com re-com
-                              :tag    :input}
-                 :post-props {:attr {:type      :checkbox
-                                     :disabled  disabled?
-                                     :checked   (boolean model)
-                                     :on-change (handler-fn (callback-fn))}}})
+                         [(part ::input
+                            {:theme      theme
+                             :props      {:re-com re-com
+                                          :tag    :input}
+                             :post-props {:class class
+                                          :style style
+                                          :attr  (merge
+                                                  {:type      :checkbox
+                                                   :disabled  disabled?
+                                                   :checked   (boolean model)
+                                                   :on-change (handler-fn (callback-fn))}
+                                                  attr)}})
 
-              (when label-provided?
-                (part ::label
-                  {:theme      theme
-                   :props      {:re-com re-com}
-                   :post-props (cond-> {:on-click (handler-fn (callback-fn))}
-                                 label-class (tu/class label-class)
-                                 label-style (tu/style label-style))}))]}}))))))
+                          (when label-provided?
+                            (part ::label
+                              {:theme      theme
+                               :props      {:re-com re-com}
+                               :post-props (cond-> {:on-click (handler-fn (callback-fn))}
+                                             label-class (tu/class label-class)
+                                             label-style (tu/style label-style))}))]}}))))))
