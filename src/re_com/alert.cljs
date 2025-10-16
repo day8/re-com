@@ -2,6 +2,7 @@
   (:require-macros
    [re-com.core         :refer [at]])
   (:require
+   [re-com :as-alias rc]
    [re-com.args :as args]
    re-com.alert-box.theme
    re-com.alert-list.theme
@@ -67,7 +68,7 @@
           :as   props}]
       (or
        (validate-args-macro alert-box-args-desc props)
-       (let [part        (partial part/part part-structure props)
+       (let [part        (partial part/part part-structure (part/descend props ::rc/alert-box))
              heading?    (part/get-part part-structure props ::ab/heading)
              body?       (part/get-part part-structure props ::ab/body)
              re-com      {:state {:alert-type alert-type
@@ -182,7 +183,7 @@
    (validate-args-macro alert-list-args-desc props)
    (let [alerts (deref-or-value alerts)
          theme  (theme/comp pre-theme theme)
-         part   (partial part/part alert-list-part-structure props)
+         part   (partial part/part alert-list-part-structure (part/descend props ::rc/alert-list))
          re-com {:state {:max-height   max-height
                          :padding      padding
                          :border-style border-style

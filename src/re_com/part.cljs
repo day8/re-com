@@ -149,11 +149,17 @@
 
 (def hiccup? vector?)
 
+(defn descend [props k]
+  (update-in props [:re-com :from]
+             (fnil conj []) k))
+
 (defn part
-  ([structure props k opts]
+  ([structure {{:keys [from]} :re-com :as props} k opts]
    (part (get-part structure props k)
-     (assoc opts :part k)))
-  ([part-value {:keys   [impl key theme post-props props]
+         (cond-> opts
+           :do  (assoc :part k)
+           from (assoc :from from))))
+  ([part-value {:keys   [impl key theme post-props props from]
                 part-id :part
                 :or     {impl default}}]
    (->
@@ -167,6 +173,7 @@
                                  props
                                  (cond-> {:part part-id}
                                    :do        (merge props)
+                                   from       (assoc-in [:re-com :from] from)
                                    theme      (theme component)
                                    part-map   (tu/merge-props part-map)
                                    post-props (tu/merge-props post-props))]
