@@ -2,6 +2,7 @@
   (:require-macros
    [re-com.core     :refer [handler-fn]])
   (:require
+   [clojure.string :as str]
    [reagent.core    :as    reagent]
    [goog.string.format]
    [goog.string     :as    gstring]
@@ -9,6 +10,136 @@
    [re-com.theme :as theme]
    re-com.single-dropdown.theme
    [re-com.single-dropdown :as-alias sd]))
+
+(defn- insert
+  "Return text after insertion in place of selection"
+  [& {:keys [text sel-start sel-end ins]}]
+  (str (when text (subs text 0 sel-start))
+       ins
+       (when text (subs text sel-end))))
+
+(defn auto-complete
+  "Return text/selection map after insertion in place of selection & completion"
+  [& {:keys [choices text sel-start sel-end ins]}]
+  (let [text' (insert :text text :sel-start sel-start :sel-end sel-end :ins ins)
+        find  #(gstring/caseInsensitiveStartsWith % text')
+        ret   (when-first [choice (filter find choices)]
+                {:text      (str text' (subs choice (count text')))
+                 :sel-start (+ sel-start (count ins))
+                 :sel-end   (count choice)})]
+    (when (and (not= (:sel-start ret) (:sel-end ret))
+               (seq ins))
+      ret)))
+
+(defn handle-free-text-insertion
+  [{:keys [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]}]
+  (let [input             (.-target event)
+        input-sel-start   (.-selectionStart input)
+        input-sel-end     (.-selectionEnd input)
+        ins'              (cond-> ins (and capitalize? (zero? input-sel-start)) u/capitalize-first-letter)
+        auto-complete-ret (and auto-complete? (auto-complete :choices   choices
+                                                             :text      @internal-model
+                                                             :sel-start input-sel-start
+                                                             :sel-end   input-sel-end
+                                                             :ins       ins'))]
+    (cond
+      auto-complete-ret (let [{:keys [text sel-start sel-end]} auto-complete-ret]
+                          (if (= @internal-model text)
+                            (.setSelectionRange input sel-start sel-end)
+                            (do
+                              (reset! free-text-sel-range [sel-start sel-end])
+                              (free-text-change text)))
+                          (.preventDefault event))
+      (not= ins ins')   (do
+                          (reset! free-text-sel-range [(+ input-sel-start (count ins)) (+ input-sel-start (count ins))])
+                          (free-text-change (insert :text      @internal-model
+                                                    :sel-start input-sel-start
+                                                    :sel-end   input-sel-end
+                                                    :ins       ins'))
+                          (.preventDefault event)))))
+
+(defn free-text-dropdown-top-base
+  "Base function (before lifecycle metadata) to render the top part of the dropdown (free-text),
+  with the editable area and the up/down arrow"
+  [{:keys [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model
+           tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width
+           free-text-change auto-complete? choices capitalize? disabled?
+           class style attr]}]
+  [:ul.chosen-choices
+   [:li.search-field
+    [:div.free-text
+     {:style (when disabled?
+               {:background-color "#EEE"})}
+     [:input
+      (-> 
+       {:type          "text"
+        :auto-complete "off"
+        :class         class
+        :style         (merge {:width width} style)
+        :tab-index     tab-index
+        :placeholder   placeholder
+        :value         @internal-model
+        :disabled      disabled?
+        :on-change
+        (handler-fn (let [value (-> event .-target .-value)]
+                      (free-text-change (cond-> value capitalize? u/capitalize-first-letter))))
+        :on-key-down
+        (handler-fn (when-not (key-handler event)
+                      (.stopPropagation event)
+                      (.preventDefault event)))
+        :on-key-press  (handler-fn
+                         (let [ins (.-key event)]
+                           (when (= (count ins) 1) ;; Filter out special keys (e.g. enter)
+                             (handle-free-text-insertion
+                              {:event               event
+                               :ins                 ins
+                               :auto-complete?      auto-complete?
+                               :capitalize?         capitalize?
+                               :choices             choices
+                               :internal-model      internal-model
+                               :free-text-sel-range free-text-sel-range
+                               :free-text-change    free-text-change}))))
+        :on-paste      (handler-fn
+                         (let [ins (.getData (.-clipboardData event) "Text")]
+                           (handle-free-text-insertion
+                            {:event               event
+                             :ins                 ins
+                             :auto-complete?      auto-complete?
+                             :capitalize?         capitalize?
+                             :choices             choices
+                             :internal-model      internal-model
+                             :free-text-sel-range free-text-sel-range
+                             :free-text-change    free-text-change})))
+        :on-focus      (handler-fn
+                         (reset! free-text-focused? true)
+                         (reset! select-free-text? true))
+        :on-blur       (handler-fn
+                         (when-not filter-box?
+                           (cancel))
+                         (reset! free-text-focused? false))  ;; Set free-text-focused? after calling cancel to prevent re-focusing
+        :on-mouse-down (handler-fn (when @drop-showing?
+                                     (cancel)
+                                     (.preventDefault event))) ;; Prevent text selection flicker (esp. with filter-box)
+        :ref           #(reset! free-text-input %)}
+       (merge attr))]
+     [:span.b-wrapper
+      {:on-mouse-down (handler-fn
+                       (dropdown-click)
+                       (when @free-text-focused?
+                         (.preventDefault event)))}            ;; Prevent free-text input from loosing focus
+      (when (not disabled?)
+        [:b])]]]])
+
+(def free-text-dropdown-top
+  "Render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
+  (with-meta free-text-dropdown-top-base
+    {:component-did-update
+     #(let [[_ {:keys [free-text-input select-free-text? free-text-focused? free-text-sel-range]}] (reagent/argv %)]
+        (when (and @free-text-input @select-free-text? @free-text-focused?)
+          (.select @free-text-input))
+        (when (and @free-text-input @free-text-sel-range)
+          (.setSelectionRange @free-text-input (first @free-text-sel-range) (second @free-text-sel-range))
+          (reset! free-text-sel-range nil)))}))
 
 (defn chosen-single
   [_]

@@ -57,6 +57,9 @@
 (defmethod bootstrap ::sd/chosen-drop [props]
   (tu/class props "chosen-drop" "rc-dropdown-chosen-drop"))
 
+(defmethod bootstrap ::sd/free-text-dropdown-top [props]
+  (tu/class props "form-control"))
+
 (defmethod base ::sd/chosen-search
   [{{{:keys [filter-box]} :state} :re-com :as props}]
   (let [invisible {:position "absolute"

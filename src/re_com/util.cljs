@@ -107,6 +107,13 @@
   [num singular & [plural]]
   (str num " " (if (= 1 num) singular (or plural (str singular "s")))))
 
+(defn capitalize-first-letter
+  "Capitalize the first letter leaving the rest as is"
+  [text]
+  (if (seq text)
+    (str (str/upper-case (first text)) (subs text 1))
+    text))
+
 ;; ----------------------------------------------------------------------------
 ;; Handy vector functions
 ;; ----------------------------------------------------------------------------
