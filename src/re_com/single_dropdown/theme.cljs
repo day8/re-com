@@ -4,6 +4,7 @@
   (:require
    [re-com.single-dropdown :as-alias sd]
    [re-com.box      :refer [flex-child-style v-box h-box gap]]
+   [goog.string     :as    gstring]
    [re-com.theme.util :as tu]
    [re-com.theme.default :refer [base main bootstrap]]))
 
@@ -26,9 +27,10 @@
             (when (or drop-showing? focused?) "chosen-container-active")
             (when drop-showing? "chosen-with-drop")))
 
-(defmethod base ::sd/chosen-single [{{{:keys [background-disabled]} :variables
-                                      {:keys [interaction]}         :state} :re-com
-                                     :as                            props}]
+(defmethod base ::sd/chosen-single
+  [{{{:keys [background-disabled]} :variables
+     {:keys [interaction]}         :state} :re-com
+    :as                            props}]
   (tu/style props
             {:display         "flex"
              :justify-content :space-between
@@ -41,6 +43,16 @@
             "rc-dropdown-chosen-single"
             "chosen-single"
             "chosen-default"))
+
+(defmethod base ::sd/chosen-drop
+  [{{{{:keys [position]} :chosen-drop} :state} :re-com
+    :keys [top-height drop-height]
+    :as props}]
+  (cond-> props
+    (= position :above)
+    (tu/style {:transform (gstring/format
+                           "translate3d(0px, -%ipx, 0px)"
+                           (+ top-height drop-height -2))})))
 
 (defmethod bootstrap ::sd/chosen-drop [props]
   (tu/class props "chosen-drop" "rc-dropdown-chosen-drop"))

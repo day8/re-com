@@ -17,6 +17,7 @@
    [goog.string.format]
    re-com.single-dropdown.theme
    [re-com.single-dropdown :as-alias sd]
+   [re-com.single-dropdown.parts :as sdp]
    [re-com.dropdown.parts :as dp]))
 
 (def part-structure
@@ -248,34 +249,6 @@
                                                               (.stopPropagation event)
                                                               (.preventDefault event))) ;; When key-handler returns false, preventDefault
                                  :on-blur       (handler-fn (reset! drop-showing? false))}]])})))
-
-(defn- dropdown-top
-  [_]
-  (let [ignore-click (atom false)]
-    (fn
-      [{:keys [tab-index dropdown-click key-handler filter-box? drop-showing? disabled? children theme]}]
-      (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
-            anchor [:a
-                    (-> {:re-com        {:state {:interaction
-                                                 (if disabled? :disabled :enabled)}}
-                         :part          ::chosen-single
-                         :tab-index     (or tab-index 0)
-                         :on-click      (handler-fn
-                                         (if @ignore-click
-                                           (reset! ignore-click false)
-                                           (dropdown-click)))
-                         ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
-                         :on-mouse-down (handler-fn
-                                         (when @drop-showing?
-                                           (reset! ignore-click true)))
-                         ;; Pressing enter on an anchor also triggers click event, which we don't want
-                         :on-key-down   (handler-fn
-                                         (key-handler event)
-                                         (when (= (.-key event) "Enter")
-                                           (reset! ignore-click true)))}
-                        theme
-                        (dissoc :re-com :part))]]
-        (into anchor children)))))
 
 (defn handle-free-text-insertion
   [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]
@@ -594,99 +567,106 @@
                   re-com-ctx        {:state       {:free-text?    free-text?
                                                    :drop-showing? @drop-showing?
                                                    :focused?      @free-text-focused?
-                                                   :tooltip?      tooltip}
+                                                   :tooltip?      tooltip
+                                                   :chosen-drop   {:position (if (deref-or-value drop-above?)
+                                                                               :above
+                                                                               :below)}}
                                      :transition! transition!}
                   text              (if (some? @internal-model)
                                       (label-fn (item-for-id @internal-model choices :id-fn id-fn))
-                                      placeholder)]
+                                      placeholder)
+                  chosen-single
+                  (part ::sd/chosen-single
+                    {:impl  sdp/chosen-single
+                     :theme theme
+                     :props {:disabled?      disabled?
+                             :drop-showing?  drop-showing?
+                             :dropdown-click dropdown-click
+                             :filter-box?    filter-box?
+                             :key-handler    key-handler
+                             :tab-index      tab-index
+                             :children       [[:span (when title? {:title text}) text]
+                                              (when (not disabled?)
+                                                [dp/indicator
+                                                 {:style {:margin-right "8px" :margin-top "0.5px"}
+                                                  :state {:openable (if @drop-showing? :open :closed)}}])]}})
+                  chosen-drop
+                  (part ::sd/chosen-drop
+                    {:theme theme
+                     :props
+                     {:top-height  top-height
+                      :drop-height @drop-height
+                      :attr        {:ref body-ref!}
+                      :children
+                      [(when (and (or filter-box? (not free-text?))
+                                  (not just-drop?))
+                         [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
+                       [:ul
+                        (merge
+                         {:class (theme/merge-class "chosen-results"
+                                                    "rc-dropdown-chosen-results"
+                                                    (get-in parts [:chosen-results :class]))
+                          :style (merge (when max-height {:max-height max-height})
+                                        (get-in parts [:chosen-results :style]))}
+                         (get-in parts [:chosen-results :attr]))
+                        (cond
+                          (and choices-fn? (:loading? @choices-state))
+                          [:li
+                           (merge
+                            {:class (theme/merge-class "loading"
+                                                       "rc-dropdown-choices-loading"
+                                                       (get-in parts [:choices-loading :class]))
+                             :style (get-in parts [:choices-loading :style] {})}
+                            (get-in parts [:choices-loading :attr]))
+                           (get i18n :loading "Loading...")]
+                          (and choices-fn? (:error @choices-state))
+                          [:li
+                           (merge
+                            {:class (theme/merge-class "error"
+                                                       "rc-dropdown-choices-error"
+                                                       (get-in parts [:choices-error :class]))
+                             :style (get-in parts [:choices-error :style] {})}
+                            (get-in parts [:choices-error :attr]))
+                           (:error @choices-state)]
+                          (-> filtered-choices count pos?)
+                          (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
+                                make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
+                                make-choices                  #(map make-a-choice %1)
+                                make-h-then-choices           (fn [h opts]
+                                                                (cons (make-group-heading h)
+                                                                      (make-choices opts)))
+                                has-no-group-names?           (nil? (:group (first group-names)))]
+                            (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
+                              (make-choices (first group-opt-lists)) ;; one group means no headings
+                              (apply concat (map make-h-then-choices group-names group-opt-lists))))
+                          :else
+                          [:li
+                           (merge
+                            {:class         (str "no-results rc-dropdown-choices-no-results "
+                                                 (get-in parts [:choices-no-results :class]))
+                             :style         (get-in parts [:choices-no-results :style] {})
+                             :on-mouse-down (handler-fn
+                                             (when (and (:on-no-results-match-click set-to-filter)
+                                                        (seq @filter-text)
+                                                        free-text?)
+                                               (callback @filter-text)))}
+                            (get-in parts [:choices-no-results :attr]))
+                           (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
+                                               (and (empty? @filter-text) (:no-results i18n))
+                                               (:no-results-match i18n)
+                                               "No results match \"%s\"")
+                                           @filter-text)])]]}})]
               (part ::sd/wrapper
                 {:theme      theme
                  :post-props (merge (select-keys args [:attr :class])
                                     {:style (merge {:width width} style)})
-                 :props      {:re-com re-com-ctx
-                              :style  (merge (flex-child-style (if width "0 0 auto" "auto"))
-                                             {:width width})
-                              :attr   (merge (->attr (assoc-in args [:attr :ref] anchor-ref!)))
-                              :children
-                              [[dropdown-top {:disabled?      disabled?
-                                              :drop-showing?  drop-showing?
-                                              :dropdown-click dropdown-click
-                                              :filter-box?    filter-box?
-                                              :key-handler    key-handler
-                                              :tab-index      tab-index
-                                              :theme          theme
-                                              :children       [[:span (when title? {:title text}) text]
-                                                               (when (not disabled?)
-                                                                 [dp/indicator
-                                                                  {:style {:margin-right "8px" :margin-top "0.5px"}
-                                                                   :state {:openable (if @drop-showing? :open :closed)}}])]}]
-                               (when (and @drop-showing? (not disabled?))
-                                 [:div
-                                  (merge
-                                   {:class (theme/merge-class "chosen-drop"
-                                                              "rc-dropdown-chosen-drop"
-                                                              (get-in parts [:chosen-drop :class]))
-                                    :style (merge (when (deref-or-value drop-above?) {:transform (gstring/format "translate3d(0px, -%ipx, 0px)"
-                                                                                                                 (+ top-height @drop-height -2))})
-                                                  (get-in parts [:chosen-drop :style]))
-                                    :ref   body-ref!}
-                                   (get-in parts [:chosen-drop :attr]))
-                                  (when (and (or filter-box? (not free-text?))
-                                             (not just-drop?))
-                                    [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
-                                  [:ul
-                                   (merge
-                                    {:class (theme/merge-class "chosen-results"
-                                                               "rc-dropdown-chosen-results"
-                                                               (get-in parts [:chosen-results :class]))
-                                     :style (merge (when max-height {:max-height max-height})
-                                                   (get-in parts [:chosen-results :style]))}
-                                    (get-in parts [:chosen-results :attr]))
-                                   (cond
-                                     (and choices-fn? (:loading? @choices-state))
-                                     [:li
-                                      (merge
-                                       {:class (theme/merge-class "loading"
-                                                                  "rc-dropdown-choices-loading"
-                                                                  (get-in parts [:choices-loading :class]))
-                                        :style (get-in parts [:choices-loading :style] {})}
-                                       (get-in parts [:choices-loading :attr]))
-                                      (get i18n :loading "Loading...")]
-                                     (and choices-fn? (:error @choices-state))
-                                     [:li
-                                      (merge
-                                       {:class (theme/merge-class "error"
-                                                                  "rc-dropdown-choices-error"
-                                                                  (get-in parts [:choices-error :class]))
-                                        :style (get-in parts [:choices-error :style] {})}
-                                       (get-in parts [:choices-error :attr]))
-                                      (:error @choices-state)]
-                                     (-> filtered-choices count pos?)
-                                     (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
-                                           make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
-                                           make-choices                  #(map make-a-choice %1)
-                                           make-h-then-choices           (fn [h opts]
-                                                                           (cons (make-group-heading h)
-                                                                                 (make-choices opts)))
-                                           has-no-group-names?           (nil? (:group (first group-names)))]
-                                       (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
-                                         (make-choices (first group-opt-lists)) ;; one group means no headings
-                                         (apply concat (map make-h-then-choices group-names group-opt-lists))))
-                                     :else
-                                     [:li
-                                      (merge
-                                       {:class         (str "no-results rc-dropdown-choices-no-results "
-                                                            (get-in parts [:choices-no-results :class]))
-                                        :style         (get-in parts [:choices-no-results :style] {})
-                                        :on-mouse-down (handler-fn
-                                                        (when (and (:on-no-results-match-click set-to-filter)
-                                                                   (seq @filter-text)
-                                                                   free-text?)
-                                                          (callback @filter-text)))}
-                                       (get-in parts [:choices-no-results :attr]))
-                                      (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
-                                                          (and (empty? @filter-text) (:no-results i18n))
-                                                          (:no-results-match i18n)
-                                                          "No results match \"%s\"")
-                                                      @filter-text)])]])]}})))))))))
+                 :props
+                 {:re-com re-com-ctx
+                  :style  (merge (flex-child-style (if width "0 0 auto" "auto"))
+                                 {:width width})
+                  :attr   (merge (->attr (assoc-in args [:attr :ref] anchor-ref!)))
+                  :children
+                  [chosen-single
+                   (when (and @drop-showing? (not disabled?))
+                     chosen-drop)]}})))))))))
 
