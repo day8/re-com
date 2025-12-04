@@ -38,8 +38,8 @@
       :children
       [[rc/v-box
         :children
-        [[rc/p "A " [:i "part"] "-spec can be a string or a hiccup. In this case, "
-          "the value is placed directly into the hiccup tree."]]]
+        [[rc/p "A " [:i "part"] "-spec can be a string, number or hiccup. In this case, "
+          "the value is placed directly into the hiccup tree (numbers get converted to strings)."]]]
        [rc/h-box
         :style {:height :fit-content :gap "12px"}
         :children

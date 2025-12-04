@@ -448,7 +448,7 @@
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
 
-(def part? (some-fn map? string? vector? ifn? nil?))
+(def part? (some-fn map? string? vector? number? ifn? nil?))
 
 (defn parts?
   "Returns a function that validates a value is a map that contains `keys` mapped to part-values. A part-value can be either a function, a hiccup, a string, or a parts-map. A parts-map can only contain the keys `class`, `:style` and/or `:attr`."

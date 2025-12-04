@@ -114,7 +114,7 @@
                  top-level-unsupported-keys
                  missing-req-keys))))
 
-(def part? (some-fn map? string? vector? ifn? nil?))
+(def part? (some-fn map? string? vector? number? ifn? nil?))
 
 (defn describe-args [structure]
   (into [{:name              :parts
@@ -166,6 +166,7 @@
     (cond
       (hiccup? part-value) part-value
       (string? part-value) part-value
+      (number? part-value) (str part-value)
       :else                (let [component (cond (map? part-value) impl
                                                  (ifn? part-value) part-value
                                                  :else             impl)
