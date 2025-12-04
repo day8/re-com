@@ -330,6 +330,67 @@ Theme methods receive a predictable props structure:
            :post-props (select-keys props [:class :style :attr])})))))
 ```
 
+## Callback Placement Pattern
+
+**Rule: Component callbacks go in `:props`, user callbacks go in `:post-props`**
+
+### Why This Matters
+
+Callbacks defined by the component should be accessible to theme methods and user `:parts` customization for wrapping/extending. Only user-provided `:attr` should be in `:post-props` for final override.
+
+```clojure
+;; ✅ CORRECT - Callbacks in :props, user :attr in :post-props
+(part ::my-component/input
+  {:props      {:re-com re-com-ctx
+                :tag    :input
+                :attr   {:on-change (handler-fn (component-callback event))
+                         :on-blur   (handler-fn (another-callback))}}
+   :post-props (cond-> {}
+                 class (tu/class class)
+                 style (tu/style style)
+                 attr  (update :attr merge attr))})  ; User :attr merges last
+
+;; ❌ INCORRECT - Callbacks in :post-props (not extensible)
+(part ::my-component/input
+  {:post-props {:attr {:on-change (handler-fn (component-callback event))}}
+   :props      {:re-com re-com-ctx}})
+```
+
+### Benefits of `:props` Placement
+
+1. **Theme extensibility** - Themes can wrap callbacks for logging, analytics, or validation
+2. **User extensibility** - Users can wrap via `:parts {:input {:attr {:on-change ...}}}`
+3. **Natural precedence** - User `:attr` in `:post-props` has final say
+4. **Cleaner themes** - No need to define callbacks in theme files unless wrapping
+
+### Precedence Flow
+
+```
+Component callbacks in :props
+  → Theme layers (could wrap if needed)
+  → User :parts (could wrap if needed)
+  → User :attr in :post-props (final override)
+```
+
+### Example: Theme Wrapping Callback
+
+```clojure
+;; Component provides callback in :props
+(part ::my-component/input
+  {:props {:attr {:on-change (handler-fn (update-model! event))}}})
+
+;; Theme can wrap it
+(defmethod main ::my-component/input [{:keys [attr] :as props}]
+  (let [original-on-change (:on-change attr)]
+    (update props :attr assoc :on-change
+            (fn [event]
+              (js/console.log "Input changed")  ; Theme adds logging
+              (original-on-change event)))))    ; Calls original
+
+;; User can still override completely via :post-props
+[my-component :attr {:on-change my-custom-handler}]
+```
+
 ## Best Practices
 
 1. **Always define part-structure** for components with multiple styleable elements
@@ -342,3 +403,4 @@ Theme methods receive a predictable props structure:
 8. **Standardize `:re-com`** - Use only `:part`, `:state`, `:transition!` keys
 9. **Deref state values** - Always dereference atoms before putting in `:state`
 10. **Trust theme methods** - Let themes add any props, leave validation to final components
+11. **Callbacks in `:props`** - Component callbacks go in `:props`, user `:attr` merges last in `:post-props`

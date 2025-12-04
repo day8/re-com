@@ -88,18 +88,27 @@
              re-com       {:transition! transition!
                            :state       {:class     class
                                          :disabled? disabled?
-                                         :tooltip?  tooltip?
-                                         :on-click  on-click}}
+                                         :tooltip?  tooltip?}}
              label-part   (part ::btn/label
                             {:theme theme
                              :props {:re-com re-com}})
              button-part  (part ::btn/button
                             {:theme      theme
                              :post-props (select-keys props [:style :attr :class])
-                             :props      {:tag      :button
-                                          :class    class
-                                          :re-com   re-com
-                                          :children [label-part]}})
+                             :props
+                             {:tag      :button
+                              :class    class
+                              :re-com   re-com
+                              :on-click on-click
+                              :children [label-part]
+                              :attr
+                              (merge {:disabled? disabled?
+                                      :on-click (handler-fn
+                                                  (when (and on-click (not disabled?))
+                                                    (on-click event)))}
+                                     (when tooltip?
+                                       {:on-mouse-over (handler-fn (transition! :show))
+                                        :on-mouse-out  (handler-fn (transition! :hide))}))}})
              tooltip-part (part ::btn/tooltip
                             {:theme theme
                              :props {:re-com re-com}})

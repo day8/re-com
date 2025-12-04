@@ -133,50 +133,50 @@
                     {:re-com re-com-ctx
                      :children
                      [(part ::it/field
-                        {:theme theme
-                         :props {:re-com re-com-ctx
-                                 :tag    (case input-type
-                                           :input    :input
-                                           :password :input
-                                           :textarea :textarea
-                                           :input)}
-                         :post-props
-                         (cond-> {:attr {:type        (case input-type
-                                                        :input    :text
-                                                        :password :password
-                                                        nil)
-                                         :rows        (when (= input-type :textarea) (or rows 3))
-                                         :placeholder placeholder
-                                         :value       @internal-model
-                                         :disabled    disabled?
-                                         :on-change   (handler-fn
-                                                       (let [new-val-orig (-> event .-target .-value)
-                                                             new-val      (on-alter new-val-orig)]
-                                                         (when (not= new-val new-val-orig)
-                                                           (set! (-> event .-target .-value) new-val))
-                                                         (when (and
-                                                                on-change
-                                                                (not disabled?)
-                                                                (if validation-regex (re-find validation-regex new-val) true))
-                                                           (reset! internal-model new-val)
-                                                           (when-not change-on-blur?
-                                                             (on-change-handler)))))
-                                         :on-blur     (handler-fn
-                                                       (when (and
-                                                              change-on-blur?
-                                                              (not= @internal-model @external-model))
-                                                         (on-change-handler)))
-                                         :on-key-up   (handler-fn
-                                                       (if disabled?
-                                                         (.preventDefault event)
-                                                         (case (.-key event)
-                                                           "Enter"  (on-change-handler)
-                                                           "Escape" (reset! internal-model @external-model)
-                                                           true)))}}
-                           height (tu/style {:height height})
-                           class  (tu/class class)
-                           style  (tu/style style)
-                           attr   (update :attr merge attr))})
+                        {:theme      theme
+                         :props      {:re-com re-com-ctx
+                                      :tag    (case input-type
+                                                :input    :input
+                                                :password :input
+                                                :textarea :textarea
+                                                :input)
+                                      :attr   {:type        (case input-type
+                                                              :input    :text
+                                                              :password :password
+                                                              nil)
+                                               :rows        (when (= input-type :textarea) (or rows 3))
+                                               :placeholder placeholder
+                                               :value       @internal-model
+                                               :disabled    disabled?
+                                               :on-change   (handler-fn
+                                                             (let [new-val-orig (-> event .-target .-value)
+                                                                   new-val      (on-alter new-val-orig)]
+                                                               (when (not= new-val new-val-orig)
+                                                                 (set! (-> event .-target .-value) new-val))
+                                                               (when (and
+                                                                      on-change
+                                                                      (not disabled?)
+                                                                      (if validation-regex (re-find validation-regex new-val) true))
+                                                                 (reset! internal-model new-val)
+                                                                 (when-not change-on-blur?
+                                                                   (on-change-handler)))))
+                                               :on-blur     (handler-fn
+                                                             (when (and
+                                                                    change-on-blur?
+                                                                    (not= @internal-model @external-model))
+                                                               (on-change-handler)))
+                                               :on-key-up   (handler-fn
+                                                             (if disabled?
+                                                               (.preventDefault event)
+                                                               (case (.-key event)
+                                                                 "Enter"  (on-change-handler)
+                                                                 "Escape" (reset! internal-model @external-model)
+                                                                 true)))}}
+                         :post-props (cond-> {}
+                                       height (tu/style {:height height})
+                                       class  (tu/class class)
+                                       style  (tu/style style)
+                                       attr   (update :attr merge attr))})
                       (when (and status-icon? status)
                         (let [throbber-part (part ::it/throbber
                                               {:impl       throbber
@@ -191,13 +191,14 @@
                                                            :on-mouse-out  (handler-fn (reset! showing? false))})}})
                               status-icon   (part ::it/status-icon
                                               {:theme      theme
-                                               :post-props (cond-> {:attr (when status-tooltip
-                                                                            {:on-mouse-over (handler-fn (when (and status-icon? status)
-                                                                                                          (reset! showing? true)))
-                                                                             :on-mouse-out  (handler-fn (reset! showing? false))})}
-                                                             status-tooltip (assoc :title status-tooltip))
                                                :props      {:re-com re-com-ctx
-                                                            :tag    :i}})
+                                                            :tag    :i
+                                                            :attr   (when status-tooltip
+                                                                      {:on-mouse-over (handler-fn (when (and status-icon? status)
+                                                                                                    (reset! showing? true)))
+                                                                       :on-mouse-out  (handler-fn (reset! showing? false))})}
+                                               :post-props (cond-> {}
+                                                             status-tooltip (assoc :title status-tooltip))})
                               icon-part     (if (= :validating status) throbber-part status-icon)]
                           (if status-tooltip
                             [popover-tooltip

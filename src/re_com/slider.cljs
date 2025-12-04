@@ -74,19 +74,16 @@
             {:re-com re-com
              :child
              (part ::input
-               {:theme theme
-                :props {:re-com re-com
-                        :tag    :input}
-                :post-props
-                (-> args
-                    (select-keys [:class :style :attr])
-                    (update :attr merge {:type     "range"
-                                         :min      min
-                                         :max      max
-                                         :step     step
-                                         :value    model
-                                         :disabled disabled?
-                                         :on-change
-                                         (handler-fn (on-change
-                                                      (js/Number
-                                                       (-> event .-target .-value))))}))})}}))))))
+               {:theme      theme
+                :props      {:re-com re-com
+                             :tag    :input
+                             :attr   {:type      "range"
+                                      :min       min
+                                      :max       max
+                                      :step      step
+                                      :value     model
+                                      :disabled  disabled?
+                                      :on-change (handler-fn (on-change
+                                                              (js/Number
+                                                               (-> event .-target .-value))))}}
+                :post-props (select-keys args [:class :style :attr])})}}))))))

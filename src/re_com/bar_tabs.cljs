@@ -112,21 +112,18 @@
                                                    (when tooltip-fn (tooltip-fn id))
                                                    (-> props :parts :tooltip-label))
                                      button-part (part ::button
-                                                   {:key   t
-                                                    :theme theme
-                                                    :post-props
-                                                    (merge
-                                                     (select-keys props [:style])
-                                                     (when tooltip-part
-                                                       {:attr {:on-mouse-over
-                                                               (handler-fn (reset! showing? id))
-                                                               :on-mouse-out
-                                                               (handler-fn (swap! showing? #(when-not (= id %) %)))}}))
-                                                    :props
-                                                    (merge tab-props
-                                                           {:re-com   tab-re-com
-                                                            :tag      :button
-                                                            :children [label]})})]]
+                                                   {:key        t
+                                                    :theme      theme
+                                                    :props      (merge tab-props
+                                                                       {:re-com   tab-re-com
+                                                                        :tag      :button
+                                                                        :children [label]}
+                                                                       (when tooltip-part
+                                                                         {:attr {:on-mouse-over
+                                                                                 (handler-fn (reset! showing? id))
+                                                                                 :on-mouse-out
+                                                                                 (handler-fn (swap! showing? #(when-not (= id %) %)))}}))
+                                                    :post-props (select-keys props [:style])})]]
                            (if-not tooltip-part
                              button-part
                              (part ::tooltip

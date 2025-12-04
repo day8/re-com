@@ -24,16 +24,5 @@
   (tu/class props "rc-button" "btn" (when-not class "btn-default")))
 
 (defmethod base ::btn/button
-  [{{{:keys [disabled? tooltip? on-click]} :state
-     :keys                        [transition!]} :re-com
-    :as                                          props}]
-  (-> props
-      (tu/style (flex-child-style "none"))
-      (tu/attr
-       {:disabled disabled?
-        :on-click (handler-fn
-                   (when (and on-click (not disabled?))
-                     (on-click event)))}
-       (when tooltip?
-         {:on-mouse-over (handler-fn (transition! :show))
-          :on-mouse-out  (handler-fn (transition! :hide))}))))
+  [props]
+  (tu/style props (flex-child-style "none")))

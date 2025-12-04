@@ -75,13 +75,13 @@
              :tag      :div
              :children
              [(part ::mp/backdrop
-                {:theme      theme
-                 :post-props {:attr {:on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
-                                                           (.preventDefault event)
-                                                           (.stopPropagation event))}}
-                 :props      {:re-com re-com-ctx
-                              :style  {:background-color backdrop-color
-                                       :opacity          backdrop-opacity}}})
+                {:theme theme
+                 :props {:re-com re-com-ctx
+                         :style  {:background-color backdrop-color
+                                  :opacity          backdrop-opacity}
+                         :attr   {:on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
+                                                        (.preventDefault event)
+                                                        (.stopPropagation event))}}})
               (part ::mp/child-container
                 {:theme      theme
                  :props      {:re-com re-com-ctx

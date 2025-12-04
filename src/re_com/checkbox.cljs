@@ -78,20 +78,21 @@
                          [(part ::input
                             {:theme      theme
                              :props      {:re-com re-com
-                                          :tag    :input}
-                             :post-props {:class class
-                                          :style style
-                                          :attr  (merge
-                                                  {:type      :checkbox
+                                          :tag    :input
+                                          :attr   {:type      :checkbox
                                                    :disabled  disabled?
                                                    :checked   (boolean model)
-                                                   :on-change (handler-fn (callback-fn))}
-                                                  attr)}})
+                                                   :on-change (handler-fn (callback-fn))}}
+                             :post-props (cond-> {}
+                                           class (assoc :class class)
+                                           style (assoc :style style)
+                                           attr  (assoc :attr attr))})
 
                           (when label-provided?
                             (part ::label
                               {:theme      theme
-                               :props      {:re-com re-com}
-                               :post-props (cond-> {:on-click (handler-fn (callback-fn))}
+                               :props      {:re-com re-com
+                                            :attr   {:on-click (handler-fn (callback-fn))}}
+                               :post-props (cond-> {}
                                              label-class (tu/class label-class)
                                              label-style (tu/style label-style))}))]}}))))))
