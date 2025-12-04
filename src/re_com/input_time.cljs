@@ -3,13 +3,17 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-   [reagent.core    :as    reagent]
+   re-com.input-time.theme
+   [re-com.input-time :as-alias it]
+   [reagent.core    :as reagent]
+   [re-com.args     :as args]
    [re-com.config   :refer [include-args-desc?]]
-   [re-com.debug    :as debug :refer [->attr]]
+   [re-com.debug    :as debug]
+   [re-com.part     :as part]
    [re-com.theme    :as theme]
-   [re-com.validate :refer [css-style? css-class? html-attr? parts? number-or-string?]]
-   [re-com.text     :refer [label]]
-   [re-com.box      :refer [h-box gap]]
+   [re-com.theme.util :as tu]
+   [re-com.validate :refer [number-or-string?]]
+   [re-com.box      :refer [h-box]]
    [re-com.util     :refer [pad-zero-number deref-or-value]]))
 
 (defn- time->mins
@@ -140,12 +144,15 @@
     (when (and callback (not= time previous-val))
       (callback time))))
 
+(def part-structure
+  [::it/wrapper {:impl 're-com.box/h-box :notes "Outer wrapper of the time input."}
+   [::it/time-entry {:impl "empty" :type :legacy :notes "The actual input field."}]
+   [::it/icon-container {:tag :div :notes "The time icon container."}
+    [::it/icon {:tag :i :notes "The time icon."}]]])
+
 (def input-time-parts-desc
   (when include-args-desc?
-    [{:name :wrapper             :level 0 :class "rc-input-time "         :impl "[input-time]" :notes "Outer wrapper of the time input."}
-     {:type :legacy              :level 1 :class "rc-time-entry"          :impl "[:input]"     :notes "The actual input field."}
-     {:name :time-icon-container :level 1 :class "rc-time-icon-container" :impl "[:div]"       :notes "The time icon container."}
-     {:name :time-icon           :level 2 :class "rc-time-icon"           :impl "[:i]"         :notes "The time icon."}]))
+    (part/describe part-structure)))
 
 (def input-time-parts
   (when include-args-desc?
@@ -162,33 +169,34 @@
      {:name :hide-border? :required false :default false   :type "boolean"                                                          :description "when true, input filed is displayed without a border"}
      {:name :width        :required false                  :type "string"                    :validate-fn string?                   :description "standard CSS width setting for width of the input box (excluding the icon if present)"}
      {:name :height       :required false                  :type "string"                    :validate-fn string?                   :description "standard CSS height setting"}
-     {:name :class        :required false                  :type "string"                    :validate-fn css-class?                   :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
-     {:name :style        :required false                  :type "CSS style map"             :validate-fn css-style?                :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
-     {:name :attr         :required false                  :type "HTML attr map"             :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
-     {:name :parts        :required false                  :type "map"                       :validate-fn (parts? input-time-parts) :description "See Parts section below."}
-     {:name :src          :required false                  :type "map"                       :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as     :required false                  :type "map"                       :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+     args/pre
+     args/theme
+     args/class
+     args/style
+     args/attr
+     (args/parts input-time-parts)
+     args/src
+     args/debug-as]))
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
    Parameters - refer input-time-args above"
-  [& {:keys [model minimum maximum] :as args
+  [& {:keys [model minimum maximum pre-theme theme] :as args
       :or   {minimum 0 maximum 2359}}]
   (or
    (validate-args-macro input-time-args-desc args)
    (validate-arg-times (deref-or-value model) minimum maximum args)
    (let [deref-model    (deref-or-value model)
          text-model     (reagent/atom (time->text deref-model))
-         previous-model (reagent/atom deref-model)]
+         previous-model (reagent/atom deref-model)
+         theme          (theme/comp pre-theme theme)]
      (fn input-time-render
        [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src debug-as] :as args
            :or   {minimum 0 maximum 2359}}]
        (or
         (validate-args-macro input-time-args-desc args)
         (validate-arg-times (deref-or-value model) minimum maximum args)
-        (let [style (merge (when hide-border? {:border "none"})
-                           style)
-              new-val (deref-or-value model)
+        (let [new-val (deref-or-value model)
               new-val (if (< new-val minimum) minimum new-val)
               new-val (if (> new-val maximum) maximum new-val)]
             ;; if the model is different to that currently shown in text, then reset the text to match
@@ -197,42 +205,43 @@
             (reset! text-model (time->text new-val))
             (reset! previous-model new-val))
 
-          [h-box
-           :src      src
-           :debug-as (or debug-as (reflect-current-component))
-           :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
-           :style    (merge {:height height} (get-in parts [:wrapper :style]))
-           :attr     (get-in parts [:wrapper :attr])
-           :children [[:input
-                       (merge
-                        {:type      "text"
-                            ;; Leaving time-entry class (below) for backwards compatibility only.
-                         :class     (str "time-entry rc-time-entry " class)
-                         :style     (merge {:width width}
-                                           style)
-                         :value     @text-model
-                         :disabled  (deref-or-value disabled?)
-                         :on-change (handler-fn (on-new-keypress event text-model))
-                         :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-                         :on-key-up (handler-fn (lose-focus-if-enter event))}
-                        attr)]
-                      (when show-icon?
-                          ;; Leaving time-icon class (below) for backwards compatibility only.
-                        [:div
-                         (merge
-                          {:class (theme/merge-class "time-icon"
-                                                     "rc-time-icon-container"
-                                                     (get-in parts [:time-icon-container :class]))
-                           :style (get-in parts [:time-icon-container :style] {})}
-                          (get-in parts [:time-icon-container :attr]))
-                         [:i
-                          (merge
-                           {:class (theme/merge-class "zmdi"
-                                                      "zmdi-hc-fw-rc"
-                                                      "zmdi-time"
-                                                      "rc-time-icon"
-                                                      (get-in parts [:time-icon :class]))
-                            :style (merge {:position "static"
-                                           :margin   "auto"}
-                                          (get-in parts [:time-icon :style]))}
-                           (get-in parts [:time-icon :attr]))]])]]))))))
+          (let [part       (partial part/part part-structure args)
+                disabled?  (deref-or-value disabled?)
+                re-com-ctx {:state {:icon        (if show-icon? :visible :hidden)
+                                    :border      (if hide-border? :hidden :visible)
+                                    :input-state (if disabled? :disabled :enabled)}}]
+            (part ::it/wrapper
+              {:impl       h-box
+               :theme      theme
+               :post-props (-> {}
+                               (cond-> height (tu/style {:height height}))
+                               (debug/instrument args))
+               :props
+               {:re-com   re-com-ctx
+                :src      src
+                :debug-as (or debug-as (reflect-current-component))
+                :children
+                [(part ::it/time-entry
+                   {:theme      theme
+                    :props      {:re-com re-com-ctx
+                                 :tag    :input
+                                 :attr   {:type      :text
+                                          :value     @text-model
+                                          :disabled  disabled?
+                                          :on-change (handler-fn (on-new-keypress event text-model))
+                                          :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+                                          :on-key-up (handler-fn (lose-focus-if-enter event))}}
+                    :post-props (cond-> {}
+                                  width (tu/style {:width width})
+                                  class (tu/class class)
+                                  style (tu/style style)
+                                  attr  (update :attr merge attr))})
+                 (when show-icon?
+                   (part ::it/icon-container
+                     {:theme theme
+                      :props {:re-com re-com-ctx
+                              :children
+                              [(part ::it/icon
+                                 {:theme theme
+                                  :props {:re-com re-com-ctx}})]}}))]}}))))))))
+
