@@ -1,10 +1,11 @@
 (ns re-com.single-dropdown
   (:require-macros
-   [re-com.core     :refer [handler-fn]])
+   [re-com.core     :refer [handler-fn at]])
   (:require
    [re-com.args     :as args]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :as debug :refer [->attr]]
+   [re-com.popover  :as popover]
    [re-com.theme    :as    theme]
    [re-com.theme.util    :as    tu]
    [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id]]
@@ -22,7 +23,7 @@
    [re-com.dropdown.parts :as dp]))
 
 (def part-structure
-  [::sd/wrapper
+  [::sd/chosen-container
    [::sd/chosen-single]
    [::sd/chosen-drop
     [::sd/chosen-results
@@ -203,7 +204,8 @@
 
 (defn- free-text-dropdown-top-base
   "Base function (before lifecycle metadata) to render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
-  [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
+  [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder
+   dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
   [:ul.chosen-choices
    [:li.search-field
     [:div.free-text
@@ -304,41 +306,43 @@
           :as   args}]
       (or
        (validate-args-macro args-desc args)
-       (let [external-model     (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-             internal-model     (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
-             drop-showing?      (reagent/atom (boolean just-drop?))
-             filter-text        (reagent/atom "")
-             choices-fn?        (fn? choices)
-             choices-state      (reagent/atom {:loading? choices-fn?
+       (let [external-model      (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+             internal-model      (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
+             drop-showing?       (reagent/atom (boolean just-drop?))
+             filter-text         (reagent/atom "")
+             choices-fn?         (fn? choices)
+             choices-state       (reagent/atom {:loading? choices-fn?
                                         ; loading error
-                                               :error    nil
-                                               :choices  []
+                                                :error    nil
+                                                :choices  []
                                         ; request id to ignore handling response when new request was already made
-                                               :id       0
+                                                :id       0
                                         ; to debounce requests
-                                               :timer    nil})
-             load-choices       (partial load-choices choices-state choices debounce-delay)
-             set-filter-text    (fn [text {:keys [regex-filter?]} debounce?]
-                                  (load-choices text regex-filter? debounce?)
-                                  (reset! filter-text text))
-             over?              (reagent/atom false)
-             free-text-focused? (reagent/atom false)
-             free-text-input    (reagent/atom nil)
-             select-free-text?  (reagent/atom false)
-             focus-free-text    #(when @free-text-input (.focus @free-text-input))
-             anchor-el          (reagent/atom nil)
-             body-el            (reagent/atom nil)
-             anchor-ref!        #(reset! anchor-el %)
-             body-ref!          #(reset! body-el %)
-             focus-anchor       #(some-> @anchor-el (.getElementsByClassName "chosen-single") (.item 0) (.focus))
-             transition!        #(case %
-                                   :mouse-over (reset! over? true)
-                                   :mouse-out  (reset! over? false))]
+                                                :timer    nil})
+             load-choices        (partial load-choices choices-state choices debounce-delay)
+             set-filter-text     (fn [text {:keys [regex-filter?]} debounce?]
+                                   (load-choices text regex-filter? debounce?)
+                                   (reset! filter-text text))
+             over?               (reagent/atom false)
+             showing?            (reagent/track #(and (not @drop-showing?) @over?))
+             free-text-focused?  (reagent/atom false)
+             free-text-input     (reagent/atom nil)
+             select-free-text?   (reagent/atom false)
+             free-text-sel-range (reagent/atom nil)
+             focus-free-text     #(when @free-text-input (.focus @free-text-input))
+             anchor-el           (reagent/atom nil)
+             body-el             (reagent/atom nil)
+             anchor-ref!         #(reset! anchor-el %)
+             body-ref!           #(reset! body-el %)
+             focus-anchor        #(some-> @anchor-el (.getElementsByClassName "chosen-single") (.item 0) (.focus))
+             transition!         #(case %
+                                    :mouse-over (reset! over? true)
+                                    :mouse-out  (reset! over? false))]
          (load-choices "" regex-filter? false)
          (fn single-dropdown-render
            [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title?
                       free-text? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? drop-direction
-                      est-item-height repeat-change? i18n on-drop width max-height tab-index tooltip  style parts]
+                      est-item-height repeat-change? i18n on-drop width max-height tab-index tooltip tooltip-position style parts auto-complete?]
                :or   {id-fn :id label-fn :label group-fn :group enter-drop? true cancelable? true est-item-height 30}
                :as   args}]
            (or
@@ -370,6 +374,10 @@
                                          (when current-drop-showing?
                                            (focus-anchor)))
                                        (set-filter-text "" args false))
+                  free-text-change #(do
+                                      (reset! internal-model %)
+                                      (reset! select-free-text? false)
+                                      (call-on-change))
                   cancel            #(do
                                        (when-not @free-text-focused? ;; Prevent re-focusing free-text input on free-text input blur
                                          (focus-free-text))
@@ -601,18 +609,34 @@
                                     :drop-showing?      drop-showing?
                                     :on-change          #(set-filter-text % args true)
                                     :filter-placeholder filter-placeholder}}))
-                       chosen-results]}})]
-              (part ::sd/wrapper
-                {:theme      theme
-                 :post-props (-> (select-keys args [:attr :class])
-                                 (tu/style {:width width} style)
-                                 (debug/instrument args))
-                 :props
-                 {:re-com re-com-ctx
-                  :style  (flex-child-style (if width "0 0 auto" "auto"))
-                  :attr   {:ref anchor-ref!}
-                  :children
-                  [chosen-single
-                   (when (and @drop-showing? (not disabled?))
-                     chosen-drop)]}})))))))))
-
+                       chosen-results]}})
+                  chosen-container
+                  (part ::sd/chosen-container
+                    {:theme      theme
+                     :post-props (-> (select-keys args [:attr :class])
+                                     (tu/style {:width width} style)
+                                     (debug/instrument args))
+                     :props
+                     {:re-com re-com-ctx
+                      :style  (flex-child-style (if width "0 0 auto" "auto"))
+                      :attr   {:ref anchor-ref!}
+                      :children
+                      [(cond
+                         just-drop? nil
+                         free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range
+                                     internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel
+                                     width free-text-change auto-complete? choices capitalize? disabled?]
+                         :else      chosen-single)
+                       (when (and @drop-showing? (not disabled?))
+                         chosen-drop)]}})]
+              (if tooltip
+                [popover/popover-tooltip
+                 :src      (at)
+                 :label    tooltip
+                 :position (or tooltip-position :below-center)
+                 :showing? showing?
+                 :anchor   chosen-container
+                 :class    (str "rc-dropdown-tooltip " (get-in parts [:tooltip :class]))
+                 :style    (get-in parts [:tooltip :class])
+                 :attr     (get-in parts [:tooltip :attr])]
+                chosen-container)))))))))

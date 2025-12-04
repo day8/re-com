@@ -1,6 +1,10 @@
 #### Added
 - `input-text`: added `:throbber` part
 
+#### Fixed
+
+- `single-dropdown`: `:free-text?` functionality restored
+
 ## 2.28.4 (2025-09-29)
 
 #### Added

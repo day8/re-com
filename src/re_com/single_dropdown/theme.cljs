@@ -8,14 +8,14 @@
    [re-com.theme.util :as tu]
    [re-com.theme.default :refer [base main bootstrap]]))
 
-(defmethod base ::sd/wrapper
+(defmethod base ::sd/chosen-container
   [{{:keys [transition!]
      {:keys [tooltip?]} :state} :re-com :as props}]
   (cond-> props
     tooltip? (tu/attr {:on-mouse-over (handler-fn (transition! :mouse-over))
                        :on-mouse-out  (handler-fn (transition! :mouse-out))})))
 
-(defmethod bootstrap ::sd/wrapper
+(defmethod bootstrap ::sd/chosen-container
   [{{{:keys [free-text? drop-showing? focused?]} :state} :re-com :as props}]
   (tu/class props
             "rc-dropdown"
