@@ -199,15 +199,21 @@ This is crucial for performance since theme composition is expensive and should 
 **Part Structure Metadata Conventions:**
 
 - **`:impl`** - Only for actual component functions (e.g., `'re-com.core/h-box`, `'re-com.close-button/close-button`)
-- **`:tag`** - For HTML tags when using `part/default` (e.g., `:tag :div`, `:tag :span`, `:tag :input`)
+- **`:tag`** - For HTML tags when using `part/default` (e.g., `:tag :span`, `:tag :input`)
+  - **Note**: `:div` is the default, so omit `:tag` for div elements
 - **No metadata** - When using `part/default` with default `<div>` tag
 
 ```clojure
 ;; ✅ CORRECT - Clear distinction
 [::wrapper {:impl 're-com.core/h-box}        ; Uses h-box component
- [::container {:tag :div}                     ; Uses part/default with <div>
-  [::input {:tag :input}]]                    ; Uses part/default with <input>
- [::label]]                                   ; Uses part/default with default <div>
+ [::container]                                ; Uses part/default with default <div> (no :tag needed)
+ [::input {:tag :input}]                      ; Uses part/default with <input>
+ [::label {:tag :span}]]                      ; Uses part/default with <span>
+
+;; ❌ REDUNDANT - Don't specify :tag :div (it's the default)
+[::wrapper {:impl 're-com.core/h-box}
+ [::container {:tag :div}]                    ; Unnecessary - div is default
+ [::input {:tag :input}]]
 
 ;; ❌ OLD STYLE - Confusing mix
 [::wrapper {:impl 're-com.core/h-box}

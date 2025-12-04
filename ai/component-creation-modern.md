@@ -377,9 +377,16 @@ The `:tag` prop is specifically needed by the `re-com.part/default` component to
   {:props      {:tag :span}            ; part/default creates <span>
    :post-props {:on-click handler}})
 
+(part ::my-component/container
+  {:props {:children [...]}})          ; No :tag needed - defaults to <div>
+
 ;; ❌ WITHOUT :tag, part/default creates generic <div>
 (part ::my-component/input
   {:post-props {:attr {:type :checkbox}}}) ; Creates <div>, not <input>!
+
+;; ❌ REDUNDANT: Don't specify :tag :div (it's the default)
+(part ::my-component/container
+  {:props {:tag :div}})                ; Unnecessary - div is default
 ```
 
 **Important**: The `:tag` prop is **only** used by `re-com.part/default`. If your part uses a different `:impl` (like `'re-com.core/h-box` or `'re-com.core/input-text`), the `:tag` prop is ignored because those components create their own specific elements.
@@ -388,6 +395,7 @@ The `:tag` prop is specifically needed by the `re-com.part/default` component to
 - Parts that don't specify `:impl` in part-structure (defaults to `re-com.part/default`)
 - Parts with `:impl "empty"` in part-structure
 - When you want `part/default` to create a specific HTML element like `:input`, `:span`, `:button`, etc.
+- **Note**: `:div` is the default, so omit `:tag` for div elements
 
 ### Critical: Part Structure vs Part Call Implementation
 
