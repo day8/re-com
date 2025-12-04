@@ -3,7 +3,8 @@
    [re-com.core     :refer []])
   (:require
    [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
-   [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc dropdown]]
+   [re-com.dropdown :refer [dropdown]]
+   [re-com.single-dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
    [re-com.util     :refer [item-for-id px]]
    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
    [reagent.core    :as    reagent]))

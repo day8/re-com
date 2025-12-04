@@ -10,6 +10,7 @@
             [re-com.dropdown :as dropdown]
             [re-com.input-text :as input-text]
             [re-com.tag-dropdown :as tag-dropdown]
+            [re-com.single-dropdown :as sd]
             [re-com.text :as text]
             [re-com.theme :as theme]
             [re-com.util :as u :refer [deref-or-value]]
@@ -432,7 +433,7 @@
 ;; Boolean input case
 (defmethod value-entry-box :boolean
   [& {:keys [filter-spec on-change parts disabled?]}]
-  [dropdown/single-dropdown
+  [sd/single-dropdown
    (merge {:choices [{:id true :label "True"}
                      {:id false :label "False"}]}
           (common-props filter-spec on-change parts :dropdown-input disabled?))])
@@ -461,7 +462,7 @@
         :disabled?         disabled?}]
 
       ;; Single value selection for equals/not-equals
-      [dropdown/single-dropdown
+      [sd/single-dropdown
        (merge {:choices options}
               (common-props filter-spec on-change parts :dropdown-input disabled?))])))
 
@@ -681,7 +682,7 @@
                     :white-space      "nowrap"}
                    (get-in parts [:filter :style]))
      :attr (get-in parts [:filter :attr])
-     :children [[dropdown/single-dropdown
+     :children [[sd/single-dropdown
                  :model (:col filter-spec)
                  :choices col-opts
                  :width "140px"
@@ -692,7 +693,7 @@
                  :on-change #(let [cs (column-by-id table-spec %)]
                                (update-state! (fn [state] (update-item-by-id state (:id filter-spec)
                                                                              (fn [f] (assoc f :col % :op (first (ops-by-type (:type cs))) :val nil))))))]
-                [dropdown/single-dropdown
+                [sd/single-dropdown
                  :model (:op filter-spec)
                  :choices op-opts
                  :width "130px"

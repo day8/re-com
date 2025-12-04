@@ -7,6 +7,7 @@
    [reagent.core          :as r]
    [re-com.config         :refer [include-args-desc?]]
    [re-com.dropdown       :as dd]
+   [re-com.dropdown.parts :as dp]
    [re-com.util           :refer [deref-or-value remove-id-item ->v] :as u]
    [re-com.part :as part]
    [re-com.box            :refer [h-box v-box box gap]]
@@ -743,7 +744,7 @@
                                                                                     (str (count (if change-on-blur?
                                                                                                   @internal-model
                                                                                                   (u/deref-or-value model))))}})
-                                                                         (part/part dd/indicator
+                                                                         (part/part dp/indicator
                                                                            {:theme theme
                                                                             :part  ::dropdown-indicator
                                                                             :props props})

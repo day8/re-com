@@ -11,6 +11,7 @@
    [re-com.daterange       :as daterange]
    [re-com.debug           :as debug]
    [re-com.dropdown        :as dropdown]
+   [re-com.single-dropdown :as single-dropdown]
    [re-com.input-text      :as input-text]
    [re-com.typeahead       :as typeahead]
    [re-com.input-time      :as input-time]
@@ -80,7 +81,7 @@
 (def daterange                  daterange/daterange)
 (def daterange-dropdown         daterange/daterange-dropdown)
 
-(def single-dropdown            dropdown/single-dropdown)
+(def single-dropdown            single-dropdown/single-dropdown)
 (def dropdown                   dropdown/dropdown)
 
 (def typeahead                  typeahead/typeahead)

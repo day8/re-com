@@ -1,0 +1,40 @@
+(ns re-com.single-dropdown.theme
+  (:require
+   [re-com.single-dropdown :as-alias sd]
+   [re-com.theme.util :as tu]
+   [re-com.theme.default :refer [base main bootstrap]]))
+
+(defmethod base ::sd/wrapper [props]
+  (let [{:keys [width]} (get-in props [:re-com :state])]
+    (-> props
+        (tu/style {:width width}))))
+
+(defmethod bootstrap ::sd/wrapper [props]
+  (let [{:keys [free-text? drop-showing? focused?]} (get-in props [:re-com :state])]
+    (tu/class props
+              "rc-dropdown"
+              "chosen-container"
+              (if free-text?
+                "chosen-container-multi"
+                "chosen-container-single")
+              "noselect"
+              (when (or drop-showing? focused?) "chosen-container-active")
+              (when drop-showing? "chosen-with-drop"))))
+
+(defmethod bootstrap ::sd/chosen-single [props]
+  (tu/class props "rc-dropdown-chosen-single"))
+
+(defmethod bootstrap ::sd/chosen-drop [props]
+  (tu/class props "chosen-drop" "rc-dropdown-chosen-drop"))
+
+(defmethod bootstrap ::sd/chosen-results [props]
+  (tu/class props "chosen-results" "rc-dropdown-chosen-results"))
+
+(defmethod bootstrap ::sd/choices-loading [props]
+  (tu/class props "loading" "rc-dropdown-choices-loading"))
+
+(defmethod bootstrap ::sd/choices-error [props]
+  (tu/class props "error" "rc-dropdown-choices-error"))
+
+(defmethod bootstrap ::sd/choices-no-results [props]
+  (tu/class props "no-results" "rc-dropdown-choices-no-results"))
