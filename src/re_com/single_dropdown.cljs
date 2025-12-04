@@ -4,8 +4,9 @@
   (:require
    [re-com.args     :as args]
    [re-com.config   :refer [include-args-desc?]]
-   [re-com.debug    :refer [->attr]]
+   [re-com.debug    :as debug :refer [->attr]]
    [re-com.theme    :as    theme]
+   [re-com.theme.util    :as    tu]
    [re-com.util     :as    u :refer [deref-or-value position-for-id item-for-id]]
    [re-com.box      :refer [flex-child-style]]
    [re-com.validate :refer [vector-of-maps? number-or-string? log-warning
@@ -173,83 +174,6 @@
     (str (string/upper-case (first text)) (subs text 1))
     text))
 
-(defn show-selected-item
-  [node]
-  (let [item-offset-top       (.-offsetTop node)
-        item-offset-bottom    (+ item-offset-top (.-clientHeight node))
-        parent                (.-parentNode node)
-        parent-height         (.-clientHeight parent)
-        parent-visible-top    (.-scrollTop parent)
-        parent-visible-bottom (+ parent-visible-top parent-height)
-        new-scroll-top        (cond
-                                (> item-offset-bottom parent-visible-bottom) (max (- item-offset-bottom parent-height) 0)
-                                (< item-offset-top parent-visible-top)       item-offset-top)]
-    (when new-scroll-top (set! (.-scrollTop parent) new-scroll-top))))
-
-(defn- make-group-heading
-  "Render a group heading"
-  [m]
-  ^{:key (:id m)} [:li.group-result
-                   (:group m)])
-
-(defn- choice-item
-  "Render a choice item and set up appropriate mouse events"
-  [id _ _ internal-model]
-  (let [mouse-over? (reagent/atom false)
-        !ref        (atom nil)
-        ref!        (partial reset! !ref)
-        show!       #(when (= @internal-model id) (show-selected-item @!ref))]
-    (reagent/create-class
-     {:component-did-mount  show!
-      :component-did-update show!
-      :display-name         "choice-item"
-      :reagent-render       (fn [id label on-click internal-model]
-                              (let [selected (= @internal-model id)
-                                    class    (if selected
-                                               "highlighted"
-                                               (when @mouse-over? "mouseover"))]
-                                [:li
-                                 {:class         (str "active-result group-option " class)
-                                  :ref           ref!
-                                  :on-mouse-over (handler-fn (reset! mouse-over? true))
-                                  :on-mouse-out  (handler-fn (reset! mouse-over? false))
-                                  :on-mouse-down (handler-fn
-                                                  (on-click id)
-                                                  (.preventDefault event))}         ;; Prevent free-text input as well as the normal dropdown from losing focus
-                                 label]))})))
-
-(defn make-choice-item
-  [id-fn render-fn callback internal-model opt]
-  (let [id (id-fn opt)
-        markup (render-fn opt)]
-    ^{:key (str id)} [choice-item id markup callback internal-model]))
-
-(defn- filter-text-box
-  "Render a filter text box"
-  [_ _ _ _ _ _]
-  (let [!ref   (atom nil)
-        ref!   (partial reset! !ref)
-        focus! #(.focus (.-firstChild @!ref))]
-    (reagent/create-class
-     {:component-did-mount  focus!
-      :component-did-update focus!
-      :reagent-render       (fn [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
-                              [:div.chosen-search {:ref ref!}
-                               [:input
-                                {:type          "text"
-                                 :auto-complete "off"
-                                 :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                                                       :width    "0px"      ;; The rest of these styles make the textbox invisible
-                                                                       :padding  "0px"
-                                                                       :border   "none"})
-                                 :value         @filter-text
-                                 :placeholder   filter-placeholder
-                                 :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
-                                 :on-key-down   (handler-fn (when-not (key-handler event)
-                                                              (.stopPropagation event)
-                                                              (.preventDefault event))) ;; When key-handler returns false, preventDefault
-                                 :on-blur       (handler-fn (reset! drop-showing? false))}]])})))
-
 (defn handle-free-text-insertion
   [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]
   (let [input             (.-target event)
@@ -356,7 +280,7 @@
              #(callback {:error %}))))
 
 (defn- load-choices
-  "Load choices or schedule lodaing depending on debounce?"
+  "Load choices or schedule loading depending on debounce?"
   [choices-state choices debounce-delay text regex-filter? debounce?]
   (when (fn? choices)
     (when-let [timer (:timer @choices-state)]
@@ -590,6 +514,71 @@
                                                 [dp/indicator
                                                  {:style {:margin-right "8px" :margin-top "0.5px"}
                                                   :state {:openable (if @drop-showing? :open :closed)}}])]}})
+                  chosen-results
+                  (part ::sd/chosen-results
+                    {:theme theme
+                     :props
+                     {:tag   :ul
+                      :style (when max-height {:max-height max-height})
+                      :children
+                      (cond
+                        (and choices-fn? (:loading? @choices-state))
+                        [(part ::sd/choices-loading
+                           {:theme theme
+                            :props {:tag  :li
+                                    :i18n i18n
+                                    :children
+                                    [(get i18n :loading "Loading...")]}})]
+                        (and choices-fn? (:error @choices-state))
+                        [(part ::sd/choices-error
+                           {:theme theme
+                            :props {:tag :li
+                                    :children
+                                    [(:error @choices-state)]}})]
+                        (-> filtered-choices count pos?)
+                        (let [[group-names
+                               group-opt-lists] (choices-with-group-headings
+                                                 filtered-choices group-fn)
+                              choice-item       #(let [id (id-fn %)]
+                                                   ^{:key (str id)}
+                                                   (part ::sd/choice-item
+                                                     {:theme theme
+                                                      :impl  sdp/choice-item
+                                                      :props {:id       id
+                                                              :label    (render-fn %)
+                                                              :on-click callback
+                                                              :model    internal-model}}))
+                              h-then-choices    (fn [{:keys [group id]} opts]
+                                                  (cons
+                                                   ^{:key id}
+                                                   (part ::sd/group-heading
+                                                     {:theme theme
+                                                      :props {:tag      :li
+                                                              :children [group]}})
+                                                   (map choice-item opts)))
+                              no-group-names?   (nil? (:group (first group-names)))
+                              no-headings?      (= 1 (count group-opt-lists))]
+                          (if (and no-headings? no-group-names?)
+                            (map choice-item (first group-opt-lists))
+                            (mapcat h-then-choices group-names group-opt-lists)))
+                        :else
+                        [(part ::sd/choices-no-results
+                           {:theme theme
+                            :props
+                            {:tag  :li
+                             :attr {:on-mouse-down
+                                    (handler-fn
+                                     (when (and (:on-no-results-match-click set-to-filter)
+                                                (seq @filter-text)
+                                                free-text?)
+                                       (callback @filter-text)))}
+                             :children
+                             [(gstring/format
+                               (or (and (seq @filter-text) (:no-results-match i18n))
+                                   (and (empty? @filter-text) (:no-results i18n))
+                                   (:no-results-match i18n)
+                                   "No results match \"%s\"")
+                               @filter-text)]}})])}})
                   chosen-drop
                   (part ::sd/chosen-drop
                     {:theme theme
@@ -600,71 +589,28 @@
                       :children
                       [(when (and (or filter-box? (not free-text?))
                                   (not just-drop?))
-                         [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
-                       [:ul
-                        (merge
-                         {:class (theme/merge-class "chosen-results"
-                                                    "rc-dropdown-chosen-results"
-                                                    (get-in parts [:chosen-results :class]))
-                          :style (merge (when max-height {:max-height max-height})
-                                        (get-in parts [:chosen-results :style]))}
-                         (get-in parts [:chosen-results :attr]))
-                        (cond
-                          (and choices-fn? (:loading? @choices-state))
-                          [:li
-                           (merge
-                            {:class (theme/merge-class "loading"
-                                                       "rc-dropdown-choices-loading"
-                                                       (get-in parts [:choices-loading :class]))
-                             :style (get-in parts [:choices-loading :style] {})}
-                            (get-in parts [:choices-loading :attr]))
-                           (get i18n :loading "Loading...")]
-                          (and choices-fn? (:error @choices-state))
-                          [:li
-                           (merge
-                            {:class (theme/merge-class "error"
-                                                       "rc-dropdown-choices-error"
-                                                       (get-in parts [:choices-error :class]))
-                             :style (get-in parts [:choices-error :style] {})}
-                            (get-in parts [:choices-error :attr]))
-                           (:error @choices-state)]
-                          (-> filtered-choices count pos?)
-                          (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
-                                make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
-                                make-choices                  #(map make-a-choice %1)
-                                make-h-then-choices           (fn [h opts]
-                                                                (cons (make-group-heading h)
-                                                                      (make-choices opts)))
-                                has-no-group-names?           (nil? (:group (first group-names)))]
-                            (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
-                              (make-choices (first group-opt-lists)) ;; one group means no headings
-                              (apply concat (map make-h-then-choices group-names group-opt-lists))))
-                          :else
-                          [:li
-                           (merge
-                            {:class         (str "no-results rc-dropdown-choices-no-results "
-                                                 (get-in parts [:choices-no-results :class]))
-                             :style         (get-in parts [:choices-no-results :style] {})
-                             :on-mouse-down (handler-fn
-                                             (when (and (:on-no-results-match-click set-to-filter)
-                                                        (seq @filter-text)
-                                                        free-text?)
-                                               (callback @filter-text)))}
-                            (get-in parts [:choices-no-results :attr]))
-                           (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
-                                               (and (empty? @filter-text) (:no-results i18n))
-                                               (:no-results-match i18n)
-                                               "No results match \"%s\"")
-                                           @filter-text)])]]}})]
+                         (part ::sd/chosen-search
+                           {:impl  sdp/chosen-search
+                            :theme theme
+                            :props {:re-com             {:state
+                                                         {:filter-box
+                                                          (if (deref-or-value filter-box?)
+                                                            :showing :hidden)}}
+                                    :model              filter-text
+                                    :key-handler        key-handler
+                                    :drop-showing?      drop-showing?
+                                    :on-change          #(set-filter-text % args true)
+                                    :filter-placeholder filter-placeholder}}))
+                       chosen-results]}})]
               (part ::sd/wrapper
                 {:theme      theme
-                 :post-props (merge (select-keys args [:attr :class])
-                                    {:style (merge {:width width} style)})
+                 :post-props (-> (select-keys args [:attr :class])
+                                 (tu/style {:width width} style)
+                                 (debug/instrument args))
                  :props
                  {:re-com re-com-ctx
-                  :style  (merge (flex-child-style (if width "0 0 auto" "auto"))
-                                 {:width width})
-                  :attr   (merge (->attr (assoc-in args [:attr :ref] anchor-ref!)))
+                  :style  (flex-child-style (if width "0 0 auto" "auto"))
+                  :attr   {:ref anchor-ref!}
                   :children
                   [chosen-single
                    (when (and @drop-showing? (not disabled?))

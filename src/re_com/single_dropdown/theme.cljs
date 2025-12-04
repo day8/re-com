@@ -57,6 +57,18 @@
 (defmethod bootstrap ::sd/chosen-drop [props]
   (tu/class props "chosen-drop" "rc-dropdown-chosen-drop"))
 
+(defmethod base ::sd/chosen-search
+  [{{{:keys [filter-box]} :state} :re-com :as props}]
+  (let [invisible {:position "absolute"
+                   :width    "0px"
+                   :padding  "0px"
+                   :border   "none"}]
+    (cond-> props
+      (= :hidden filter-box) (tu/style invisible))))
+
+(defmethod bootstrap ::sd/group-heading [props]
+  (tu/class props "group-result"))
+
 (defmethod bootstrap ::sd/chosen-results [props]
   (tu/class props "chosen-results" "rc-dropdown-chosen-results"))
 
