@@ -8,6 +8,7 @@
             [reagent.dom                   :as    rdom]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
+            [re-com.config                 :as    rc.config]
             [re-com.core                   :as rc :refer [at h-box v-box box gap line scroller border
                                                           label p title alert-box h-split]
                                                   :refer-macros [handler-fn]]
@@ -191,7 +192,7 @@
                  :child [label
                          :src   (at)
                          :style {:font-size "10px"}
-                         :label (dev/app-version)]]]]))
+                         :label rc.config/version]]]]))
 
 (defn re-com-title-box
   []

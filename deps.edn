@@ -39,11 +39,11 @@
                          :exec-fn     day8.chrome-shadow-test-runner/run
                          :exec-args   {:test-dir    "run/resources/public/compiled_test"
                                        :chrome-path "chromium"}}
-           :local       {:extra-deps {day8/dev {:local/root "../dev"}}}
-           :clein       {:extra-deps {io.github.noahtheduke/clein {:git/url "https://github.com/day8i/clein.git"
-                                                                   :git/sha "9d4325f64eb0d0ae36e0c9c8fae5defdde6ec9ae"}
+           :local       {:extra-deps {day8/dev {:local/root "../day8.dev"}}}
+           :clein       {:extra-deps {io.github.noahtheduke/clein {:git/url "https://github.com/day8/clein.git"
+                                                                   :git/sha "6df2ed46df9e9f646cf79fc8ccde6273b23be2fb"}
                                       day8/dev                    {:git/url "https://github.com/day8/dev.git"
-                                                                   :git/sha "51facb409f850cbf339085b69029e09902609a5d"}}
+                                                                   :git/sha "723376ee8744ed7e08a34b81275c8e6f030e5c65"}}
                          :main-opts  ["-m" "noahtheduke.clein"]}
            :clein/build {:lib      re-com/re-com
                          :main     re-com.core

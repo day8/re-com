@@ -1,17 +1,18 @@
-{:deps  {:aliases [:demo]}
- :nrepl {:port 7777}
-
+{:deps   {:aliases [:demo]}
+ :nrepl  {:port 7777}
  :builds {:demo
           {:target           :browser
            :modules          {:demo {:init-fn re-demo.core/mount-demo}}
            :closure-defines  {;; For production builds of the demo app, set goog.DEBUG
                               ;; to be true so that the debugging demo page works as expected.
                               goog.DEBUG                             true
-                              re-com.config/force-include-args-desc? true}
+                              re-com.config/force-include-args-desc? true
+                              re-com.config/version                  :day8.dev/git-app-version}
            :compiler-options {;; For production builds of the demo app, keep the component name
                               ;; symbols for display in validation error logging.
                               :pseudo-names true
                               :externs      ["externs/detect-element-resize-externs.js"]}
+           :build-hooks      [(day8.dev/version-build-hook)]
            :dev              {:asset-path      "/compiled_dev/"
                               :output-dir      "run/resources/public/compiled_dev/"
                               :closure-defines {;; When re-com produces validation errors it tries to provide links
