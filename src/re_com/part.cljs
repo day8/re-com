@@ -45,9 +45,9 @@
 
 (defn css-class [part-id]
   (str "rc-"
-       (subs (namespace part-id) 7)
+       (some-> part-id namespace (subs 7))
        "-"
-       (clj/name part-id)))
+       (some-> part-id clj/name)))
 
 (def css-class* (memoize css-class))
 
