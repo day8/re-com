@@ -1,3 +1,6 @@
+#### Added
+- `input-text`: added `:throbber` part
+
 ## 2.28.4 (2025-09-29)
 
 #### Added
