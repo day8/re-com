@@ -246,6 +246,37 @@ The `:re-com` key provides a structured namespace for theme-relevant metadata:
 :re-com   {:state {:showing? @showing-atom}} ; Deref'd value for themes
 ```
 
+### Statechart-Style State (Preferred Pattern)
+
+**Prefer named states over booleans** - Use a statechart approach where every state has a distinct keyword name:
+
+```clojure
+;; ✅ PREFERRED - Statechart style with named states
+:re-com {:state {:wrap :nicely}}            ; or :wrap :default
+:re-com {:state {:status :validating}}      ; or :success, :error, :warning
+:re-com {:state {:mode :edit}}              ; or :view, :preview
+
+;; Theme methods match on keywords
+(defmethod base ::my-component/wrapper [{{{:keys [wrap]} :state} :re-com :as props}]
+  (tu/style props (when (= wrap :nicely)
+                    {:background-color :white
+                     :padding "16px"})))
+
+;; ❌ AVOID - Boolean flags (unless truly binary with no future expansion)
+:re-com {:state {:wrap-nicely? true}}       ; Less extensible
+:re-com {:state {:is-validating? true}}     ; Harder to add more states
+
+;; Component implementation
+(let [re-com-ctx {:state {:wrap (if wrap-nicely? :nicely :default)}}]
+  ...)
+```
+
+**Benefits of statechart approach:**
+- **Extensible** - Easy to add more states later (e.g., `:wrap :compact`)
+- **Clearer** - Named states are self-documenting
+- **Type-safe** - Can use `case` instead of nested `if/when`
+- **Explicit** - Every possible state has a name
+
 ### Exception: Performance Atoms in `:state`
 
 For rare performance cases, atoms can be passed in `:state` using the `*` suffix convention:
