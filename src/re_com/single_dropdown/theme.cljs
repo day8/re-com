@@ -26,8 +26,21 @@
             (when (or drop-showing? focused?) "chosen-container-active")
             (when drop-showing? "chosen-with-drop")))
 
+(defmethod base ::sd/chosen-single [{{{:keys [background-disabled]} :variables
+                                      {:keys [interaction]}         :state} :re-com
+                                     :as                            props}]
+  (tu/style props
+            {:display         "flex"
+             :justify-content :space-between
+             :width           "100%"}
+            (when (= :disabled interaction)
+              {:background-color background-disabled})))
+
 (defmethod bootstrap ::sd/chosen-single [props]
-  (tu/class props "rc-dropdown-chosen-single"))
+  (tu/class props
+            "rc-dropdown-chosen-single"
+            "chosen-single"
+            "chosen-default"))
 
 (defmethod bootstrap ::sd/chosen-drop [props]
   (tu/class props "chosen-drop" "rc-dropdown-chosen-drop"))
