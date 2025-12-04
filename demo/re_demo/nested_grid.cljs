@@ -686,8 +686,7 @@
                                    (/ (count lorem-ipsum) 2))
                    \"Random\"   (rand-nth lorem-ipsum)))]"]
     [rc/p "You can compose the " [:code ":cell"] " and " [:code ":cell-label"]
-     " to semantically separate a semantic separation of data processing from rendering. "
-     " Both parts accept the same arguments, except "
+     " to semantically separate your data model from rendering. "
      "When " [:code ":cell-value"] " is provided, " [:code "nested-grid"]
      " passes its return value to " [:code ":cell"]
      " via a " [:code ":value"] " prop."]
