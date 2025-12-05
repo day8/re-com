@@ -8,7 +8,10 @@
    [re-com.box      :refer [flex-child-style flex-flow-style]]
    [re-com.theme    :as    theme]
    [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts? css-class?] :refer-macros [validate-args-macro]]
-   [reagent.core    :as    r]))
+   [reagent.core    :as    r]
+   [re-com.part :as p]
+   [re-com.h-split :as-alias hs]
+   [re-com.v-split :as-alias vs]))
 
 (defn drag-handle
   "Return a drag handle to go into a vertical or horizontal splitter bar:
@@ -58,26 +61,40 @@
 ;;  Component: h-split
 ;; ------------------------------------------------------------------------------------
 
+
+(def h-split-part-structure
+  [::hs/wrapper
+   [::hs/left]
+   [::hs/splitter
+    [::hs/handle
+     [::hs/handle-bar-1]
+     [::hs/handle-bar-2]]]
+   [::hs/right]])
+
+(def v-split-part-structure
+  [::vs/wrapper
+   [::vs/top]
+   [::vs/plitter
+    [::vs/handle
+     [::vs/handle-bar-1]
+     [::vs/handle-bar-2]]]
+   [::vs/bottom]])
+
+(def h-split-parts-desc
+  (when include-args-desc?
+    (p/describe h-split-part-structure)))
+
+(def v-split-parts-desc
+  (when include-args-desc?
+    (p/describe v-split-part-structure)))
+
 (def hv-split-parts-desc
   (when include-args-desc?
-    [{:type :legacy :level 0 :class "rc-h-split" :impl "[h-split]" :notes "Outer wrapper of the split."}
-     {:name :left :level 1 :class "rc-h-split-left" :impl "[:div]" :notes "First (i.e. left) panel of the split."}
-     {:name :splitter :level 1 :class "rc-h-split-splitter" :impl "[:div]" :notes "The splitter between panels."}
-     {:name :handle :level 2 :class "rc-h-split-handle" :impl "[:div]" :notes "The splitter handle."}
-     {:name :handle-bar-1 :level 3 :class "rc-h-split-handle-bar-1" :impl "[:div]" :notes "The splitter handle's first bar."}
-     {:name :handle-bar-2 :level 3 :class "rc-h-split-handle-bar-2" :impl "[:div]" :notes "The splitter handle's second bar."}
-     {:name :right :level 1 :class "rc-h-split-right" :impl "[:div]" :notes "Second (i.e. right) panel of the split."}
-     {:type :legacy :level 0 :class "rc-v-split" :impl "[v-split]" :notes "Outer wrapper of the split."}
-     {:name :top :level 1 :class "rc-v-split-top" :impl "[:div]" :notes "First (i.e. top) panel of the split."}
-     {:name :splitter :level 1 :class "rc-v-split-splitter" :impl "[:div]" :notes "The splitter between panels."}
-     {:name :handle :level 2 :class "rc-v-split-handle" :impl "[:div]" :notes "The splitter handle."}
-     {:name :handle-bar-1 :level 3 :class "rc-v-split-handle-bar-1" :impl "[:div]" :notes "The splitter handle's first bar."}
-     {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]" :notes "The splitter handle's second bar."}
-     {:name :bottom :level 1 :class "rc-v-split-bottom" :impl "[:div]" :notes "Second (i.e. bottom) panel of the split."}]))
+    (vec (concat h-split-parts-desc v-split-parts-desc))))
 
 (def hv-split-parts
   (when include-args-desc?
-    (-> (map :name hv-split-parts-desc) set)))
+    (into #{} (map :name) hv-split-parts-desc)))
 
 (def hv-split-args-desc
   (when include-args-desc?
@@ -100,12 +117,13 @@
 
 (defn h-split
   "Returns markup for a horizontal layout component"
-  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin src]
+  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin src pre-theme theme]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
    (validate-args-macro hv-split-args-desc args)
-   (let [container-id         (gensym "h-split-")
+   (let [theme                (theme/comp pre-theme theme)
+         container-id         (gensym "h-split-")
          split-perc           (r/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
          dragging?            (r/atom false)                       ;; is the user dragging the splitter (mouse is down)?
          over?                (r/atom false)                       ;; is the mouse over the splitter, if so, highlight it
@@ -170,29 +188,43 @@
                                                         style)}
                                  attr))]
      (fn h-split-render
-       [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
-       [:div (make-container-attrs class style attr @dragging?)
-        [:div (make-panel-attrs
-                 ;; Leaving rc-h-split-top class (below) for backwards compatibility only.
-               (str "rc-h-split-top rc-h-split-left " (get-in parts [:left :class]))
-               (get-in parts [:top :style])
-               (get-in parts [:top :attr])
-               @dragging? @split-perc)
-         panel-1]
-        [:div (make-splitter-attrs
-               (str "rc-h-split-splitter " (get-in parts [:splitter :class]))
-               (get-in parts [:splitter :style])
-               (get-in parts [:splitter :attr]))
-         [drag-handle :vertical @over? parts]]
-        [:div (make-panel-attrs
-                 ;; Leaving rc-h-split-bottom class (below) for backwards compatibility only.
-               (str "rc-h-split-bottom rc-h-split-right " (get-in parts [:right :class]))
-               (get-in parts [:bottom :style])
-               (get-in parts [:bottom :attr])
-               @dragging? (if split-is-px?
-                            (- @split-perc) ;; Negative value indicates this is for panel-2
-                            (- 100 @split-perc)))
-         panel-2]]))))
+       [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin
+                  class style attr parts src]
+           :as args}]
+       (let [part (partial p/part h-split-part-structure args)]
+         [:div (make-container-attrs class style attr @dragging?)
+          [:div
+           (merge
+            {:class (theme/merge-class "display-flex" "rc-h-split-top" "rc-h-split-left" (get-in parts [:left :class]))
+             :style (merge (flex-child-style (if split-is-px?
+                                               (if (pos?  @split-perc)
+                                                 (str "0 0 "  @split-perc "px") ;; flex for panel-1
+                                                 "1 1 0px")             ;; flex for panel-2
+                                               (str  @split-perc " 1 0px")))
+                           (when @dragging? {:pointer-events "none"})
+                           (get-in parts [:top :style]))}
+            (get-in parts [:top :attr]))
+           panel-1]
+          [:div (make-splitter-attrs
+                 (str "rc-h-split-splitter " (get-in parts [:splitter :class]))
+                 (get-in parts [:splitter :style])
+                 (get-in parts [:splitter :attr]))
+           [drag-handle :vertical @over? parts]]
+          (let [percentage (if split-is-px?
+                             (- @split-perc) ;; Negative value indicates this is for panel-2
+                             (- 100 @split-perc))]
+            [:div
+             (merge
+              {:class (theme/merge-class "display-flex" "rc-h-split-bottom" "rc-h-split-right" (get-in parts [:right :class]))
+               :style (merge (flex-child-style (if split-is-px?
+                                                 (if (pos? percentage)
+                                                   (str "0 0 " percentage "px") ;; flex for panel-1
+                                                   "1 1 0px")             ;; flex for panel-2
+                                                 (str percentage " 1 0px")))
+                             (when   @dragging? {:pointer-events "none"})
+                             (get-in parts [:bottom :style]))}
+              (get-in parts [:bottom :attr]))
+             panel-2])])))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: v-split
