@@ -23,17 +23,18 @@
    [re-com.dropdown.parts :as dp]))
 
 (def part-structure
-  [::sd/chosen-container
-   [::sd/chosen-single]
-   [::sd/free-text-dropdown-top]
-   [::sd/chosen-drop
-    [::sd/chosen-search]
-    [::sd/chosen-results
-     [::sd/choice-item]
-     [::sd/group-heading]
-     [::sd/choices-loading]
-     [::sd/choices-error]
-     [::sd/choices-no-results]]]])
+  [::sd/tooltip
+   [::sd/chosen-container
+    [::sd/chosen-single]
+    [::sd/free-text-dropdown-top]
+    [::sd/chosen-drop
+     [::sd/chosen-search]
+     [::sd/chosen-results
+      [::sd/choice-item]
+      [::sd/group-heading]
+      [::sd/choices-loading]
+      [::sd/choices-error]
+      [::sd/choices-no-results]]]]])
 
 (def parts-desc
   (when include-args-desc?
@@ -481,7 +482,7 @@
                   free-text-dropdown-top
                   (part ::sd/free-text-dropdown-top
                     {:theme theme
-                     :impl sdp/free-text-dropdown-top
+                     :impl  sdp/free-text-dropdown-top
                      :props
                      {:auto-complete?      auto-complete?
                       :cancel              cancel
@@ -541,14 +542,14 @@
                            chosen-single))
                        (when (and @drop-showing? (not disabled?))
                          chosen-drop)]}})]
-              (if tooltip
-                [popover/popover-tooltip
-                 :src      (at)
-                 :label    tooltip
-                 :position (or tooltip-position :below-center)
-                 :showing? showing?
-                 :anchor   chosen-container
-                 :class    (str "rc-dropdown-tooltip " (get-in parts [:tooltip :class]))
-                 :style    (get-in parts [:tooltip :class])
-                 :attr     (get-in parts [:tooltip :attr])]
-                chosen-container)))))))))
+              (if-not tooltip
+                chosen-container
+                (part ::tooltip
+                  {:impl       popover/popover-tooltip
+                   :theme      theme
+                   :post-props {:src (at)}
+                   :props
+                   {:label    tooltip
+                    :position (or tooltip-position :below-center)
+                    :showing? showing?
+                    :anchor   chosen-container}}))))))))))

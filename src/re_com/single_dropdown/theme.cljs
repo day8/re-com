@@ -8,6 +8,9 @@
    [re-com.theme.util :as tu]
    [re-com.theme.default :refer [base main bootstrap]]))
 
+(defmethod bootstrap ::sd/tooltip [props]
+  (tu/class props "rc-dropdown-tooltip"))
+
 (defmethod base ::sd/chosen-container
   [{{:keys [transition!]
      {:keys [tooltip?]} :state} :re-com :as props}]
