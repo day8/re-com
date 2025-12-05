@@ -123,7 +123,8 @@
   (or
    (validate-args-macro hv-split-args-desc args)
    (let [theme                (theme/comp pre-theme theme)
-         container-id         (gensym "h-split-")
+         wrapper-ref          (r/atom nil)
+         wrapper-ref!         (partial reset! wrapper-ref)
          split-perc           (r/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
          dragging?            (r/atom false)                       ;; is the user dragging the splitter (mouse is down)?
          over?                (r/atom false)                       ;; is the mouse over the splitter, if so, highlight it
@@ -131,14 +132,14 @@
                                 (when on-split-change (on-split-change @split-perc))
                                 (reset! dragging? false))
          calc-perc            (fn [mouse-x]                                                                 ;; turn a mouse x coordinate into a percentage position
-                                (let [container  (get-element-by-id container-id)                           ;; the outside container
-                                      c-width    (.-clientWidth container)                                  ;; the container's width
-                                      c-left-x   (+ (.-pageXOffset js/window)
-                                                    (-> container .getBoundingClientRect .-left))           ;; the container's left X
-                                      relative-x (- mouse-x c-left-x)]                                      ;; the X of the mouse, relative to container
-                                  (if split-is-px?
-                                    relative-x                                              ;; return the left offset in px
-                                    (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
+                                (when-let [wrapper @wrapper-ref]
+                                  (let [c-width    (.-clientWidth wrapper)                                  ;; the container's width
+                                        c-left-x   (+ (.-pageXOffset js/window)
+                                                      (-> wrapper .getBoundingClientRect .-left))           ;; the container's left X
+                                        relative-x (- mouse-x c-left-x)]                                      ;; the X of the mouse, relative to container
+                                    (if split-is-px?
+                                      relative-x                                              ;; return the left offset in px
+                                      (* 100.0 (/ relative-x c-width))))))                     ;; return the percentage panel-1 width against container width
          <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
          mouseout             (fn [event]
                                 (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
@@ -152,7 +153,6 @@
          mouseout-split       #(reset! over? false)
          make-container-attrs (fn [class style attr in-drag?]
                                 (merge {:class (theme/merge-class "rc-h-split" "display-flex" class)
-                                        :id    container-id
                                         :style (merge (flex-child-style size)
                                                       (flex-flow-style "row nowrap")
                                                       {:margin margin
@@ -163,7 +163,7 @@
                                          {:on-mouse-up   (handler-fn (stop-drag))
                                           :on-mouse-move (handler-fn (mousemove event))
                                           :on-mouse-out  (handler-fn (mouseout event))})
-                                       (->attr args)
+                                       (->attr (assoc-in args [:attr :ref] wrapper-ref!))
                                        attr))
          make-panel-attrs     (fn [class style attr in-drag? percentage]
                                 (merge
@@ -237,7 +237,8 @@
       :as   args}]
   (or
    (validate-args-macro hv-split-args-desc args)
-   (let [container-id         (gensym "v-split-")
+   (let [wrapper-ref          (r/atom nil)
+         wrapper-ref!         (partial reset! wrapper-ref)
          split-perc           (r/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
          dragging?            (r/atom false)                        ;; is the user dragging the splitter (mouse is down)?
          over?                (r/atom false)                        ;; is the mouse over the splitter, if so, highlight it
@@ -245,14 +246,14 @@
                                 (when on-split-change (on-split-change @split-perc))
                                 (reset! dragging? false))
          calc-perc            (fn [mouse-y]                                                                ;; turn a mouse y coordinate into a percentage position
-                                (let [container  (get-element-by-id container-id)                          ;; the outside container
-                                      c-height   (.-clientHeight container)                                ;; the container's height
-                                      c-top-y    (+ (.-pageYOffset js/window)
-                                                    (-> container .getBoundingClientRect .-top))           ;; the container's top Y
-                                      relative-y (- mouse-y c-top-y)]                                      ;; the Y of the mouse, relative to container
-                                  (if split-is-px?
-                                    relative-y                                              ;; return the top offset in px
-                                    (* 100.0 (/ relative-y c-height)))))                    ;; return the percentage panel-1 height against container width
+                                (when-let [wrapper @wrapper-ref]
+                                  (let [c-height   (.-clientHeight wrapper)                                ;; the container's height
+                                        c-top-y    (+ (.-pageYOffset js/window)
+                                                      (-> wrapper .getBoundingClientRect .-top))           ;; the container's top Y
+                                        relative-y (- mouse-y c-top-y)]                                      ;; the Y of the mouse, relative to container
+                                    (if split-is-px?
+                                      relative-y                                              ;; return the top offset in px
+                                      (* 100.0 (/ relative-y c-height))))))                    ;; return the percentage panel-1 height against container width
          <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
          mouseout             (fn [event]
                                 (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
@@ -266,7 +267,6 @@
          mouseout-split       #(reset! over? false)
          make-container-attrs (fn [class style attr in-drag?]
                                 (merge {:class (theme/merge-class "rc-v-split" "display-flex" class)
-                                        :id    container-id
                                         :style (merge (flex-child-style size)
                                                       (flex-flow-style "column nowrap")
                                                       {:margin margin
@@ -277,7 +277,7 @@
                                          {:on-mouse-up   (handler-fn (stop-drag))
                                           :on-mouse-move (handler-fn (mousemove event))
                                           :on-mouse-out  (handler-fn (mouseout event))})
-                                       (->attr args)
+                                       (->attr (assoc-in args [:attr :ref] wrapper-ref!))
                                        attr))
          make-panel-attrs     (fn [class style attr in-drag? percentage]
                                 (merge
