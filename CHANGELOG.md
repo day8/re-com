@@ -1,6 +1,12 @@
 #### Added
 - `input-text`: added `:throbber` part
 
+#### Changed
+- `popover`: Now supports passing `:popover` as a hiccup with a single map argument,
+  as opposed to positional named args. Positional named args still work.
+  However, if the hiccup has no args at all, then `popover` will "inject" its special args
+  in the form of a map.
+
 #### Fixed
 
 - `single-dropdown`: `:free-text?` functionality restored
