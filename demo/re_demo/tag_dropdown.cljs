@@ -4,7 +4,7 @@
             [reagent.core         :as reagent]
             [re-com.core          :refer [at h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
             [re-com.slider        :refer [slider]]
-            [re-com.tag-dropdown  :refer [tag-dropdown-parts-desc tag-dropdown-args-desc]]
+            [re-com.tag-dropdown  :refer [parts-desc tag-dropdown-args-desc]]
             [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
             [re-com.util          :refer [px]]))
 
@@ -201,6 +201,6 @@
                                        [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  " [:code ":abbrev-threshold"]]]
                                       [args-table tag-dropdown-args-desc]]]
                           [demo]]]
-              [parts-table "tag-dropdown" tag-dropdown-parts-desc]]])
+              [parts-table "tag-dropdown" parts-desc]]])
 
 

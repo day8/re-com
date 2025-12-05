@@ -3,7 +3,7 @@
    [cljs.pprint           :as pprint]
    [re-com.debug          :refer [stack-spy]]
    [re-com.core           :refer [at h-box v-box box gap selection-list label title checkbox p]]
-   [re-com.selection-list :refer [selection-list-parts-desc selection-list-args-desc]]
+   [re-com.selection-list :refer [parts-desc args-desc]]
    [re-demo.utils         :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
    [re-com.util           :refer [px]]
    [reagent.core          :as    reagent]
@@ -103,9 +103,9 @@
                                       [p "Allows the user to select items from a list (single or multi)."]
                                       [p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
                                       [p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
-                                      [args-table selection-list-args-desc]]]
+                                      [args-table args-desc]]]
                           [list-with-options 600]]]
-              [parts-table "selection-list" selection-list-parts-desc]]])
+              [parts-table "selection-list" parts-desc]]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

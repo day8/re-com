@@ -1,5 +1,6 @@
 (ns re-com.selection-list.theme
   (:require
+   [re-com.core :as-alias rc]
    [re-com.selection-list :as-alias sl]
    [re-com.theme.util :as tu]
    [re-com.theme.default :refer [bootstrap base main]]))
@@ -37,6 +38,14 @@
   (merge props {:size    "auto"
                 :align   :center
                 :justify :between}))
+
+(defmethod main ::sl/list-group-item [{{:keys [from]} :re-com :as props}]
+  (cond-> props
+    (contains? (set from) ::rc/tag-dropdown)
+    (tu/style {:border  "1px solid #ddd"
+               :height  "auto"
+               :padding "10px 15px"})))
+
 
 (defmethod bootstrap ::sl/list-group-item [props]
   (tu/class props "list-group-item" "compact"))

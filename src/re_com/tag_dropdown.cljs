@@ -1,22 +1,24 @@
 (ns re-com.tag-dropdown
   (:require-macros
-   [reagent.ratom   :refer [reaction]]
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
    [goog.string           :as gstring]
    [reagent.core          :as reagent]
+   [re-com.core           :as-alias rc]
    [re-com.config         :refer [include-args-desc?]]
-   [re-com.debug          :refer [->attr]]
+   [re-com.debug          :as debug]
    [re-com.theme          :as theme]
    [re-com.util           :refer [deref-or-value px-n assoc-in-if-empty]]
-   [re-com.validate       :as validate :refer [parts? css-class?]]
+   [re-com.validate       :as validate :refer [parts?]]
    [re-com.box            :refer [box h-box v-box gap]]
-   [re-com.checkbox       :refer [checkbox]]
-   [re-com.selection-list :as    selection-list]
+   [re-com.selection-list :as    sl]
    [re-com.close-button   :refer [close-button]]
    [re-com.text           :refer [label]]
-   [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]))
+   [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]
+   re-com.tag-dropdown.theme
+   [re-com.part           :as p]
+   [re-com.tag-dropdown   :as-alias td]))
 
 ;; TODO: [GR] Ripped off from re-com.selection-list
 (defn label-style
@@ -120,27 +122,36 @@
                        {:style {:color "#586069"}}
                        tag-description])]]))))
 
-(def tag-dropdown-exclusive-parts-desc
-  (when include-args-desc?
-    [{:name :popover-anchor-wrapper :level 0 :class "rc-tag-dropdown-popover-anchor-wrapper" :impl "[popover-anchor-wrapper]"}
-     {:name :main                   :level 1 :class "rc-tag-dropdown"                        :impl "[h-box]"}
-     {:name :tags                   :level 2 :class "rc-tag-dropdown-tags"                   :impl "[h-box]"}
-     {:name :tag                    :level 3 :class "rc-tag-dropdown-tag"                    :impl "[h-box]" :notes [:span "Each individual tag can be independently targeted with the keyword of its " [:code ":id"]]}
-     {:name :counter                :level 2 :class "rc-tag-dropdown-counter"                :impl "[label]" :notes "The selection counter displayed to the left of the close button"}
-     {:name :selection-list         :level 2 :class "rc-tag-dropdown-selection-list"         :impl "[selection-list]"}]))
+(def part-structure
+  [::td/popover-anchor-wrapper
+   [::td/main {:class "rc-tag-dropdown" :impl `rc/h-box}
+    [::td/tags {:impl `rc/h-box}
+     [::td/tag {:notes [:span "Each individual tag can be independently targeted "
+                        "with the keyword of its " [:code ":id"]]}]
+     [::td/placeholder-tag]
+     [::td/placeholder-message]]
+    [::td/actions {:impl `rc/h-box}
+     [::td/gap]
+     [::td/counter {:impl `rc/label
+                    :notes [:span "The selection counter displayed to the left "
+                            "of the close button"]}]
+     [::td/close-button {:impl `rc/close-button}]]]
+   [::td/popover-content-wrapper
+    [::td/selection-list {:impl `rc/selection-list}
+     [::td/text-tag {:impl `td/text-tag}]]]])
 
-(def tag-dropdown-parts-desc
+(def parts-desc
   (when include-args-desc?
     (into
-     tag-dropdown-exclusive-parts-desc
+     (p/describe part-structure)
      (->>
-      selection-list/selection-list-parts-desc
+      sl/parts-desc
       (remove #(= :legacy (:type %)))
       (map #(update % :level (comp inc inc)))))))
 
 (def tag-dropdown-parts
   (when include-args-desc?
-    (-> (map :name tag-dropdown-parts-desc) set)))
+    (-> (map :name parts-desc) set)))
 
 (def tag-dropdown-args-desc
   (when include-args-desc?
@@ -167,10 +178,14 @@
      {:name :debug-as           :required false                         :type "map"                     :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn tag-dropdown
-  [& {:as args}]
+  [& {:keys [pre-theme theme] :as args}]
   (or
    (validate-args-macro tag-dropdown-args-desc args)
-   (let [showing?      (reagent/atom false)]
+   (let [showing?    (reagent/atom false)
+         theme       (theme/comp pre-theme theme)
+         transition! #(case %
+                        :open  (reset! showing? true)
+                        :close (reset! showing? false))]
      (fn tag-dropdown-render
        [& {:keys [choices model placeholder on-change unselect-buttons? required? show-only-button? show-counter? abbrev-fn abbrev-threshold label-fn
                   description-fn min-width max-width height max-height style disabled? parts src debug-as]
@@ -183,139 +198,148 @@
            :as   args}]
        (or
         (validate-args-macro tag-dropdown-args-desc args)
-        (let [choices            (deref-or-value choices)
-              model              (deref-or-value model)
-              abbrev-threshold   (deref-or-value abbrev-threshold)
-              required?          (deref-or-value required?)
-              disabled?          (deref-or-value disabled?)
-              unselect-buttons?  (deref-or-value unselect-buttons?)
-              show-only-button?  (deref-or-value show-only-button?)
-              show-counter?      (deref-or-value show-counter?)
+        (let [part              (partial p/part part-structure (p/descend args ::rc/tag-dropdown))
+              choices           (deref-or-value choices)
+              model             (deref-or-value model)
+              abbrev-threshold  (deref-or-value abbrev-threshold)
+              required?         (deref-or-value required?)
+              disabled?         (deref-or-value disabled?)
+              unselect-buttons? (deref-or-value unselect-buttons?)
+              show-only-button? (deref-or-value show-only-button?)
+              show-counter?     (deref-or-value show-counter?)
+              re-com-ctx        {:transition! transition!
+                                 :state       {:interaction
+                                               (if disabled? :disabled :enabled)}}
+              choices-num-chars (reduce
+                                 (fn [n choice]
+                                   (if (contains? model (:id choice))
+                                     (+ n (count (label-fn choice)))
+                                     n))
+                                 0
+                                 choices)
+              abbrev?           (and (>= choices-num-chars abbrev-threshold)
+                                     (number? abbrev-threshold)
+                                     (fn? abbrev-fn))
 
-              choices-num-chars  (reduce
-                                  (fn [n choice]
-                                    (if (contains? model (:id choice))
-                                      (+ n (count (label-fn choice)))
-                                      n))
-                                  0
-                                  choices)
-              abbrev?            (and (>= choices-num-chars abbrev-threshold)
-                                      (number? abbrev-threshold)
-                                      (fn? abbrev-fn))
+              placeholder-tag
+              (part ::td/placeholder-tag
+                {:theme theme
+                 :impl  text-tag
+                 :props
+                 {:re-com re-com-ctx
+                  :tag-data
+                  {:id               :$placeholder$
+                   :label            ""
+                   :background-color "white"
+                   :width            (if abbrev? "20px" "40px")}}})
+              tag-list-body
+              (part ::td/selection-list
+                {:theme theme
+                 :impl  sl/selection-list
+                 :props
+                 {:src               (at)
+                  :disabled?         disabled?
+                  :required?         required?
+                  :hide-border?      true
+                  :multi-select?     true
+                  :show-only-button? show-only-button?
+                  :max-height        max-height
+                  :choices           choices
+                  :model             model
+                  :on-change         #(on-change %)
+                  :parts             (merge (select-keys parts sl/parts)
+                                            {:label
+                                             (fn [tag]
+                                               (part ::td/text-tag
+                                                 {:theme      theme
+                                                  :impl       text-tag
+                                                  :post-props {:style style}
+                                                  :props      {:label-fn       label-fn
+                                                               :description-fn description-fn
+                                                               :tag-data       tag}}))})}})
+              tag
+              (fn [{:keys [id label] :as tag}]
+                (when (contains? model id)
+                  (part ::td/text-tag
+                    {:theme      theme
+                     :impl       text-tag
+                     :post-props {:style style}
+                     :props      {:label-fn    (if abbrev? abbrev-fn label-fn)
+                                  :tag-data    tag
+                                  :tooltip     label
+                                  :disabled?   disabled?
+                                  :on-click    #(reset! showing? true)      ;; Show dropdown
+                                  :on-unselect (when (and unselect-buttons?
+                                                          (not (and (= 1 (count model))
+                                                                    required?)))
+                                                 #(on-change (disj model %)))
+                                  :hover-style {:opacity "0.8"}
+                                  :parts       parts}})))
+              tag-main
+              (part ::td/main
+                {:theme      theme
+                 :impl       h-box
+                 :post-props {:src (at)}
+                 :props
+                 {:re-com    re-com-ctx
+                  :min-width min-width
+                  :max-width max-width
+                  :height    height
+                  :children
+                  [(part ::td/tags
+                     {:theme      theme
+                      :impl       h-box
+                      :post-props {:src (at)}
+                      :props
+                      {:children
+                       (conj
+                        (mapv tag choices)
+                        (when-not disabled? placeholder-tag)
+                        [gap {:size "20px"}]
+                        (when (and (zero? (count model)) placeholder)
+                          (part ::td/placeholder-message
+                            {:theme      theme
+                             :impl       box
+                             :post-props {:src (at)}
+                             :props      {:child placeholder}})))}})
+                   (part ::td/actions
+                     {:theme theme
+                      :impl  h-box
+                      :props {:src   (at)
+                              :align :center
+                              :children
+                              [(part ::td/gap
+                                 {:theme theme
+                                  :impl  gap
+                                  :props {:size "8px"}})
+                               (when (and show-counter? (not-empty model))
+                                 (part ::td/counter
+                                   {:theme theme
+                                    :impl  label
+                                    :props {:src   (at)
+                                            :label (str (count model))}}))
+                               (when (and (not-empty model) (not disabled?) (not required?))
+                                 (part ::td/close-button
+                                   {:theme theme
+                                    :impl  close-button
+                                    :props {:src      (at)
+                                            :parts    {:wrapper {:style {:margin-left "5px"}}}
+                                            :on-click #(on-change #{})}}))]}})]}})]
+          (part ::td/popover-anchor-wrapper
+            {:theme      theme
+             :impl       popover-anchor-wrapper
+             :post-props (-> {:src      src
+                              :debug-as (or debug-as (reflect-current-component))}
+                             (debug/instrument args))
+             :props
+             {:re-com   re-com-ctx
+              :showing? showing?
+              :anchor   tag-main
+              :popover
+              (part ::td/popover-content-wrapper
+                {:theme theme
+                 :impl  popover-content-wrapper
+                 :props {:src    (at)
+                         :re-com re-com-ctx
+                         :body   tag-list-body}})}})))))))
 
-              placeholder-tag [text-tag
-                               :tag-data    {:id               :$placeholder$
-                                             :label            ""
-                                             :background-color "white"
-                                             :width            (if abbrev? "20px" "40px")}
-                               :on-click    #(reset! showing? true)
-                               :tooltip     "Click to select tags"
-                               :hover-style {:background-color "#eee"}]
-              tag-list-body   [selection-list/selection-list
-                               :src           (at)
-                               :class         (get-in parts [:selection-list :class] "")
-                               :style         (get-in parts [:selection-list :style])
-                               :attr          (get-in parts [:selection-list :attr])
-                               :disabled?     disabled?
-                               :required?     required?
-                               :show-only-button? show-only-button?
-                               :max-height    max-height
-                               :parts         (->
-                                               (select-keys parts selection-list/selection-list-parts)
-                                               (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")
-                                               (assoc-in-if-empty [:list-group-item :style :height] "auto")
-                                               (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px"))
-                               :choices       choices
-                               :hide-border?  true
-                               :label-fn      (fn [tag]
-                                                [text-tag
-                                                 :label-fn       label-fn
-                                                 :description-fn description-fn
-                                                 :tag-data       tag
-                                                 :style          style])
-                               :model         model
-                               :on-change     #(on-change %)
-                               :multi-select? true]
-              tag-main        [h-box
-                               :src       (at)
-                               :min-width min-width
-                               :max-width max-width
-                               :height    height
-                               :align     :center
-                               :padding   "0px 6px"
-                               :class     (str "rc-tag-dropdown " (get-in parts [:main :class]))
-                               :style     (merge {:background-color (if disabled? "#EEE" "white")
-                                                  :color            "#BBB"
-                                                  :border           "1px solid lightgrey"
-                                                  :border-radius    "2px"
-                                                  :overflow         "hidden"
-                                                  :cursor           (if disabled? "default" "pointer")}
-                                                 (get-in parts [:main :style]))
-                               :attr      (merge {}
-                                                 (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
-                                                 (get-in parts [:main :attr]))
-                               :children  [[h-box
-                                            :src      (at)
-                                            :class    (str "rc-tag-dropdown-tags " (get-in parts [:tags :class]))
-                                            :size     "1" ;; This line will align the tag placeholder to the right
-                                            :style    {:overflow "hidden"}
-                                            :children (conj
-                                                       (mapv (fn [tag]
-                                                               (when (contains? model (:id tag))
-                                                                 [text-tag
-                                                                  :label-fn    (if abbrev? abbrev-fn label-fn)
-                                                                  :tag-data    tag
-                                                                  :tooltip     (:label tag)
-                                                                  :disabled?   disabled?
-                                                                  :on-click    #(reset! showing? true)      ;; Show dropdown
-                                                                  :on-unselect (when (and unselect-buttons? (not (and (= 1 (count model)) required?))) #(on-change (disj model %)))
-                                                                  :hover-style {:opacity "0.8"}
-                                                                  :style       style
-                                                                  :parts       parts]))
-                                                             choices)
-                                                       (when (not disabled?)
-                                                         placeholder-tag)
-                                                       [gap
-                                                        :src  (at)
-                                                        :size "20px"]
-                                                       (when (zero? (count model))
-                                                         [box
-                                                          :src   (at)
-                                                          :child (if placeholder placeholder "")]))]
-                                           [h-box
-                                            :src (at)
-                                            :align :center
-                                            :children [[gap :size "8px"]
-                                                       (when (and show-counter? (not-empty model))
-
-                                                         [label
-                                                          :src (at)
-                                                          :class (str "rc-tag-dropdown-counter " (get-in parts [:counter :class]))
-                                                          :style (merge {:color "grey"
-                                                                         :font-size "12px"
-                                                                         :margin-right "2px"}
-                                                                        (get-in parts [:counter :style]))
-                                                          :attr (get-in parts [:counter :attr])
-                                                          :label (str (count model))])
-                                                       (when (and (not-empty model) (not disabled?)
-                                                                  (not required?))
-                                                         [close-button
-                                                          :src       (at)
-                                                          :parts     {:wrapper {:style {:margin-left "5px"}}}
-                                                          :on-click  #(on-change #{})])]]]]]
-          [popover-anchor-wrapper
-           :src      src
-           :debug-as (or debug-as (reflect-current-component))
-           :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
-           :showing? showing?
-           :position :below-center
-           :anchor   tag-main
-           :popover  [popover-content-wrapper
-                      :src             (at)
-                      :arrow-length    0
-                      :arrow-width     0
-                      :arrow-gap       1
-                      :no-clip?        true
-                      :on-cancel       #(reset! showing? false)
-                      :padding         "19px 19px"
-                      :body            tag-list-body]]))))))

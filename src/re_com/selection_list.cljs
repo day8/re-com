@@ -3,6 +3,7 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
+   [re-com.core :as-alias rc]
    [re-com.args         :as args]
    [re-com.config       :refer [include-args-desc?]]
    [re-com.checkbox     :refer [checkbox]]
@@ -36,9 +37,13 @@
    [::sl/list-group {:tag :div :notes "Container for the selection list items."}
     [::sl/list-group-item {:impl 're-com.box/box}
      [::sl/item-content {:impl 're-com.box/h-box}
-      [::sl/checkbox {:impl 're-com.checkbox/checkbox}]
-      [::sl/radio-button {:impl 're-com.radio-button/radio-button}]
-      [::sl/only-button {:tag :button :notes "The 'only' button displayed next to each item when :show-only-button? is true"}]]]]])
+      [::sl/checkbox {:impl 're-com.checkbox/checkbox}
+       [::sl/label]]
+      [::sl/radio-button {:impl 're-com.radio-button/radio-button}
+       [::sl/label]]
+      [::sl/only-button
+       {:tag :button
+        :notes "The 'only' button displayed next to each item when :show-only-button? is true"}]]]]])
 
 (defn only-button-part [{:keys [on-change id-fn choice disabled? theme parts]}]
   (let [item-id (id-fn choice)]
@@ -64,7 +69,11 @@
                :on-change   #()                                 ;; handled by enclosing box
                :disabled?   disabled?
                :label-style (label-style (selected item-id) as-exclusions?)
-               :label       (label-fn choice)}})))
+               :label       (p/part (:label parts)
+                              {:theme theme
+                               :impl  label-fn
+                               :part  ::sl/label
+                               :props choice})}})))
 
 (defn radio-part
   [{:keys [choice id-fn selected disabled? label-fn as-exclusions? parts theme]}]
@@ -81,17 +90,21 @@
                :on-change   #()                                 ;; handled by enclosing box
                :disabled?   disabled?
                :label-style (label-style selected? as-exclusions?)
-               :label       (label-fn choice)}})))
+               :label       (p/part (:label parts)
+                              {:theme theme
+                               :impl  label-fn
+                               :part  ::sl/label
+                               :props choice})}})))
 
-(def selection-list-parts-desc
+(def parts-desc
   (when include-args-desc?
     (p/describe part-structure)))
 
-(def selection-list-parts
+(def parts
   (when include-args-desc?
-    (-> (map :name selection-list-parts-desc) set)))
+    (-> (map :name parts-desc) set)))
 
-(def selection-list-args-desc
+(def args-desc
   (when include-args-desc?
     (concat
      [{:name :choices        :required true                  :type "vector of choices | r/atom"           :validate-fn vector-of-maps?               :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
@@ -110,7 +123,7 @@
       {:name :item-renderer  :required false                 :type "choice, id-fn, selected, on-change, disabled?, label-fn, required?, as-exclusions? -> hiccup | r/atom"                      :validate-fn fn?                           :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
       {:name :show-only-button?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, an 'only' button will be displayed next to each item, allowing the user to select only that item"}]
      args/std
-     [(args/parts selection-list-parts)]
+     [(args/parts parts)]
      (p/describe-args part-structure))))
 
 ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
@@ -133,7 +146,7 @@
   (let [theme (theme/comp pre-theme theme)]
     (fn [& {:as args}]
       (or
-       (validate-args-macro selection-list-args-desc args)
+       (validate-args-macro args-desc args)
        (let [choices           (deref-or-value choices)
              model             (deref-or-value model)
              on-change         (deref-or-value on-change)
@@ -144,7 +157,7 @@
              hide-border?      (deref-or-value hide-border?)
              item-renderer     (deref-or-value item-renderer)
              show-only-button? (deref-or-value show-only-button?)
-             part              (partial p/part part-structure args)
+             part              (partial p/part part-structure (p/descend args ::rc/selection-list))
              selected          (if multi-select? model (-> model first vector set))
              re-com-ctx        {:state {:border      (if hide-border? :hidden :shown)
                                         :interaction (if disabled? :disabled :enabled)}}

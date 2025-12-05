@@ -71,8 +71,6 @@
 
 (defmethod main :default [props] props)
 
-(defmethod base :default [props] props)
-
 (defmulti bootstrap :part)
 
 (defmethod bootstrap :default [props] props)
