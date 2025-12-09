@@ -1,0 +1,12 @@
+(ns re-com.table-filter.theme
+  (:require
+   [re-com.table-filter :as-alias tf]
+   [re-com.theme.util :as tu]
+   [re-com.box :refer [flex-child-style]]
+   [re-com.theme.default :refer [base main bootstrap]]))
+
+(defmethod main ::tf/column-dropdown [props]
+  (merge props {:width "140px"}))
+
+(defmethod main ::tf/operator-dropdown [props]
+  (merge props {:width "130px"}))

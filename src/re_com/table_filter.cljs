@@ -19,6 +19,7 @@
    [re-com.util :as u :refer [deref-or-value]]
    [re-com.validate :refer [css-class? css-style? html-attr? parts?]]
    [reagent.core :as r]
+   re-com.table-filter.theme
    [re-com.table-filter :as-alias tf]))
 
 ;; ----------------------------------------------------------------------------
@@ -678,54 +679,69 @@
 
 (defn filter-builder
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a context button"
-  [& {:keys [table-spec filter-spec update-state! parts disabled?] :as args}]
+  [& {{:keys [theme]} :re-com
+      :keys           [table-spec filter-spec update-state! disabled? class style attr]
+      :as             args}]
   (let [spec     (column-by-id table-spec (:col filter-spec))
         ops      (ops-by-type (:type spec))
         valid?   (rule-valid? filter-spec table-spec)
         col-opts (mapv #(hash-map :id (:id %) :label (:name %)) table-spec)
-        op-opts  (mapv #(hash-map :id % :label (get op-label % (name %))) ops)]
+        op-opts  (mapv #(hash-map :id % :label (get op-label % (name %))) ops)
+        part     (partial p/part part-structure args)]
     [box/h-box
-     :align :center
-     :gap "4px"
-     :class (get-in parts [:filter :class])
-     :style (merge {:background-color "transparent"
-                    :white-space      "nowrap"}
-                   (get-in parts [:filter :style]))
-     :attr (get-in parts [:filter :attr])
-     :children [[sd/single-dropdown
-                 :model (:col filter-spec)
-                 :choices col-opts
-                 :width "140px"
-                 :class (get-in parts [:column-dropdown :class])
-                 :style (get-in parts [:column-dropdown :style])
-                 :attr (get-in parts [:column-dropdown :attr])
-                 :disabled? disabled?
-                 :on-change #(let [cs (column-by-id table-spec %)]
-                               (update-state! (fn [state] (update-item-by-id state (:id filter-spec)
-                                                                             (fn [f] (assoc f :col % :op (first (ops-by-type (:type cs))) :val nil))))))]
-                [sd/single-dropdown
-                 :model (:op filter-spec)
-                 :choices op-opts
-                 :width "130px"
-                 :class (get-in parts [:operator-dropdown :class])
-                 :style (get-in parts [:operator-dropdown :style])
-                 :attr (get-in parts [:operator-dropdown :attr])
-                 :disabled? disabled?
-                 :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))]
-                [value-entry-box (merge args {:row-spec    spec
-                                              :filter-spec filter-spec
-                                              :on-change   #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (constantly %))))})]
-                [filter-context-menu (merge args {:item-id     (:id filter-spec)
-                                                  :filter-spec filter-spec})]
-                (when-not valid?
-                  [buttons/md-icon-button
-                   :md-icon-name "zmdi-alert-triangle"
-                   :size :smaller
-                   :style (merge {:color "red" :pointer-events "none"}
-                                 (get-in parts [:warning-icon :style]))
-                   :class (get-in parts [:warning-icon :class])
-                   :attr (get-in parts [:warning-icon :attr])
-                   :tooltip "Invalid rule"])]]))
+     {:align    :center
+      :gap      "4px"
+      :class    class
+      :style    (merge {:background-color "transparent"
+                        :white-space      "nowrap"}
+                       style)
+      :attr     attr
+      :children [(part ::tf/column-dropdown
+                   {:theme theme
+                    :impl  sd/single-dropdown
+                    :props
+                    {:model     (:col filter-spec)
+                     :choices   col-opts
+                     :disabled? disabled?
+                     :on-change
+                     #(let [cs (column-by-id table-spec %)]
+                        (update-state!
+                         (fn [state] (update-item-by-id
+                                      state
+                                      (:id filter-spec)
+                                      (fn [f]
+                                        (assoc f
+                                               :col %
+                                               :op (first (ops-by-type (:type cs)))
+                                               :val nil))))))}})
+                 (part ::tf/operator-dropdown
+                   {:theme theme
+                    :impl  sd/single-dropdown
+                    :props
+                    {:model     (:op filter-spec)
+                     :choices   op-opts
+                     :disabled? disabled?
+                     :on-change
+                     #(update-state!
+                       (fn [state]
+                         (update-item-by-id
+                          state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))}})
+                 [value-entry-box (merge args {:row-spec    spec
+                                               :filter-spec filter-spec
+                                               :on-change   #(update-state!
+                                                              (fn [state]
+                                                                (update-item-by-id state (:id filter-spec) (constantly %))))})]
+                 [filter-context-menu (merge args {:item-id     (:id filter-spec)
+                                                   :filter-spec filter-spec})]
+                 (when-not valid?
+                   [buttons/md-icon-button
+                    :md-icon-name "zmdi-alert-triangle"
+                    :size :smaller
+                    :style (merge {:color "red" :pointer-events "none"}
+                                  (get-in parts [:warning-icon :style]))
+                    :class (get-in parts [:warning-icon :class])
+                    :attr (get-in parts [:warning-icon :attr])
+                    :tooltip "Invalid rule"])]}]))
 
 (defn filter-group
   "Contains 1 or more filter-builders and has an associated context menu"
@@ -760,40 +776,43 @@
                                                  (get-in parts [:where-label :style]))
                                    :attr (get-in parts [:where-label :attr])])]
             [box/h-box
-             :align :center
-             :gap "4px"
-             :children (concat
-                        (when where-label [where-label])
-                        (when operator-btn [operator-btn])
-                        [(case (:type child)
-                           :filter [filter-builder (merge args {:filter-spec child})]
-                           :group  (part ::tf/group
-                                         {:theme theme
-                                          :impl  filter-group
-                                          :props (merge args {:group child :depth (inc depth)})}))])]))]
+             {:align    :center
+              :gap      "4px"
+              :children (concat
+                         (when where-label [where-label])
+                         (when operator-btn [operator-btn])
+                         [(case (:type child)
+                            :filter (part ::tf/filter
+                                      {:theme theme
+                                       :impl  filter-builder
+                                       :props (merge args {:filter-spec child})})
+                            :group  (part ::tf/group
+                                      {:theme theme
+                                       :impl  filter-group
+                                       :props (merge args {:group child :depth (inc depth)})}))])}]))]
     [box/h-box
-     :align :start
-     :children [[box/v-box
-                 :class class
-                 :style (merge {:padding  0
-                                :margin   "0px 0px"
-                                :position "relative"}
-                               (when (and show-group-ui? (not is-root?))
-                                 {:padding          8
-                                  :background-color (if (odd? depth) "#f7f7f7" "white")
-                                  :border           "1px solid #e1e5e9"
-                                  :border-radius    "4px"})
-                               style)
-                 :attr attr
-                 :children [[box/v-box
-                             :gap "6px"
-                             :children (concat
-                                        (map-indexed child-part children)
-                                        [;[box/gap :size "4px"]
-                                         [add-filter-dropdown (merge args {:group-id (:id group-deref)})]])]]]
-                (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
-                  [box/h-box
-                   :children [[group-context-menu (merge args {:group-id (:id group-deref)})]]])]]))
+     {:align    :start
+      :children [[box/v-box
+                  :class class
+                  :style (merge {:padding  0
+                                 :margin   "0px 0px"
+                                 :position "relative"}
+                                (when (and show-group-ui? (not is-root?))
+                                  {:padding          8
+                                   :background-color (if (odd? depth) "#f7f7f7" "white")
+                                   :border           "1px solid #e1e5e9"
+                                   :border-radius    "4px"})
+                                style)
+                  :attr attr
+                  :children [[box/v-box
+                              :gap "6px"
+                              :children (concat
+                                         (map-indexed child-part children)
+                                         [;[box/gap :size "4px"]
+                                          [add-filter-dropdown (merge args {:group-id (:id group-deref)})]])]]]
+                 (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
+                   [box/h-box
+                    :children [[group-context-menu (merge args {:group-id (:id group-deref)})]]])]}]))
 
 (defn table-filter
   "Hierarchical table filter component with external state as single source of truth.
