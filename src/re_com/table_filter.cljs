@@ -244,11 +244,11 @@
 
 (defn update-item-by-id
   "Update an item by ID using postwalk - bottom-up tree transformation"
-  [tree target-id update-fn]
+  [tree target-id f & args]
   (walk/postwalk
    (fn [node]
      (if (and (map? node) (= (:id node) target-id))
-       (update-fn node)
+       (apply f node args)
        node))
    tree))
 
@@ -567,7 +567,7 @@
                                     :class "btn-link"
                                     :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
                                             :background-color (when (= operator :and) "#f3f4f6")}
-                                    :on-click #(update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :and)))))]
+                                    :on-click #(update-state! update-item-by-id group-id (fn [g] (assoc g :logic :and)))]
                                    [buttons/button
                                     :label [box/v-box
                                             :gap "2px"
@@ -576,7 +576,7 @@
                                     :class "btn-link"
                                     :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
                                             :background-color (when (= operator :or) "#f3f4f6")}
-                                    :on-click #(update-state! (fn [state] (update-item-by-id state group-id (fn [g] (assoc g :logic :or)))))]]]]
+                                    :on-click #(update-state! update-item-by-id group-id (fn [g] (assoc g :logic :or)))]]]]
                 [text/label
                  :label (case operator :and "And" :or "Or")
                  :class (get-in parts [:operator-text :class])
@@ -630,8 +630,8 @@
                          :class "btn-link"
                          :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
                          :on-click (case (:id choice)
-                                     :add-filter #(update-state! (fn [state] (add-child-to-group state group-id (empty-filter table-spec))))
-                                     :add-group  #(update-state! (fn [state] (add-child-to-group state group-id (empty-group table-spec)))))])]]))
+                                     :add-filter #(update-state! add-child-to-group group-id (empty-filter table-spec))
+                                     :add-group  #(update-state! add-child-to-group group-id (empty-group table-spec)))])]]))
 
 (defn filter-context-menu
   "A dropdown which exposes the options you can take on a filter, e.g. delete, dupe or promote to group"
@@ -673,9 +673,9 @@
                          :class "btn-link"
                          :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
                          :on-click (case (:id choice)
-                                     :delete    #(update-state! (fn [state] (remove-item-with-cleanup state item-id table-spec)))
-                                     :duplicate #(update-state! (fn [state] (duplicate-item-by-id state item-id)))
-                                     :convert   #(update-state! (fn [state] (convert-filter-to-group state item-id))))])]]))
+                                     :delete    #(update-state! remove-item-with-cleanup item-id table-spec)
+                                     :duplicate #(update-state! duplicate-item-by-id item-id)
+                                     :convert   #(update-state! convert-filter-to-group item-id))])]]))
 
 (defn filter-builder
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a context button"
@@ -706,14 +706,10 @@
                      :on-change
                      #(let [cs (column-by-id table-spec %)]
                         (update-state!
-                         (fn [state] (update-item-by-id
-                                      state
-                                      (:id filter-spec)
-                                      (fn [f]
-                                        (assoc f
-                                               :col %
-                                               :op (first (ops-by-type (:type cs)))
-                                               :val nil))))))}})
+                         update-item-by-id (:id filter-spec) merge
+                         {:col %
+                          :op  (first (ops-by-type (:type cs)))
+                          :val nil}))}})
                  (part ::tf/operator-dropdown
                    {:theme theme
                     :impl  sd/single-dropdown
@@ -723,14 +719,12 @@
                      :disabled? disabled?
                      :on-change
                      #(update-state!
-                       (fn [state]
-                         (update-item-by-id
-                          state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))}})
+                       update-item-by-id (:id filter-spec) merge
+                       {:op % :val nil})}})
                  [value-entry-box (merge args {:row-spec    spec
                                                :filter-spec filter-spec
-                                               :on-change   #(update-state!
-                                                              (fn [state]
-                                                                (update-item-by-id state (:id filter-spec) (constantly %))))})]
+                                               :on-change
+                                               #(update-state! update-item-by-id (:id filter-spec) (constantly %))})]
                  [filter-context-menu (merge args {:item-id     (:id filter-spec)
                                                    :filter-spec filter-spec})]
                  (when-not valid?
@@ -840,8 +834,8 @@
          (let [model-with-ids (or @internal-model (add-ids external-model-val))
                ;; Pure function - calculates new state and notifies parent
                ;; Does NOT mutate local state - external state is source of truth
-               update-state!  (fn [update-fn]
-                                (let [new-internal-model (update-fn model-with-ids)
+               update-state!  (fn [f & args]
+                                (let [new-internal-model (apply f model-with-ids args)
                                       new-external-model (remove-ids new-internal-model)
                                       is-valid?          (model-valid? new-external-model table-spec)]
                                   (when on-change
