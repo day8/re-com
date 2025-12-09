@@ -729,15 +729,52 @@
 
 (defn filter-group
   "Contains 1 or more filter-builders and has an associated context menu"
-  [& {:keys [group depth parts] :as args}]
+  [& {{:keys [theme]} :re-com
+      :keys           [group depth class style attr]
+      :as             args}]
   (let [group-deref    (deref-or-value group)
         children       (:children group-deref)
         is-root?       (zero? depth)
-        show-group-ui? (or (not is-root?) (> (count children) 1))]                    ; Non-root groups always show UI ; Root group only shows UI when 2+ children
+        show-group-ui? (or (not is-root?) (> (count children) 1))                    ; Non-root groups always show UI ; Root group only shows UI when 2+ children
+        part           (partial p/part part-structure args)
+        child-part
+        (fn [idx child]
+          (let [child-is-group? (= :group (:type (nth (:children group-deref) idx)))
+                show-operator?  (> idx 0)
+                show-where?     (= idx 0)  ; Show "Where" for first item
+                operator-btn    (when show-operator? ;if the child is a group comonent, the self-align should be :start
+                                  [box/v-box
+                                   :align-self (if child-is-group? :start :center)
+                                   :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
+                                              [and-or-dropdown (merge args {:operator      (or (:logic group-deref) :and)
+                                                                            :group-id      (:id group-deref)
+                                                                            :depth         depth
+                                                                            :interactable? (= idx 1)})]]])
+                where-label     (when show-where?
+                                  [text/label
+                                   :label "Where"
+                                   :class (get-in parts [:where-label :class])
+                                   :style (merge {:font-size  "14px" :font-weight "500" :color "#374151"
+                                                  :min-width  "52px"
+                                                  :text-align "center"}
+                                                 (get-in parts [:where-label :style]))
+                                   :attr (get-in parts [:where-label :attr])])]
+            [box/h-box
+             :align :center
+             :gap "4px"
+             :children (concat
+                        (when where-label [where-label])
+                        (when operator-btn [operator-btn])
+                        [(case (:type child)
+                           :filter [filter-builder (merge args {:filter-spec child})]
+                           :group  (part ::tf/group
+                                         {:theme theme
+                                          :impl  filter-group
+                                          :props (merge args {:group child :depth (inc depth)})}))])]))]
     [box/h-box
      :align :start
      :children [[box/v-box
-                 :class (get-in parts [:group :class])
+                 :class class
                  :style (merge {:padding  0
                                 :margin   "0px 0px"
                                 :position "relative"}
@@ -746,40 +783,12 @@
                                   :background-color (if (odd? depth) "#f7f7f7" "white")
                                   :border           "1px solid #e1e5e9"
                                   :border-radius    "4px"})
-                               (get-in parts [:group :style]))
-                 :attr (get-in parts [:group :attr])
+                               style)
+                 :attr attr
                  :children [[box/v-box
                              :gap "6px"
                              :children (concat
-                                        (map-indexed
-                                         (fn [idx child]
-                                           (let [child-is-group? (= :group (:type (nth (:children group-deref) idx)))
-                                                 show-operator?  (> idx 0)
-                                                 show-where?     (= idx 0)  ; Show "Where" for first item
-                                                 operator-btn    (when show-operator? ;if the child is a group comonent, the self-align should be :start
-                                                                   [box/v-box
-                                                                    :align-self (if child-is-group? :start :center)
-                                                                    :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
-                                                                               [and-or-dropdown (merge args {:operator (or (:logic group-deref) :and) :group-id (:id group-deref) :depth depth :interactable? (= idx 1)})]]])
-                                                 where-label     (when show-where?
-                                                                   [text/label
-                                                                    :label "Where"
-                                                                    :class (get-in parts [:where-label :class])
-                                                                    :style (merge {:font-size  "14px" :font-weight "500" :color "#374151"
-                                                                                   :min-width  "52px"
-                                                                                   :text-align "center"}
-                                                                                  (get-in parts [:where-label :style]))
-                                                                    :attr (get-in parts [:where-label :attr])])]
-                                             [box/h-box
-                                              :align :center
-                                              :gap "4px"
-                                              :children (concat
-                                                         (when where-label [where-label])
-                                                         (when operator-btn [operator-btn])
-                                                         [(case (:type child)
-                                                            :filter [filter-builder (merge args {:filter-spec child})]
-                                                            :group  [filter-group (merge args {:group child :depth (inc depth)})])])]))
-                                         children)
+                                        (map-indexed child-part children)
                                         [;[box/gap :size "4px"]
                                          [add-filter-dropdown (merge args {:group-id (:id group-deref)})]])]]]
                 (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
@@ -792,7 +801,8 @@
    Internal model automatically adds IDs for component state management."
   [& {:keys [pre-theme theme]}]
   ;; Create stable atom once for child component identity
-  (let [internal-model (r/atom nil)]
+  (let [internal-model (r/atom nil)
+        theme          (theme/comp pre-theme theme)]
     ;; Render function called on every re-render
     (fn [& {:keys [table-spec model on-change max-depth] ;; Pull out passed in model
             :or   {max-depth 2}
@@ -811,13 +821,19 @@
          (let [model-with-ids (or @internal-model (add-ids external-model-val))
                ;; Pure function - calculates new state and notifies parent
                ;; Does NOT mutate local state - external state is source of truth
-                update-state!  (fn [update-fn]
+               update-state!  (fn [update-fn]
                                 (let [new-internal-model (update-fn model-with-ids)
                                       new-external-model (remove-ids new-internal-model)
                                       is-valid?          (model-valid? new-external-model table-spec)]
                                   (when on-change
-                                    (on-change new-external-model is-valid?))))]
-           [filter-group (merge args {:group         internal-model
-                                      :update-state! update-state!
-                                      :depth         0
-                                      :max-depth     max-depth})]))))))
+                                    (on-change new-external-model is-valid?))))
+               part           (partial p/part part-structure args)]
+           (part ::tf/group
+             {:theme theme
+              :impl  filter-group
+              :props (merge args
+                            {:re-com        {:theme theme}
+                             :group         internal-model
+                             :update-state! update-state!
+                             :depth         0
+                             :max-depth     max-depth})})))))))
