@@ -1,21 +1,25 @@
 (ns re-com.table-filter
   (:require-macros
    [re-com.validate :refer [validate-args-macro]])
-  (:require [clojure.walk :as walk]
-            [re-com.box :as box]
-            [re-com.buttons :as buttons]
-            [re-com.config :refer [include-args-desc?]]
-            [re-com.datepicker :as datepicker]
-            [re-com.daterange :as daterange]
-            [re-com.dropdown :as dropdown]
-            [re-com.input-text :as input-text]
-            [re-com.tag-dropdown :as tag-dropdown]
-            [re-com.single-dropdown :as sd]
-            [re-com.text :as text]
-            [re-com.theme :as theme]
-            [re-com.util :as u :refer [deref-or-value]]
-            [re-com.validate :refer [css-class? css-style? html-attr? parts?]]
-            [reagent.core :as r]))
+  (:require
+   [clojure.walk :as walk]
+   [re-com.args :as args]
+   [re-com.box :as box]
+   [re-com.buttons :as buttons]
+   [re-com.config :refer [include-args-desc?]]
+   [re-com.datepicker :as datepicker]
+   [re-com.daterange :as daterange]
+   [re-com.dropdown :as dropdown]
+   [re-com.input-text :as input-text]
+   [re-com.tag-dropdown :as tag-dropdown]
+   [re-com.single-dropdown :as sd]
+   [re-com.text :as text]
+   [re-com.theme :as theme]
+   [re-com.part :as p]
+   [re-com.util :as u :refer [deref-or-value]]
+   [re-com.validate :refer [css-class? css-style? html-attr? parts?]]
+   [reagent.core :as r]
+   [re-com.table-filter :as-alias tf]))
 
 ;; ----------------------------------------------------------------------------
 ;; Helpers
@@ -157,25 +161,29 @@
 ;; Component Parts Definition for re-com compliance
 ;; ----------------------------------------------------------------------------
 
+(def part-structure
+  (when include-args-desc?
+    [::group {:impl `rc/v-box :notes "Container for a filter group."}
+     [::filter {:impl `rc/h-box :notes "Container for individual filter condition row."}
+      [::column-dropdown {:impl `rc/dropdown :notes "Dropdown for selecting table columns."}]
+      [::operator-dropdown {:impl `rc/dropdown :notes "Dropdown for selecting filter operators."}]
+      [::text-input {:impl `rc/input-text :notes "Text input field for text and number values."}]
+      [::date-input {:impl `rc/datepicker :notes "Date picker for single date values."}]
+      [::daterange-input {:impl `rc/daterange :notes "Date range picker for between/not-between operations."}]
+      [::dropdown-input {:impl `rc/dropdown :notes "Dropdown for boolean and single-select values."}]
+      [::tag-dropdown-input {:impl `rc/tag-dropdown :notes [:span "Tag-dropdown for selecting multiple values. "
+                                                            "Due to unfinished implementation of tag-dropdown, "
+                                                            "does not accept :class or :attr"]}]]
+     [::add-button {:impl `rc/button :notes "The '+ Add filter' button and dropdown menu."}
+      [::context-menu {:impl `rc/button :notes "The '⋯' context menu button for groups and filters."}]]
+     [::operator-button {:impl `rc/button :notes "The AND/OR operator button when interactive (first in group)."}]
+     [::operator-text {:impl `rc/label :notes "The AND/OR operator text when non-interactive (subsequent in group)."}]
+     [::where-label {:impl `rc/label :notes "The 'Where' label for first filter."}
+      [::warning-icon {:impl `rc/md-icon-button :notes "The warning icon shown for invalid filters."}]]]))
+
 (def parts-desc
   (when include-args-desc?
-    [{:name :group              :level 1 :class "rc-table-filter-group"        :impl "[v-box]"         :notes "Container for a filter group."}
-     {:name :filter             :level 2 :class "rc-table-filter-filter"       :impl "[h-box]"         :notes "Container for individual filter condition row."}
-     {:name :column-dropdown    :level 3 :class "rc-table-filter-column"       :impl "[dropdown]"      :notes "Dropdown for selecting table columns."}
-     {:name :operator-dropdown  :level 3 :class "rc-table-filter-operator"     :impl "[dropdown]"      :notes "Dropdown for selecting filter operators."}
-     {:name :text-input         :level 3 :class "rc-table-filter-text"         :impl "[input-text]"    :notes "Text input field for text and number values."}
-     {:name :date-input         :level 3 :class "rc-table-filter-date"         :impl "[datepicker]"    :notes "Date picker for single date values."}
-     {:name :daterange-input    :level 3 :class "rc-table-filter-daterange"    :impl "[daterange]"     :notes "Date range picker for between/not-between operations."}
-     {:name :dropdown-input     :level 3 :class "rc-table-filter-dropdown"     :impl "[dropdown]"      :notes "Dropdown for boolean and single-select values."}
-     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes [:span "Tag-dropdown for selecting multiple values. "
-                                                                                                               "Due to unfinished implementation of tag-dropdown, "
-                                                                                                               "does not accept :class or :attr"]}
-     {:name :add-button         :level 2 :class "rc-table-filter-add"          :impl "[button]"        :notes "The '+ Add filter' button and dropdown menu."}
-     {:name :context-menu       :level 3 :class "rc-table-filter-context"      :impl "[button]"        :notes "The '⋯' context menu button for groups and filters."}
-     {:name :operator-button    :level 2 :class "rc-table-filter-op-button"    :impl "[button]"        :notes "The AND/OR operator button when interactive (first in group)."}
-     {:name :operator-text      :level 2 :class "rc-table-filter-op-text"      :impl "[label]"         :notes "The AND/OR operator text when non-interactive (subsequent in group)."}
-     {:name :where-label        :level 2 :class "rc-table-filter-where"        :impl "[label]"         :notes "The 'Where' label for first filter."}
-     {:name :warning-icon       :level 3 :class "rc-table-filter-warning"      :impl "[md-icon-button]" :notes "The warning icon shown for invalid filters."}]))
+    (p/describe part-structure)))
 
 (def parts
   (when include-args-desc?
@@ -183,17 +191,17 @@
 
 (def args-desc
   (when include-args-desc?
-    [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys. Example on the right"}
-     {:name :model           :required true                          :type "map | r/atom"    :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure. The UI will always reflect what is in model. Should be updated by the on-change function to maintain proper data flow. If unsure, just pass an empty reagent atom."}
-     {:name :on-change       :required true                         :type "-> nil"           :validate-fn fn?                             :description [:span "Callback function called when user interacts with the filter component. Receives two arguments: " [:code "[model is-valid?]"] " where " [:code "model"] " is the updated filter structure and " [:code "is-valid?"] " is a boolean indicating if all filters are complete and valid. Use this to update your application state."]}
-     {:name :max-depth       :required false :default 2             :type "int"              :validate-fn int?                            :description "Set the maximum amount of nesting possible. 0 is no nesting; user only allowed to add filters. 1 allows user to add filter groups, ect"}
-     {:name :disabled?       :required false :default false         :type "boolean"          :validate-fn boolean?                        :description "If true, disables all filter interactions"}
-     {:name :class           :required false                        :type "string"           :validate-fn css-class?                      :description "CSS class names, space separated (applies to wrapper)"}
-     {:name :style           :required false                        :type "CSS style map"    :validate-fn css-style?                      :description "CSS styles to apply to wrapper"}
-     {:name :attr            :required false                        :type "HTML attr map"    :validate-fn html-attr?                      :description [:span "HTML attributes for wrapper. No " [:code ":class"] " or " [:code ":style"] " allowed"]}
-     {:name :parts           :required false                        :type "map"              :validate-fn (parts? parts)     :description "Map of part names to {:class :style :attr} for styling customization"}
-     {:name :src             :required false                        :type "map"              :validate-fn map?                            :description [:span "Source code coordinates for debugging. Map with " [:code ":file"] " and " [:code ":line"] " keys"]}
-     {:name :debug-as        :required false                        :type "map"              :validate-fn map?                            :description [:span "Debug output masquerading. Map with " [:code ":component"] " and " [:code ":args"] " keys"]}]))
+    [{:name :table-spec :required true :type "vector" :validate-fn table-spec? :description "Vector of column definition maps with :id, :name, :type keys. Example on the right"}
+     {:name :model :required true :type "map | r/atom" :validate-fn model? :description "Hierarchical filter model with :type, :logic, and :children structure. The UI will always reflect what is in model. Should be updated by the on-change function to maintain proper data flow. If unsure, just pass an empty reagent atom."}
+     {:name :on-change :required true :type "-> nil" :validate-fn fn? :description [:span "Callback function called when user interacts with the filter component. Receives two arguments: " [:code "[model is-valid?]"] " where " [:code "model"] " is the updated filter structure and " [:code "is-valid?"] " is a boolean indicating if all filters are complete and valid. Use this to update your application state."]}
+     {:name :max-depth :required false :default 2 :type "int" :validate-fn int? :description "Set the maximum amount of nesting possible. 0 is no nesting; user only allowed to add filters. 1 allows user to add filter groups, ect"}
+     {:name :disabled? :required false :default false :type "boolean" :validate-fn boolean? :description "If true, disables all filter interactions"}
+     args/class
+     args/style
+     args/attr
+     (args/parts parts)
+     args/src
+     args/debug-as]))
 
 ;; ----------------------------------------------------------------------------
 ;; Data Structure - Hierarchical Groups
@@ -782,7 +790,7 @@
   "Hierarchical table filter component with external state as single source of truth.
    External model (user-facing): {:type :group :logic :and :children [...]} - no IDs required
    Internal model automatically adds IDs for component state management."
-  []
+  [& {:keys [pre-theme theme]}]
   ;; Create stable atom once for child component identity
   (let [internal-model (r/atom nil)]
     ;; Render function called on every re-render
@@ -803,7 +811,7 @@
          (let [model-with-ids (or @internal-model (add-ids external-model-val))
                ;; Pure function - calculates new state and notifies parent
                ;; Does NOT mutate local state - external state is source of truth
-               update-state!  (fn [update-fn]
+                update-state!  (fn [update-fn]
                                 (let [new-internal-model (update-fn model-with-ids)
                                       new-external-model (remove-ids new-internal-model)
                                       is-valid?          (model-valid? new-external-model table-spec)]
