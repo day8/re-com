@@ -157,7 +157,7 @@
 ;; Component Parts Definition for re-com compliance
 ;; ----------------------------------------------------------------------------
 
-(def table-filter-parts-desc
+(def parts-desc
   (when include-args-desc?
     [{:name :group              :level 1 :class "rc-table-filter-group"        :impl "[v-box]"         :notes "Container for a filter group."}
      {:name :filter             :level 2 :class "rc-table-filter-filter"       :impl "[h-box]"         :notes "Container for individual filter condition row."}
@@ -167,7 +167,9 @@
      {:name :date-input         :level 3 :class "rc-table-filter-date"         :impl "[datepicker]"    :notes "Date picker for single date values."}
      {:name :daterange-input    :level 3 :class "rc-table-filter-daterange"    :impl "[daterange]"     :notes "Date range picker for between/not-between operations."}
      {:name :dropdown-input     :level 3 :class "rc-table-filter-dropdown"     :impl "[dropdown]"      :notes "Dropdown for boolean and single-select values."}
-     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes "Tag-dropdown for selecting multiple values. Due to unfinished implementation of tag-dropdown, does not accept :class or :attr"}
+     {:name :tag-dropdown-input :level 3 :class "rc-table-filter-tags"         :impl "[tag-dropdown]"  :notes [:span "Tag-dropdown for selecting multiple values. "
+                                                                                                               "Due to unfinished implementation of tag-dropdown, "
+                                                                                                               "does not accept :class or :attr"]}
      {:name :add-button         :level 2 :class "rc-table-filter-add"          :impl "[button]"        :notes "The '+ Add filter' button and dropdown menu."}
      {:name :context-menu       :level 3 :class "rc-table-filter-context"      :impl "[button]"        :notes "The '⋯' context menu button for groups and filters."}
      {:name :operator-button    :level 2 :class "rc-table-filter-op-button"    :impl "[button]"        :notes "The AND/OR operator button when interactive (first in group)."}
@@ -175,11 +177,11 @@
      {:name :where-label        :level 2 :class "rc-table-filter-where"        :impl "[label]"         :notes "The 'Where' label for first filter."}
      {:name :warning-icon       :level 3 :class "rc-table-filter-warning"      :impl "[md-icon-button]" :notes "The warning icon shown for invalid filters."}]))
 
-(def table-filter-parts
+(def parts
   (when include-args-desc?
-    (-> (map :name table-filter-parts-desc) set)))
+    (-> (map :name parts-desc) set)))
 
-(def table-filter-args-desc
+(def args-desc
   (when include-args-desc?
     [{:name :table-spec      :required true                         :type "vector"           :validate-fn table-spec?                     :description "Vector of column definition maps with :id, :name, :type keys. Example on the right"}
      {:name :model           :required true                          :type "map | r/atom"    :validate-fn model?                          :description "Hierarchical filter model with :type, :logic, and :children structure. The UI will always reflect what is in model. Should be updated by the on-change function to maintain proper data flow. If unsure, just pass an empty reagent atom."}
@@ -189,7 +191,7 @@
      {:name :class           :required false                        :type "string"           :validate-fn css-class?                      :description "CSS class names, space separated (applies to wrapper)"}
      {:name :style           :required false                        :type "CSS style map"    :validate-fn css-style?                      :description "CSS styles to apply to wrapper"}
      {:name :attr            :required false                        :type "HTML attr map"    :validate-fn html-attr?                      :description [:span "HTML attributes for wrapper. No " [:code ":class"] " or " [:code ":style"] " allowed"]}
-     {:name :parts           :required false                        :type "map"              :validate-fn (parts? table-filter-parts)     :description "Map of part names to {:class :style :attr} for styling customization"}
+     {:name :parts           :required false                        :type "map"              :validate-fn (parts? parts)     :description "Map of part names to {:class :style :attr} for styling customization"}
      {:name :src             :required false                        :type "map"              :validate-fn map?                            :description [:span "Source code coordinates for debugging. Map with " [:code ":file"] " and " [:code ":line"] " keys"]}
      {:name :debug-as        :required false                        :type "map"              :validate-fn map?                            :description [:span "Debug output masquerading. Map with " [:code ":component"] " and " [:code ":args"] " keys"]}]))
 
@@ -788,7 +790,7 @@
             :or   {max-depth 2}
             :as   args}]
       (or
-       (validate-args-macro table-filter-args-desc args)
+       (validate-args-macro args-desc args)
        (let [;; Always derive canonical state from props
              external-model-val (or (deref-or-value model) (empty-group-external table-spec)) ;; Passed in model, if nil we still want to display one empty filter
              ;; Check if external structure changed (ignoring IDs)
@@ -807,7 +809,6 @@
                                       is-valid?          (model-valid? new-external-model table-spec)]
                                   (when on-change
                                     (on-change new-external-model is-valid?))))]
-
            [filter-group (merge args {:group         internal-model
                                       :update-state! update-state!
                                       :depth         0

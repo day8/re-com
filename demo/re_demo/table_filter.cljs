@@ -6,7 +6,7 @@
    [re-com.core     :as rc :refer [at button checkbox h-box input-text label p
                                    p-span table-filter v-box]]
    [re-com.slider   :refer [slider]]
-   [re-com.table-filter :refer [table-filter-args-desc table-filter-parts-desc]]
+   [re-com.table-filter :refer [args-desc parts-desc]]
    [re-demo.utils   :refer [args-table panel-title parts-table status-text
                             title2 title3]]
    [reagent.core    :as r]
@@ -74,7 +74,7 @@
              [:li [:strong "Date columns:"] " a date picker or date range picker with operators like before, after, between"]
              [:li [:strong "Boolean columns:"] " a simple true/false selection"]
              [:li [:strong "Select columns:"] " a single or multi-value selection with operators like is, is not, etc"]]
-            [args-table table-filter-args-desc]]]
+            [args-table args-desc]]]
           [v-box
            :src (at)
            :width "auto"
@@ -186,4 +186,4 @@
                        :operator-text {:style {:font-size "12px"
                                                :color "#64748b"}}}]
               [box/gap :size "50px"]]]]]]]
-        [parts-table "table-filter" table-filter-parts-desc]]])))
+        [parts-table "table-filter" parts-desc]]])))
