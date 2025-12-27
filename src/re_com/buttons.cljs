@@ -102,7 +102,7 @@
                               :on-click on-click
                               :children [label-part]
                               :attr
-                              (merge {:disabled? disabled?
+                              (merge {:disabled disabled?
                                       :on-click (handler-fn
                                                   (when (and on-click (not disabled?))
                                                     (on-click event)))}
