@@ -2,6 +2,7 @@
   (:require-macros
    [re-com.core     :refer [handler-fn at]])
   (:require
+   [re-com.args :as args]
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.theme    :as    theme]
@@ -64,7 +65,8 @@
 
 (def dropdown-args-desc
   (when include-args-desc?
-    [{:description "True when the dropdown is open."
+    (into
+     [{:description "True when the dropdown is open."
       :name        :model
       :required    false
       :type        "boolean | r/atom"}
@@ -216,23 +218,8 @@
       :name        :parts
       :required    false
       :type        "map"
-      :validate-fn (parts? dropdown-parts)}
-     {:description "See Parts section below."
-      :name        :style
-      :required    false
-      :type        "map"}
-     {:description "See Parts section below."
-      :name        :class
-      :required    false
-      :type        "string | vector"
-      :validate-fn (some-fn string? vector?)}
-     {:name        :attr
-      :required    false
-      :type        "map"}
-     {:name        :pre-theme
-      :required    false}
-     {:name        :theme
-      :description "alpha"}]))
+      :validate-fn (parts? dropdown-parts)}]
+     args/std)))
 
 (defn anchor [{:keys [label placeholder style class attr transition!]}]
   [:span (merge {:style style :class class} attr)
@@ -289,7 +276,8 @@
          (map + [a-x a-y])
          (mapv + [offset-x offset-y]))))
 
-(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction parts offset-y offset-x]}]
+(defn body-wrapper [{:keys [anchor-ref body-ref anchor-position direction parts offset-y offset-x]
+                     {part :part-fn} :re-com}]
   (let [set-body-ref!      #(reset! body-ref %)
         optimize-position! #(reset! anchor-position
                                     (optimize-position! @anchor-ref @body-ref
@@ -314,9 +302,8 @@
       :reagent-render
       (fn [{:keys [theme children post-props]}]
         (let [[left top] (deref anchor-position)]
-          (p/part (get parts :body-wrapper (get parts ::body-wrapper))
+          (part ::body-wrapper
             {:theme      theme
-             :part       ::body-wrapper
              :props
              {:position    :fixed
               :anchor-top  top
@@ -340,17 +327,18 @@
         transitionable                                 (reagent/atom
                                                         (if (deref-or-value model) :in :out))]
     (fn dropdown-render
-      [& {:keys [disabled? on-change tab-index direction
-                 anchor-height anchor-width
-                 body-height   body-width
-                 model
-                 show-backdrop?
-                 label placeholder
-                 parts theme pre-theme]
-          :or   {placeholder "Select an item"
-                 model       default-model
-                 direction   :toward-center}
-          :as   args}]
+      [& {:keys     [disabled? on-change tab-index direction
+                     anchor-height anchor-width
+                     body-height   body-width
+                     model
+                     show-backdrop?
+                     label placeholder
+                     parts theme pre-theme]
+          from-part :part
+          :or       {placeholder "Select an item"
+                     model       default-model
+                     direction   :toward-center}
+          :as       args}]
       (or (validate-args-macro dropdown-args-desc args)
           (let [state {:openable       (if (deref-or-value model) :open :closed)
                        :enable         (if disabled? :disabled :enabled)
@@ -414,50 +402,54 @@
                     part       (fn [id & {:as opts}]
                                  (p/part (get parts id
                                               (get parts (keyword (name id))))
-                                   (merge opts {:theme theme
-                                                :part  id})))]
+                                         (-> opts
+                                             (merge {:theme     theme
+                                                     :part      id})
+                                             (update-in [:props :re-com :from]
+                                                        (fnil conj []) from-part))))]
                 (part ::wrapper
-                  {:impl       v-box
-                   :post-props {:class (:class args)
-                                :style (:style args)
-                                :attr  (:attr args)}
-                   :props
-                   {:src (at)
-                    :children
-                    [(when (and show-backdrop? (not= :out (:transitionable state)))
-                       (part ::backdrop
-                         {:theme theme
-                          :props part-props
-                          :impl  re-com.dropdown/backdrop}))
-                     (part ::anchor-wrapper
-                       {:impl       h-box
-                        :props      {:src      (at)
-                                     :re-com   {:state       state
-                                                :transition! transition!}
-                                     :attr     {:ref anchor-ref!}
-                                     :children [(part ::anchor {:props part-props
-                                                                :impl  re-com.dropdown/anchor})
-                                                [gap :size "1"]
-                                                [gap :size "5px"]
-                                                (part ::indicator {:props part-props
-                                                                   :impl  dp/indicator})]}
-                        :post-props {:style (merge (select-keys args [:width :min-width :max-width])
-                                                   (when anchor-height {:height anchor-height})
-                                                   (when anchor-width {:width anchor-width}))}})
-                     (when (= :open (:openable state))
-                       [body-wrapper
-                        {:anchor-ref      anchor-ref
-                         :offset-x        offset-x
-                         :offset-y        offset-y
-                         :body-ref        body-ref
-                         :anchor-position anchor-position
-                         :direction       direction
-                         :parts           parts
-                         :theme           theme
-                         :post-props      {:style (merge (select-keys args [:width :min-width #_:max-width
-                                                                            :height :min-height :max-height])
-                                                         (when body-height {:height body-height})
-                                                         (when body-width {:width body-width}))}
-                         :children        [(part ::body-header {:props part-props})
-                                           (part ::body {:props part-props})
-                                           (part ::body-footer {:props part-props})]}])]}}))))))))
+                      {:impl       v-box
+                       :post-props {:class (:class args)
+                                    :style (:style args)
+                                    :attr  (:attr args)}
+                       :props
+                       {:src (at)
+                        :children
+                        [(when (and show-backdrop? (not= :out (:transitionable state)))
+                           (part ::backdrop
+                                 {:theme theme
+                                  :props part-props
+                                  :impl  re-com.dropdown/backdrop}))
+                         (part ::anchor-wrapper
+                               {:impl       h-box
+                                :props      {:src      (at)
+                                             :re-com   {:state       state
+                                                        :transition! transition!}
+                                             :attr     {:ref anchor-ref!}
+                                             :children [(part ::anchor {:props part-props
+                                                                        :impl  re-com.dropdown/anchor})
+                                                        [gap :size "1"]
+                                                        [gap :size "5px"]
+                                                        (part ::indicator {:props part-props
+                                                                           :impl  dp/indicator})]}
+                                :post-props {:style (merge (select-keys args [:width :min-width :max-width])
+                                                           (when anchor-height {:height anchor-height})
+                                                           (when anchor-width {:width anchor-width}))}})
+                         (when (= :open (:openable state))
+                           [body-wrapper
+                            {:re-com          {:part-fn part}
+                             :anchor-ref      anchor-ref
+                             :offset-x        offset-x
+                             :offset-y        offset-y
+                             :body-ref        body-ref
+                             :anchor-position anchor-position
+                             :direction       direction
+                             :parts           parts
+                             :theme           theme
+                             :post-props      {:style (merge (select-keys args [:width :min-width #_:max-width
+                                                                                :height :min-height :max-height])
+                                                             (when body-height {:height body-height})
+                                                             (when body-width {:width body-width}))}
+                             :children        [(part ::body-header {:props part-props})
+                                               (part ::body {:props part-props})
+                                               (part ::body-footer {:props part-props})]}])]}}))))))))

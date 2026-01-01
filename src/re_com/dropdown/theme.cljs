@@ -18,7 +18,7 @@
                    :z-index    30}))
 
 (defmethod base ::dd/anchor-wrapper
-  [{{:keys          [state transition!]
+  [{{:keys          [state transition! from]
      {:keys [sm-2]} :variables} :re-com
     :as                         props}]
   (let [disabled? (= :disabled (:enable state))]
@@ -37,11 +37,13 @@
                    :user-select    "none"
                    #_#_:width      "100%"
                    :z-index        (case (:openable state)
-                                     :open 20 nil)}))))
+                                     :open 20 nil)}
+                  (when (= ::tf/operator-button (last from))
+                    {:cursor "pointer"})))))
 
 (defmethod main ::dd/anchor-wrapper
   [{:as                props
-    {:keys [state]
+    {:keys [state from]
      $     :variables} :re-com}]
   (let [open?     (= :open (:openable state))
         closed?   (= :closed (:openable state))
@@ -66,7 +68,18 @@
                    :white-space      "nowrap"
                    :transition       "border 0.2s box-shadow 0.2s"}
                   (when disabled?
-                    {:background-color "#EEE"})))))
+                    {:background-color "#EEE"})
+                  (when (= ::tf/operator-button (last from))
+                    {:font-size     "14px"
+                     :font-weight   "500"
+                     :color         "#6b7280"
+                     :margin-right  "0px"
+                     :margin-left   "0px"
+                     :border-radius "4px"
+                     :border        "1px solid #e2e8f0"
+                     :min-width     "50px"
+                     :height        "34px"
+                     :padding       "4px 4px"})))))
 
 (defmethod base ::dd/backdrop
   [props]
@@ -93,13 +106,21 @@
              :position "relative"}))
 
 (defmethod main ::dd/body-wrapper
-  [props]
+  [{{:keys [from]} :re-com :as props}]
   (let [{:keys [sm-2 sm-3 sm-6 shadow border background]} (-> props :re-com :variables)]
-    (tu/style props {:background-color background
-                     :border-radius    "4px"
-                     :border           (str "thin solid " border)
-                     :padding          sm-3
-                     :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])})))
+    (tu/style props
+              {:background-color background
+               :border-radius    "4px"
+               :border           (str "thin solid " border)
+               :padding          sm-3
+               :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}
+              (when (= ::tf/operator-button (last from))
+                {:background-color "#ffffff"
+                 :border           "1px solid #e1e5e9"
+                 :border-radius    "8px"
+                 :min-width        "200px"
+                 :margin-top       "4px"
+                 :padding          "8px 0"}))))
 
 (defmethod main ::dd/body
   [props]

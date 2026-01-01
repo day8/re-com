@@ -529,68 +529,12 @@
                                                                  state
                                                                  (remove-item-with-cleanup state group-id table-spec)))))])]]))
 
-(defn operator-dropdown
-  [& {:keys [operator update-state! group-id depth interactable? disabled? parts
+(defn operator-text
+  [& {:keys [operator update-state! group-id depth interactable? disabled? parts group
              class style attr] :as a}]
-  [dropdown/dropdown
-   :model (r/atom nil)
-   :disabled? disabled?
-   :label (case operator
-            :and "And"
-            :or  "Or")
-   :width "50px"
-   :parts {:anchor-wrapper {:class (theme/merge-class "btn-link" (get-in parts [:operator-button :class]))
-                            :style (merge {:font-size        "14px" :font-weight "500"
-                                           :color            "#6b7280"
-                                           :margin-right     "0px"  :margin-left "0px"
-                                           :background-color (if (odd? depth) "white" "#f7f7f7")
-                                           :border-radius    "4px"
-                                           :border           "1px solid #e2e8f0"
-                                           :min-width        "50px" :height      "34px"
-                                           :padding          "4px 4px"
-                                           :cursor           "pointer"}
-                                          (get-in parts [:operator-button :style]))}
-           :anchor         {:style {:cursor "pointer"}}
-           :body-wrapper   {:style {:background-color "#ffffff"
-                                    :border           "1px solid #e1e5e9"
-                                    :border-radius    "8px"
-                                    :min-width        "200px"
-                                    :margin-top       "4px"
-                                    :padding          "8px 0"}}}
-   :body [box/v-box
-          :children [[buttons/button
-                      :label [box/v-box
-                              :gap "2px"
-                              :children [[text/label :label "And" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
-                                         [text/label :label "All filters must match" :style {:color "#6b7280" :font-size "11px"}]]]
-                      :class "btn-link"
-                      :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
-                              :background-color (when (= operator :and) "#f3f4f6")}
-                      :on-click #(update-state! update-item-by-id group-id (fn [g] (assoc g :logic :and)))]
-                     [buttons/button
-                      :label [box/v-box
-                              :gap "2px"
-                              :children [[text/label :label "Or" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
-                                         [text/label :label "At least one filter must match" :style {:color "#6b7280" :font-size "11px"}]]]
-                      :class "btn-link"
-                      :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
-                              :background-color (when (= operator :or) "#f3f4f6")}
-                      :on-click #(update-state! update-item-by-id group-id (fn [g] (assoc g :logic :or)))]]]])
-
-(defn operator-label
-  [& {:keys [operator update-state! group-id depth interactable? disabled? parts
-             class style attr] :as a}]
-  [text/label
-   :label (case operator :and "And" :or "Or")
-   :class (get-in parts [:operator-text :class])
-   :style (merge {:font-size    "14px" :font-weight "500"
-                  :color        "#6b7280"
-                  :margin-right "0px"  :margin-left "0px"
-                  :min-width    "50px" :height      "34px"
-                  :text-align   "left" :padding     "6px 6px"
-                  :display      "flex" :align-items "center"}
-                 (get-in parts [:operator-text :style]))
-   :attr (get-in parts [:operator-text :attr])])
+  (let [group-deref (deref-or-value group)
+        operator (or (:logic group-deref) :and)]
+    [text/label]))
 
 (defn add-filter-dropdown
   "A dropdown that looks like a button for adding new filter-builders or filter-groups"
@@ -711,17 +655,15 @@
                          {:col %
                           :op  (first (ops-by-type (:type cs)))
                           :val nil}))}})
-                 (part ::tf/operator-dropdown
-                   {:theme theme
-                    :impl  sd/single-dropdown
-                    :props
-                    {:model     (:op filter-spec)
-                     :choices   op-opts
-                     :disabled? disabled?
-                     :on-change
-                     #(update-state!
-                       update-item-by-id (:id filter-spec) merge
-                       {:op % :val nil})}})
+                 [sd/single-dropdown
+                  :model (:op filter-spec)
+                  :choices op-opts
+                  :width "130px"
+                  :class (get-in parts [:operator-dropdown :class])
+                  :style (get-in parts [:operator-dropdown :style])
+                  :attr (get-in parts [:operator-dropdown :attr])
+                  :disabled? disabled?
+                  :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))]
                  [value-entry-box (merge args {:row-spec    spec
                                                :filter-spec filter-spec
                                                :on-change
@@ -738,11 +680,33 @@
                     :attr (get-in parts [:warning-icon :attr])
                     :tooltip "Invalid rule"])]}]))
 
+(defn operator-button-body [{:keys [operator update-state! group-id]}]
+  [box/v-box
+   :children
+   [[buttons/button
+     :label [box/v-box
+             :gap "2px"
+             :children [[text/label :label "And" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
+                        [text/label :label "All filters must match" :style {:color "#6b7280" :font-size "11px"}]]]
+     :class "btn-link"
+     :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
+             :background-color (when (= operator :and) "#f3f4f6")}
+     :on-click #(update-state! update-item-by-id group-id (fn [g] (assoc g :logic :and)))]
+    [buttons/button
+     :label [box/v-box
+             :gap "2px"
+             :children [[text/label :label "Or" :style {:font-weight "600" :color "#374151" :font-size "13px"}]
+                        [text/label :label "At least one filter must match" :style {:color "#6b7280" :font-size "11px"}]]]
+     :class "btn-link"
+     :style {:text-align       "left" :padding "10px 16px" :border "none" :width "100%"
+             :background-color (when (= operator :or) "#f3f4f6")}
+     :on-click #(update-state! update-item-by-id group-id (fn [g] (assoc g :logic :or)))]]])
+
 (defn filter-group
   "Contains 1 or more filter-builders and has an associated context menu"
   [& {{:keys [theme] part :part-fn} :re-com
-      :keys           [group depth class style attr]
-      :as             args}]
+      :keys                         [group depth class style attr disabled? update-state!]
+      :as                           args}]
   (let [group-deref    (deref-or-value group)
         children       (:children group-deref)
         is-root?       (zero? depth)
@@ -753,35 +717,46 @@
           (let [child-is-group? (= :group (:type (nth (:children group-deref) idx)))
                 show-operator?  (> idx 0)
                 show-where?     (= idx 0)  ; Show "Where" for first item
-                operator-btn    (when show-operator? ;if the child is a group comonent, the self-align should be :start
-                                  (let [{:keys [interactable?] :as child-args}
-                                        (merge child-args    {:operator      (or (:logic group-deref) :and)
-                                                              :group-id      (:id group-deref)
-                                                              :depth         depth
-                                                              :interactable? (= idx 1)})]
-                                  [box/v-box
-                                   :align-self (if child-is-group? :start :center)
-                                   :children [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
-                                              [box/h-box
-                                               :children [(if interactable?
-                                                            (part ::tf/operator-dropdown
-                                                                  {:theme theme
-                                                                   :impl  operator-dropdown
-                                                                   :props child-args})
-                                                            (part ::tf/operator-label
-                                                                  {:theme theme
-                                                                   :impl  operator-label
-                                                                   :props child-args}))
-                                                          [box/gap :size "2px"]]]]]))
-                where-label     (when show-where?
-                                  [text/label
-                                   :label "Where"
-                                   :class (get-in parts [:where-label :class])
-                                   :style (merge {:font-size  "14px" :font-weight "500" :color "#374151"
-                                                  :min-width  "52px"
-                                                  :text-align "center"}
-                                                 (get-in parts [:where-label :style]))
-                                   :attr (get-in parts [:where-label :attr])])]
+                operator-btn
+                (when show-operator? ;if the child is a group comonent, the self-align should be :start
+                  (let [operator      (or (:logic group-deref) :and)
+                        group-id      (:id group-deref)
+                        depth         depth
+                        interactable? (= idx 1)]
+                    [box/v-box
+                     :align-self (if child-is-group? :start :center)
+                     :children
+                     [[box/gap :size "0px"] ; TODO ADD PARAMTER BOX TOP GAP
+                      [box/h-box
+                       :children
+                       [(if interactable?
+                          (part ::tf/operator-button
+                            {:theme theme
+                             :impl  dropdown/dropdown
+                             :props
+                             {:re-com    {:state {:depth depth}}
+                              :model     (r/atom nil)
+                              :disabled? disabled?
+                              :label     (case operator :and "And" :or "Or")
+                              :width     "50px"
+                              :parts
+                              {:anchor-wrapper {:style {:background-color (if (odd? depth) "white" "#f7f7f7")}}
+                               :body [operator-button-body {:operator operator :update-state! update-state! :group-id group-id}]}}})
+                          (part ::tf/operator-text
+                            {:theme theme
+                             :impl  text/label
+                             :props {:label (case operator :and "And" :or "Or")}}))
+                        [box/gap :size "2px"]]]]]))
+                where-label
+                (when show-where?
+                  [text/label
+                   :label "Where"
+                   :class (get-in parts [:where-label :class])
+                   :style (merge {:font-size  "14px" :font-weight "500" :color "#374151"
+                                  :min-width  "52px"
+                                  :text-align "center"}
+                                 (get-in parts [:where-label :style]))
+                   :attr (get-in parts [:where-label :attr])])]
             [box/h-box
              {:align    :center
               :gap      "4px"
@@ -822,7 +797,7 @@
                    [box/h-box
                     :children [(part ::tf/context-menu
                                  {:theme theme
-                                  :impl group-context-menu
+                                  :impl  group-context-menu
                                   :props
                                   (merge child-args {:group-id (:id group-deref)})})]])]}]))
 
