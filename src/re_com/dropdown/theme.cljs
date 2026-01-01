@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as str]
    [re-com.dropdown :as-alias dd]
+   [re-com.table-filter :as-alias tf]
    [re-com.util :refer [px]]
    [re-com.theme.util :as tu :refer [merge-props]]
    [re-com.theme.default :refer [base main]]))
@@ -22,22 +23,21 @@
     :as                         props}]
   (let [disabled? (= :disabled (:enable state))]
     (-> props
-        (merge-props
-         {:attr  {:tab-index   (or (:tab-index state) 0)
+        (tu/attr {:tab-index   (or (:tab-index state) 0)
                   :on-click    (when-not disabled? #(transition! :toggle))
                   #_#_:on-blur #(do (transition! :blur)
-                                    (transition! :exit))}
-          :style {:outline        (when (and (= :focused (:focusable state))
-                                             (not= :open (:openable state)))
-                                    (str sm-2 " auto #ddd"))
-                  :outline-offset (str "-" sm-2)
-                  :position       "relative"
-                  #_#_:display    "block"
-                  :overflow       "hidden"
-                  :user-select    "none"
-                  #_#_:width      "100%"
-                  :z-index        (case (:openable state)
-                                    :open 20 nil)}}))))
+                                    (transition! :exit))})
+        (tu/style {:outline        (when (and (= :focused (:focusable state))
+                                              (not= :open (:openable state)))
+                                     (str sm-2 " auto #ddd"))
+                   :outline-offset (str "-" sm-2)
+                   :position       "relative"
+                   #_#_:display    "block"
+                   :overflow       "hidden"
+                   :user-select    "none"
+                   #_#_:width      "100%"
+                   :z-index        (case (:openable state)
+                                     :open 20 nil)}))))
 
 (defmethod main ::dd/anchor-wrapper
   [{:as                props
@@ -47,27 +47,26 @@
         closed?   (= :closed (:openable state))
         disabled? (= :disabled (:enable state))]
     (-> props
-        (merge-props
-         {:align :center
-          :style (merge {:background-color (:background $)
-                         :background-clip  "padding-box"
-                         :border           (str "1px solid "
-                                                (cond
-                                                  disabled? "#d1d5db"
-                                                  closed?   (:border $)
-                                                  open?     "#66afe9"))
-                         :border-radius    "4px"
-                         :box-shadow       (when-not disabled?
-                                             (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
-                                               open? (str ", 0 0 8px rgba(82, 168, 236, .6)")))
-                         :color            (if disabled? "#9ca3af" (:foreground $))
-                         :height           "34px"
-                         :padding          "0 8px 0 8px"
-                         :text-decoration  "none"
-                         :white-space      "nowrap"
-                         :transition       "border 0.2s box-shadow 0.2s"}
-                        (when disabled?
-                          {:background-color "#EEE"}))}))))
+        (merge {:align :center})
+        (tu/style {:background-color (:background $)
+                   :background-clip  "padding-box"
+                   :border           (str "1px solid "
+                                          (cond
+                                            disabled? "#d1d5db"
+                                            closed?   (:border $)
+                                            open?     "#66afe9"))
+                   :border-radius    "4px"
+                   :box-shadow       (when-not disabled?
+                                       (cond-> "0 1px 1px rgba(0, 0, 0, .075) inset"
+                                         open? (str ", 0 0 8px rgba(82, 168, 236, .6)")))
+                   :color            (if disabled? "#9ca3af" (:foreground $))
+                   :height           "34px"
+                   :padding          "0 8px 0 8px"
+                   :text-decoration  "none"
+                   :white-space      "nowrap"
+                   :transition       "border 0.2s box-shadow 0.2s"}
+                  (when disabled?
+                    {:background-color "#EEE"})))))
 
 (defmethod base ::dd/backdrop
   [props]
@@ -108,13 +107,13 @@
     (tu/style props {:color foreground})))
 
 (defmethod main ::dd/anchor
-  [{:keys          [state]
-    {$ :variables} :re-com
-    :as            props}]
+  [{:keys                       [state]
+    {:keys [from] $ :variables} :re-com
+    :as                         props}]
   (tu/style props
-            (cond-> {:color (:foreground $)
-                     :overflow "hidden"
-                     :text-overflow "ellipsis"
-                     :white-space "nowrap"}
-              (-> state :enable (= :disabled))
-              (merge {:background-color (:background-disabled $)}))))
+            {:color         (:foreground $)
+             :overflow      "hidden"
+             :text-overflow "ellipsis"
+             :white-space   "nowrap"}
+            (when (= :disabled (:enable state))
+              {:background-color (:background-disabled $)})))
