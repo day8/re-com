@@ -3,6 +3,7 @@
    [re-com.core :as-alias rc]
    [re-com.selection-list :as-alias sl]
    [re-com.theme.util :as tu]
+   [re-com.tag-dropdown :as-alias td]
    [re-com.theme.default :refer [bootstrap base main]]))
 
 (defmethod main ::sl/wrapper [{{{:keys [border]} :state} :re-com :as props}]
@@ -40,12 +41,11 @@
                 :justify :between}))
 
 (defmethod main ::sl/list-group-item [{{:keys [from]} :re-com :as props}]
-  (cond-> props
-    (contains? (set from) ::rc/tag-dropdown)
-    (tu/style {:border  "1px solid #ddd"
+  (tu/style props
+            (when (= ::td/selection-list (last from))
+              {:border  "1px solid #ddd"
                :height  "auto"
                :padding "10px 15px"})))
-
 
 (defmethod bootstrap ::sl/list-group-item [props]
   (tu/class props "list-group-item" "compact"))

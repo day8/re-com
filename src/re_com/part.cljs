@@ -154,8 +154,10 @@
 (defn part
   ([structure props k opts]
    (part (get-part structure props k)
-         (assoc opts :part k)))
-  ([part-value {:keys   [impl key theme post-props props]
+         (merge opts {:part k}
+                (when-let [part (get props :part)]
+                  {:from-part part}))))
+  ([part-value {:keys   [impl key theme post-props props from-part]
                 part-id :part
                 :or     {impl default}}]
    (->
@@ -170,6 +172,9 @@
                                  props
                                  (cond-> {:part part-id}
                                    :do        (merge props)
+                                   from-part  (update-in [:re-com :from]
+                                                         (fnil conj [])
+                                                         from-part)
                                    theme      (theme f)
                                    part-map   (tu/merge-props part-map)
                                    post-props (tu/merge-props post-props))]
