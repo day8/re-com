@@ -18,7 +18,6 @@
    [re-com.theme :as theme]
    [re-com.part :as p]
    [re-com.util :as u :refer [deref-or-value]]
-   [re-com.validate :refer [css-class? css-style? html-attr? parts?]]
    [reagent.core :as r]
    re-com.table-filter.theme
    [re-com.table-filter :as-alias tf]))
@@ -392,14 +391,11 @@
 (defn- common-props
   "Extract common properties for input components as a props map.
    Includes model, on-change, width, disabled, and styling props."
-  [{:keys [val] :as filter-spec} on-change parts part-key disabled?]
+  [{:keys [val] :as filter-spec} on-change disabled?]
   {:model     val
    :on-change #(on-change (assoc filter-spec :val %))
    :width     "220px"
-   :disabled? disabled?
-   :class     (get-in parts [part-key :class])
-   :style     (get-in parts [part-key :style])
-   :attr      (get-in parts [part-key :attr])})
+   :disabled? disabled?})
 
 (defmulti value-entry-box
   "Depending on the spec for a given column, the value entry box behaves differently
@@ -418,216 +414,142 @@
 
 ;; Text input case
 (defmethod value-entry-box :text
-  [& {:keys [filter-spec on-change parts disabled?]}]
-  [input-text/input-text (common-props filter-spec on-change parts :text-input disabled?)])
+  [& {{part :part-fn} :re-com
+      :keys           [filter-spec on-change disabled? theme]}]
+  (part ::text-input
+    {:theme theme
+     :impl  input-text/input-text
+     :props (common-props filter-spec on-change disabled?)}))
 
 ;; Number input case
 (defmethod value-entry-box :number
-  [& {:keys [filter-spec on-change parts disabled?]}]
-  [input-text/input-text (common-props filter-spec on-change parts :text-input disabled?)])
+  [& {{part :part-fn} :re-com
+      :keys [filter-spec on-change disabled? theme]}]
+  (part ::text-input
+    {:theme theme
+     :impl input-text/input-text
+     :props (common-props filter-spec on-change disabled?)}))
 
 ;; Date input case
 (defmethod value-entry-box :date
-  [& {:keys [filter-spec on-change parts disabled?]}]
+  [& {{part :part-fn} :re-com
+      :keys [filter-spec on-change disabled? theme]}]
   (let [op (:op filter-spec)]
     (if (#{:between :not-between} op)
-      [daterange/daterange-dropdown
-       (merge {:placeholder "Select date range"
-               :show-today? true}
-              (common-props filter-spec on-change parts :daterange-input disabled?))]
-
-      [datepicker/datepicker-dropdown
-       (merge {:placeholder "Select a date"
-               :show-today? true
-               :parts       {:anchor-label {:style {:height "34px"}}}}
-              (common-props filter-spec on-change parts :date-input disabled?))])))
+      (part ::tf/daterange-input
+        {:theme theme
+         :impl daterange/daterange-dropdown
+         :props (merge {:placeholder "Select date range"
+                        :show-today? true}
+                       (common-props filter-spec on-change disabled?))})
+      (part ::tf/date-input
+        {:theme theme
+         :impl datepicker/datepicker-dropdown
+         :props (merge {:placeholder "Select a date"
+                        :show-today? true
+                        :parts       {:anchor-label {:style {:height "34px"}}}}
+                       (common-props filter-spec on-change disabled?))}))))
 
 ;; Boolean input case
 (defmethod value-entry-box :boolean
-  [& {:keys [filter-spec on-change parts disabled?]}]
-  [sd/single-dropdown
-   (merge {:choices [{:id true :label "True"}
-                     {:id false :label "False"}]}
-          (common-props filter-spec on-change parts :dropdown-input disabled?))])
+  [& {{part :part-fn} :re-com
+      :keys [filter-spec on-change disabled? theme]}]
+  (part ::tf/dropdown-input
+    {:theme theme
+     :impl sd/single-dropdown
+     :props (merge {:choices [{:id true :label "True"}
+                              {:id false :label "False"}]}
+                   (common-props filter-spec on-change disabled?))}))
 
 ;; Select input case
 (defmethod value-entry-box :select
-  [& {:keys [row-spec filter-spec on-change parts disabled?]}]
+  [& {{part :part-fn} :re-com
+      :keys           [row-spec filter-spec on-change disabled? theme]}]
   (let [{:keys [options]} row-spec
         op                (:op filter-spec)
         val               (:val filter-spec)]
     (if (#{:is-any-of :is-none-of :contains :not-contains} op)
       ;; Multi-value selection for these operators
-      [tag-dropdown/tag-dropdown
-       {:model             (or val #{})
-        :height            "34px"
-        :choices           options
-        :placeholder       "Select values..."
-        :min-width         "220px"
-        :max-width         "600px"
-        :show-only-button? true
-        :show-counter?     true
-        :on-change         #(on-change (assoc filter-spec :val %))
-        :style             (merge {:color            "#333333"
-                                   :background-color "#ffffff"}
-                                  (get-in parts [:tag-dropdown-input :style]))
-        :disabled?         disabled?}]
-
+      (part ::tf/tag-dropdown-input
+        {:theme theme
+         :impl  tag-dropdown/tag-dropdown
+         :props {:model             (or val #{})
+                 :height            "34px"
+                 :choices           options
+                 :placeholder       "Select values..."
+                 :min-width         "220px"
+                 :max-width         "600px"
+                 :show-only-button? true
+                 :show-counter?     true
+                 :on-change         #(on-change (assoc filter-spec :val %))
+                 :style             {:color            "#333333"
+                                     :background-color "#ffffff"}
+                 :disabled?         disabled?}})
       ;; Single value selection for equals/not-equals
-      [sd/single-dropdown
-       (merge {:choices options}
-              (common-props filter-spec on-change parts :dropdown-input disabled?))])))
+      (part ::tf/dropdown-input
+        {:theme theme
+         :impl  sd/single-dropdown
+         :props (merge {:choices options}
+                       (common-props filter-spec on-change disabled?))}))))
 
 ;; Default case for unknown types
 (defmethod value-entry-box :default
   [& {:keys []}]
   [text/label :label ""])
 
-(defn group-context-menu
-  "Menu for operations on groups, currently only delete"
-  [& {:keys [group-id update-state! table-spec disabled? parts]}]
-  (let [choices [{:id :delete :label "Delete group" :color "#dc2626"}]]
-    [dropdown/dropdown
-     :model (r/atom nil)
-     :disabled? disabled?
-     :anchor [text/label :label "⋯"
-              :style {:color     "#9ca3af"
-                      :font-size "20px"
-                      :padding   "6px 8px"
-                      :cursor    "pointer"}]
-     :attr (get-in parts [:context-menu :attr])
-     :parts {:anchor-wrapper {:style (merge {:border          "none"
-                                             :background      "transparent"
-                                             :border-radius   "4px"
-                                             :box-shadow      "none"
-                                             :width           "100%"
-                                             :height          "100%"
-                                             :display         "flex"
-                                             :align-items     "center"
-                                             :justify-content "center"
-                                             :cursor          "pointer"}
-                                            (get-in parts [:context-menu :style]))}
-             :indicator      {:style {:display "none"}}
-             :body-wrapper   {:style {:background-color "#ffffff"
-                                      :border           "1px solid #e1e5e9"
-                                      :border-radius    "8px"
-                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                      :min-width        "160px"
-                                      :margin-top       "4px"}}}
+(def context-menu-anchor
+  [text/label :label "⋯"
+   :style {:color       "#9ca3af"
+           :font-size   "20px"
+           :line-height "18px"
+           :padding     "0px 8px"
+           :cursor      "pointer"}])
 
-     :body [box/v-box
-            :style {:padding "0"}
-            :children (for [choice choices]
-                        [buttons/button
-                         :label (:label choice)
-                         :class "btn-link"
-                         :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
-                         :on-click (case (:id choice)
-                                     :delete #(update-state! (fn [state]
-                                                               ;; Safety check: don't delete root group
-                                                               (if (= (:id state) group-id)
-                                                                 state
-                                                                 (remove-item-with-cleanup state group-id table-spec)))))])]]))
-
-(defn operator-text
-  [& {:keys [operator update-state! group-id depth interactable? disabled? parts group
-             class style attr] :as a}]
-  (let [group-deref (deref-or-value group)
-        operator (or (:logic group-deref) :and)]
-    [text/label]))
-
-(defn add-filter-dropdown
-  "A dropdown that looks like a button for adding new filter-builders or filter-groups"
-  [& {:keys [group-id update-state! table-spec depth disabled? parts max-depth]}]
-  (let [choices (cond-> [{:id :add-filter :label "Add a filter"}]
-                  (< depth max-depth)
-                  (conj {:id :add-group :label "Add a filter group"}))]
-    [dropdown/dropdown
-     :model (r/atom nil)
-     :disabled? disabled?
-     ;; we have replaced JS jank with very awkwards "parts" handling
-     :anchor [text/label :label "+ Add filter"
-              :style {:font-size "13px" :color "#46a2da"}]
-     :attr (get-in parts [:add-button :attr])
-     :parts {:anchor-wrapper {:class (str "btn-outline " (get-in parts [:add-button :class]))
-                              :style (merge {:font-size        "13px"
-                                             :padding          "2px 4px"
-                                             :font-weight      "500"
-                                             :border-radius    "8px"
-                                             :background-color "transparent"
-                                             :width            "75px"
-                                             :border           "none"
-                                             :box-shadow       "none"
-                                             :cursor           "pointer"}
-                                            (get-in parts [:add-button :style]))}
-             :indicator      {:style {:display "none"}}
-             :body-wrapper   {:style {:background-color "#ffffff"
-                                      :border           "1px solid #e1e5e9"
-                                      :border-radius    "8px"
-                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                      :min-width        "160px"
-                                      :margin-top       "4px"}}}
-
-     :body [box/v-box
-            :style {:padding "0"}
-            :children (for [choice choices]
-                        [buttons/button
-                         :label (:label choice)
-                         :class "btn-link"
-                         :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color "#374151"}
-                         :on-click (case (:id choice)
-                                     :add-filter #(update-state! add-child-to-group group-id (empty-filter table-spec))
-                                     :add-group  #(update-state! add-child-to-group group-id (empty-group table-spec)))])]]))
+(defn context-menu-buttons [{:keys [choices on-click]}]
+  [box/v-box
+   :children
+   (for [{:keys [id color label]} choices]
+     [buttons/button
+      :label label
+      :class "btn-link"
+      :style {:border      "none"
+              :color       color
+              :font-size   "13px"
+              :font-weight "500"
+              :padding     "10px 16px"
+              :text-align  "left"
+              :width       "100%"}
+      :on-click #(on-click id)])])
 
 (defn filter-context-menu
   "A dropdown which exposes the options you can take on a filter, e.g. delete, dupe or promote to group"
-  [& {:keys [item-id update-state! table-spec depth disabled? parts max-depth]}]
+  [& {{part :part-fn} :re-com
+      :keys           [theme item-id update-state! table-spec depth disabled? max-depth]}]
   (let [choices (cond-> [{:id :delete :label "Delete Filter" :color "#dc2626"}
                          {:id :duplicate :label "Duplicate" :color "#374151"}]
                   (< depth max-depth)
                   (conj {:id :convert :label "Turn into group" :color "#374151"}))]
-    [dropdown/dropdown
-     :model (r/atom nil)
-     :disabled? disabled?
-     :direction :toward-center
-     :anchor [text/label :label "⋯"
-              :style {:color       "#9ca3af"
-                      :font-size   "20px"
-                      :line-height "18px"
-                      :padding     "0px 8px"
-                      :cursor      "pointer"}]
-     :attr (get-in parts [:context-menu :attr])
-     :parts {:anchor-wrapper {:style (merge {:border        "none"
-                                             :background    "transparent"
-                                             :border-radius "4px"
-                                             :box-shadow    "none"
-                                             :height        "20px"
-                                             :cursor        "pointer"}
-                                            (get-in parts [:context-menu :style]))}
-             :indicator      {:style {:display "none"}}
-             :body-wrapper   {:style {:background-color "#ffffff"
-                                      :border           "1px solid #e1e5e9"
-                                      :border-radius    "8px"
-                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
-                                      :min-width        "160px"
-                                      :margin-top       "4px"}}}
-
-     :body [box/v-box
-            :children (for [choice choices]
-                        [buttons/button
-                         :label (:label choice)
-                         :class "btn-link"
-                         :style {:text-align "left" :padding "10px 16px" :border "none" :width "100%" :font-size "13px" :font-weight "500" :color (:color choice)}
-                         :on-click (case (:id choice)
-                                     :delete    #(update-state! remove-item-with-cleanup item-id table-spec)
-                                     :duplicate #(update-state! duplicate-item-by-id item-id)
-                                     :convert   #(update-state! convert-filter-to-group item-id))])]]))
+    (part ::tf/context-menu
+      {:theme theme
+       :impl  dropdown/dropdown
+       :props
+       {:model     (r/atom nil)
+        :disabled? disabled?
+        :parts
+        {:anchor context-menu-anchor
+         :body [context-menu-buttons
+                {:choices choices
+                 :on-click (fn [choice-id]
+                             (case choice-id
+                               :delete    (update-state! remove-item-with-cleanup item-id table-spec)
+                               :duplicate (update-state! duplicate-item-by-id item-id)
+                               :convert   (update-state! convert-filter-to-group item-id)))}]}}})))
 
 (defn filter-builder
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a context button"
   [& {{:keys [theme] part :part-fn} :re-com
       :keys                         [table-spec filter-spec update-state! disabled? class style attr]
-      :as                            args}]
+      :as                           args}]
   (let [spec     (column-by-id table-spec (:col filter-spec))
         ops      (ops-by-type (:type spec))
         valid?   (rule-valid? filter-spec table-spec)
@@ -655,15 +577,16 @@
                          {:col %
                           :op  (first (ops-by-type (:type cs)))
                           :val nil}))}})
-                 [sd/single-dropdown
-                  :model (:op filter-spec)
-                  :choices op-opts
-                  :width "130px"
-                  :class (get-in parts [:operator-dropdown :class])
-                  :style (get-in parts [:operator-dropdown :style])
-                  :attr (get-in parts [:operator-dropdown :attr])
-                  :disabled? disabled?
-                  :on-change #(update-state! (fn [state] (update-item-by-id state (:id filter-spec) (fn [f] (assoc f :op % :val nil)))))]
+                 (part ::tf/operator-dropdown
+                   {:theme theme
+                    :impl  sd/single-dropdown
+                    :props
+                    {:model     (:op filter-spec)
+                     :choices   op-opts
+                     :disabled? disabled?
+                     :on-change #(update-state! (fn [state]
+                                                  (update-item-by-id state (:id filter-spec)
+                                                                     (fn [f] (assoc f :op % :val nil)))))}})
                  [value-entry-box (merge args {:row-spec    spec
                                                :filter-spec filter-spec
                                                :on-change
@@ -671,14 +594,15 @@
                  [filter-context-menu (merge args {:item-id     (:id filter-spec)
                                                    :filter-spec filter-spec})]
                  (when-not valid?
-                   [buttons/md-icon-button
-                    :md-icon-name "zmdi-alert-triangle"
-                    :size :smaller
-                    :style (merge {:color "red" :pointer-events "none"}
-                                  (get-in parts [:warning-icon :style]))
-                    :class (get-in parts [:warning-icon :class])
-                    :attr (get-in parts [:warning-icon :attr])
-                    :tooltip "Invalid rule"])]}]))
+                   (part ::tf/warning-icon
+                     {:theme theme
+                      :impl  buttons/md-icon-button
+                      :props
+                      {:md-icon-name "zmdi-alert-triangle"
+                       :size         :smaller
+                       :style        {:color          "red"
+                                      :pointer-events "none"}
+                       :tooltip      "Invalid rule"}}))]}]))
 
 (defn operator-button-body [{:keys [operator update-state! group-id]}]
   [box/v-box
@@ -705,13 +629,15 @@
 (defn filter-group
   "Contains 1 or more filter-builders and has an associated context menu"
   [& {{:keys [theme] part :part-fn} :re-com
-      :keys                         [group depth class style attr disabled? update-state!]
+      :keys                         [group depth class style attr disabled? update-state! table-spec max-depth]
       :as                           args}]
-  (let [group-deref    (deref-or-value group)
-        children       (:children group-deref)
-        is-root?       (zero? depth)
-        show-group-ui? (or (not is-root?) (> (count children) 1))                    ; Non-root groups always show UI ; Root group only shows UI when 2+ children
-        child-args     (dissoc args :class :style :attr :part)
+  (let [{group-id :id :as group-deref} (deref-or-value group)
+        children                       (:children group-deref)
+        is-root?                       (zero? depth)
+                                        ; Non-root groups always show UI
+                                        ; Root group only shows UI when 2+ children
+        show-group-ui?                 (or (not is-root?) (> (count children) 1))
+        child-args                     (dissoc args :class :style :attr :part)
         child-part
         (fn [idx child]
           (let [child-is-group? (= :group (:type (nth (:children group-deref) idx)))
@@ -720,7 +646,6 @@
                 operator-btn
                 (when show-operator? ;if the child is a group comonent, the self-align should be :start
                   (let [operator      (or (:logic group-deref) :and)
-                        group-id      (:id group-deref)
                         depth         depth
                         interactable? (= idx 1)]
                     [box/v-box
@@ -741,7 +666,7 @@
                               :width     "50px"
                               :parts
                               {:anchor-wrapper {:style {:background-color (if (odd? depth) "white" "#f7f7f7")}}
-                               :body [operator-button-body {:operator operator :update-state! update-state! :group-id group-id}]}}})
+                               :body           [operator-button-body {:operator operator :update-state! update-state! :group-id group-id}]}}})
                           (part ::tf/operator-text
                             {:theme theme
                              :impl  text/label
@@ -749,14 +674,10 @@
                         [box/gap :size "2px"]]]]]))
                 where-label
                 (when show-where?
-                  [text/label
-                   :label "Where"
-                   :class (get-in parts [:where-label :class])
-                   :style (merge {:font-size  "14px" :font-weight "500" :color "#374151"
-                                  :min-width  "52px"
-                                  :text-align "center"}
-                                 (get-in parts [:where-label :style]))
-                   :attr (get-in parts [:where-label :attr])])]
+                  (part ::tf/where-label
+                    {:theme theme
+                     :impl  text/label
+                     :props {:label "Where"}}))]
             [box/h-box
              {:align    :center
               :gap      "4px"
@@ -774,32 +695,70 @@
                                        :props (merge child-args {:group child :depth (inc depth)})}))])}]))]
 
     [box/h-box
-     {:align    :start
-      :children [[box/v-box
-                  :class class
-                  :style (merge {:padding  0
-                                 :margin   "0px 0px"
-                                 :position "relative"}
-                                (when (and show-group-ui? (not is-root?))
-                                  {:padding          8
-                                   :background-color (if (odd? depth) "#f7f7f7" "white")
-                                   :border           "1px solid #e1e5e9"
-                                   :border-radius    "4px"})
-                                style)
-                  :attr attr
-                  :children [[box/v-box
-                              :gap "6px"
-                              :children (concat
-                                         (map-indexed child-part children)
-                                         [;[box/gap :size "4px"]
-                                          [add-filter-dropdown (merge child-args {:group-id (:id group-deref)})]])]]]
-                 (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
-                   [box/h-box
-                    :children [(part ::tf/context-menu
-                                 {:theme theme
-                                  :impl  group-context-menu
-                                  :props
-                                  (merge child-args {:group-id (:id group-deref)})})]])]}]))
+     {:align :start
+      :children
+      [[box/v-box
+        :class class
+        :style (merge {:padding  0
+                       :margin   "0px 0px"
+                       :position "relative"}
+                      (when (and show-group-ui? (not is-root?))
+                        {:padding          8
+                         :background-color (if (odd? depth) "#f7f7f7" "white")
+                         :border           "1px solid #e1e5e9"
+                         :border-radius    "4px"})
+                      style)
+        :attr attr
+        :children
+        [[box/v-box
+          :gap "6px"
+          :children
+          (concat
+           (map-indexed child-part children)
+           [;[box/gap :size "4px"]
+            (let [choices (cond-> [{:id :add-filter :label "Add a filter" :color "#374151"}]
+                            (< depth max-depth)
+                            (conj {:id :add-group :label "Add a filter group" :color "#374151"}))]
+              (part ::tf/add-button
+                {:theme theme
+                 :impl  dropdown/dropdown
+                 :props
+                 {:model     (r/atom nil)
+                  :disabled? disabled?
+                  :parts
+                  {:anchor [text/label
+                            {:label "+ Add filter"
+                             :style {:font-size "13px"
+                                     :color     "#46a2da"}}]
+                   :body   [context-menu-buttons
+                            {:choices choices
+                             :on-click
+                             (fn [choice-id]
+                               (let [make-item (case choice-id :add-filter empty-filter :add-group empty-group)]
+                                 (update-state! add-child-to-group group-id (make-item table-spec))))}]}}}))])]]]
+       (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
+         (let [{group-id :id} group-deref
+               choices        [{:id :delete :label "Delete group" :color "#dc2626"}]]
+           (part ::tf/context-menu
+             {:theme theme
+              :impl  dropdown/dropdown
+              :props
+              {:model     (r/atom nil)
+               :disabled? disabled?
+               :parts
+               {:anchor context-menu-anchor
+                :body   [context-menu-buttons
+                         {:choices choices
+                          :on-click
+                          (fn [choice-id]
+                            (when (= choice-id :delete)
+                              (update-state!
+                               (fn [state]
+                                     ;; Safety check: don't delete root group
+                                 (if (= (:id state) group-id)
+                                   state
+                                   (remove-item-with-cleanup
+                                    state group-id table-spec))))))}]}}})))]}]))
 
 (defn table-filter
   "Hierarchical table filter component with external state as single source of truth.

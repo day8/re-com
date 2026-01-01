@@ -7,6 +7,12 @@
    [re-com.theme.util :as tu :refer [merge-props]]
    [re-com.theme.default :refer [base main]]))
 
+(defmethod base ::dd/wrapper
+  [props]
+  (tu/style props
+            {:display  "inline-block"
+             :position "relative"}))
+
 (defmethod base ::dd/body-wrapper
   [{:keys [position top left anchor-top] :as props}]
   (tu/style props {:position   position
@@ -16,6 +22,36 @@
                    :overflow-y "auto"
                    :overflow-x "visible"
                    :z-index    30}))
+
+(defmethod main ::dd/body-wrapper
+  [{{:keys [from]} :re-com :as props}]
+  (let [{:keys [sm-2 sm-3 sm-6 shadow border background]} (-> props :re-com :variables)]
+    (tu/style props
+              {:background-color background
+               :border-radius    "4px"
+               :border           (str "thin solid " border)
+               :padding          sm-3
+               :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}
+              (case (last from)
+                ::tf/operator-button {:background-color "#ffffff"
+                                      :border           "1px solid #e1e5e9"
+                                      :border-radius    "8px"
+                                      :min-width        "200px"
+                                      :margin-top       "4px"
+                                      :padding          "8px 0"}
+                ::tf/context-menu    {:background-color "#ffffff"
+                                      :border           "1px solid #e1e5e9"
+                                      :border-radius    "8px"
+                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                      :min-width        "160px"
+                                      :margin-top       "4px"}
+                ::tf/add-button      {:background-color "#ffffff"
+                                      :border           "1px solid #e1e5e9"
+                                      :border-radius    "8px"
+                                      :box-shadow       "0 8px 16px rgba(0, 0, 0, 0.12)"
+                                      :min-width        "160px"
+                                      :margin-top       "4px"}
+                nil))))
 
 (defmethod base ::dd/anchor-wrapper
   [{{:keys          [state transition! from]
@@ -38,8 +74,12 @@
                    #_#_:width      "100%"
                    :z-index        (case (:openable state)
                                      :open 20 nil)}
-                  (when (= ::tf/operator-button (last from))
-                    {:cursor "pointer"})))))
+                  (case (last from)
+                    (::tf/operator-button
+                     ::tf/context-menu
+                     ::tf/add-button)
+                    {:cursor "pointer"}
+                    nil)))))
 
 (defmethod main ::dd/anchor-wrapper
   [{:as                props
@@ -69,17 +109,31 @@
                    :transition       "border 0.2s box-shadow 0.2s"}
                   (when disabled?
                     {:background-color "#EEE"})
-                  (when (= ::tf/operator-button (last from))
-                    {:font-size     "14px"
-                     :font-weight   "500"
-                     :color         "#6b7280"
-                     :margin-right  "0px"
-                     :margin-left   "0px"
-                     :border-radius "4px"
-                     :border        "1px solid #e2e8f0"
-                     :min-width     "50px"
-                     :height        "34px"
-                     :padding       "4px 4px"})))))
+                  (case  (last from)
+                    ::tf/operator-button {:font-size     "14px"
+                                          :font-weight   "500"
+                                          :color         "#6b7280"
+                                          :margin-right  "0px"
+                                          :margin-left   "0px"
+                                          :border-radius "4px"
+                                          :border        "1px solid #e2e8f0"
+                                          :min-width     "50px"
+                                          :height        "34px"
+                                          :padding       "4px 4px"}
+                    ::tf/context-menu    {:border        "none"
+                                          :background    "transparent"
+                                          :border-radius "4px"
+                                          :box-shadow    "none"
+                                          :height        "20px"}
+                    ::tf/add-button      {:font-size        "13px"
+                                          :padding          "2px 4px"
+                                          :font-weight      "500"
+                                          :border-radius    "8px"
+                                          :background-color "transparent"
+                                          :width            "75px"
+                                          :border           "none"
+                                          :box-shadow       "none"}
+                    nil)))))
 
 (defmethod base ::dd/backdrop
   [props]
@@ -99,29 +153,6 @@
              :opacity          (if (-> state :transitionable (= :in)) 0.1 0)
              :transition       "opacity 0.25s"}))
 
-(defmethod base ::dd/wrapper
-  [props]
-  (tu/style props
-            {:display  "inline-block"
-             :position "relative"}))
-
-(defmethod main ::dd/body-wrapper
-  [{{:keys [from]} :re-com :as props}]
-  (let [{:keys [sm-2 sm-3 sm-6 shadow border background]} (-> props :re-com :variables)]
-    (tu/style props
-              {:background-color background
-               :border-radius    "4px"
-               :border           (str "thin solid " border)
-               :padding          sm-3
-               :box-shadow       (str/join " " [sm-2 sm-2 sm-6 shadow])}
-              (when (= ::tf/operator-button (last from))
-                {:background-color "#ffffff"
-                 :border           "1px solid #e1e5e9"
-                 :border-radius    "8px"
-                 :min-width        "200px"
-                 :margin-top       "4px"
-                 :padding          "8px 0"}))))
-
 (defmethod main ::dd/body
   [props]
   (let [{:keys [foreground]} (-> props :re-com :variables)]
@@ -138,3 +169,12 @@
              :white-space   "nowrap"}
             (when (= :disabled (:enable state))
               {:background-color (:background-disabled $)})))
+
+(defmethod base ::dd/indicator
+  [{{:keys [from]} :re-com :as props}]
+  (tu/style props
+            (case (last from)
+              (::tf/context-menu
+               ::tf/add-button)
+              {:display "none"}
+              nil)))
