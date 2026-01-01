@@ -149,17 +149,13 @@
 
 (def hiccup? vector?)
 
-(defn descend [props k]
-  (update-in props [:re-com :from]
-             (fnil conj []) k))
+(def descend identity)
 
 (defn part
-  ([structure {{:keys [from]} :re-com :as props} k opts]
+  ([structure props k opts]
    (part (get-part structure props k)
-         (cond-> opts
-           :do  (assoc :part k)
-           from (assoc :from from))))
-  ([part-value {:keys   [impl key theme post-props props from]
+         (assoc opts :part k)))
+  ([part-value {:keys   [impl key theme post-props props]
                 part-id :part
                 :or     {impl default}}]
    (->
@@ -167,16 +163,15 @@
       (hiccup? part-value) part-value
       (string? part-value) part-value
       (number? part-value) (str part-value)
-      :else                (let [component (cond (map? part-value) impl
-                                                 (ifn? part-value) part-value
-                                                 :else             impl)
-                                 part-map  (when (map? part-value) part-value)
+      :else                (let [f        (cond (map? part-value) impl
+                                                (ifn? part-value) part-value
+                                                :else             impl)
+                                 part-map (when (map? part-value) part-value)
                                  props
                                  (cond-> {:part part-id}
                                    :do        (merge props)
-                                   from       (assoc-in [:re-com :from] from)
-                                   theme      (theme component)
+                                   theme      (theme f)
                                    part-map   (tu/merge-props part-map)
                                    post-props (tu/merge-props post-props))]
-                             [component props]))
+                             [f props]))
     (cond-> key (with-meta {:key key})))))
