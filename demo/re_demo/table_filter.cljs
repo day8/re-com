@@ -1,15 +1,15 @@
 (ns re-demo.table-filter
   (:require-macros
-   [re-com.core     :refer [handler-fn]])
+   [re-com.core :refer [handler-fn]])
   (:require
    [cljs.pprint]
-   [re-com.core     :as rc :refer [at button checkbox h-box input-text label p
-                                   p-span table-filter v-box]]
-   [re-com.slider   :refer [slider]]
+   [re-com.core :as rc :refer [at button checkbox h-box input-text label p
+                               p-span table-filter v-box]]
+   [re-com.slider :refer [slider]]
    [re-com.table-filter :refer [args-desc parts-desc]]
-   [re-demo.utils   :refer [args-table panel-title parts-table status-text
-                            title2 title3]]
-   [reagent.core    :as r]
+   [re-demo.utils :refer [args-table panel-title parts-table status-text
+                          title2 title3]]
+   [reagent.core :as r]
    [re-com.box :as box]))
 
 (def sample-table-spec
@@ -33,21 +33,21 @@
 
 (defn panel
   []
-  (let [filter-model (r/atom {:type :group,
-                              :logic :and,
-                              :children
-                              [{:type :filter, :col :age, :op :>=, :val "40"}
-                               {:type :filter, :col :active, :op :is, :val true}
-                               {:type :group,
-                                :logic :or,
-                                :children
-                                [{:type :filter, :col :department, :op :is, :val "engineering"}
-                                 {:type :filter,
-                                  :col :skills,
-                                  :op :is-any-of,
-                                  :val #{"clojure" "javascript" "python"}}]}]})
-        filter-valid? (r/atom true)
-        disabled-model (r/atom false)
+  (let [filter-model    (r/atom {:type  :group,
+                                 :logic :and,
+                                 :children
+                                 [{:type :filter, :col :age, :op :>=, :val "40"}
+                                  {:type :filter, :col :active, :op :is, :val true}
+                                  {:type  :group,
+                                   :logic :or,
+                                   :children
+                                   [{:type :filter, :col :department, :op :is, :val "engineering"}
+                                    {:type :filter,
+                                     :col  :skills,
+                                     :op   :is-any-of,
+                                     :val  #{"clojure" "javascript" "python"}}]}]})
+        filter-valid?   (r/atom true)
+        disabled-model  (r/atom false)
         max-depth-model (r/atom 2)]
     (fn []
       [v-box :src (at)
@@ -66,7 +66,7 @@
            [[title2 "Notes"]
             [status-text "Alpha" {:color "red"}]
             [p "Allows users to create hierarchical filter queries against tabular data. Think \"nested where clauses\" in SQL."
-               "Supports nested filter groups with AND/OR logic, configurable nesting depth, and real-time validation."]
+             "Supports nested filter groups with AND/OR logic, configurable nesting depth, and real-time validation."]
             [p "You provide a " [:code "table-spec"] " describing the tabular data to be filtered, and it will generate appropriate UI controls for each column type with appropriate operators:"]
             [:ul {:style {:margin-left "20px" :margin-bottom "15px"}}
              [:li [:strong "Text columns:"] " a text input together with operators like contains, starts with, ends with, is empty"]
@@ -122,8 +122,8 @@
                  [[button
                    :label "Clear Filters"
                    :class "btn-outline"
-                   :style {:font-size "13px" :color "#dc2626" :font-weight "500"
-                           :padding "8px 16px" :border "1px solid #dc2626"
+                   :style {:font-size     "13px"     :color  "#dc2626" :font-weight "500"
+                           :padding       "8px 16px" :border "1px solid #dc2626"
                            :border-radius "6px"}
                    :disabled? @disabled-model
                    :on-click #(reset! filter-model nil)]
@@ -150,40 +150,40 @@
                             (reset! filter-model model)
                             (reset! filter-valid? is-valid?))
                :style {:font-family "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                       :font-size "13px" :background-color "#f8fafc"}  ; Modern font and smaller size
+                       :font-size   "13px" :background-color "#f8fafc"}  ; Modern font and smaller size
                :parts {:filter {:style {:align-items "center" :background-color "transparent"}}  ; Only alignment, no background styling
 
-                       :column-dropdown {:style {:font-size "12px"
-                                                 :border "1px solid #bfdbfe"
-                                                 :border-radius "4px"
-                                                 :width "90px"}}
-                       :operator-dropdown {:style {:font-size "12px"
-                                                   :border "1px solid #bfdbfe"
+                       :column-dropdown   {:style {:font-size     "12px"
+                                                   :border        "1px solid #bfdbfe"
                                                    :border-radius "4px"
-                                                   :width "115px"}}
-                       :text-input {:style {:font-size "12px"
-                                            :border "1px solid #bfdbfe"
-                                            :border-radius "4px"
-                                            :background-color "#fafbff"}}
-                       :date-input {:style {:font-size "12px"}}
-                       :daterange-input {:style {:font-size "12px"
-                                                 :border "1px solid #bfdbfe"
-                                                 :border-radius "4px"
-                                                 :background-color "#fafbff"}}
-                       :dropdown-input {:style {:font-size "12px"
-                                                :border "1px solid #bfdbfe"
-                                                :border-radius "4px"
-                                                :background-color "#fafbff"
-                                                :width "115px"}}
-                       :where-label {:style {:color "#3b82f6"
-                                             :font-size "12px"}}
-                       :operator-button {:style {:font-size "12px"
-                                                 :background-color "#f1f5f9"
-                                                 :border "1px solid #cbd5e1"
-                                                 :color "#475569"
-                                                 :height "20px"
-                                                 :display "flex"}}
-                       :operator-text {:style {:font-size "12px"
-                                               :color "#64748b"}}}]
+                                                   :width         "90px"}}
+                       :operator-dropdown {:style {:font-size     "12px"
+                                                   :border        "1px solid #bfdbfe"
+                                                   :border-radius "4px"
+                                                   :width         "115px"}}
+                       :text-input        {:style {:font-size        "12px"
+                                                   :border           "1px solid #bfdbfe"
+                                                   :border-radius    "4px"
+                                                   :background-color "#fafbff"}}
+                       :date-input        {:style {:font-size "12px"}}
+                       :daterange-input   {:style {:font-size        "12px"
+                                                   :border           "1px solid #bfdbfe"
+                                                   :border-radius    "4px"
+                                                   :background-color "#fafbff"}}
+                       :dropdown-input    {:style {:font-size        "12px"
+                                                   :border           "1px solid #bfdbfe"
+                                                   :border-radius    "4px"
+                                                   :background-color "#fafbff"
+                                                   :width            "115px"}}
+                       :where-label       {:style {:color     "#3b82f6"
+                                                   :font-size "12px"}}
+                       :operator-button   {:style {:font-size        "12px"
+                                                   :background-color "#f1f5f9"
+                                                   :border           "1px solid #cbd5e1"
+                                                   :color            "#475569"
+                                                   :height           "20px"
+                                                   :display          "flex"}}
+                       :operator-text     {:style {:font-size "12px"
+                                                   :color     "#64748b"}}}]
               [box/gap :size "50px"]]]]]]]
         [parts-table "table-filter" parts-desc]]])))
