@@ -28,15 +28,42 @@
                :on-change #(swap! atom update-in [(keyword day)] not)]]])
 
 (defn holder []
-  (let [dropdown-model   (reagent/atom nil)     ;; TODO [GR-REMOVE] Align definitions (IntelliJ Ctrl+Alt+L, not sure what it is in VS Code)
-        model-atom       (reagent/atom nil)
-        today-model      (reagent/atom false)
-        disabled-model   (reagent/atom false)
-        weeks-model      (reagent/atom false)
-        interval-model   (reagent/atom false)
-        week-start-model (reagent/atom 2)
-        selected-days    (reagent/atom {:M true :Tu true :W true :Th true :Fr true :Sa true :Su true}) ;model for all checkboxes ;; TODO [GR-REMOVE] Haven't changed it but would prefer consistency of :Mo and :We
-        valid?           (fn [day] (nth (mapv val @selected-days) (dec (cljs-time/day-of-week day))))] ;convert to vector, check if day should be disabled
+  (let [dropdown-model     (reagent/atom nil)     ;; TODO [GR-REMOVE] Align definitions (IntelliJ Ctrl+Alt+L, not sure what it is in VS Code)
+        model-atom         (reagent/atom nil)
+        today-model        (reagent/atom false)
+        disabled-model     (reagent/atom false)
+        weeks-model        (reagent/atom false)
+        interval-model     (reagent/atom false)
+        custom-parts-model (reagent/atom false)
+        custom-theme-model (reagent/atom false)
+        week-start-model   (reagent/atom 2)
+        selected-days      (reagent/atom {:M true :Tu true :W true :Th true :Fr true :Sa true :Su true}) ;model for all checkboxes ;; TODO [GR-REMOVE] Haven't changed it but would prefer consistency of :Mo and :We
+        valid?             (fn [day] (nth (mapv val @selected-days) (dec (cljs-time/day-of-week day)))) ;convert to vector, check if day should be disabled
+        custom-theme       (fn [props]
+                             (if-not @custom-theme-model
+                               props
+                               (let [styles (case (:part props)
+                                              :re-com.daterange/border
+                                              {:border-color "#9C27B0"
+                                               :border-width "3px"
+                                               :box-shadow   "0 4px 12px rgba(156, 39, 176, 0.3)"}
+
+                                              :re-com.daterange/table
+                                              {:background-color "#F3E5F5"}
+
+                                              (:re-com.daterange/prev-year
+                                               :re-com.daterange/prev-month
+                                               :re-com.daterange/next-year
+                                               :re-com.daterange/next-month)
+                                              {:background-color "#CE93D8"
+                                               :border-radius    "8px"}
+
+                                              :re-com.daterange/date
+                                              {:color       "#7B1FA2"
+                                               :font-weight "600"}
+
+                                              nil)]
+                                 (update props :style merge styles))))]
     (fn []
       [v-box
        :gap "10px"
@@ -63,7 +90,23 @@
                                            :model model-atom
                                            :selectable-fn valid?
                                            :start-of-week @week-start-model
-                                           :on-change #(reset! model-atom %)]
+                                           :on-change #(reset! model-atom %)
+                                           :theme custom-theme
+                                           :parts (when @custom-parts-model
+                                                    {:border     {:style {:border-color "#4A90E2"
+                                                                          :border-width "3px"
+                                                                          :box-shadow   "0 2px 8px rgba(74, 144, 226, 0.2)"}}
+                                                     :table      {:style {:background-color "#F8F9FA"}}
+                                                     :prev-year  {:style {:background-color "#E3F2FD"
+                                                                          :border-radius    "4px"}}
+                                                     :prev-month {:style {:background-color "#E3F2FD"
+                                                                          :border-radius    "4px"}}
+                                                     :next-year  {:style {:background-color "#E3F2FD"
+                                                                          :border-radius    "4px"}}
+                                                     :next-month {:style {:background-color "#E3F2FD"
+                                                                          :border-radius    "4px"}}
+                                                     :date       {:style {:color       "#1976D2"
+                                                                          :font-weight "500"}}})]
 
                                           ;; TODO [GR-REMOVE] because this line is just text, it doesn't need Flexbox power. You'll see we often make use is simple [:span]s for text only
                                           [h-box
@@ -134,7 +177,16 @@
                                                       [checkbox
                                                        :model interval-model
                                                        :on-change #(swap! interval-model not)
-                                                       :label [box :child [:code "check-interval?"]]]]]
+                                                       :label [box :child [:code "check-interval?"]]]
+                                                      [gap :size "5px"]
+                                                      [checkbox
+                                                       :model custom-parts-model
+                                                       :on-change #(swap! custom-parts-model not)
+                                                       :label [box :child [:code ":parts (custom styling)"]]]
+                                                      [checkbox
+                                                       :model custom-theme-model
+                                                       :on-change #(swap! custom-theme-model not)
+                                                       :label [box :child [:code ":theme (custom styling)"]]]]]
                                           [v-box
                                            :align :start
                                            :gap "10px"

@@ -1,17 +1,23 @@
 (ns re-com.daterange
   (:require-macros
-   [re-com.core       :refer [handler-fn at reflect-current-component]])
+   [re-com.core       :refer [handler-fn at reflect-current-component]]
+   [re-com.validate   :refer [validate-args-macro]])
   (:require
+   re-com.daterange.theme
    [reagent.core      :as r]
    [re-com.dropdown   :as dd]
+   [re-com.args       :as args]
    [re-com.config     :refer [include-args-desc?]]
-   [re-com.box        :refer [line border v-box h-box box flex-child-style]]
-   [re-com.validate   :refer [date-like? css-style? css-class? html-attr? parts?] :refer-macros [validate-args-macro]]
+   [re-com.box        :refer [line border v-box h-box box]]
+   [re-com.daterange  :as-alias dr]
+   [re-com.debug      :as debug]
+   [re-com.part       :as part]
    [re-com.theme      :as theme]
+   [re-com.theme.util :as tu]
+   [re-com.validate   :refer [date-like?]]
    [re-com.util       :refer [deref-or-value now->utc]]
-   [cljs-time.format  :refer [parse unparse formatter]]
-   [cljs-time.core    :as cljs-time]
-   [goog.string       :refer [format]])
+   [cljs-time.format  :refer [unparse formatter]]
+   [cljs-time.core    :as cljs-time])
   (:import
    [goog.i18n DateTimeFormat]))
 
@@ -33,178 +39,113 @@
          str)
     (unparse (formatter "MMMM") date)))
 
-;;button icon svg's
-(defn- prev-month-icon
-  [parts]
-  [:svg
-   (merge {:class   (str "rc-daterange-nav-icon" (get-in parts [:prev-month-icon :class]))
-           :style   (get-in parts [:prev-month-icon :style])
-           :viewBox "0 0 24 24"}
-          (get-in parts [:prev-month-icon :attr]))
-   [:path {:d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]])
-
-(defn- prev-year-icon
-  [parts]
-  [:svg
-   (merge {:class   (str "rc-daterange-nav-icon" (get-in parts [:prev-month-icon :class]))
-           :style   (get-in parts [:prev-month-icon :style])
-           :viewBox "0 0 24 24"}
-          (get-in parts [:prev-year-icon :attr]))
-   [:g
-    {:transform "translate(1.5)"}
-    [:path {:d "m 16.793529,7.4382353 -1.41,-1.41 -5.9999996,5.9999997 5.9999996,6 1.41,-1.41 -4.58,-4.59 z"}]
-    [:path {:d "m 10.862647,7.4429412 -1.4100003,-1.41 -6,5.9999998 6,6 1.4100003,-1.41 -4.5800003,-4.59 z"}]]])
-
-(defn- next-month-icon
-  [parts]
-  [:svg
-   (merge {:class   (str "rc-daterange-nav-icon" (get-in parts [:prev-month-icon :class]))
-           :style   (get-in parts [:prev-month-icon :style])
-           :viewBox "0 0 24 24"}
-          (get-in parts [:next-month-icon :attr]))
-   [:path {:d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]])
-
-(defn- next-year-icon
-  [parts]
-  [:svg
-   (merge {:class   (str "rc-daterange-nav-icon" (get-in parts [:prev-month-icon :class]))
-           :style   (get-in parts [:prev-month-icon :style])
-           :viewBox "0 0 24 24"}
-          (get-in parts [:next-year-icon :attr]))
-   [:g
-    {:transform "translate(-1.5)"}
-    [:path {:d "m 8.5882353,6 -1.41,1.41 4.5799997,4.59 -4.5799997,4.59 1.41,1.41 5.9999997,-6 z"}]
-    [:path {:d "m 14.547353,5.9623529 -1.41,1.41 4.58,4.5900001 -4.58,4.59 1.41,1.41 6,-6 z"}]]])
-
-;;boxes containing icons, attr's should be added at this level
-(defn- prev-year-nav [current-month-atom parts]
+(defn- prev-year-nav [current-month-atom part theme re-com-ctx]
   (let [prev-year (dec-year (deref-or-value current-month-atom))]
-    [box :src (at)
-     :class (theme/merge-class "rc-daterange-nav-button"
-                               (get-in parts [:prev-year :class]))
-     :style (get-in parts [:prev-year :style])
-     :attr (merge
-            {:on-click #(reset! current-month-atom prev-year)}
-            (get-in parts [:prev-year :attr]))
-     :child [prev-year-icon parts]]))
+    (part ::dr/prev-year
+      {:impl  box
+       :theme theme
+       :props {:re-com re-com-ctx
+               :attr   {:on-click (handler-fn (reset! current-month-atom prev-year))}
+               :child  (part ::dr/prev-year-icon
+                         {:theme theme
+                          :props {:re-com   re-com-ctx
+                                  :tag      :svg
+                                  :attr     {:viewBox "0 0 24 24"}
+                                  :children [[:g
+                                              {:transform "translate(1.5)"}
+                                              [:path {:d "m 16.793529,7.4382353 -1.41,-1.41 -5.9999996,5.9999997 5.9999996,6 1.41,-1.41 -4.58,-4.59 z"}]
+                                              [:path {:d "m 10.862647,7.4429412 -1.4100003,-1.41 -6,5.9999998 6,6 1.4100003,-1.41 -4.5800003,-4.59 z"}]]]}})}})))
 
-(defn- prev-month-nav [current-month-atom parts]
+(defn- prev-month-nav [current-month-atom part theme re-com-ctx]
   (let [prev-month (dec-month (deref-or-value current-month-atom))]
-    [box :src (at)
-     :class (theme/merge-class "rc-daterange-nav-button"
-                               (get-in parts [:prev-month :class]))
-     :style (get-in parts [:prev-month :style])
-     :attr (merge
-            {:on-click #(reset! current-month-atom prev-month)}
-            (get-in parts [:prev-month :attr]))
-     :child [prev-month-icon parts]]))
+    (part ::dr/prev-month
+      {:impl  box
+       :theme theme
+       :props {:re-com re-com-ctx
+               :attr   {:on-click (handler-fn (reset! current-month-atom prev-month))}
+               :child  (part ::dr/prev-month-icon
+                         {:theme theme
+                          :props {:re-com   re-com-ctx
+                                  :tag      :svg
+                                  :attr     {:viewBox "0 0 24 24"}
+                                  :children [[:path {:d "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]]}})}})))
 
-(defn- next-year-nav [current-month-atom parts]
+(defn- next-year-nav [current-month-atom part theme re-com-ctx]
   (let [next-year (plus-year (deref-or-value current-month-atom))]
-    [box :src (at)
-     :class (theme/merge-class "rc-daterange-nav-button"
-                               (get-in parts [:next-year :class]))
-     :style (get-in parts [:next-year :style])
-     :attr (merge
-            {:on-click #(reset! current-month-atom next-year)}
-            (get-in parts [:next-year :attr]))
-     :child [next-year-icon parts]]))
+    (part ::dr/next-year
+      {:impl  box
+       :theme theme
+       :props {:re-com re-com-ctx
+               :attr   {:on-click (handler-fn (reset! current-month-atom next-year))}
+               :child  (part ::dr/next-year-icon
+                         {:theme theme
+                          :props {:re-com   re-com-ctx
+                                  :tag      :svg
+                                  :attr     {:viewBox "0 0 24 24"}
+                                  :children [[:g
+                                              {:transform "translate(-1.5)"}
+                                              [:path {:d "m 8.5882353,6 -1.41,1.41 4.5799997,4.59 -4.5799997,4.59 1.41,1.41 5.9999997,-6 z"}]
+                                              [:path {:d "m 14.547353,5.9623529 -1.41,1.41 4.58,4.5900001 -4.58,4.59 1.41,1.41 6,-6 z"}]]]}})}})))
 
-(defn- next-month-nav [current-month-atom parts]
+(defn- next-month-nav [current-month-atom part theme re-com-ctx]
   (let [next-month (plus-month (deref-or-value current-month-atom))]
-    [box :src (at)
-     :class (theme/merge-class "rc-daterange-nav-button"
-                               (get-in parts [:next-month :class]))
-     :style (get-in parts [:next-month :stlye])
-     :attr (merge
-            {:on-click #(reset! current-month-atom next-month)}
-            (get-in parts [:next-month :attr]))
-     :child [next-month-icon parts]]))
+    (part ::dr/next-month
+      {:impl  box
+       :theme theme
+       :props {:re-com re-com-ctx
+               :attr   {:on-click (handler-fn (reset! current-month-atom next-month))}
+               :child  (part ::dr/next-month-icon
+                         {:theme theme
+                          :props {:re-com   re-com-ctx
+                                  :tag      :svg
+                                  :attr     {:viewBox "0 0 24 24"}
+                                  :children [[:path {:d "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]]}})}})))
 
-(defn- prev-nav [current-month-atom parts i18n]
-  [h-box :src (at)
-   :align-self :stretch
-   :class (theme/merge-class "rc-daterange-prev-nav"
-                             (get-in parts [:prev-nav :class]))
-   :style (get-in parts [:prev-nav :style])
-   :attr (get-in parts [:prev-nav :attr])
-   :children [[prev-year-nav current-month-atom parts]
+(defn- prev-nav [current-month-atom part theme re-com-ctx i18n]
+  (part ::dr/prev-nav
+    {:impl  h-box
+     :theme theme
+     :props {:re-com re-com-ctx
+             :children
+             [(prev-year-nav current-month-atom part theme re-com-ctx)
               [line]
-              [prev-month-nav current-month-atom parts]
+              (prev-month-nav current-month-atom part theme re-com-ctx)
               [h-box
                :size "auto"
                :justify :center
-               :children [[box
-                           :src (at)
-                           :class (theme/merge-class "rc-daterange-month-title"
-                                                     (get-in parts [:month-title :class]))
-                           :style (get-in parts [:month-title :style])
-                           :attr (get-in parts [:month-title :attr])
-                           :child (month-label (deref-or-value current-month-atom) i18n)]]]
-              [box
-               :align-self :end
-               :justify :end
-               :width "49px"
-               :class (theme/merge-class  "rc-daterange-year-title"
-                                          (get-in parts [:year-title :class]))
-               :style (get-in parts [:year-title :style])
-               :attr (get-in parts [:year-title :attr])
-               :child (str (unparse (formatter "YYYY") (deref-or-value current-month-atom)))]]])
+               :children [(part ::dr/month-title
+                            {:impl  box
+                             :theme theme
+                             :props {:re-com re-com-ctx
+                                     :child  (month-label (deref-or-value current-month-atom) i18n)}})]]
+              (part ::dr/year-title
+                {:impl  box
+                 :theme theme
+                 :props {:re-com re-com-ctx
+                         :child   (str (unparse (formatter "YYYY") (deref-or-value current-month-atom)))}})]}}))
 
-(defn- next-nav [current-month-atom parts i18n]
-  [h-box :src (at)
-   :align-self :stretch
-   :class (theme/merge-class "rc-daterange-next-nav"
-                             (get-in parts [:next-nav :class]))
-   :style (get-in parts [:next-nav :style])
-   :attr (get-in parts [:next-nav :attr])
-   :children [[box
-               :align-self :end
-               :justify :start
-               :width "49px"
-               :class (theme/merge-class "rc-daterange-year-title"
-                                         (get-in parts [:year-title :class]))
-               :style (get-in parts [:year-title :style])
-               :attr (get-in parts [:year-title :attr])
-               :child (str (unparse (formatter "YYYY") (plus-month (deref-or-value current-month-atom))))]
+(defn- next-nav [current-month-atom part theme re-com-ctx i18n]
+  (part ::dr/next-nav
+    {:impl  h-box
+     :theme theme
+     :props {:re-com re-com-ctx
+             :children
+             [(part ::dr/year-title
+                {:impl  box
+                 :theme theme
+                 :props {:re-com re-com-ctx
+                         :child   (str (unparse (formatter "YYYY") (plus-month (deref-or-value current-month-atom))))}})
               [h-box
                :size "auto"
                :justify :center
-               :children [[box
-                           :src (at)
-                           :class (theme/merge-class "rc-daterange-month-title"
-                                                     (get-in parts [:month-title :class]))
-                           :style (get-in parts [:month-title :style])
-                           :attr (get-in parts [:month-title :attr])
-                           :child (month-label (plus-month (deref-or-value current-month-atom)) i18n)]]]
-              [next-month-nav current-month-atom parts]
+               :children [(part ::dr/month-title
+                            {:impl  box
+                             :theme theme
+                             :props {:re-com re-com-ctx
+                                     :child  (month-label (plus-month (deref-or-value current-month-atom)) i18n)}})]]
+              (next-month-nav current-month-atom part theme re-com-ctx)
               [line]
-              [next-year-nav current-month-atom parts]]])
-
-(defn- main-div-with
-  "Main container to pass: class, style and attributes"
-  [{:keys [child hide-border? class style attr parts src debug-as]}]
-  [h-box
-   :src src
-   :debug-as debug-as
-   :class "rc-daterange-wrapper"
-   :children [[border
-               :src (at)
-               :class (theme/merge-class "rc-daterange-border"
-                                         "noselect"
-                                         (get-in parts [:border :class]))
-               :style (get-in parts [:border :style])
-               :attr (get-in parts [:border :attr])
-               :radius "5px"
-               :size "none"
-               :border (when hide-border? "none")
-               :child [:div
-                       (merge {:class class
-                               :style (merge {:font-size "13px"
-                                              :position "static"}
-                                             style)}
-                              attr)
-                       child]]]])
+              (next-year-nav current-month-atom part theme re-com-ctx)]}}))
 
 (defn- date-disabled?
   "Checks various things to see if a date had been disabled."
@@ -274,19 +215,20 @@
 
 (defn- create-day-td
   "Create table data elements with reactive classes and on click/hover handlers"
-  [day [fsm start-date end-date temp-end] {:keys [on-change disabled? selectable-fn minimum maximum show-today? check-interval? parts] :as args}]
+  [day [fsm start-date end-date temp-end] part theme re-com-ctx {:keys [on-change disabled? selectable-fn minimum maximum show-today? check-interval?]}]
   (let [disabled-data (vector minimum maximum disabled? selectable-fn)]
     (if (= day "")
       [:td ""]
       (let [correct-class (class-for-td fsm day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?)
             clickable?    (not (date-disabled? day disabled-data))]
-        (into [:td]
-              (vector (merge {:class          (str "rc-daterange-td-basic " correct-class (get-in parts [:date :class]))
-                              :style          (get-in parts [:date :style])
-                              :on-click       #(when clickable? (td-click-handler day [fsm start-date end-date] on-change check-interval? disabled-data))
-                              :on-mouse-enter #(reset! temp-end day)}
-                             (get-in parts [:date :attr]))
-                      (str (cljs-time/day day))))))))
+        (part ::dr/date
+          {:theme      theme
+           :props      {:tag      :td
+                        :re-com   re-com-ctx
+                        :attr     {:on-click       (handler-fn (when clickable? (td-click-handler day [fsm start-date end-date] on-change check-interval? disabled-data)))
+                                   :on-mouse-enter (handler-fn (reset! temp-end day))}
+                        :children [(str (cljs-time/day day))]}
+           :post-props {:class correct-class}})))))
 
 (defn week-td [week-number]
   [:td {:class (theme/merge-class "daterange-td-basic"
@@ -298,11 +240,11 @@
 
 (defn- create-week-tr
   "Given a list of days, create a table row with each :td referring to a different day"
-  [days-list atoms {:keys [show-weeks?] :as args}]
+  [days-list atoms part theme re-com-ctx {:keys [show-weeks?] :as args}]
   (let [week-of-year (week-of-year-calc days-list)]
     (into (if show-weeks? [:tr (week-td week-of-year)] [:tr])
           (for [day days-list]
-            [create-day-td day atoms args]))))
+            [create-day-td day atoms part theme re-com-ctx args]))))
 
 (defn- empty-days-count
   "Returns the number of empty date tiles at the start of the month based on the first day of the month and the chosen week start day, monday = 1 sunday = 7"
@@ -329,37 +271,29 @@
 
     (partition-all 7 with-lead-emptys))) ;; split into lists of 7 to be passed to create-week-tr
 
-(def days-vec [[:td "M"] [:td "Tu"] [:td "W"] [:td "Th"] [:td "F"] [:td "Sa"] [:td "Su"]])
+(def days ["M" "Tu" "W" "Th" "F" "Sa" "Su"])
 
 (defn- create-table
-  "Given the result from days-for-month for a given month, create the :tbody using the relevant :tr and :td functions above"
-  [date atoms {:keys [start-of-week i18n parts show-weeks?] :as args}]
-  (let [into-tr            (if show-weeks? [:tr [:td]] [:tr])
-        days-of-week       (if (:days i18n)
-                             (map (fn [new-day [td _]] [td new-day]) (:days i18n) days-vec)
-                             days-vec)
-        add-parts          (fn [[td day-string]]
-                             (vector td
-                                     (merge {:class (theme/merge-class "daterange-day-title"
-                                                                       (get-in parts [:day-title :class]))
-                                             :style (get-in parts [:day-title :style])}
-                                            (get-in parts [:day-title :attr]))
-                                     day-string))
-        with-parts         (map #(add-parts %) days-of-week)
-        table-row-weekdays (into into-tr (take 7 (drop (dec start-of-week) (cycle with-parts))))
-
-        partitioned-days   (days-for-month date start-of-week)
-        date-rows          (for [x partitioned-days]
-                             [create-week-tr x atoms args])
-
-        with-weekdays-row  (into [:tbody table-row-weekdays])
-        with-dates         (into with-weekdays-row date-rows)]
-    [:table
-     (merge {:class (theme/merge-class "rc-daterange-table"
-                                       (get-in parts [:table :class]))
-             :style (get-in parts [:table :style])}
-            (get-in parts [:table :attr]))
-     with-dates]))
+  "Given the result from days-for-month for a given month, create the :tbody
+  using the relevant :tr and :td functions above"
+  [date atoms part theme re-com-ctx side {:keys [start-of-week i18n show-weeks?] :as args}]
+  (let [table-ctx  (assoc-in re-com-ctx [:state :side] side)
+        day-td     (fn [day-string]
+                     (part ::dr/day-title
+                       {:theme theme
+                        :props {:tag      :td
+                                :re-com   table-ctx
+                                :children [day-string]}}))
+        weekday-row (into (if show-weeks? [:tr [:td]] [:tr])
+                          (map day-td (take 7 (drop (dec start-of-week)
+                                                    (cycle (:days i18n days))))))
+        date-rows   (for [days (days-for-month date start-of-week)]
+                      [create-week-tr days atoms part theme table-ctx args])]
+    (part ::dr/table
+      {:theme theme
+       :props {:tag      :table
+               :re-com   table-ctx
+               :children [(into [:tbody weekday-row] date-rows)]}})))
 
 (defn- model-changed?
   "takes two date ranges and checks if they are different"
@@ -375,289 +309,188 @@
   (and (date-like? start) (date-like? end))
   true)
 
-;for validation and demo
+(def part-structure
+  [::dr/wrapper {:impl 're-com.box/h-box}
+   [::dr/border {:impl 're-com.box/border}
+    [::dr/container {:impl 're-com.box/h-box}
+     [::dr/left-panel {:impl 're-com.box/v-box}
+      [::dr/prev-nav {:impl 're-com.box/h-box}
+       [::dr/prev-year {:impl 're-com.box/box}
+        [::dr/prev-year-icon {:tag :svg}]]
+       [::dr/prev-month {:impl 're-com.box/box}
+        [::dr/prev-month-icon {:tag :svg}]]
+       [::dr/month-title {:impl 're-com.box/box}]
+       [::dr/year-title {:impl 're-com.box/box}]]
+      [::dr/table {:tag :table}
+       [::dr/day-title {:tag :td}]
+       [::dr/date {:tag :td}]]]
+     [::dr/right-panel {:impl 're-com.box/v-box}
+      [::dr/next-nav {:impl 're-com.box/h-box}
+       [::dr/year-title {:impl 're-com.box/box}]
+       [::dr/month-title {:impl 're-com.box/box}]
+       [::dr/next-month {:impl 're-com.box/box}
+        [::dr/next-month-icon {:tag :svg}]]
+       [::dr/next-year {:impl 're-com.box/box}
+        [::dr/next-year-icon {:tag :svg}]]]
+      [::dr/table]]]]])
+
 (def daterange-parts-desc
   (when include-args-desc?
-    [{:class "rc-daterange-wrapper",
-      :impl "[date-range]",
-      :level 0,
-      :name :wrapper,
-      :notes "Outer wrapper of the date-range picker."} ;seems this isn't a used
-                                        ;accessor, even in
-                                        ;datepicker?
-     {:class "rc-daterange-border",
-      :impl "[border]",
-      :level 1,
-      :name :border,
-      :notes "The border."}
-     {:class "rc-daterange",
-      :impl "[:div]",
-      :level 2,
-      :name-label "-",
-      :notes "The daterange container.",
-      :type :legacy}
-     {:impl "[h-box]",
-      :level 3,
-      :name-label "-",
-      :notes "To display hozitonally.",
-      :type :legacy}
-     {:impl "[v-box]",
-      :level 4,
-      :name-label "-",
-      :notes "To contain the left side of the display.",
-      :type :legacy}
-     {:class "rc-daterange-prev-nav",
-      :impl "[h-box]",
-      :level 5,
-      :name :prev-nav,
-      :notes "Contains navigation buttons and month/year."}
-     {:class "rc-daterange-nav-button",
-      :impl "[box]",
-      :level 6,
-      :name :prev-year,
-      :notes "Previous year button."}
-     {:class "rc-daterange-nav-icon",
-      :impl "[:svg]",
-      :level 7,
-      :name :prev-year-icon,
-      :notes "Previous year icon."}
-     {:class "rc-daterange-nav-button",
-      :impl "[box]",
-      :level 6,
-      :name :prev-month,
-      :notes "Previous month button."}
-     {:class "rc-daterange-nav-icon",
-      :impl "[:svg]",
-      :level 7,
-      :name :prev-month-icon,
-      :notes "Previous month icon."}
-     {:class "rc-daterange-month-title",
-      :impl "[box]",
-      :level 6,
-      :name :month-title,
-      :notes "Month title for both sides."}
-     {:class "rc-daterange-year-title",
-      :impl "[box]",
-      :level 6,
-      :name :year-title,
-      :notes "Year title for both sides."}
-     {:class "rc-daterange-table",
-      :impl "[:table]",
-      :level 5,
-      :name :table,
-      :notes "Table."}
-     {:impl "[:tr]",
-      :level 6,
-      :name-label "-",
-      :notes "Row containing day titles.",
-      :type :legacy}
-     {:class "rc-daterange-day-title",
-      :impl "[:td]",
-      :level 7,
-      :name :day-title,
-      :notes "Titles for columns, days of the week"}
-     {:class "rc-daterange-td-basic",
-      :impl "[:td]",
-      :level 7,
-      :name :date,
-      :notes "The date tiles populating the table."}
-     {:impl "[v-box]",
-      :level 4,
-      :name-label "-",
-      :notes "To contain the right side of the display.",
-      :type :legacy}
-     {:class "rc-daterange-next-nav",
-      :impl "[h-box]",
-      :level 5,
-      :name :next-nav,
-      :notes "Contains navigation buttons and month/year."}
-     {:class "rc-daterange-nav-button",
-      :impl "[box]",
-      :level 6,
-      :name :next-month,
-      :notes "Next month button."}
-     {:class "rc-daterange-nav-icon",
-      :impl "[:svg]",
-      :level 7,
-      :name :next-month-icon,
-      :notes "Next month icon."}
-     {:class "rc-daterange-nav-button",
-      :impl "[:box]",
-      :level 6,
-      :name :next-year,
-      :notes "Next year button."}
-     {:class "rc-daterange-nav-icon",
-      :impl "[:svg]",
-      :level 7,
-      :name :next-year-icon,
-      :notes "Next year icon."}]))
+    (part/describe part-structure)))
 
 (def daterange-parts
   (when include-args-desc?
-    (set (map :name daterange-parts-desc))))
+    (-> (map :name daterange-parts-desc) set)))
 
 (def daterange-args-desc
-  "used to validate the arguments supplied by the user"
   (when include-args-desc?
-    [{:name :model,
-      :required false,
-      :type "map with keys :start, :end | r/atom",
-      :validate-fn model?,
-      :description
-      "the selected date range. Only updates after a selection has been completed. A closed (inclusive) interval. A map containing :start and :end whose values must both satisfy DateTimeProtocol. Nil is also acceptable if you want to start with nothing selected"}
-     {:name :on-change,
-      :required true,
-      :type "satisfies DateTimeProtocol -> nil",
-      :validate-fn fn?,
-      :description "called when a new complete selection has been made"}
-     {:name :disabled?,
-      :required false,
-      :default false,
-      :type "boolean | atom",
-      :description "when true, the user can't select dates but can navigate"}
-     {:name :initial-display,
-      :required false,
-      :type "satisfies DateTimeProtocol | r/atom",
-      :validate-fn date-like?,
-      :description
-      "set the months shown when no model is selected, defaults to the current month"}
-     {:name :selectable-fn,
-      :required false,
-      :type "function",
-      :validate-fn fn?,
-      :description
-      "called on each date, if it returns false, that date is not selectable"}
-     {:name :show-today?,
-      :required false,
-      :default false,
-      :type "boolean",
-      :description "when true, todays date is highlighted"}
-     {:name :minimum,
-      :required false,
-      :type "satisfies DateTimeProtocol | r/atom",
-      :validate-fn date-like?,
-      :description "no selection before this date"}
-     {:name :maximum,
-      :required false,
-      :type "satisfies DateTimeProtocol | r/atom",
-      :validate-fn date-like?,
-      :description "no selection after this date"}
-     {:name :check-interval?,
-      :required false,
-      :default false,
-      :type "boolean",
-      :description
-      "if true, the user cannot select ranges which contain disabled days. If false, ranges spanning deselected or disabled dates are valid"}
-     {:name :start-of-week,
-      :required false,
-      :default 1,
-      :type "int",
-      :validate-fn int?,
-      :description
-      "choose left most column of the table, 1 = monday ... 7 = sunday"}
-     {:name :show-weeks?,
-      :required false,
-      :default false,
-      :type "boolean",
-      :description "when true, week numbers are shown to the left"}
-     {:name :hide-border?,
-      :required false,
-      :type "boolean",
-      :description "when true, the border is not displayed"}
-     {:name :i18n,
-      :required false,
-      :type "map",
-      :validate-fn map?,
-      :description
-      "internationalization map with optional keys :days and :months (both vectors of strings)"}
-     {:name :class,
-      :required false,
-      :type "string",
-      :validate-fn css-class?,
-      :description
-      "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
-     {:name :style,
-      :required false,
-      :type "CSS style map",
-      :validate-fn css-style?,
-      :description
-      "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
-     {:name :attr,
-      :required false,
-      :type "HTML attribute map",
-      :validate-fn html-attr?,
-      :description
-      "HTML attributes, like :on-mouse-move, No :class or :style allowed (applies to the outer border div, not the wrapping div)"}
-     {:name :parts,
-      :required false,
-      :type "map",
-      :validate-fn (parts? daterange-parts),
-      :description "See Parts section below."}
-     {:name :theme,
-      :required false,
-      :description "alpha"}
-     {:name :src,
-      :required false,
-      :type "map",
-      :validate-fn map?,
-      :description
-      [:span
-       "Used in dev builds to assist with debugging. Source code coordinates map containing keys"
-       [:code ":file"] "and" [:code ":line"] ". See 'Debugging'."]}
-     {:name :debug-as,
-      :required false,
-      :type "map",
-      :validate-fn map?,
-      :description
-      [:span
-       "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys"
-       [:code ":component"] "and" [:code ":args"] "."]}]))
+    (into
+     [{:name :model
+       :required false
+       :type "map with keys :start, :end | r/atom"
+       :validate-fn model?
+       :description "the selected date range. Only updates after a selection has been completed. A closed (inclusive) interval. A map containing :start and :end whose values must both satisfy DateTimeProtocol. Nil is also acceptable if you want to start with nothing selected"}
+      {:name :on-change
+       :required true
+       :type "satisfies DateTimeProtocol -> nil"
+       :validate-fn fn?
+       :description "called when a new complete selection has been made"}
+      {:name :disabled?
+       :required false
+       :default false
+       :type "boolean | atom"
+       :description "when true, the user can't select dates but can navigate"}
+      {:name :initial-display
+       :required false
+       :type "satisfies DateTimeProtocol | r/atom"
+       :validate-fn date-like?
+       :description "set the months shown when no model is selected, defaults to the current month"}
+      {:name :selectable-fn
+       :required false
+       :type "function"
+       :validate-fn fn?
+       :description "called on each date, if it returns false, that date is not selectable"}
+      {:name :show-today?
+       :required false
+       :default false
+       :type "boolean"
+       :description "when true, todays date is highlighted"}
+      {:name :minimum
+       :required false
+       :type "satisfies DateTimeProtocol | r/atom"
+       :validate-fn date-like?
+       :description "no selection before this date"}
+      {:name :maximum
+       :required false
+       :type "satisfies DateTimeProtocol | r/atom"
+       :validate-fn date-like?
+       :description "no selection after this date"}
+      {:name :check-interval?
+       :required false
+       :default false
+       :type "boolean"
+       :description "if true, the user cannot select ranges which contain disabled days. If false, ranges spanning deselected or disabled dates are valid"}
+      {:name :start-of-week
+       :required false
+       :default 1
+       :type "int"
+       :validate-fn int?
+       :description "choose left most column of the table, 1 = monday ... 7 = sunday"}
+      {:name :show-weeks?
+       :required false
+       :default false
+       :type "boolean"
+       :description "when true, week numbers are shown to the left"}
+      {:name :hide-border?
+       :required false
+       :type "boolean"
+       :description "when true, the border is not displayed"}
+      {:name :i18n
+       :required false
+       :type "map"
+       :validate-fn map?
+       :description "internationalization map with optional keys :days and :months (both vectors of strings)"}
+      args/class
+      args/style
+      args/attr
+      (args/parts daterange-parts)
+      args/src
+      args/debug-as]
+     (concat
+      theme/args-desc
+      (part/describe-args part-structure)))))
 
 (defn daterange
   "Tracks the external model, but takes inputs into an internal model. The given on-change function is only called after a full selection has been made"
-  [& {:keys [model initial-display] :as args}]
+  [& {:keys [model initial-display pre-theme theme] :as args}]
   (or
    (validate-args-macro daterange-args-desc args)
-   (let [current-month (r/atom (or (deref-or-value initial-display)
-                                   (:start (deref-or-value model))
-                                   (now->utc)))
-         fsm           (r/atom "pick-start")
-         start-date    (r/atom (:start (deref-or-value model)))
-         end-date      (r/atom (:end (deref-or-value model)))
-         temp-end      (r/atom (or @end-date (now->utc)))]                 ;for :on-hover css functionality
+   (let [composed-theme (theme/comp pre-theme theme)
+         current-month  (r/atom (or (deref-or-value initial-display)
+                                    (:start (deref-or-value model))
+                                    (now->utc)))
+         fsm            (r/atom "pick-start")
+         start-date     (r/atom (:start (deref-or-value model)))
+         end-date       (r/atom (:end (deref-or-value model)))
+         temp-end       (r/atom (or @end-date (now->utc)))]
      (fn render-fn
-       [& {:keys [model hide-border? i18n class style attr parts src debug-as] :as args}]
+       [& {:keys [model hide-border? i18n] :as args}]
        (or
-        (validate-args-macro daterange-args-desc args) ;re validate args each time they change
+        (validate-args-macro daterange-args-desc args)
         (let [latest-external-model   (deref-or-value model)
-              internal-model-refernce {:start @start-date :end @end-date}]
-          (when (and (model-changed? latest-external-model internal-model-refernce) (= @fsm "pick-start"))
-            (reset! start-date (:start latest-external-model))
-            (reset! end-date (:end latest-external-model)))
-          [main-div-with
-           {:child
-            [h-box :src (at)
-             :gap "60px"
-             :padding "15px"
-             :children [[v-box :src (at)
-                         :gap "10px"
-                         :children [[prev-nav current-month parts i18n]
-                                    [create-table @current-month [fsm start-date end-date temp-end] args]]]
-                        [v-box :src (at)
-                         :gap "10px"
-                         :children [[next-nav current-month parts i18n]
-                                    [create-table (plus-month @current-month) [fsm start-date end-date temp-end] args]]]]]
-            :hide-border? hide-border?
-            :class        class
-            :style        style
-            :attr         attr
-            :parts        parts
-            :src          src
-            :debug-as     (or debug-as (reflect-current-component))}]))))))
+              internal-model-refernce {:start @start-date :end @end-date}
+              _                       (when (and (model-changed? latest-external-model internal-model-refernce)
+                                                 (= @fsm "pick-start"))
+                                        (reset! start-date (:start latest-external-model))
+                                        (reset! end-date (:end latest-external-model)))
+              part                    (partial part/part part-structure args)
+              re-com-ctx              {:state {:hide-border? (deref-or-value hide-border?)}}]
+          (part ::dr/wrapper
+            {:impl       h-box
+             :theme      composed-theme
+             :post-props (-> (select-keys args [:src :debug-as])
+                             (update :debug-as #(or % (reflect-current-component)))
+                             (debug/instrument args))
+             :props
+             {:re-com re-com-ctx
+              :children
+              [(part ::dr/border
+                 {:impl  border
+                  :theme composed-theme
+                  :props
+                  {:re-com re-com-ctx
+                   :child
+                   (part ::dr/container
+                     {:impl       h-box
+                      :theme      composed-theme
+                      :post-props (-> (select-keys args [:class :style :attr])
+                                      (tu/style {:font-size "13px"
+                                                 :position  "static"}))
+                      :props
+                      {:re-com re-com-ctx
+                       :children
+                       [(part ::dr/left-panel
+                          {:impl  v-box
+                           :theme composed-theme
+                           :props {:re-com re-com-ctx
+                                   :children
+                                   [(prev-nav current-month part composed-theme re-com-ctx i18n)
+                                    [create-table @current-month
+                                     [fsm start-date end-date temp-end]
+                                     part composed-theme re-com-ctx :left args]]}})
+                        (part ::dr/right-panel
+                          {:impl  v-box
+                           :theme composed-theme
+                           :props {:re-com re-com-ctx
+                                   :children
+                                   [(next-nav current-month part composed-theme re-com-ctx i18n)
+                                    [create-table (plus-month @current-month)
+                                     [fsm start-date end-date temp-end]
+                                     part composed-theme re-com-ctx :right args]]}})]}})}})]}})))))))
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
-  [shown? model format goog? placeholder width disabled?]
+  [model format goog? placeholder]
   (let [format-str (or format "dd MMM, yyyy")]
     (cond
       (not (date-like? (:start (deref-or-value model))))
@@ -685,15 +518,14 @@
           {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[daterange-dropdown only] px horizontal offset of the popup"})))
 
 (defn daterange-dropdown
-  [& {:keys [src] :as args}]
+  [& {:keys [pre-theme theme] :as args}]
   (or
    (validate-args-macro daterange-dropdown-args-desc args)
-   (let [shown? (r/atom false)]
+   (let [shown?         (r/atom false)
+         composed-theme (theme/comp pre-theme theme)]
      (fn render-fn
-       [& {:keys [model show-weeks? on-change format goog?
-                  placeholder width disabled?  src
-                  debug-as initial-display
-                  theme
+       [& {:keys [model on-change format goog?
+                  placeholder width disabled?
                   anchor-width anchor-height body-header body-footer]
 
            :as passthrough-args}]
@@ -711,11 +543,11 @@
            :class         "rc-daterange-dropdown-wrapper"
            :on-change     (partial reset! shown?)
            :model         shown?
-           :label         [anchor-button shown? model format goog? placeholder width disabled?]
+           :label         [anchor-button model format goog? placeholder]
            :indicator     [:i.zmdi.zmdi-apps {:style {:font-size "18px"}}]
            :width         width
            :disabled?     disabled?
-           :theme         theme
+           :theme         composed-theme
            :anchor-width  anchor-width
            :anchor-height anchor-height
            :body-header   body-header
