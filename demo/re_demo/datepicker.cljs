@@ -43,7 +43,7 @@
 
 (defn- parameters-with
   "Toggle controls for some parameters."
-  [content enabled-days as-days disabled? show-today? show-weeks? start-of-week-choices start-of-week]
+  [content enabled-days as-days disabled? show-today? show-weeks? start-of-week-choices start-of-week custom-parts-model custom-theme-model]
   [v-box :src (at)
    :gap      "15px"
    :align    :start
@@ -83,6 +83,16 @@
                                        :child [:code ":show-weeks?"]]
                            :model     show-weeks?
                            :on-change #(reset! show-weeks? %)]
+                          [checkbox
+                           :src       (at)
+                           :model     custom-parts-model
+                           :on-change #(swap! custom-parts-model not)
+                           :label     [box :child [:code ":parts (custom styling)"]]]
+                          [checkbox
+                           :src       (at)
+                           :model     custom-theme-model
+                           :on-change #(swap! custom-theme-model not)
+                           :label     [box :child [:code ":theme (custom styling)"]]]
                           [h-box :src (at)
                            :gap      "5px"
                            :align    :end
@@ -145,7 +155,44 @@
                                {:id 6 :label "Sunday"}]
         enabled-days          (reagent/atom (-> days-map keys set))
         as-days               (reaction (->> (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}) @enabled-days) (map #(if (= 7 %) 0 %)) sort set))
-        selectable-pred       (fn [^js/goog.date.UtcDateTime date] (@as-days (.getDay date)))] ; Simply allow selection based on day of week.
+        selectable-pred       (fn [^js/goog.date.UtcDateTime date] (@as-days (.getDay date)))
+        custom-parts-model    (reagent/atom false)
+        custom-theme-model    (reagent/atom false)
+        custom-theme          (fn [props]
+                                (if-not @custom-theme-model
+                                  props
+                                  (let [styles (case (:part props)
+                                                 :re-com.datepicker/border
+                                                 {:border-color "#9C27B0"
+                                                  :border-width "3px"
+                                                  :box-shadow   "0 4px 12px rgba(156, 39, 176, 0.3)"}
+
+                                                 :re-com.datepicker/container
+                                                 {:background-color "#F3E5F5"}
+
+                                                 :re-com.datepicker/nav
+                                                 {:background-color "#E1BEE7"
+                                                  :padding          "8px"}
+
+                                                 (:re-com.datepicker/prev-year
+                                                  :re-com.datepicker/prev-month
+                                                  :re-com.datepicker/next-month
+                                                  :re-com.datepicker/next-year)
+                                                 {:background-color "#BA68C8"
+                                                  :border-radius    "8px"
+                                                  :padding          "4px"}
+
+                                                 :re-com.datepicker/month
+                                                 {:color       "#6A1B9A"
+                                                  :font-weight "600"
+                                                  :font-size   "14px"}
+
+                                                 :re-com.datepicker/date
+                                                 {:color       "#7B1FA2"
+                                                  :font-weight "500"}
+
+                                                 nil)]
+                                    (update props :style merge styles))))]
     (case variation
       :inline [(fn inline-fn
                  []
@@ -168,7 +215,27 @@
                                :show-weeks?   @show-weeks?
                                :selectable-fn selectable-pred
                                :start-of-week @start-of-week
-                               :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))]
+                               :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))
+                               :theme         custom-theme
+                               :parts         (when @custom-parts-model
+                                                {:border      {:style {:border-color "#4A90E2"
+                                                                       :border-width "3px"
+                                                                       :box-shadow   "0 2px 8px rgba(74, 144, 226, 0.2)"}}
+                                                 :container   {:style {:background-color "#F8F9FA"}}
+                                                 :nav         {:style {:background-color "#E3F2FD"
+                                                                       :padding          "8px"}}
+                                                 :prev-year   {:style {:background-color "#64B5F6"
+                                                                       :border-radius    "4px"}}
+                                                 :prev-month  {:style {:background-color "#64B5F6"
+                                                                       :border-radius    "4px"}}
+                                                 :month       {:style {:color       "#1976D2"
+                                                                       :font-weight "600"}}
+                                                 :next-month  {:style {:background-color "#64B5F6"
+                                                                       :border-radius    "4px"}}
+                                                 :next-year   {:style {:background-color "#64B5F6"
+                                                                       :border-radius    "4px"}}
+                                                 :date        {:style {:color       "#1976D2"
+                                                                       :font-weight "500"}}})]
                               [label :src (at) :label [:span [:code ":model"] " is " (date->string @model1)]]
                               #_[h-box :src (at)
                                  :gap      "6px"
@@ -201,7 +268,9 @@
                   show-today?
                   show-weeks?
                   start-of-week-choices
-                  start-of-week])]
+                  start-of-week
+                  custom-parts-model
+                  custom-theme-model])]
 
       :dropdown [(fn dropdown-fn
                    []
@@ -219,7 +288,27 @@
                                  :placeholder   "Select a date"
                                  :format        "dd MMM, yyyy"
                                  :disabled?     disabled?
-                                 :on-change     #(reset! model3 %)]
+                                 :on-change     #(reset! model3 %)
+                                 :theme         custom-theme
+                                 :parts         (when @custom-parts-model
+                                                  {:border      {:style {:border-color "#4A90E2"
+                                                                         :border-width "3px"
+                                                                         :box-shadow   "0 2px 8px rgba(74, 144, 226, 0.2)"}}
+                                                   :container   {:style {:background-color "#F8F9FA"}}
+                                                   :nav         {:style {:background-color "#E3F2FD"
+                                                                         :padding          "8px"}}
+                                                   :prev-year   {:style {:background-color "#64B5F6"
+                                                                         :border-radius    "4px"}}
+                                                   :prev-month  {:style {:background-color "#64B5F6"
+                                                                         :border-radius    "4px"}}
+                                                   :month       {:style {:color       "#1976D2"
+                                                                         :font-weight "600"}}
+                                                   :next-month  {:style {:background-color "#64B5F6"
+                                                                         :border-radius    "4px"}}
+                                                   :next-year   {:style {:background-color "#64B5F6"
+                                                                         :border-radius    "4px"}}
+                                                   :date        {:style {:color       "#1976D2"
+                                                                         :font-weight "500"}}})]
                                 [label
                                  :src   (at)
                                  :label [:span [:code ":model"] " is " (date->string @model3)]]]]
@@ -229,7 +318,9 @@
                     show-today?
                     show-weeks?
                     start-of-week-choices
-                    start-of-week])]
+                    start-of-week
+                    custom-parts-model
+                    custom-theme-model])]
       :i18n     [(fn i18n-fn
                    []
                    (set! (.-DateTimeSymbols goog.i18n) DateTimeSymbols_pl)
@@ -252,7 +343,27 @@
                                                    :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
                                  :width           "190px"
                                  :position-offset 25
-                                 :on-change       #(reset! model4 %)]
+                                 :on-change       #(reset! model4 %)
+                                 :theme           custom-theme
+                                 :parts           (when @custom-parts-model
+                                                    {:border      {:style {:border-color "#4A90E2"
+                                                                           :border-width "3px"
+                                                                           :box-shadow   "0 2px 8px rgba(74, 144, 226, 0.2)"}}
+                                                     :container   {:style {:background-color "#F8F9FA"}}
+                                                     :nav         {:style {:background-color "#E3F2FD"
+                                                                           :padding          "8px"}}
+                                                     :prev-year   {:style {:background-color "#64B5F6"
+                                                                           :border-radius    "4px"}}
+                                                     :prev-month  {:style {:background-color "#64B5F6"
+                                                                           :border-radius    "4px"}}
+                                                     :month       {:style {:color       "#1976D2"
+                                                                           :font-weight "600"}}
+                                                     :next-month  {:style {:background-color "#64B5F6"
+                                                                           :border-radius    "4px"}}
+                                                     :next-year   {:style {:background-color "#64B5F6"
+                                                                           :border-radius    "4px"}}
+                                                     :date        {:style {:color       "#1976D2"
+                                                                           :font-weight "500"}}})]
                                 [label
                                  :src   (at)
                                  :label [:span [:code ":model"] " is " (date->string @model4)]]]]
@@ -262,7 +373,9 @@
                     show-today?
                     show-weeks?
                     start-of-week-choices
-                    start-of-week])])))
+                    start-of-week
+                    custom-parts-model
+                    custom-theme-model])])))
 
 (def variations ^:private
   [{:id :inline       :label "Inline"}
