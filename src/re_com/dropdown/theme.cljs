@@ -168,7 +168,16 @@
              :text-overflow "ellipsis"
              :white-space   "nowrap"}
             (when (= :disabled (:enable state))
-              {:background-color (:background-disabled $)})))
+              {:background-color (:background-disabled $)})
+            (case (last from)
+              ::tf/add-button   {:font-size "13px"
+                                 :color     "#46a2da"}
+              ::tf/context-menu {:color       "#9ca3af"
+                                 :font-size   "20px"
+                                 :line-height "18px"
+                                 :padding     "0px 8px"
+                                 :cursor      "pointer"}
+              nil)))
 
 (defmethod base ::dd/indicator
   [{{:keys [from]} :re-com :as props}]

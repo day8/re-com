@@ -497,14 +497,6 @@
   [& {:keys []}]
   [text/label :label ""])
 
-(def context-menu-anchor
-  [text/label :label "⋯"
-   :style {:color       "#9ca3af"
-           :font-size   "20px"
-           :line-height "18px"
-           :padding     "0px 8px"
-           :cursor      "pointer"}])
-
 (defn context-menu-buttons [{:keys [choices on-click]}]
   [box/v-box
    :children
@@ -534,16 +526,15 @@
        :impl  dropdown/dropdown
        :props
        {:model     (r/atom nil)
+        :label     "⋯"
         :disabled? disabled?
-        :parts
-        {:anchor context-menu-anchor
-         :body [context-menu-buttons
-                {:choices choices
-                 :on-click (fn [choice-id]
-                             (case choice-id
-                               :delete    (update-state! remove-item-with-cleanup item-id table-spec)
-                               :duplicate (update-state! duplicate-item-by-id item-id)
-                               :convert   (update-state! convert-filter-to-group item-id)))}]}}})))
+        :body      [context-menu-buttons
+                    {:choices  choices
+                     :on-click (fn [choice-id]
+                                 (case choice-id
+                                   :delete    (update-state! remove-item-with-cleanup item-id table-spec)
+                                   :duplicate (update-state! duplicate-item-by-id item-id)
+                                   :convert   (update-state! convert-filter-to-group item-id)))}]}})))
 
 (defn filter-builder
   "A single filter, contains a row selection box, an operator selection box, a value entry box and a context button"
@@ -659,14 +650,15 @@
                             {:theme theme
                              :impl  dropdown/dropdown
                              :props
-                             {:re-com    {:state {:depth depth}}
-                              :model     (r/atom nil)
+                             {:model     (r/atom nil)
                               :disabled? disabled?
                               :label     (case operator :and "And" :or "Or")
                               :width     "50px"
-                              :parts
-                              {:anchor-wrapper {:style {:background-color (if (odd? depth) "white" "#f7f7f7")}}
-                               :body           [operator-button-body {:operator operator :update-state! update-state! :group-id group-id}]}}})
+                              :parts     {:anchor-wrapper {:style {:background-color (if (odd? depth) "white" "#f7f7f7")}}}
+                              :body      [operator-button-body
+                                          {:operator      operator
+                                           :update-state! update-state!
+                                           :group-id      group-id}]}})
                           (part ::tf/operator-text
                             {:theme theme
                              :impl  text/label
@@ -725,17 +717,13 @@
                  :props
                  {:model     (r/atom nil)
                   :disabled? disabled?
-                  :parts
-                  {:anchor [text/label
-                            {:label "+ Add filter"
-                             :style {:font-size "13px"
-                                     :color     "#46a2da"}}]
-                   :body   [context-menu-buttons
-                            {:choices choices
-                             :on-click
-                             (fn [choice-id]
-                               (let [make-item (case choice-id :add-filter empty-filter :add-group empty-group)]
-                                 (update-state! add-child-to-group group-id (make-item table-spec))))}]}}}))])]]]
+                  :label     "+ Add filter"
+                  :body      [context-menu-buttons
+                              {:choices choices
+                               :on-click
+                               (fn [choice-id]
+                                 (let [make-item (case choice-id :add-filter empty-filter :add-group empty-group)]
+                                   (update-state! add-child-to-group group-id (make-item table-spec))))}]}}))])]]]
        (when (and show-group-ui? (not is-root?)) ;; Group context menu for non-root groups
          (let [{group-id :id} group-deref
                choices        [{:id :delete :label "Delete group" :color "#dc2626"}]]
@@ -745,20 +733,19 @@
               :props
               {:model     (r/atom nil)
                :disabled? disabled?
-               :parts
-               {:anchor context-menu-anchor
-                :body   [context-menu-buttons
-                         {:choices choices
-                          :on-click
-                          (fn [choice-id]
-                            (when (= choice-id :delete)
-                              (update-state!
-                               (fn [state]
-                                     ;; Safety check: don't delete root group
-                                 (if (= (:id state) group-id)
-                                   state
-                                   (remove-item-with-cleanup
-                                    state group-id table-spec))))))}]}}})))]}]))
+               :label     "⋯"
+               :body      [context-menu-buttons
+                           {:choices choices
+                            :on-click
+                            (fn [choice-id]
+                              (when (= choice-id :delete)
+                                (update-state!
+                                 (fn [state]
+                                       ;; Safety check: don't delete root group
+                                   (if (= (:id state) group-id)
+                                     state
+                                     (remove-item-with-cleanup
+                                      state group-id table-spec))))))}]}})))]}]))
 
 (defn table-filter
   "Hierarchical table filter component with external state as single source of truth.

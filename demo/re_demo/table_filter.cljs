@@ -31,7 +31,7 @@
               {:id "rust" :label "Rust"}
               {:id "C" :label "C"}]}])
 
-(defn panel
+(defn panel*
   []
   (let [filter-model    (r/atom {:type  :group,
                                  :logic :and,
@@ -151,8 +151,8 @@
                             (reset! filter-valid? is-valid?))
                :style {:font-family "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
                        :font-size   "13px" :background-color "#f8fafc"}  ; Modern font and smaller size
-               :parts {:filter {:style {:align-items "center" :background-color "transparent"}}  ; Only alignment, no background styling
-
+               :parts {:filter            {:style {:align-items      "center"
+                                                   :background-color "transparent"}}  ; Only alignment, no background styling
                        :column-dropdown   {:style {:font-size     "12px"
                                                    :border        "1px solid #bfdbfe"
                                                    :border-radius "4px"
@@ -177,13 +177,17 @@
                                                    :width            "115px"}}
                        :where-label       {:style {:color     "#3b82f6"
                                                    :font-size "12px"}}
-                       :operator-button   {:style {:font-size        "12px"
-                                                   :background-color "#f1f5f9"
-                                                   :border           "1px solid #cbd5e1"
-                                                   :color            "#475569"
-                                                   :height           "20px"
-                                                   :display          "flex"}}
+                       :operator-button   {:parts {:anchor-wrapper
+                                                   {:style {:font-size        "12px"
+                                                            :background-color "#f1f5f9"
+                                                            :border           "1px solid #cbd5e1"
+                                                            :color            "#475569"
+                                                            :height           "20px"
+                                                            :display          "flex"}}}}
                        :operator-text     {:style {:font-size "12px"
-                                                   :color     "#64748b"}}}]
+                                                   :color     "#64748b"}}
+                       :add-button        {:parts {:anchor {:style {:color "orange"}}}}}]
               [box/gap :size "50px"]]]]]]]
         [parts-table "table-filter" parts-desc]]])))
+
+(defn panel [] [panel*])
