@@ -15,6 +15,7 @@ Use this template for all new re-com components using the modern parts & theme s
    [re-com.validate :refer [validate-args-macro]])
   (:require
    re-com.my-component.theme                   ; Import theme definitions
+   [re-com.args :as args]                      ; Standard arg descriptors
    [re-com.config :refer [include-args-desc?]]
    [re-com.debug :as debug]
    [re-com.part :as part]
@@ -43,26 +44,19 @@ Use this template for all new re-com components using the modern parts & theme s
     (-> (map :name my-component-parts-desc) set)))
 
 ;; ------------------------------------------------------------------------------------
-;; Args Description (includes modern theme support)
+;; Args Description (use re-com.args helpers for standard arguments)
 ;; ------------------------------------------------------------------------------------
 
 (def my-component-args-desc
   (when include-args-desc?
-    (concat
-     [{:name :model       :required true  :type "atom"           :validate-fn #(satisfies? IAtom %) :description "Current value atom"}
-      {:name :on-change   :required true  :type "-> nil"         :validate-fn fn?                   :description "Called when value changes"}
-      {:name :placeholder :required false :type "string"         :validate-fn string?               :description "Placeholder text"}
-      {:name :disabled?   :required false :type "boolean"        :validate-fn boolean?              :description "Disable input"}
-      {:name :pre-theme   :required false :type "map -> map"     :validate-fn fn?                   :description "Pre-theme function"}
-      {:name :theme       :required false :type "map -> map"     :validate-fn fn?                   :description "Theme function"}
-      {:name :class       :required false :type "string"         :validate-fn css-class?            :description "CSS class names (applies to wrapper)"}
-      {:name :style       :required false :type "CSS style map"  :validate-fn css-style?            :description "CSS styles (applies to wrapper)"}
-      {:name :attr        :required false :type "HTML attr map"  :validate-fn html-attr?            :description "HTML attributes (applies to wrapper)"}
-      {:name :parts       :required false :type "map"            :validate-fn (parts? my-component-parts) :description "Map of part names to styling"}
-      {:name :src         :required false :type "map"            :validate-fn map?                  :description "Source code coordinates for debugging"}
-      {:name :debug-as    :required false :type "map"            :validate-fn map?                  :description "Debug output masquerading"}]
-     ;; Auto-generate top-level part args
-     (part/describe-args part-structure))))
+    (into [{:name :model       :required true  :type "atom"    :validate-fn #(satisfies? IAtom %) :description "Current value atom"}
+           {:name :on-change   :required true  :type "-> nil"  :validate-fn fn?                   :description "Called when value changes"}
+           {:name :placeholder :required false :type "string"  :validate-fn string?               :description "Placeholder text"}
+           {:name :disabled?   :required false :type "boolean" :validate-fn boolean?              :description "Disable input"}]
+          (concat
+           args/std                              ; Standard styling + theme + debug args
+           [(args/parts my-component-parts)]     ; Parts validation
+           (part/describe-args part-structure)))))  ; Top-level part args
 
 ;; ------------------------------------------------------------------------------------
 ;; Component Function (Form-2 with proper theme composition timing)
@@ -208,9 +202,9 @@ Theme methods read `:re-com :state` for conditional styling:
 **Required for every component:**
 
 1. **Parts Description** - Defines styleable sub-elements
-2. **Args Description** - Defines props with validation
+2. **Args Description** - Defines props with validation using `re-com.args` helpers (`args/std`, `args/parts`, etc.)
 3. **Validation** - Use `validate-args-macro` for dev-time checking
-4. **Standard Props** - `:class`, `:style`, `:attr`, `:parts`, `:src`, `:debug-as`
+4. **Standard Props** - `:class`, `:style`, `:attr`, `:parts`, `:pre-theme`, `:theme`, `:src`, `:debug-as` (provided by `args/std`)
 5. **Theme Integration** - Use `theme/comp` at mount time, pass to all parts
 6. **Event Handlers** - Wrap in `handler-fn` for error handling
 7. **Debug Support** - Use `(debug/instrument props)` and `reflect-current-component`

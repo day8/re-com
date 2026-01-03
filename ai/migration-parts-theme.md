@@ -360,12 +360,88 @@ The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes
 
 **⚠️ Debug Macro Requirement**: The keyword argument map in the render function must be bound to the symbol `args` (not `props` or other names) because `validate-args-macro` and debug instrumentation macros specifically look for a binding named `args`. Using a different binding name will cause debug and validation features to fail.
 
-### Step 2: Add Theme Support
-1. Add `:pre-theme` and `:theme` to component args-desc
+### Step 2: Use re-com.args Helpers
+
+**Critical**: Always use the helpers from `re-com.args` for standard arguments. This ensures consistency across all components and reduces boilerplate.
+
+**Available Helpers:**
+
+```clojure
+(require '[re-com.args :as args])
+
+;; Standard argument descriptors
+args/class         ; :class argument
+args/style         ; :style argument
+args/attr          ; :attr argument
+args/pre           ; :pre-theme argument
+args/theme         ; :theme argument
+args/src           ; :src argument (debug)
+args/debug-as      ; :debug-as argument (debug)
+(args/parts parts) ; :parts argument (pass your parts set)
+
+;; Collections
+args/debug         ; [src debug-as]
+args/std           ; [class style attr theme pre src debug-as]
+```
+
+**Building args-desc with `into`:**
+
+Use `into` to cleanly compose args-desc with standard helpers:
+
+```clojure
+;; ✅ CORRECT - Using args helpers with into
+(def component-args-desc
+  (when include-args-desc?
+    (into [{:name :model       :required true  :type "atom" :validate-fn #(satisfies? IAtom %) :description "..."}
+           {:name :on-change   :required true  :type "-> nil" :validate-fn fn? :description "..."}
+           {:name :placeholder :required false :type "string" :validate-fn string? :description "..."}]
+          (concat
+           args/std                              ; Standard styling + theme + debug args
+           [(args/parts my-component-parts)]     ; Parts validation
+           (part/describe-args part-structure))))) ; Top-level part args
+
+;; ❌ INCORRECT - Manual definitions duplicate standard args
+(def component-args-desc
+  (when include-args-desc?
+    [{:name :model :required true ...}
+     {:name :class :required false :type "string" ...}  ; Don't manually define!
+     {:name :style :required false :type "CSS style map" ...}  ; Use args/class!
+     {:name :theme :required false :type "map -> map" ...}]))  ; Use args/style!
+
+;; ❌ INCORRECT - Using concat instead of into
+(def component-args-desc
+  (when include-args-desc?
+    (concat
+     [{:name :model ...}
+      {:name :on-change ...}]
+     args/std
+     [(args/parts my-component-parts)]
+     (part/describe-args part-structure))))  ; Verbose, less idiomatic
+```
+
+**Pattern Explanation:**
+
+1. **`into`** - Takes a vector and conj's elements from collections onto it
+2. **Component-specific args first** - Your unique arguments in the initial vector
+3. **`concat`** - Combines multiple collections for the `into`
+4. **`args/std`** - Provides standard styling, theme, and debug arguments
+5. **`(args/parts ...)`** - Generated parts validation with your parts set
+6. **`(part/describe-args ...)`** - Auto-generated top-level part arguments
+
+**Why This Matters:**
+
+- **Consistency** - All components use identical descriptions for standard args
+- **Maintainability** - Changes to standard args update everywhere
+- **Less Boilerplate** - No need to manually type out class/style/attr definitions
+- **Automatic Links** - Standard args include proper documentation links
+- **Validation** - Correct validation functions automatically applied
+
+### Step 3: Add Theme Support
+1. Add `:pre-theme` and `:theme` to component args-desc (via `args/std` or `args/pre` + `args/theme`)
 2. Create theme file in component subdirectory
 3. Define theme methods for appropriate layers (`variables`, `pre-user`, `base`, `main`, `bootstrap`, `user`)
 
-### Step 3: Update Implementation
+### Step 4: Update Implementation
 1. Convert to form-2 component if not already
 2. Call `theme/comp` at mount time in outer function
 3. Replace manual hiccup with `part/part` calls in render function
@@ -417,7 +493,85 @@ The old manual implementation applied `:class`, `:style`, `:attr` (and sometimes
                  (when disabled? disabled-style))}            ; Styling in component
 ```
 
-## Step 4: Implement New Props Architecture
+**Passing part-fn to nested components** - For complex components with sub-components that need to create parts:
+
+Sometimes a component needs to delegate part creation to helper functions, multimethods, or nested components. The standard pattern is to pass the `part` function via the `:re-com` context with the key `:part-fn`.
+
+**Example from table-filter component:**
+
+```clojure
+;; Main component creates the part function and passes it in :re-com
+(defn table-filter [& {:keys [pre-theme theme] :as args}]
+  (let [theme (theme/comp pre-theme theme)]
+    (fn [& {:keys [table-spec model on-change] :as args}]
+      (let [part (partial p/part part-structure args)  ; Create part function
+            re-com-ctx {:theme   theme
+                        :part-fn part}]                ; Pass it in :re-com
+        (part ::tf/group
+          {:theme theme
+           :impl  filter-group
+           :props (merge child-args
+                         {:re-com re-com-ctx})})))))  ; :re-com flows to children
+
+;; Nested component receives part-fn from :re-com context
+(defn filter-group [& {{part :part-fn} :re-com  ; Destructure part-fn
+                       :keys [group table-spec]
+                       :as args}]
+  ;; Now use part to create sub-parts
+  (part ::tf/operator-button
+    {:theme theme
+     :impl  dropdown/dropdown
+     :props {...}})
+
+  ;; Pass :re-com (with part-fn) to further nested components
+  (part ::tf/filter
+    {:theme theme
+     :impl  filter-builder
+     :props (merge child-args {:re-com re-com-ctx})}))
+
+;; Multimethod receives part-fn from :re-com context
+(defmulti value-entry-box
+  (fn [& {:keys [row-spec filter-spec]}]
+    (:type row-spec)))
+
+(defmethod value-entry-box :text
+  [& {{part :part-fn} :re-com           ; Destructure part-fn from :re-com
+      :keys [filter-spec on-change disabled? theme]}]
+  (part ::text-input                    ; Use part to create the input
+    {:theme theme
+     :impl  input-text/input-text
+     :props {...}}))
+
+(defmethod value-entry-box :date
+  [& {{part :part-fn} :re-com           ; Same pattern in other methods
+      :keys [filter-spec on-change disabled? theme]}]
+  (let [op (:op filter-spec)]
+    (if (#{:between :not-between} op)
+      (part ::tf/daterange-input {...})  ; Different part based on condition
+      (part ::tf/date-input {...}))))
+```
+
+**Why pass part-fn in `:re-com`?**
+
+1. **Nested components can create parts** - Without recreating part-structure or props
+2. **Consistent pattern** - `:re-com` is the standard place for re-com internals
+3. **Multimethod support** - Multimethods can create parts without knowing parent structure
+4. **Proper theming** - All parts use the same composed theme from parent
+5. **Cleaner signatures** - No need to pass part-structure and props separately
+
+**When to use this pattern:**
+
+- Component has helper functions that render sub-parts
+- Component uses multimethods for conditional rendering (like value-entry-box)
+- Component delegates to nested components that need part creation
+- Component has complex conditional logic that creates different parts
+
+**When NOT to use this pattern:**
+
+- Simple components with no nesting - just use `part` directly
+- When sub-components don't need to create parts themselves
+
+## Step 5: Implement New Props Architecture
 
 ### Core Principle: Simplified Props Flow
 
@@ -603,8 +757,8 @@ This keeps the component function focused on state management and the theme focu
    :props {...}})
 ```
 
-### Step 4: Handle Legacy Support
-1. Mark legacy parts with `:type :legacy` 
+### Step 6: Handle Legacy Support
+1. Mark legacy parts with `:type :legacy`
 2. Maintain backward compatibility for existing props
 3. Use `post-props` to apply user styling to appropriate parts
 
@@ -683,16 +837,24 @@ This keeps the component function focused on state management and the theme focu
 
 ## Migration Checklist
 
-### Part Structure & Theme Setup
+### Part Structure & Args Setup
 - [ ] Define `part-structure` with qualified keywords
+- [ ] Use `re-com.args` helpers (especially `args/std`) for standard arguments
+- [ ] Build `args-desc` with `into` for clean composition
+- [ ] Include `(args/parts my-component-parts)` for parts validation
+- [ ] Include `(part/describe-args part-structure)` for top-level part args
+
+### Theme Setup
 - [ ] Create theme file with appropriate theme method layers
-- [ ] Update component args to include `:pre-theme` and `:theme`
+- [ ] Import theme namespace in component file
+- [ ] Verify `:pre-theme` and `:theme` are in args-desc (via `args/std`)
 
 ### Component Implementation
 - [ ] Convert to form-2 component structure
 - [ ] Call `theme/comp` at mount time (outer function)
 - [ ] Replace manual hiccup with `part/part` calls in render function
 - [ ] Use `part/get-part` to check for provided parts
+- [ ] For complex components: pass `part-fn` via `:re-com` context to nested components/multimethods
 
 ### Props Architecture
 - [ ] Implement standardized `:re-com` structure (`:part`, `:state`, `:transition!`)
