@@ -14,9 +14,13 @@
    [re-com.buttons              :as buttons]
    [re-com.close-button         :as close-button]
    [re-com.theme                :as theme]
+   [re-com.part :as p]
+   [re-com.args :as args]
    [re-com.util                 :as rc.util :refer [deref-or-value]]
    [re-com.validate             :as validate :refer [string-or-hiccup? parts? css-class?]]
-   [reagent.core                :as reagent]))
+   [reagent.core                :as reagent]
+   re-com.multi-select.theme
+   [re-com.multi-select :as-alias ms]))
 
 (defn items-with-group-headings
   "Split a list of maps by a group key then return both the group"
@@ -62,35 +66,26 @@
 
 (defn filter-text-box
   "Base function (before lifecycle metadata) to render a filter text box"
-  [*filter-text placeholder *warning-message disabled? parts]
-  [box/h-box
-   :class    (str "rc-multi-select-filter-text-box " (get-in parts [:filter-text-box :class]))
-   :attr     (get-in parts [:filter-text-box :attr])
-   :width    "100%"
-   :align    :center
-   :style    (merge {:position "relative"}
-                    (get-in parts [:filter-text-box :style]))
-   :children [[input-text
-               :class           (str "rc-multi-select-filter-input-text " (get-in parts [:filter-input-text :class]))
-               :model           *filter-text
-               :change-on-blur? false
-               :placeholder     placeholder
-               ;:disabled?       disabled? ;; Left here just in case we DO want to prevent searches while disabled
-               :width           "100%"
-               :height          "28px"
-               :style           (merge {:padding "3px 4px"}
-                                       (get-in parts [:filter-input-text :style]))
-               :attr            (get-in parts [:filter-input-text :attr])
-               :on-change       #(do (reset! *filter-text %)
-                                     (reset! *warning-message nil))]
-              [close-button/close-button
-               :class       (get-in parts [:filter-reset-button :class])
-               :style       (get-in parts [:filter-reset-button :style])
-               :attr        (get-in parts [:filter-reset-button :attr])
-               :on-click    #(reset! *filter-text "")
-               :div-size    0
-               :font-size   20
-               :left-offset -13]]])
+  [{:keys                        [*filter-text placeholder *warning-message]
+    {part :part-fn theme :theme} :re-com}]
+  (part ::ms/filter-text-box
+    {:theme theme
+     :impl  box/h-box
+     :props
+     {:children
+      [(part ::filter-input-text
+         {:theme theme
+          :impl  input-text
+          :props {:class           "rc-multi-select-filter-input-text"
+                  :model           *filter-text
+                  :change-on-blur? false
+                  :placeholder     placeholder
+                  :on-change       #(do (reset! *filter-text %)
+                                        (reset! *warning-message nil))}})
+       (part ::filter-reset-button
+         {:theme theme
+          :impl  close-button/close-button
+          :props {:on-click #(reset! *filter-text "")}})]}}))
 
 (defn group-heading-item
   "Render a group heading and set up appropriate mouse events"
@@ -192,37 +187,40 @@
 ;; LHS: set of candidates with selected id set removed, sorted/grouped by fn
 ;; RHS: set of candidates selecting on id, sorted/grouped by fn
 
+(def part-structure
+  (when include-args-desc?
+    [::container {:impl 'h-box}
+     [::left {:impl 'v-box}
+      [::left-label-container {:impl 'h-box}
+       [::left-label {:tag :span}]
+       [::left-label-item-count {:tag :span}]]
+      [::left-list-box {:impl 'list-box}]
+      [::filter-text-box {:impl 'h-box}
+       [::filter-input-text {:impl 'input-text}]
+       [::filter-reset-button {:impl 'close-button}]]
+      [::left-filter-result-count {:impl 'label}]]
+     [::middle-container {:impl 'v-box}
+      [::middle-top-spacer {:impl 'box}]
+      [::middle {:impl 'v-box}
+       [::include-all-button {:impl 'button}]
+       [::include-selected-button {:impl 'button}]
+       [::exclude-selected-button {:impl 'button}]
+       [::exclude-all-button {:impl 'button}]]
+      [::middle-bottom-spacer {:impl 'box}]]
+     [::right {:impl 'v-box}
+      [::warning-message {:impl 'label}]
+      [::right-label-container {:impl 'h-box}
+       [::right-label {:tag :span}]
+       [::right-label-item-count {:tag :span}]]
+      [::right-list-box {:impl 'list-box}]
+      [::filter-text-box {:impl 'h-box}
+       [::filter-input-text {:impl 'input-text}]
+       [::filter-reset-button {:impl 'close-button}]]
+      [::right-filter-result-count {:impl 'label}]]]))
+
 (def multi-select-parts-desc
   (when include-args-desc?
-    [{:type :legacy :level 0 :class "rc-multi-select" :impl "[multi-select]"}
-     {:name :container :level 1 :class "rc-multi-select-container" :impl "[h-box]"}
-     {:name :left :level 2 :class "rc-multi-select-left" :impl "[v-box]"}
-     {:name :left-label-container :level 3 :class "rc-multi-select-left-label-container" :impl "[h-box]"}
-     {:name :left-label :level 4 :class "rc-multi-select-left-label" :impl "[:span]"}
-     {:name :left-label-item-count :level 4 :class "rc-multi-select-left-label-item-count" :impl "[:span]"}
-     {:name :left-list-box :level 3 :class "rc-multi-select-left-list-box" :impl "[list-box]"}
-     {:name :filter-text-box :level 3 :class "rc-multi-select-filter-text-box" :impl "[h-box]"}
-     {:name :filter-input-text :level 4 :class "rc-multi-select-filter-input-text" :impl "[input-text]"}
-     {:name :filter-reset-button :level 4 :class "rc-multi-select-filter-reset-button" :impl "[close-button]"}
-     {:name :left-filter-result-count :level 3 :class "rc-multi-select-left-filter-result-count" :impl "[label]"}
-     {:name :middle-container :level 2 :class "rc-multi-select-middle-container" :impl "[v-box]"}
-     {:name :middle-top-spacer :level 3 :class "rc-multi-select-middle-top-spacer" :impl "[box]"}
-     {:name :middle :level 3 :class "rc-multi-select-middle" :impl "[v-box]"}
-     {:name :include-all-button :level 4 :class "rc-multi-select-include-all-button" :impl "[button]"}
-     {:name :include-selected-button :level 4 :class "rc-multi-select-include-selected-button" :impl "[button]"}
-     {:name :exclude-selected-button :level 4 :class "rc-multi-select-exclude-selected-button" :impl "[button]"}
-     {:name :exclude-all-button :level 4 :class "rc-multi-select-exclude-all-button" :impl "[button]"}
-     {:name :middle-bottom-spacer :level 3 :class "rc-multi-select-middle-bottom-spacer" :impl "[box]"}
-     {:name :right :level 2 :class "rc-multi-select-right" :impl "[v-box]"}
-     {:name :warning-message :level 3 :class "rc-multi-select-warning-message" :impl "[label]"}
-     {:name :right-label-container :level 3 :class "rc-multi-select-right-label-container" :impl "[h-box]"}
-     {:name :right-label :level 4 :class "rc-multi-select-right-label" :impl "[:span]"}
-     {:name :right-label-item-count :level 4 :class "rc-multi-select-right-label-item-count" :impl "[:span]"}
-     {:name :right-list-box :level 3 :class "rc-multi-select-right-list-box" :impl "[list-box]"}
-     {:name :filter-text-box :level 3 :class "rc-multi-select-filter-text-box" :impl "[h-box]"}
-     {:name :filter-input-text :level 4 :class "rc-multi-select-filter-input-text" :impl "[input-text]"}
-     {:name :filter-reset-button :level 4 :class "rc-multi-select-filter-reset-button" :impl "[close-button]"}
-     {:name :right-filter-result-count :level 3 :class "rc-multi-select-right-filter-result-count" :impl "[label]"}]))
+    (p/describe part-structure)))
 
 (def multi-select-parts
   (when include-args-desc?
@@ -230,32 +228,150 @@
 
 (def multi-select-args-desc
   (when include-args-desc?
-    [{:name :choices :required true :type "vector of maps | r/atom" :validate-fn validate/vector-of-maps? :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}
-     {:name :id-fn :required false :default :id :type "map -> anything" :validate-fn ifn? :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
-     {:name :label-fn :required false :default :label :type "map -> string | hiccup" :validate-fn ifn? :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
-     {:name :filter-fn :required false :default "str∘label-fn" :type "map -> string" :validate-fn ifn? :description [:span "a function taking one argument (a map) and returns the string to filter by. Called for each element in " [:code ":choices"] ". (Note: items are also filtered by group-fn)"]}
-     {:name :group-fn :required false :default :group :type "map -> string | hiccup" :validate-fn ifn? :description [:span "a function taking one argument (a map) and returns the group identifier for that map. Called for each element in " [:code ":choices"]]}
-     {:name :sort-fn :required false :default "compare" :type "map, map -> integer" :validate-fn ifn? :description [:span "The comparator function used with " [:code "cljs.core/sort-by"] " to sort choices."]}
-     {:name :model :required true :type "a set of ids | r/atom" :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
-     {:name :required? :required false :default false :type "boolean | r/atom" :description "when true, at least one item must be selected"}
-     {:name :max-selected-items :required false :default nil :type "integer" :description "maximum number of items that can be selected"}
-     {:name :left-label :required false :type "string | hiccup" :validate-fn string-or-hiccup? :description "label displayed above the left list"}
-     {:name :right-label :required false :type "string | hiccup" :validate-fn string-or-hiccup? :description "label displayed above the right list"}
-     {:name :on-change :required true :type "id -> nil" :validate-fn fn? :description [:span "a function that will be called when the selection changes. Passed the set of selected ids. See " [:code ":model"] "."]}
-     {:name :disabled? :required false :default false :type "boolean | r/atom" :description "if true, no user selection is allowed"}
-     {:name :filter-box? :required false :default false :type "boolean | r/atom" :description "if true, a filter text field is placed at the bottom of the component"}
-     {:name :regex-filter? :required false :default false :type "boolean | r/atom" :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
-     {:name :placeholder :required false :type "string" :validate-fn string? :description "background text when no selection"} ;; TODO this is actually broken, does not display background text
-     {:name :width :required false :default "100%" :type "string" :validate-fn string? :description "the CSS width. e.g.: \"500px\" or \"20em\""}
-     {:name :height :required false :type "string" :validate-fn string? :description "the specific height of the component"}
-     {:name :max-height :required false :type "string" :validate-fn string? :description "the maximum height of the component"}
-     {:name :tab-index :required false :type "integer | string" :validate-fn validate/number-or-string? :description "component's tabindex. A value of -1 removes from the tab order"}
-     {:name :class :required false :type "string" :validate-fn css-class? :description "CSS class names, space separated"}
-     {:name :style :required false :type "CSS style map" :validate-fn validate/css-style? :description "CSS styles to add or override"}
-     {:name :attr :required false :type "HTML attr map" :validate-fn validate/html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :parts :required false :type "map" :validate-fn (parts? multi-select-parts) :description "See Parts section below."}
-     {:name :src :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as :required false :type "map" :validate-fn map? :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    (into
+     [{:description
+       [:span
+        "Each map represents a choice. Values corresponding to id, label and, "
+        "optionally, a group, are extracted by the functions "
+        [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]
+        ". See below."]
+       :name        :choices
+       :required    true
+       :type        "vector of maps | r/atom"
+       :validate-fn validate/vector-of-maps?}
+      {:default     :id
+       :description
+       [:span
+        "a function taking one argument (a map) and returns the unique identifier "
+        "for that map. Called for each element in "
+        [:code ":choices"]]
+       :name        :id-fn
+       :required    false
+       :type        "map -> anything"
+       :validate-fn ifn?}
+      {:default     :label
+       :description
+       [:span
+        "a function taking one argument (a map) and returns the displayable label "
+        "for that map. Called for each element in "
+        [:code ":choices"]]
+       :name        :label-fn
+       :required    false
+       :type        "map -> string | hiccup"
+       :validate-fn ifn?}
+      {:default     "str∘label-fn"
+       :description
+       [:span
+        "a function taking one argument (a map) and returns the string to filter by. "
+        "Called for each element in "
+        [:code ":choices"] ". (Note: items are also filtered by group-fn)"]
+       :name        :filter-fn
+       :required    false
+       :type        "map -> string"
+       :validate-fn ifn?}
+      {:default     :group
+       :description
+       [:span
+        "a function taking one argument (a map) and returns the group identifier "
+        "for that map. Called for each element in "
+        [:code ":choices"]]
+       :name        :group-fn
+       :required    false
+       :type        "map -> string | hiccup"
+       :validate-fn ifn?}
+      {:default     "compare"
+       :description [:span "The comparator function used with "
+                     [:code "cljs.core/sort-by"] " to sort choices."]
+       :name        :sort-fn
+       :required    false
+       :type        "map, map -> integer"
+       :validate-fn ifn?}
+      {:description [:span
+                     "a set of the ids for currently selected choices. If nil, see "
+                     [:code ":placeholder"] "."]
+       :name        :model
+       :required    true
+       :type        "a set of ids | r/atom"}
+      {:default     false
+       :description "when true, at least one item must be selected"
+       :name        :required?
+       :required    false
+       :type        "boolean | r/atom"}
+      {:default     nil
+       :description "maximum number of items that can be selected"
+       :name        :max-selected-items
+       :required    false
+       :type        "integer"}
+      {:description "label displayed above the left list"
+       :name        :left-label
+       :required    false
+       :type        "string | hiccup"
+       :validate-fn string-or-hiccup?}
+      {:description "label displayed above the right list"
+       :name        :right-label
+       :required    false
+       :type        "string | hiccup"
+       :validate-fn string-or-hiccup?}
+      {:description
+       [:span
+        "a function that will be called when the selection changes. "
+        "Passed the set of selected ids. See "
+        [:code ":model"] "."]
+       :name        :on-change
+       :required    true
+       :type        "id -> nil"
+       :validate-fn fn?}
+      {:default     false
+       :description "if true, no user selection is allowed"
+       :name        :disabled?
+       :required    false
+       :type        "boolean | r/atom"}
+      {:default  false
+       :description
+       "if true, a filter text field is placed at the bottom of the component"
+       :name     :filter-box?
+       :required false
+       :type     "boolean | r/atom"}
+      {:default  false
+       :description
+       [:span "if true, the filter text field will support JavaScript regular expressions. "
+        "If false, just plain text"]
+       :name     :regex-filter?
+       :required false
+       :type     "boolean | r/atom"}
+      ;; TODO this is actually broken, does not display background text
+      {:description "background text when no selection"
+       :name        :placeholder
+       :required    false
+       :type        "string"
+       :validate-fn string?}
+      {:default     "100%"
+       :description "the CSS width. e.g.: \"500px\" or \"20em\""
+       :name        :width
+       :required    false
+       :type        "string"
+       :validate-fn string?}
+      {:description "the specific height of the component"
+       :name        :height
+       :required    false
+       :type        "string"
+       :validate-fn string?}
+      {:description "the maximum height of the component"
+       :name        :max-height
+       :required    false
+       :type        "string"
+       :validate-fn string?}
+      {:description "component's tabindex. A value of -1 removes from the tab order"
+       :name        :tab-index
+       :required    false
+       :type        "integer | string"
+       :validate-fn validate/number-or-string?}
+      {:description "See Parts section below."
+       :name        :parts
+       :required    false
+       :type        "map"
+       :validate-fn (parts? multi-select-parts)}]
+     args/std)))
 
 (defn multi-select
   "Render a multi-select component which emulates the bootstrap-choosen style. Sample choices object:
@@ -263,7 +379,7 @@
    {:id \"US\" :label \"United States\"  :group \"Group 1\"}
    {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
    {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [model sort-fn src]
+  [& {:keys [model pre theme sort-fn src]
       :or   {sort-fn identity}
       :as   args}]
   "Internal glossary:
@@ -272,7 +388,8 @@
   "
   (or
    (validate-args-macro multi-select-args-desc args)
-   (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
+   (let [theme                              (theme/comp pre theme)
+         *external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
          *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
          *current-choice-id                 (reagent/atom nil)
          *current-selection-id              (reagent/atom nil)
@@ -280,14 +397,7 @@
          *selection-group-heading-selected? (reagent/atom false)
          *warning-message                   (reagent/atom nil)
          *filter-choices-text               (reagent/atom "")
-         *filter-selections-text            (reagent/atom "")
-         button-style                       {:width        "86px"
-                                             :height       "24px"
-                                             :padding      "0px 8px 2px 8px"
-                                             :margin       "8px 6px"
-                                             :text-align   "left"
-                                             :font-variant "small-caps"
-                                             :font-size    11}]
+         *filter-selections-text            (reagent/atom "")]
      (fn multi-select-render
        [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
                   placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn filter-fn class style attr parts src]
@@ -299,7 +409,8 @@
            :as   args}]
        (or
         (validate-args-macro multi-select-args-desc args)
-        (let [required?              (deref-or-value required?)
+        (let [part                   (partial p/part part-structure args)
+              required?              (deref-or-value required?)
               filter-box?            (deref-or-value filter-box?)
               regex-filter?          (deref-or-value regex-filter?)
               min-msg                "Must have at least one"
@@ -409,198 +520,187 @@
                                           (reset! *external-model @*internal-model)
                                           (on-change @*internal-model))
                                         (reset! *current-selection-id nil))]
-          [:div
-           (merge
-            {:class (theme/merge-class "rc-multi-select"
-                                       "noselect"
-                                       "chosen-container"
-                                       "chosen-container-single"
-                                       class)
-             :style (merge (box/flex-child-style (if width "0 0 auto" "auto"))
-                           (box/align-style :align-self :start)
-                           {:overflow "hidden"
-                            :width    width}
-                           style)}
-            (->attr args)
-            attr) ;; Prevent user text selection
-           [box/h-box
-            :src        (at)
-            :class      (str "rc-multi-select-container " (get-in parts [:container :class]))
-            :style      (get-in parts [:container :style])
-            :attr       (get-in parts [:container :attr])
-            :height     height
-            :max-height max-height
-            :gap        "4px"
-            :children   [[box/v-box
-                          :src      (at)
-                          :class    (str "rc-multi-select-left " (get-in parts [:left :class]))
-                          :style    (get-in parts [:left :style])
-                          :attr     (get-in parts [:left :attr])
-                          :size     "50%"
-                          :gap      "4px"
-                          :children [(when left-label
-                                       (if (string? left-label)
-                                         [box/h-box
-                                          :src      (at)
-                                          :class    (str "rc-multi-select-left-label-container " (get-in parts [:left-label-container :class]))
-                                          :style    (get-in parts [:left-label-container :style])
-                                          :attr     (get-in parts [:left-label-container :attr])
-                                          :justify  :between
-                                          :children [[:span
-                                                      (merge
-                                                       {:class (theme/merge-class "rc-multi-select-left-label"
-                                                                                  (get-in parts [:left-label :class]))
-                                                        :style (merge {:font-size   "small"
-                                                                       :font-weight "bold"}
-                                                                      (get-in parts [:left-label :style]))}
-                                                       (get-in parts [:left-label :attr]))
-                                                      left-label]
-                                                     [:span
-                                                      (merge
-                                                       {:class (theme/merge-class "rc-multi-select-left-label-item-count"
-                                                                                  (get-in parts [:left-label-item-count :class]))
-                                                        :style (merge {:font-size "smaller"}
-                                                                      (get-in parts [:left-label-item-count :style]))}
-                                                       (get-in parts [:left-label-item-count :attr]))
-                                                      (if (string/blank? @*filter-choices-text)
-                                                        (rc.util/pluralize potential-count "item")
-                                                        (str "showing " (count filtered-choices) " of " potential-count))]]]
-                                         left-label))
-                                     [list-box
-                                      :src                     (at)
-                                      :class                   (str "rc-multi-select-left-list-box " (get-in parts [:left-list-box :class]))
-                                      :items                   filtered-choices
-                                      :id-fn                   id-fn
-                                      :label-fn                label-fn
-                                      :group-fn                group-fn
-                                      :disabled?               disabled?
-                                      :*current-item-id        *current-choice-id
-                                      :group-heading-selected? @*choice-group-heading-selected?
-                                      :click-callback          choice-click
-                                      :double-click-callback   include-click
-                                      :filter-choices-text     @*filter-choices-text]
-                                     (when filter-box?
-                                       [:<>
-                                        [box/gap
-                                         :src  (at)
-                                         :size "4px"]
-                                        [filter-text-box *filter-choices-text placeholder *warning-message disabled? parts]
-                                        [box/gap
-                                         :src  (at)
-                                         :size "4px"]
-                                        (if (string/blank? @*filter-choices-text)
-                                          [text/label
-                                           :src   (at)
-                                           :label (gstring/unescapeEntities "&nbsp;")
-                                           :style {:font-size "smaller"}]
-                                          [text/label
-                                           :src   (at)
-                                           :class (theme/merge-class "rc-multi-select-left-filter-result-count"
-                                                                     (get-in parts [:left-filter-result-count :class]))
-                                           :style (merge {:font-size "smaller"}
-                                                         (get-in parts [:left-filter-result-count :style]))
-                                           :attr  (get-in parts [:left-filter-result-count :attr])
-                                           :label [:span "Found " (rc.util/pluralize (count filtered-choices) "match" "matches") " containing " [:strong @*filter-choices-text]]])])]]
-
-                         [box/v-box
-                          :src      (at)
-                          :class    (str "rc-multi-select-middle-container " (get-in parts [:middle-container :class]))
-                          :style    (get-in parts [:middle-container :style])
-                          :attr     (get-in parts [:middle-container :attr])
-                          :justify  :between
-                          :children [[box/box
-                                      :src   (at)
-                                      :class (theme/merge-class "rc-multi-select-middle-spacer"
-                                                                (get-in parts [:middle-spacer :class]))
-                                      :style (get-in parts [:middle-spacer :style])
-                                      :attr  (get-in parts [:middle-spacer :attr])
-                                      :size  "0 1 22px" ;; 22 = (+ 18 4) - height of the top components
-                                      :child ""]
-                                     [box/v-box
-                                      :src      (at)
-                                      :class    (str "rc-multi-select-middle " (get-in parts [:middle :class]))
-                                      :style    (get-in parts [:middle :style])
-                                      :attr     (get-in parts [:middle :attr])
-                                      :justify  :center
-                                      :children [[buttons/button
-                                                  :src       (at)
-                                                  :class     (str "rc-multi-select-include-all-button " (get-in parts [:include-all-button :class]))
-                                                  :label     [:span
-                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-fast-forward")}]
-                                                              [:span
-                                                               {:style {:position "relative" :top "-1px"}}
-                                                               (str " include " (if (string/blank? @*filter-choices-text) potential-count (count filtered-choices)))]]
-                                                  :disabled? (or disabled? (zero? (count filtered-choices)))
-                                                  :style     (merge button-style
-                                                                    (get-in parts [:include-all-button :style]))
-                                                  :attr      (get-in parts [:include-all-button :attr])
-                                                  :on-click  include-filtered-click]
-                                                 [buttons/button
-                                                  :src       (at)
-                                                  :class     (str "rc-multi-select-include-selected-button " (get-in parts [:include-selected-button :class]))
-                                                  :label     [:span
-                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-play")}]
-                                                              [:span
-                                                               {:style {:position "relative" :top "-1px"}}
-                                                               (str " include " (when @*choice-group-heading-selected?
-                                                                                  (->> filtered-choices ;; TODO: Inefficient
-                                                                                       (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
-                                                                                       count)))]]
-                                                  :disabled? (or disabled? (not @*current-choice-id))
-                                                  :style     (merge button-style
-                                                                    (get-in parts [:include-selected-button :style]))
-                                                  :attr      (get-in parts [:include-selected-button :attr])
-                                                  :on-click  include-click]
-                                                 [buttons/button
-                                                  :src       (at)
-                                                  :class     (str "rc-multi-select-exclude-selected-button " (get-in parts [:exclude-selected-button :class]))
-                                                  :label     [:span
-                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-play" "zmdi-hc-rotate-180")}]
-                                                              [:span
-                                                               {:style {:position "relative" :top "-1px"}}
-                                                               (str " exclude " (when @*selection-group-heading-selected?
-                                                                                  (->> filtered-selections ;; TODO: Inefficient
-                                                                                       (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
-                                                                                       count)))]]
-                                                  :disabled? (or disabled? (not excludable?))
-                                                  :style     (merge button-style
-                                                                    (get-in parts [:exclude-selected-button :style]))
-                                                  :attr      (get-in parts [:exclude-selected-button :attr])
-                                                  :on-click  exclude-click]
-                                                 [buttons/button
-                                                  :src       (at)
-                                                  :class     (str "rc-multi-select-exclude-all-button " (get-in parts [:exclude-all-button :class]))
-                                                  :label     [:span
-                                                              [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-fast-rewind")}]
-                                                              [:span
-                                                               {:style {:position "relative" :top "-1px"}}
-                                                               (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))]]
-                                                  :disabled? (or disabled? (zero? (count filtered-selections)) (not (> (count @*internal-model) (if required? 1 0))))
-                                                  :style     (merge button-style
-                                                                    (get-in parts [:exclude-all-button :style]))
-                                                  :attr      (get-in parts [:exclude-all-button :attr])
-                                                  :on-click  exclude-filtered-click]]]
-                                     [box/box
-                                      :src   (at)
-                                      :size  (str "0 2 " (if filter-box? "55px" "0px")) ;; 55 = (+ 4 4 28 4 15) - height of the bottom components
+          (part ::container
+            {:theme      theme
+             :post-props {:attr  (merge (->attr args) attr)
+                          :class class
+                          :style (merge style
+                                        {:width width}
+                                        (box/flex-child-style
+                                         (if width "0 0 auto" "auto")))}
+             :props
+                 ;; Prevent user text selection
+             {:children [(part ::inner-container
+                           {:theme      theme
+                            :impl       box/h-box
+                            :post-props {:height     height
+                                         :max-height max-height}
+                            :props
+                            {:src (at)
+                             :children
+                             [(part ::left
+                                {:theme theme
+                                 :impl  box/v-box
+                                 :props
+                                 {:src (at)
+                                  :children
+                                  [(when left-label
+                                     (if-not (string? left-label)
+                                       left-label
+                                       (part ::left-label-container
+                                         {:theme theme
+                                          :impl  box/h-box
+                                          :props
+                                          {:src (at)
+                                           :children
+                                           [(part ::left-label
+                                              {:theme theme
+                                               :props {:tag      :span
+                                                       :children [left-label]}})
+                                            (part ::left-label-item-count
+                                              {:theme theme
+                                               :props
+                                               {:tag :span
+                                                :children
+                                                (if (string/blank? @*filter-choices-text)
+                                                  [(rc.util/pluralize potential-count "item")]
+                                                  [(str "showing " (count filtered-choices) " of " potential-count)])}})]}})))
+                                   (part ::left-list-box
+                                     {:theme theme
+                                      :impl  list-box
+                                      :props
+                                      {:src                     (at)
+                                       :items                   filtered-choices
+                                       :id-fn                   id-fn
+                                       :label-fn                label-fn
+                                       :group-fn                group-fn
+                                       :disabled?               disabled?
+                                       :*current-item-id        *current-choice-id
+                                       :group-heading-selected? @*choice-group-heading-selected?
+                                       :click-callback          choice-click
+                                       :double-click-callback   include-click
+                                       :filter-choices-text     @*filter-choices-text}})
+                                   (when filter-box?
+                                     [:<>
+                                      [box/gap
+                                       :src  (at)
+                                       :size "4px"]
+                                      [filter-text-box {:re-com           {:part-fn part
+                                                                           :theme   theme}
+                                                        :*filter-text     *filter-choices-text
+                                                        :*warning-message *warning-message
+                                                        :disabled?        disabled?
+                                                        :placeholder      placeholder}]
+                                      [box/gap
+                                       :src  (at)
+                                       :size "4px"]
+                                      (if (string/blank? @*filter-choices-text)
+                                        [text/label
+                                         :src   (at)
+                                         :label (gstring/unescapeEntities "&nbsp;")
+                                         :style {:font-size "smaller"}]
+                                        (part ::ms/left-filter-result-count
+                                          {:theme theme
+                                           :impl  text/label
+                                           :props {:src   (at)
+                                                   :label [:span "Found " (rc.util/pluralize
+                                                                           (count filtered-choices)
+                                                                           "match"
+                                                                           "matches")
+                                                           " containing "
+                                                           [:strong @*filter-choices-text]]}}))])]}})
+                              (part ::middle-container
+                                {:impl box/v-box
+                                 :props
+                                 {:src     (at)
+                                  :children
+                                  [(part ::middle-spacer
+                                     {:theme theme
+                                      :impl  box/box
+                                      :props {:src (at)
+                                              :child ""}})
+                                   (part ::middle
+                                     {:theme theme
+                                      :impl  box/v-box
+                                      :props
+                                      {:src     (at)
+                                       :children
+                                       [(part ::include-all-button
+                                          {:theme theme
+                                           :impl  buttons/button
+                                           :props
+                                           {:src       (at)
+                                            :label     [:span
+                                                        [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-fast-forward")}]
+                                                        [:span
+                                                         {:style {:position "relative" :top "-1px"}}
+                                                         (str " include " (if (string/blank? @*filter-choices-text)
+                                                                            potential-count
+                                                                            (count filtered-choices)))]]
+                                            :disabled? (or disabled? (zero? (count filtered-choices)))
+                                            :on-click  include-filtered-click}})
+                                        (part ::include-selected-button
+                                          {:theme theme
+                                           :impl  buttons/button
+                                           :props
+                                           {:src       (at)
+                                            :label     [:span
+                                                        [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-play")}]
+                                                        [:span
+                                                         {:style {:position "relative" :top "-1px"}}
+                                                         (str " include " (when @*choice-group-heading-selected?
+                                                                            (->> filtered-choices ;; TODO: Inefficient
+                                                                                 (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
+                                                                                 count)))]]
+                                            :disabled? (or disabled? (not @*current-choice-id))
+                                            :on-click  include-click}})
+                                        (part ::exclude-selected-button
+                                          {:theme theme
+                                           :impl  buttons/button
+                                           :props {:src       (at)
+                                                   :label     [:span
+                                                               [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-play" "zmdi-hc-rotate-180")}]
+                                                               [:span
+                                                                {:style {:position "relative" :top "-1px"}}
+                                                                (str " exclude " (when @*selection-group-heading-selected?
+                                                                                   (->> filtered-selections ;; TODO: Inefficient
+                                                                                        (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
+                                                                                        count)))]]
+                                                   :disabled? (or disabled? (not excludable?))
+                                                   :on-click  exclude-click}})
+                                        (part ::exclude-all-button
+                                          {:theme theme
+                                           :impl  buttons/button
+                                           :props
+                                           {:src       (at)
+                                            :label     [:span
+                                                        [:i {:class (theme/merge-class "zmdi" "zmdi-hc-fw-rc" "zmdi-fast-rewind")}]
+                                                        [:span
+                                                         {:style {:position "relative" :top "-1px"}}
+                                                         (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))]]
+                                            :disabled? (or disabled?
+                                                           (zero? (count filtered-selections))
+                                                           (not (> (count @*internal-model) (if required? 1 0))))
+                                            :on-click  exclude-filtered-click}})]}})
+                                   [box/box
+                                    :src   (at)
+                                    :size  (str "0 2 " (if filter-box? "55px" "0px")) ;; 55 = (+ 4 4 28 4 15) - height of the bottom components
                                         ;:style {:background-color "lightblue"}
-                                      :child ""]]]
-                         [box/v-box
-                          :src      (at)
-                          :class    (str "rc-multi-select-right " (get-in parts [:right :class]))
-                          :size     "50%"
-                          :gap      "4px"
-                          :style    (merge {:position "relative"}
-                                           (get-in parts [:right :style]))
-                          :attr     (get-in parts [:right :attr])
-                          :children [^{:key (gensym)}
-                                     [text/label
-                                      :src   (at)
-                                      :label @*warning-message
-                                      :class (theme/merge-class "rc-multi-select-warning-message"
-                                                                (get-in parts [:warning-message :class]))
-                                      :style (when @*warning-message
-                                               (merge
+                                    :child ""]]}})
+                              (part ::right
+                                {:theme theme
+                                 :impl  box/v-box
+                                 :props
+                                 {:src   (at)
+                                  :children
+                                  [^{:key (gensym)}
+                                   (part ::warning-message
+                                     {:theme theme
+                                      :impl  text/label
+                                      :props
+                                      {:src   (at)
+                                       :label @*warning-message
+                                       :style (when @*warning-message
                                                 {:color              "white"
                                                  :background-color   "green"
                                                  :border-radius      "0px"
@@ -611,70 +711,60 @@
                                                  :height             "25px"
                                                  :padding            "3px 6px"
                                                  :animation-name     "rc-multi-select-fade-warning-msg"
-                                                 :animation-duration "5000ms"}
-                                                (get-in parts [:warning-message :style])))
-                                      :attr  (get-in parts [:warning-message :attr])]
-                                     (when right-label
-                                       (if (string? right-label)
-                                         [box/h-box
-                                          :src      (at)
-                                          :class    (str "rc-multi-select-right-label-container " (get-in parts [:right-label-container :class]))
-                                          :style    (get-in parts [:right-label-container :style])
-                                          :attr     (get-in parts [:right-label-container :attr])
-                                          :justify  :between
-                                          :children [[:span
-                                                      (merge
-                                                       {:class (theme/merge-class "rc-multi-select-right-label"
-                                                                                  (get-in parts [:right-label :class]))
-                                                        :style (merge {:font-size   "small"
-                                                                       :font-weight "bold"}
-                                                                      (get-in parts [:right-label :style]))}
-                                                       (get-in parts [:right-label :attr]))
-                                                      right-label]
-                                                     [:span
-                                                      (merge
-                                                       {:class (theme/merge-class "rc-multi-select-right-label-item-count"
-                                                                                  (get-in parts [:right-label-item-count :class]))
-                                                        :style (merge {:font-size "smaller"}
-                                                                      (get-in parts [:right-label-item-count :style]))}
-                                                       (get-in parts [:right-label-item-count :attr]))
-                                                      (if (string/blank? @*filter-selections-text)
-                                                        (rc.util/pluralize chosen-count "item")
-                                                        (str "showing " (count filtered-selections) " of " chosen-count))]]]
-                                         right-label))
-                                     [list-box
-                                      :src                     (at)
-                                      :class                   (str "rc-multi-select-right-list-box " (get-in parts [:right-list-box :class]))
-                                      :style                   (get-in parts [:right-list-box :style])
-                                      :attr                    (get-in parts [:right-list-box :attr])
-                                      :items                   filtered-selections
-                                      :id-fn                   id-fn
-                                      :label-fn                label-fn
-                                      :group-fn                group-fn
-                                      :disabled?               disabled?
-                                      :*current-item-id        *current-selection-id
-                                      :group-heading-selected? @*selection-group-heading-selected?
-                                      :click-callback          selection-click
-                                      :double-click-callback   exclude-click
-                                      :filter-choices-text     @*filter-selections-text]
-                                     (when filter-box?
-                                       [:<>
-                                        [box/gap
-                                         :src  (at)
-                                         :size "4px"]
-                                        [filter-text-box *filter-selections-text placeholder *warning-message disabled? parts]
-                                        [box/gap
-                                         :src  (at)
-                                         :size "4px"]
-                                        (if (string/blank? @*filter-selections-text)
-                                          [text/label
-                                           :src   (at)
-                                           :label (gstring/unescapeEntities "&nbsp;")
-                                           :style {:font-size "smaller"}]
-                                          [text/label
-                                           :src   (at)
-                                           :label [:span "Found " (rc.util/pluralize (count filtered-selections) "match" "matches") " containing " [:strong @*filter-selections-text]]
-                                           :class (theme/merge-class "rc-multi-select-right-filter-result-count"
-                                                                     (get-in parts [:right-filter-result-count :class]))
-                                           :style (merge {:font-size "smaller"} (get-in parts [:right-filter-result-count :style]))
-                                           :attr  (get-in parts [:right-filter-result-count :attr])])])]]]]]))))))
+                                                 :animation-duration "5000ms"})}})
+                                   (when right-label
+                                     (if (string? right-label)
+                                       (part ::right-label-container
+                                         {:theme theme
+                                          :impl  box/h-box
+                                          :props
+                                          {:src     (at)
+                                           :justify :between
+                                           :children
+                                           [(part ::right-label
+                                              {:theme theme
+                                               :props {:tag      :span
+                                                       :children [right-label]}})
+                                            (part ::right-label-item-count
+                                              {:theme theme
+                                               :props {:tag      :span
+                                                       :children [(if (string/blank? @*filter-selections-text)
+                                                                    (rc.util/pluralize chosen-count "item")
+                                                                    (str "showing " (count filtered-selections) " of " chosen-count))]}})]}})
+                                       right-label))
+                                   (part ::right-list-box
+                                     {:theme theme
+                                      :impl  list-box
+                                      :props
+                                      {:src                     (at)
+                                       :items                   filtered-selections
+                                       :id-fn                   id-fn
+                                       :label-fn                label-fn
+                                       :group-fn                group-fn
+                                       :disabled?               disabled?
+                                       :*current-item-id        *current-selection-id
+                                       :group-heading-selected? @*selection-group-heading-selected?
+                                       :click-callback          selection-click
+                                       :double-click-callback   exclude-click
+                                       :filter-choices-text     @*filter-selections-text}})
+                                   (when filter-box?
+                                     [:<>
+                                      [box/gap :size "4px"]
+                                      [filter-text-box {:*filter-text     *filter-selections-text
+                                                        :placeholder      placeholder
+                                                        :*warning-message *warning-message
+                                                        :disabled?        disabled?
+                                                        :parts            parts
+                                                        :re-com           {:theme theme :part-fn part}}]
+                                      [box/gap :size "4px"]
+                                      (if (string/blank? @*filter-selections-text)
+                                        [text/label
+                                         :src   (at)
+                                         :label (gstring/unescapeEntities "&nbsp;")
+                                         :style {:font-size "smaller"}]
+                                        (part ::ms/right-filter-result-count
+                                          {:theme      theme
+                                           :impl       text/label
+                                           :post-props {:src (at)}
+                                           :props      {:label [:span "Found " (rc.util/pluralize (count filtered-selections) "match" "matches")
+                                                                " containing " [:strong @*filter-selections-text]]}}))])]}})]}})]}})))))))
