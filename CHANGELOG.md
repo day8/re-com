@@ -1,5 +1,8 @@
+## 2.29.0 (2026-02-01)
+
 #### Added
-- `input-text`: added `:throbber` part
+- Full `:parts` & `:theme` support for most components (excluding `popover`, `v-table` and `simple-v-table`).
+- `input-text`: added `:throbber` part.
 
 #### Changed
 - `popover`: Now supports passing `:popover` as a hiccup with a single map argument,
