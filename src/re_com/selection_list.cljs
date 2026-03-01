@@ -131,20 +131,21 @@
 ;;      this approach may be not ideal for very large list choices.
 (defn selection-list
   "Produce a list box with items arranged vertically"
-  [& {:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required?
-             width height max-height disabled? hide-border? item-renderer show-only-button?
-             class style attr parts src debug-as pre-theme theme]
-      :or   {multi-select?     true
-             as-exclusions?    false
-             required?         false
-             disabled?         false
-             hide-border?      false
-             show-only-button? false
-             id-fn             :id
-             label-fn          :label}
+  [& {:keys [pre-theme theme]
       :as   args}]
   (let [theme (theme/comp pre-theme theme)]
-    (fn [& {:as args}]
+    (fn [& {:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required?
+                  width height max-height disabled? hide-border? item-renderer show-only-button?
+                  class style attr parts src debug-as]
+           :or   {multi-select?     true
+                  as-exclusions?    false
+                  required?         false
+                  disabled?         false
+                  hide-border?      false
+                  show-only-button? false
+                  id-fn             :id
+                  label-fn          :label}
+           :as args}]
       (or
        (validate-args-macro args-desc args)
        (let [choices           (deref-or-value choices)
