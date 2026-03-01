@@ -1,3 +1,8 @@
+## 2.29.1 (2026-03-02)
+
+#### Fixed
+- `selection-list`: Fix inner render function not re-reading updated args, causing model changes to be ignored. [#363](https://github.com/day8/re-com/issues/363)
+
 ## 2.29.0 (2026-02-01)
 
 #### Added
