@@ -1,3 +1,9 @@
+## 2.29.2 (2026-03-02)
+
+#### Fixed
+- `selection-list`: Fix `item-renderer` producing invalid hiccup
+- `selection-list`: Fix `:parts {:label {...}}` map overrides losing label text
+
 ## 2.29.1 (2026-03-02)
 
 #### Fixed

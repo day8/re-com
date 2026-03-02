@@ -3,7 +3,6 @@
    [re-com.core     :refer [handler-fn at reflect-current-component]]
    [re-com.validate :refer [validate-args-macro]])
   (:require
-   [re-com.core :as-alias rc]
    [re-com.args         :as args]
    [re-com.config       :refer [include-args-desc?]]
    [re-com.checkbox     :refer [checkbox]]
@@ -16,85 +15,67 @@
    re-com.selection-list.theme
    [re-com.selection-list :as-alias sl]))
 
-;; ----------------------------------------------------------------------------
-(defn label-style
-  ([selected? as-exclusions?]
-   (label-style selected? as-exclusions? nil))
-
-  ([selected? as-exclusions? selected-color]
-    ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-   (let [base-style {:margin-top "1px"}
-         base-style (if (and selected? as-exclusions?)
-                      (merge base-style {:text-decoration "line-through"})
-                      base-style)
-         base-style (if (and selected? selected-color)
-                      (merge base-style {:color selected-color})
-                      base-style)]
-     base-style)))
+(defn- label-style [selected? as-exclusions?]
+  (cond-> {:margin-top "1px"}
+    (and selected? as-exclusions?) (assoc :text-decoration "line-through")))
 
 (def part-structure
   [::sl/wrapper {:impl 're-com.box/border :notes "Outer wrapper for the selection list."}
    [::sl/list-group {:tag :div :notes "Container for the selection list items."}
-    [::sl/list-group-item {:impl 're-com.box/box}
-     [::sl/item-content {:impl 're-com.box/h-box}
-      [::sl/checkbox {:impl 're-com.checkbox/checkbox}
-       [::sl/label]]
-      [::sl/radio-button {:impl 're-com.radio-button/radio-button}
-       [::sl/label]]
-      [::sl/only-button
-       {:tag :button
-        :notes "The 'only' button displayed next to each item when :show-only-button? is true"}]]]]])
+    [::sl/list-group-item {:impl 're-com.box/h-box}
+     [::sl/item-content
+      [::sl/label]
+      [::sl/checkbox {:impl 're-com.checkbox/checkbox}]
+      [::sl/radio-button {:impl 're-com.radio-button/radio-button}]]
+     [::sl/only-button
+      {:tag :button
+       :notes "The 'only' button displayed next to each item when :show-only-button? is true"}]]]])
 
-(defn only-button-part [{:keys [on-change id-fn choice disabled? theme parts]}]
+(defn only-button-part
+  [{:keys [on-change id-fn choice disabled?]
+    {part :part-fn theme :theme} :re-com}]
   (let [item-id (id-fn choice)]
-    (p/part (:only-button parts)
-      {:theme theme
+    (part ::sl/only-button
+      {:impl  p/default
+       :theme theme
        :props {:tag      :button
-               :disabled disabled?
-               :on-click (handler-fn
-                          (.stopPropagation event)
-                          (when (not disabled?)
-                            (on-change #{item-id})))
-               :children "only"}})))
+               :attr     {:disabled disabled?
+                          :on-click (handler-fn
+                                    (.stopPropagation event)
+                                    (when (not disabled?)
+                                      (on-change #{item-id})))}
+               :children ["only"]}})))
 
 (defn checkbox-part
-  [{:keys [choice id-fn selected disabled? label-fn as-exclusions? parts theme]}]
+  [{:keys [choice id-fn selected disabled? label-content as-exclusions?]
+    {part :part-fn theme :theme} :re-com}]
   (let [item-id (id-fn choice)]
-    (p/part (:checkbox parts)
+    (part ::sl/checkbox
       {:impl  checkbox
-       :part  ::sl/checkbox
        :theme theme
        :props {:src         (at)
                :model       (some? (selected item-id))
-               :on-change   #()                                 ;; handled by enclosing box
+               :on-change   #()
                :disabled?   disabled?
                :label-style (label-style (selected item-id) as-exclusions?)
-               :label       (p/part (:label parts)
-                              {:theme theme
-                               :impl  label-fn
-                               :part  ::sl/label
-                               :props choice})}})))
+               :label       {:children [label-content]}}})))
 
 (defn radio-part
-  [{:keys [choice id-fn selected disabled? label-fn as-exclusions? parts theme]}]
+  [{:keys [choice id-fn selected disabled? label-content as-exclusions?]
+    {part :part-fn theme :theme} :re-com}]
   (let [item-id   (id-fn choice)
         selected? (selected item-id)]
-    (p/part (:radio-button parts)
+    (part ::sl/radio-button
       {:impl  radio-button
-       :part  ::sl/radio-button
        :theme theme
        :props {:src         (at)
                :style       (when disabled? {:pointer-events "none"})
                :model       (first selected)
                :value       item-id
-               :on-change   #()                                 ;; handled by enclosing box
+               :on-change   #()
                :disabled?   disabled?
                :label-style (label-style selected? as-exclusions?)
-               :label       (p/part (:label parts)
-                              {:theme theme
-                               :impl  label-fn
-                               :part  ::sl/label
-                               :props choice})}})))
+               :label       {:children [label-content]}}})))
 
 (def parts-desc
   (when include-args-desc?
@@ -106,7 +87,7 @@
 
 (def args-desc
   (when include-args-desc?
-    (concat
+    (into
      [{:name :choices        :required true                  :type "vector of choices | r/atom"           :validate-fn vector-of-maps?               :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
       {:name :model          :required true                  :type "set of :ids within :choices | r/atom" :validate-fn set-or-atom?                  :description "the currently selected items. Note: items are considered distinct"}
       {:name :on-change      :required true                  :type "set of :ids -> nil | r/atom"          :validate-fn fn?                           :description [:span "a callback which will be passed set of the ids (as defined by " [:code ":id-fn"] ") of the selected items"]}
@@ -118,13 +99,13 @@
       {:name :width          :required false                 :type "string | r/atom"                      :validate-fn string-or-atom?               :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label"}
       {:name :height         :required false                 :type "string | r/atom"                      :validate-fn string-or-atom?               :description "a CSS style e.g. \"150px\". Size beyond which items will scroll"}
       {:name :max-height     :required false                 :type "string | r/atom"                      :validate-fn string-or-atom?               :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
-      {:name :disabled?      :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the time input will be disabled. Can be atom or value"}
+      {:name :disabled?      :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the selection list will be disabled. Can be atom or value"}
       {:name :hide-border?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, the list will be displayed without a border"}
-      {:name :item-renderer  :required false                 :type "choice, id-fn, selected, on-change, disabled?, label-fn, required?, as-exclusions? -> hiccup | r/atom"                      :validate-fn fn?                           :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
+      {:name :item-renderer  :required false                 :type "choice, id-fn, selected, on-change, disabled?, label-fn, required?, as-exclusions? -> hiccup | r/atom"                      :validate-fn fn?                           :description "a function which takes choice, id-fn, selected, on-change, disabled?, label-fn, required? and as-exclusions? and returns hiccup. Called for each element, the returned component renders the element and responds to clicks"}
       {:name :show-only-button?   :required false :default false  :type "boolean | r/atom"                                                                :description "when true, an 'only' button will be displayed next to each item, allowing the user to select only that item"}]
-     args/std
-     [(args/parts parts)]
-     (p/describe-args part-structure))))
+     (concat
+      args/std
+      (p/describe-args part-structure)))))
 
 ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
 ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
@@ -158,14 +139,22 @@
              hide-border?      (deref-or-value hide-border?)
              item-renderer     (deref-or-value item-renderer)
              show-only-button? (deref-or-value show-only-button?)
-             part              (partial p/part part-structure (p/descend args ::rc/selection-list))
+             part              (partial p/part part-structure args)
              selected          (if multi-select? model (-> model first vector set))
-             re-com-ctx        {:state {:border      (if hide-border? :hidden :shown)
-                                        :interaction (if disabled? :disabled :enabled)}}
+             re-com-ctx        {:part-fn part
+                                :theme   theme
+                                :state   {:border      (if hide-border? :hidden :shown)
+                                          :interaction (if disabled? :disabled :enabled)}}
              list-group-items
              (for [choice choices
                    :let   [item-id (id-fn choice)
                            selected? (selected item-id)
+                           label-content
+                           (p/part (or (p/get-part part-structure args ::sl/label)
+                                       (label-fn choice))
+                             {:theme theme
+                              :part  ::sl/label
+                              :props (assoc choice :children [(label-fn choice)])})
                            on-change-checkbox
                            (handler-fn
                             (when-not disabled?
@@ -180,38 +169,35 @@
                                          (when-not (and required? selected?)
                                            (on-change (if selected? #{} #{item-id})))))
                            props
-                           {:choice            choice
-                            :id-fn             id-fn
-                            :selected          selected
-                            :on-change         on-change
-                            :disabled?         disabled?
-                            :label-fn          label-fn
-                            :required?         required?
-                            :as-exclusions?    as-exclusions?
-                            :parts             parts
-                            :show-only-button? show-only-button?
-                            :theme             theme}]]
+                           {:choice         choice
+                            :id-fn          id-fn
+                            :selected       selected
+                            :on-change      on-change
+                            :disabled?      disabled?
+                            :label-fn       label-fn
+                            :label-content  label-content
+                            :required?      required?
+                            :as-exclusions? as-exclusions?
+                            :re-com         re-com-ctx}]]
                (part ::sl/list-group-item
                  {:theme theme
-                  :key   choice
+                  :key   (id-fn choice)
                   :impl  h-box
-                  :props {:attr {:on-click (if multi-select? on-change-checkbox on-change-radio)}
+                  :props {:re-com re-com-ctx
+                          :attr {:on-click (if multi-select? on-change-checkbox on-change-radio)}
                           :children
                           [(part ::sl/item-content
                              {:props props
                               :theme theme
                               :impl  (or (when item-renderer
-                                           (into [item-renderer]
-                                                 (map props)
-                                                 [:choice :id-fn :selected :on-change :disabled?
-                                                  :label-fn :required? :as-exclusions?]))
+                                           (fn [{:keys [choice id-fn selected on-change disabled?
+                                                        label-fn required? as-exclusions?]}]
+                                             [item-renderer choice id-fn selected on-change disabled?
+                                              label-fn required? as-exclusions?]))
                                          (when multi-select? checkbox-part)
                                          radio-part)})
                            (when (and multi-select? show-only-button?)
                              [only-button-part props])]}}))]
-         ;; In single select mode force selections to one. This causes a second render
-         ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
-         #_(when-not (= selected model) (on-change selected))
          (part ::sl/wrapper
            {:impl       border
             :theme      theme
