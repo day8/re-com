@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1
 
       - name: Setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
         with:
           distribution: 'temurin'
           java-version: '24'
         
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@12.5
+        uses: DeLaGuardo/setup-clojure@bc7570e912b028bbcc22f457adec7fdf98e2f4ed # 12.5
         with:
           cli:  'latest'
           bb:   'latest'
 
       - name: Cache clojure dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
         with:
           path: |
             ~/.m2/repository
@@ -39,7 +39,7 @@ jobs:
       - name: Fix git dubious directory ownership error
         run: git config --global --add safe.directory /__w/re-com/re-com
 
-      - uses: browser-actions/setup-chrome@v1
+      - uses: browser-actions/setup-chrome@c785b87e244131f27c9f19c1a33e2ead956ab7ce # v1
         id: setup-chrome
         with:
           chrome-version: 811961
@@ -48,13 +48,13 @@ jobs:
 
       - run: bb release-demo
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: build-report
           path: target/build-report.html
 
       - name: Slack notification
-        uses: homoluctus/slatify@v2.0.1
+        uses: homoluctus/slatify@61c6b12d2ae226db04062ff9b43d9679e2d53236 # v2.0.1
         if: failure() || cancelled()
         with:
           type: ${{ job.status  }}
