@@ -16,22 +16,22 @@ jobs:
       CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1
 
       - name: Setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
         with:
           distribution: 'temurin'
           java-version: '24'
 
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@12.5
+        uses: DeLaGuardo/setup-clojure@bc7570e912b028bbcc22f457adec7fdf98e2f4ed # 12.5
         with:
           cli:  'latest'
           bb:   'latest'
 
       - name: Cache clojure dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
         with:
           path: |
             ~/.m2/repository
@@ -53,7 +53,7 @@ jobs:
           AWS_EC2_METADATA_DISABLED: true
 
       - name: Invalidate CloudFront Distribution
-        uses: chetan/invalidate-cloudfront-action@master
+        uses: chetan/invalidate-cloudfront-action@fce6f6f546fae2e9fe55f3bd1411063a908f2557 # master
         env:
           DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
           PATHS: '/*'
@@ -62,7 +62,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Slack notification
-        uses: homoluctus/slatify@v2.0.1
+        uses: homoluctus/slatify@61c6b12d2ae226db04062ff9b43d9679e2d53236 # v2.0.1
         if: always()
         with:
           type: ${{ job.status }}
