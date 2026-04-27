@@ -1,6 +1,7 @@
 (ns re-com.debug-test
   (:require [cljs.test     :refer-macros [is deftest testing use-fixtures]]
             [goog.object   :as gobj]
+            [re-com.config :as config]
             [re-com.debug  :as debug]))
 
 (defn- with-fake-rf-trace
@@ -38,6 +39,33 @@
 (use-fixtures :each
   {:before clear-fake-rf-trace!
    :after  clear-fake-rf-trace!})
+
+(deftest ->attr-returns-empty-when-debug-false
+  (testing "Closure dead-code-elim guard: when re-com.config/debug?
+            (i.e. goog.DEBUG) is false, ->attr returns {} immediately
+            so production builds pay none of the ref/component-name
+            cost. The (if-not debug? ...) form is split out for this
+            reason — see the comment in src/re_com/debug.cljs."
+    (with-redefs [config/debug? false]
+      (is (= {} (debug/->attr {:src      {:file "src/foo.cljs" :line 42}
+                               :debug-as {:component "foo-component"}}))))))
+
+(deftest ->attr-returns-data-rc-and-data-rc-src-when-src-present
+  (testing "Happy path: with debug? true and :src supplied, ->attr
+            returns :ref + :data-rc (component name) + :data-rc-src
+            (\"file:line\"). :debug-as {:component ...} is supplied so
+            the test can run outside a Reagent render — otherwise
+            ->attr falls back to (r/current-component) which only
+            exists during a render."
+    (let [src   {:file "src/foo.cljs" :line 42}
+          attrs (debug/->attr {:src      src
+                               :debug-as {:component "foo-component"}})]
+      (is (fn? (:ref attrs))
+          ":ref is the callback ref re-com installs to capture rc-args on the DOM node")
+      (is (= "foo-component" (:data-rc attrs))
+          ":data-rc carries the component name for DevTools / component-stack")
+      (is (= "src/foo.cljs:42" (:data-rc-src attrs))
+          ":data-rc-src serializes :src as \"file:line\" for source-map navigation"))))
 
 (deftest emit-render-src-trace-fires-without-finish-trace-export
   (testing "Regression: finish-trace is a CLJ-only macro and is NOT a JS
