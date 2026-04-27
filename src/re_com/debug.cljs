@@ -53,7 +53,7 @@
       (handler-fn (log-on-alt-click* event (cond-> args (not show-all-args?) loggable-args)))
       nil)))
 
-;; rc-aeh — runtime probe for re-frame.trace. Re-com intentionally
+;; Runtime probe for re-frame.trace. Re-com intentionally
 ;; doesn't depend on re-frame (re-frame-10x inlines its own copy via
 ;; mranderson, so 10x as a peer dep doesn't carry re-frame), but
 ;; consumer apps that do load re-frame can opt in to the
@@ -78,7 +78,7 @@
            :enabled? enabled?})))))
 
 (defn- emit-render-src-trace!
-  "rc-aeh — Q1 result is NEGATIVE: Reagent's :render trace `:tags`
+  "Q1 result is NEGATIVE: Reagent's :render trace `:tags`
    carries only `:component-name` (10x's wrap-funs in
    day8/reagent/impl/component.cljs fires the `with-trace` with an
    empty body before `do-render`, so hiccup-metadata via
