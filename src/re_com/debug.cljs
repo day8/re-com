@@ -60,24 +60,40 @@
 ;; `:re-com/render` trace stream documented below. We resolve the
 ;; trace fns lazily via `goog.global` so re-com builds without
 ;; re-frame still compile and run cleanly.
-(def ^:private rf-trace
+;;
+;; Names looked up here are all `defn`/`def` in re-frame.trace and
+;; therefore exist as JS exports. `finish-trace` and `with-trace` in
+;; re-frame.trace are CLJ-only `defmacro`s wrapped in
+;; `(macros/deftime ...)` — they do NOT compile to JS exports, so
+;; resolving them dynamically returns undefined. Instead we inline
+;; the `finish-trace` macro's body using the exported `traces` atom
+;; and `run-tracing-callbacks!` fn.
+(def rf-trace
   ;; Cached so we don't walk goog.global on every render. Resets
   ;; to `:unset` on hot-reload (defonce semantics aren't appropriate
   ;; — re-frame may load AFTER re-com namespaces in some boot orders).
   (atom :unset))
 
-(defn- resolve-rf-trace! []
+(defn resolve-rf-trace! []
   (when-let [g (some-> js/goog .-global)]
     (when-let [tns (some-> g (gobj/get "re_frame") (gobj/get "trace"))]
-      (let [start    (gobj/get tns "start_trace")
-            finish   (gobj/get tns "finish_trace")
-            enabled? (gobj/get tns "is_trace_enabled_QMARK_")]
-        (when (and start finish enabled?)
-          {:start    start
-           :finish   finish
-           :enabled? enabled?})))))
+      (let [start            (gobj/get tns "start_trace")
+            enabled?         (gobj/get tns "is_trace_enabled_QMARK_")
+            traces           (gobj/get tns "traces")
+            run-tracing-cbs! (gobj/get tns "run_tracing_callbacks_BANG_")]
+        (when (and start enabled? traces run-tracing-cbs!)
+          {:start            start
+           :enabled?         enabled?
+           :traces           traces
+           :run-tracing-cbs! run-tracing-cbs!})))))
 
-(defn- emit-render-src-trace!
+(defn- now*
+  []
+  (if (and (exists? js/performance) (.-now js/performance))
+    (.now js/performance)
+    (.now js/Date)))
+
+(defn emit-render-src-trace!
   "Q1 result is NEGATIVE: Reagent's :render trace `:tags`
    carries only `:component-name` (10x's wrap-funs in
    day8/reagent/impl/component.cljs fires the `with-trace` with an
@@ -102,17 +118,19 @@
                    v))]
     (let [enabled? (:enabled? t)]
       (when (enabled?)
-        (let [start  (:start t)
-              finish (:finish t)
-              opts   #js {:op-type   :re-com/render
-                          :operation rc-component
-                          :tags      {:component-name rc-component
-                                      :src            src}}
-              ;; start-trace returns a trace map; finish-trace
-              ;; expects it back. We don't run a body — the trace
-              ;; is a marker, so duration is effectively 0.
-              tr     (start (cljs.core/js->clj opts :keywordize-keys true))]
-          (finish tr))))))
+        (let [start            (:start t)
+              traces-atom      (:traces t)
+              run-tracing-cbs! (:run-tracing-cbs! t)
+              tr               (start {:op-type   :re-com/render
+                                       :operation rc-component
+                                       :tags      {:component-name rc-component
+                                                   :src            src}})
+              end              (now*)
+              finished         (assoc tr
+                                      :duration (- end (:start tr))
+                                      :end      end)]
+          (swap! traces-atom conj finished)
+          (run-tracing-cbs! end))))))
 
 (defn ->attr
   [{:keys [src debug-as] :as args}]
