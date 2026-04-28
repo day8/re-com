@@ -101,6 +101,16 @@
               [p "This links any DOM node you inspect in DevTool's \"Elements\" tab to the code which created it. "
                "When you are exploring an unfamiliar codebase (including your own, after an absence) this is invaluable. "
                "Just right-click and \"Inspect\" on any part of the apps UI and you can instantly see the coordinates for the underlying code."]
+              [title3 [:span [:code ":re-com/render"] " trace events"]]
+              [p "When " [:code ":src"] " is provided and " [:code "re-frame.trace"] " is loaded with tracing enabled, re-com also emits a "
+               [:code ":re-com/render"] " trace event for each instrumented component render."]
+              [p "The event uses " [:code ":op-type :re-com/render"] " and carries its source metadata under "
+               [:code ":tags"] ", shaped as "
+               [:code "{:component-name \"button\" :src {:file \"src/app.cljs\" :line 42}}"] "."]
+              [p "Downstream tools can recover the component source by correlating this event with Reagent's own "
+               [:code ":render"] " event using the same " [:code ":component-name"] " and a nearby "
+               [:code ":start"] " timestamp. Re-com does not require re-frame; without "
+               [:code "re-frame.trace"] " or when tracing is disabled, this path is a no-op."]
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
               [title3 "A Script"]
               [p "If you have an existing/legacy codebase, "

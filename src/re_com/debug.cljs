@@ -53,6 +53,85 @@
       (handler-fn (log-on-alt-click* event (cond-> args (not show-all-args?) loggable-args)))
       nil)))
 
+;; Runtime probe for re-frame.trace. Re-com intentionally
+;; doesn't depend on re-frame (re-frame-10x inlines its own copy via
+;; mranderson, so 10x as a peer dep doesn't carry re-frame), but
+;; consumer apps that do load re-frame can opt in to the
+;; `:re-com/render` trace stream documented below. We resolve the
+;; trace fns lazily via `goog.global` so re-com builds without
+;; re-frame still compile and run cleanly.
+;;
+;; Names looked up here are all `defn`/`def` in re-frame.trace and
+;; therefore exist as JS exports. `finish-trace` and `with-trace` in
+;; re-frame.trace are CLJ-only `defmacro`s wrapped in
+;; `(macros/deftime ...)` — they do NOT compile to JS exports, so
+;; resolving them dynamically returns undefined. Instead we inline
+;; the `finish-trace` macro's body using the exported `traces` atom
+;; and `run-tracing-callbacks!` fn.
+(def rf-trace
+  ;; Cached so we don't walk goog.global on every render. Resets
+  ;; to `:unset` on hot-reload (defonce semantics aren't appropriate
+  ;; — re-frame may load AFTER re-com namespaces in some boot orders).
+  (atom :unset))
+
+(defn resolve-rf-trace! []
+  (when-let [g (some-> js/goog .-global)]
+    (when-let [tns (some-> g (gobj/get "re_frame") (gobj/get "trace"))]
+      (let [start            (gobj/get tns "start_trace")
+            enabled?         (gobj/get tns "is_trace_enabled_QMARK_")
+            traces           (gobj/get tns "traces")
+            run-tracing-cbs! (gobj/get tns "run_tracing_callbacks_BANG_")]
+        (when (and start enabled? traces run-tracing-cbs!)
+          {:start            start
+           :enabled?         enabled?
+           :traces           traces
+           :run-tracing-cbs! run-tracing-cbs!})))))
+
+(defn- now*
+  []
+  (if (and (exists? js/performance) (.-now js/performance))
+    (.now js/performance)
+    (.now js/Date)))
+
+(defn emit-render-src-trace!
+  "Q1 result is NEGATIVE: Reagent's :render trace `:tags`
+   carries only `:component-name` (10x's wrap-funs in
+   day8/reagent/impl/component.cljs fires the `with-trace` with an
+   empty body before `do-render`, so hiccup-metadata via
+   `(with-meta [:div ...] {:src ...})` never reaches it). The
+   workaround is a sibling marker trace: zero-body `with-trace`
+   carrying `:src` + `:component-name`, fired once per `->attr`
+   call. Consumers (re-frame-pair, custom 10x panels) correlate
+   `:re-com/render` to the matching `:render` by component-name
+   + nearby `:start` timestamp.
+
+   No-op when re-frame.trace isn't loaded into the runtime —
+   re-com stays decoupled from re-frame as a hard dep.
+   No-op when tracing is disabled (`trace-enabled?` false) —
+   matches re-frame.trace's own gating semantics."
+  [rc-component src]
+  (when-let [t (let [v @rf-trace]
+                 (if (= :unset v)
+                   (let [r (resolve-rf-trace!)]
+                     (reset! rf-trace r)
+                     r)
+                   v))]
+    (let [enabled? (:enabled? t)]
+      (when (enabled?)
+        (let [start            (:start t)
+              traces-atom      (:traces t)
+              run-tracing-cbs! (:run-tracing-cbs! t)
+              tr               (start {:op-type   :re-com/render
+                                       :operation rc-component
+                                       :tags      {:component-name rc-component
+                                                   :src            src}})
+              end              (now*)
+              finished         (assoc tr
+                                      :duration (- end (:start tr))
+                                      :end      end)]
+          (swap! traces-atom conj finished)
+          (run-tracing-cbs! end))))))
+
 (defn ->attr
   [{:keys [src debug-as] :as args}]
   (if-not debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
@@ -76,6 +155,7 @@
                                   (when (fn? user-ref-fn)
                                     (user-ref-fn el))))
           {:keys [file line]} src]
+      (when src (emit-render-src-trace! rc-component src))
       (cond->
        {:ref     ref-fn
         :data-rc rc-component}
