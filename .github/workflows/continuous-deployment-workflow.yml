@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup java
-        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: 'temurin'
           java-version: '24'
 
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@bc7570e912b028bbcc22f457adec7fdf98e2f4ed # 12.5
+        uses: DeLaGuardo/setup-clojure@02f5a82b79a547523e664fe8a7a32ea14884d7b2 # 13.6.0
         with:
           cli:  'latest'
           bb:   'latest'
 
       - name: Cache clojure dependencies
-        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/.m2/repository
@@ -47,15 +47,15 @@ jobs:
       - run: bb test :chrome-path '"${{ steps.setup-chrome.outputs.chrome-path }}"'
 
       - name: Slack notification
-        uses: homoluctus/slatify@61c6b12d2ae226db04062ff9b43d9679e2d53236 # v2.0.1
+        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         if: failure() || cancelled()
         with:
-          type: ${{ job.status }}
-          job_name: re-com Tests
-          channel: '#oss-robots'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          commit: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "*re-com Tests*: ${{ job.status }}\nCommit: <https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+            }
 
   release:
     name: Release
@@ -69,22 +69,22 @@ jobs:
       CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
 
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup java
-        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: 'temurin'
           java-version: '24'
 
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@bc7570e912b028bbcc22f457adec7fdf98e2f4ed # 12.5
+        uses: DeLaGuardo/setup-clojure@02f5a82b79a547523e664fe8a7a32ea14884d7b2 # 13.6.0
         with:
           cli:  'latest'
           bb:   'latest'
 
       - name: Cache clojure dependencies
-        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/.m2/repository
@@ -110,24 +110,23 @@ jobs:
       # the latest release to show in the right hand column of the project page regardless
       # of if it is a stable release.
       - name: Create GitHub Release
-        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
           body: |
             [Changelog](https://github.com/day8/re-com/blob/master/CHANGELOG.md)
           draft: false
           prerelease: false
 
       - name: Slack notification
-        uses: homoluctus/slatify@61c6b12d2ae226db04062ff9b43d9679e2d53236 # v2.0.1
+        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         if: always()
         with:
-          type: ${{ job.status }}
-          job_name: re-com Deployment
-          channel: '#oss-robots'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          commit: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "*re-com Deployment*: ${{ job.status }}\nCommit: <https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+            }

@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Setup java
-        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: 'temurin'
           java-version: '24'
         
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@bc7570e912b028bbcc22f457adec7fdf98e2f4ed # 12.5
+        uses: DeLaGuardo/setup-clojure@02f5a82b79a547523e664fe8a7a32ea14884d7b2 # 13.6.0
         with:
           cli:  'latest'
           bb:   'latest'
 
       - name: Cache clojure dependencies
-        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/.m2/repository
@@ -48,18 +48,18 @@ jobs:
 
       - run: bb release-demo
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build-report
           path: target/build-report.html
 
       - name: Slack notification
-        uses: homoluctus/slatify@61c6b12d2ae226db04062ff9b43d9679e2d53236 # v2.0.1
+        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         if: failure() || cancelled()
         with:
-          type: ${{ job.status  }}
-          job_name: re-com Tests
-          channel: '#oss-robots'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          commit: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "*re-com Tests*: ${{ job.status }}\nCommit: <https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+            }
