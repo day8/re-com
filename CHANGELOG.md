@@ -1,4 +1,4 @@
-## 2.29.3 (...)
+## 2.29.3 (2026-04-29)
 
 #### Added
 - `re-com.debug`: emits a `:re-com/render` `re-frame.trace` event per component render carrying the component's `:src` metadata, for use by 10x panels, re-frame-pair, and similar tools. This is a no-op when `re-frame.trace` isn't loaded or tracing is disabled.
