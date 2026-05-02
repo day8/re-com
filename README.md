@@ -133,17 +133,14 @@ https://github.com/day8/re-com/tree/master/run/resources/public/assets
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/day8/re-com/tree/master/run/resources/public
 
-In particular, you'll need bootstrap (assumedly via a CDN):
-```html
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css">
-```
-
-And a reference to these two CSS files (make sure `re-com.css` appears after `bootstrap.css`):
+You'll need a reference to these two CSS files:
 
 ```html
 <link rel="stylesheet" href="assets/css/material-design-iconic-font.min.css">
 <link rel="stylesheet" href="assets/css/re-com.css">
 ```
+
+`re-com.css` now vendors the Bootstrap 3.3.5 rules that re-com depends on, so an external Bootstrap stylesheet is no longer required. If your app loads Bootstrap separately for its own reasons, that still works — load it before `re-com.css` so re-com's overrides take precedence.
 
 And a reference to the Roboto fonts (but this can be overridden relatively easily):
 

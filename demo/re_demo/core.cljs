@@ -198,16 +198,16 @@
   []
   [h-box
    :src     (at)
-   :justify :center
    :align   :center
    :height  "62px"
+   :padding "0 16px"
    :style   {:background-color "#666"}
    :children [[title
                :src   (at)
                :label "re-com"
                :level :level1
-               :style {:font-size   "32px"
-                       :color       "#fefefe"}]]])
+               :style {:font-size "32px"
+                       :color     "#fefefe"}]]])
 
 (defn browser-alert
   []
