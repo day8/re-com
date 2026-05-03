@@ -8,7 +8,7 @@
   ```clojure
   (re-com.core/reg-theme re-com.theme.modern/theme)
   ```
-  Component coverage: button, alert-box, progress-bar, input-text, checkbox, radio-button, horizontal-tabs, pill-tabs, bar-tabs, dropdown, selection-list, modal-panel, title, p, label, hyperlink, close-button. Components without modern styling yet — popover, datepicker, daterange, input-time, slider, splits — fall back to the classic look (tracked in beads issue rc-5qt).
+  Component coverage: button, alert-box, progress-bar, input-text, checkbox, radio-button, horizontal-tabs, pill-tabs, bar-tabs, dropdown, selection-list, modal-panel, title, p, label, hyperlink, close-button, popover (regular dialog popovers — `popover-tooltip` intentionally retains its classic dark-on-light look). Components without modern styling yet — datepicker, daterange, input-time, slider, splits — fall back to the classic look (tracked in beads issue rc-5qt).
 - Demo app: theme picker in the title bar to switch between Classic and Modern at runtime, using a wrapping theme function that derefs an atom inside the render path so switching is reactive without remounting (per the documented `theme/comp` reactivity pattern).
 
 #### Migration

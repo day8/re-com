@@ -41,6 +41,8 @@
    [re-com.input-time :as-alias itime]
    [re-com.modal-panel :as-alias mp]
    [re-com.pill-tabs :as-alias pt]
+   [re-com.popover-border :as-alias popb]
+   [re-com.popover-title :as-alias popt]
    [re-com.progress-bar :as-alias progress-bar]
    [re-com.radio-button :as-alias rb]
    [re-com.selection-list :as-alias sl]
@@ -400,6 +402,36 @@
                  :border-radius (:radius-lg v)
                  :box-shadow    (:shadow-lg v)
                  :border        :none}))))
+
+;; --- Popover ---------------------------------------------------------------
+;; Tooltip-style popovers (re-com `popover-tooltip`) intentionally retain the
+;; classic dark-on-light look — they're a distinct visual element. Modern only
+;; restyles the regular dialog/info popover surface and inner title.
+
+(defmethod styles ::popb/wrapper
+  [{{{:keys [tooltip-style?]} :state} :re-com :as props}]
+  (if tooltip-style?
+    props
+    (let [v (get-in props [:re-com :variables])]
+      (tu/style props
+                {:border        (str "1px solid " (:border v))
+                 :border-radius (:radius-lg v)
+                 :box-shadow    (:shadow v)}))))
+
+(defmethod styles ::popb/content
+  [{{{:keys [tooltip-style?]} :state} :re-com :as props}]
+  (if tooltip-style?
+    props
+    (let [v (get-in props [:re-com :variables])]
+      (tu/style props
+                {:padding (:space-3 v)}))))
+
+(defmethod styles ::popt/wrapper [props]
+  (let [v (get-in props [:re-com :variables])]
+    (tu/style props
+              {:padding-bottom (:space-2 v)
+               :margin-bottom  (:space-2 v)
+               :border-bottom  (str "1px solid " (:border v))})))
 
 ;; --- Hyperlink colour ------------------------------------------------------
 
