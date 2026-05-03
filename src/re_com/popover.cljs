@@ -578,7 +578,7 @@
             (let [[orientation _arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
                   place-anchor-before?    (case orientation (:left :above) false true)
                   flex-flow               (case orientation (:left :right) "row" "column")
-                  [popover-fn & {:as popover-args}] popover]
+                  popover-fn               (first popover)]
               [:div
                (merge {:class (theme/merge-class "rc-popover-anchor-wrapper"
                                                  "display-inline-flex"
@@ -607,12 +607,17 @@
                                    :z-index  4}
                                   (get-in parts [:point :style]))
                     :attr  (get-in parts [:point :attr])}
-                   (if (keyword? (get popover 1))
+                   (cond
+                     (keyword? (get popover 1))
                      (into popover [:showing-injected? showing?
                                     :position-injected internal-position])
-                     [popover-fn (merge popover-args
+                     (map? (get popover 1))
+                     [popover-fn (merge (get popover 1)
                                         {:showing-injected? showing?
-                                         :position-injected internal-position})])])
+                                         :position-injected internal-position})]
+                     :else
+                     (into popover [:showing-injected? showing?
+                                    :position-injected internal-position]))])
                 (when-not place-anchor-before? anchor)]]))))}))))
 
 ;;--------------------------------------------------------------------------------------------------
