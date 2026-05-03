@@ -595,7 +595,7 @@
                   [orientation _arrow-pos]  (split-keyword @internal-position "-")
                   place-anchor-before?      (case orientation (:left :above) false true)
                   flex-flow                 (case orientation (:left :right) "row" "column")
-                  [popover-fn & {:as popover-args}] popover
+                  popover-fn                (first popover)
                   re-com                    {:state {:orientation orientation
                                                      :showing?    (deref-or-value showing?)}}]
               (part ::paw/wrapper
@@ -616,12 +616,17 @@
                                                {:theme theme
                                                 :props {:re-com re-com
                                                         :children
-                                                        [(if (keyword? (get popover 1))
+                                                        [(cond
+                                                           (keyword? (get popover 1))
                                                            (into popover [:showing-injected? showing?
                                                                           :position-injected internal-position])
-                                                           [popover-fn (merge popover-args
+                                                           (map? (get popover 1))
+                                                           [popover-fn (merge (get popover 1)
                                                                               {:showing-injected? showing?
-                                                                               :position-injected internal-position})])]}}))
+                                                                               :position-injected internal-position})]
+                                                           :else
+                                                           (into popover [:showing-injected? showing?
+                                                                          :position-injected internal-position]))]}}))
                                            (when-not place-anchor-before? anchor)]}})]}})))))}))))
 
 ;;--------------------------------------------------------------------------------------------------

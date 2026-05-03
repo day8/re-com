@@ -16,6 +16,13 @@
 - Consumers who passed raw Bootstrap class names like `:class "btn-primary"` to re-com components: those classes still resolve because the relevant rules are now in `re-com.css`.
 - Consumers with custom theme functions emitting Bootstrap class names (e.g. `(tu/class props "btn")`): unchanged, the classes are still styled.
 
+## 2.29.4 (Unreleased)
+
+#### Fixed
+- `popover-anchor-wrapper`: `:popover` argument using positional-args calling style `[popover-fn arg1 arg2 ...]` no longer breaks `:showing-injected?`/`:position-injected` injection. Previously the non-keyword branch wrapped the call as a single map, causing the receiving fn's `[a b & {:keys [...]}]` destructure to bind `a` to the entire map and produce nil kwargs — visible as a 💥 in the "Complex Popover (dialog box)" demo. Map-style invocation `[popover-fn {props}]` continues to work. [#367](https://github.com/day8/re-com/issues/367)
+- `re-com.debug`: validation logger now reports `:validate-fn-return` problems with the validator's actual error message instead of an unhelpful "Unknown problem reported". This affected any validator built on `validate-arg-against-set` (e.g. `position?`, `justify-style?`, `alert-type?`) when a value didn't match the expected set — the error string was being computed but never shown. [#368](https://github.com/day8/re-com/issues/368)
+- `typeahead`: async `:data-source` is no longer racey. When multiple data-source callbacks were in flight, whichever resolved last won — so a slow response for an older query could overwrite a fresh one (e.g. typing `g`, `go`, `goo` slowly enough that the `g` callback returned last left the suggestions showing matches for `g` while the input still read `goo`). Each search now carries a monotonically-increasing id; stale callbacks become no-ops. [#361](https://github.com/day8/re-com/issues/361)
+
 ## 2.29.3 (2026-04-29)
 
 #### Added
