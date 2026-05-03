@@ -332,7 +332,6 @@
                :post-props (-> args
                                (select-keys [:class :style :attr])
                                (assoc-in [:attr :id] pop-id)
-                               (assoc-in [:attr :ref] ref!)
                                (tu/style (if @rendered-once
                                            (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
                                            {:top "-10000px" :left "-10000px"}))
@@ -352,7 +351,8 @@
                                           :opacity   (if @ready-to-show? "1" "0")
                                           :max-width "none"
                                           :padding   "0px"})
-                               (debug/instrument args))
+                               (debug/instrument args)
+                               (assoc-in [:attr :ref] ref!))
                :props      {:re-com   re-com
                             :children
                             [(part ::pb/arrow
@@ -400,7 +400,7 @@
   [::pcw/wrapper
    [::pcw/backdrop {:impl 're-com.popover/backdrop}]
    [::pcw/border {:impl 're-com.popover/popover-border}
-    [::pcw/title {:impl 're-com.popover/popover-title}]]])
+    [::pcw/title-bar {:impl 're-com.popover/popover-title}]]])
 
 (def popover-content-wrapper-parts-desc
   (when include-args-desc?
@@ -491,11 +491,11 @@
                 {:theme      theme
                  :post-props (-> args
                                  (select-keys [:class :style :attr])
-                                 (assoc-in [:attr :ref] ref!)
                                  (cond-> no-clip? (tu/style {:position "fixed"
                                                              :left     (px @left-offset)
                                                              :top      (px @top-offset)}))
-                                 (debug/instrument args))
+                                 (debug/instrument args)
+                                 (assoc-in [:attr :ref] ref!))
                  :props      {:re-com re-com
                               :children
                               [(when (and (deref-or-value showing-injected?) on-cancel)
@@ -524,7 +524,7 @@
                                                :arrow-gap            arrow-gap
                                                :padding              padding
                                                :title                (when title
-                                                                       (part ::pcw/title
+                                                                       (part ::pcw/title-bar
                                                                          {:impl       popover-title
                                                                           :theme      theme
                                                                           :post-props {:src (at)}
