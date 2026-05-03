@@ -105,7 +105,7 @@
                   [:tr
                    [:td border-style-nw (indent-text 2 "[:div]")]
                    [:td border-style-nw "rc-popover-point"]
-                   [:td border-style (code-text ":popover-point")]
+                   [:td border-style (code-text ":point")]
                    [:td border-style "The point (width/height 0) which is placed at the center of the relevant side of the anchor, based on " (code-text ":position") " arg."]]
                   [:tr
                    [:td border-style-nw (indent-text 3 (highlight-text ":popover"))]
@@ -130,12 +130,12 @@
                   [:tr
                    [:td border-style-nw (indent-text 5 "[popover-title]")]
                    [:td border-style-nw "popover-title"]
-                   [:td border-style (code-text ":title")]
+                   [:td border-style (code-text ":title-bar")]
                    [:td border-style "Optional based on " (code-text ":title") " arg. Adds a close button if " (code-text ":on-cancel") " arg is set."]]
                   [:tr
                    [:td border-style-nw (indent-text 5 "[:div]")]
                    [:td border-style-nw "popover-content"]
-                   [:td border-style ""]
+                   [:td border-style (code-text ":content")]
                    [:td border-style "Exists to override the default popover padding."]]
                   [:tr
                    [:td border-style-nw (indent-text 6 (highlight-text ":body"))]
