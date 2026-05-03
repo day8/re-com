@@ -1,3 +1,8 @@
+## 2.29.4 (Unreleased)
+
+#### Fixed
+- `popover-anchor-wrapper`: `:popover` argument using positional-args calling style `[popover-fn arg1 arg2 ...]` no longer breaks `:showing-injected?`/`:position-injected` injection. Previously the non-keyword branch wrapped the call as a single map, causing the receiving fn's `[a b & {:keys [...]}]` destructure to bind `a` to the entire map and produce nil kwargs — visible as a 💥 in the "Complex Popover (dialog box)" demo. Map-style invocation `[popover-fn {props}]` continues to work. [#367](https://github.com/day8/re-com/issues/367)
+
 ## 2.29.3 (2026-04-29)
 
 #### Added
