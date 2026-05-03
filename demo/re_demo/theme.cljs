@@ -24,28 +24,7 @@
          [rc/p
           "You can also register a "
           [:i "theme"] "-function globally, and re-com will apply it to every "
-          "instance of a re-com component in your app."]
-         [rc/p {:style {:background-color "#eee" :padding 7}}
-          [:strong "Built-in modern theme"] ": re-com ships with an opt-in "
-          [:code "re-com.theme.modern"] " — a Bootstrap-5-flavoured palette with refined "
-          "borders, radii, shadows and focus rings. Typography is intentionally inherited "
-          "from the classic look. Activate it from your app code with "
-          [:code "(re-com.core/reg-theme re-com.theme.modern/theme)"] ". "
-          "Try it live: the dropdown in this demo's title bar (top-right) switches between "
-          "Classic and Modern at runtime."]
-         [rc/p {:style {:background-color "#eee" :padding 7}}
-          [:strong "Note"] ": Layout components (" [:code "h-box"] ", " [:code "v-box"]
-          ", " [:code "box"] ", " [:code "gap"] ", " [:code "line"] ", " [:code "scroller"]
-          ", " [:code "border"] ") and typography (" [:code "title"] ", " [:code "p"]
-          ", " [:code "label"] ") are unaffected by Modern — typography is preserved "
-          "deliberately so apps switching themes don't see text re-flow. Two intentional "
-          "carve-outs: " [:code "popover-tooltip"] " keeps its classic dark-on-light look, "
-          "and Bootstrap-variant button classes (" [:code "btn-primary"] ", "
-          [:code "btn-success"] ", etc.) are not restyled so colour-coded buttons still "
-          "get their colour. The remaining themable components (button, alert-box, "
-          "progress-bar, input-text, checkbox, radio-button, tabs, dropdown, "
-          "selection-list, modal-panel, popover, datepicker, daterange, slider, "
-          "input-time, splits, hyperlink, close-button) all have Modern styling."]]]
+          "instance of a re-com component in your app."]]]
        [rc/box
         :align :center
         :child [:img {:style {:height "250px"} :src "demo/light-bulb-shapes.jpg"}]]]]
@@ -264,4 +243,26 @@
           '[rc/dropdown
             {:theme (fn [props] (if (deref night-mode?)
                                   (dark-theme props)
-                                  (light-theme props)))}]]]]]]]}])
+                                  (light-theme props)))}]]]]]]
+     [rc/gap :size "19px"]
+     [rc/p {:style {:background-color "#eee" :padding 7}}
+      [:strong "Built-in modern theme"] ": re-com ships with an opt-in "
+      [:code "re-com.theme.modern"] " — a Bootstrap-5-flavoured palette with refined "
+      "borders, radii, shadows and focus rings. Typography is intentionally inherited "
+      "from the classic look. Activate it from your app code with "
+      [:code "(re-com.core/reg-theme re-com.theme.modern/theme)"] ". "
+      "Try it live: the dropdown in this demo's title bar (top-right) switches between "
+      "Classic and Modern at runtime."]
+     [rc/p {:style {:background-color "#eee" :padding 7}}
+      [:strong "Note"] ": Layout components (" [:code "h-box"] ", " [:code "v-box"]
+      ", " [:code "box"] ", " [:code "gap"] ", " [:code "line"] ", " [:code "scroller"]
+      ", " [:code "border"] ") and typography (" [:code "title"] ", " [:code "p"]
+      ", " [:code "label"] ") are unaffected by Modern — typography is preserved "
+      "deliberately so apps switching themes don't see text re-flow. Two intentional "
+      "carve-outs: " [:code "popover-tooltip"] " keeps its classic dark-on-light look, "
+      "and Bootstrap-variant button classes (" [:code "btn-primary"] ", "
+      [:code "btn-success"] ", etc.) are not restyled so colour-coded buttons still "
+      "get their colour. The remaining themable components (button, alert-box, "
+      "progress-bar, input-text, checkbox, radio-button, tabs, dropdown, "
+      "selection-list, modal-panel, popover, datepicker, daterange, slider, "
+      "input-time, splits, hyperlink, close-button) all have Modern styling."]]}])
