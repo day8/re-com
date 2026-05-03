@@ -230,7 +230,6 @@
   [problems]
   (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
     (case problem
-      ;; [IJ] TODO: :validate-fn-return
       :unknown
       (js/console.log
        (str "• %cUnknown parameter: %c" arg-name)
@@ -254,6 +253,13 @@
       :validate-fn-map
       (js/console.log
        (str "• %c" (:message validate-fn-result))
+       error-style)
+
+      :validate-fn-return
+      (js/console.log
+       (str "• %c" (if (string? validate-fn-result)
+                     validate-fn-result
+                     (str "Parameter " arg-name " failed validation: " (pr-str validate-fn-result))))
        error-style)
 
       :part-top-level-collision
