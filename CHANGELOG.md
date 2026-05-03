@@ -15,6 +15,7 @@
 - Consumers who only loaded Bootstrap because re-com required it can remove the Bootstrap stylesheet `<link>`.
 - Consumers who passed raw Bootstrap class names like `:class "btn-primary"` to re-com components: those classes still resolve because the relevant rules are now in `re-com.css`.
 - Consumers with custom theme functions emitting Bootstrap class names (e.g. `(tu/class props "btn")`): unchanged, the classes are still styled.
+- **CSS load-order edge case**: if your app has its own stylesheet that overrides Bootstrap selectors (e.g. you customise `.btn` or `.popover` rules), make sure your stylesheet loads *after* `re-com.css` — previously you could rely on the load order `bootstrap.css` → `your-overrides.css` → `re-com.css`, but now the Bootstrap rules live inside `re-com.css`, so any user overrides need to come after it to win the cascade. Same applies if you keep loading `bootstrap.css` separately for non-re-com use.
 
 ## 2.29.4 (Unreleased)
 
