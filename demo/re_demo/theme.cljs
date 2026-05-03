@@ -34,10 +34,18 @@
           "Try it live: the dropdown in this demo's title bar (top-right) switches between "
           "Classic and Modern at runtime."]
          [rc/p {:style {:background-color "#eee" :padding 7}}
-          [:strong "Note"] ": Most components support themes. A handful "
-          "(datepicker, daterange, input-time, slider, splits) don't yet have modern "
-          "styling and fall back to the classic look — tracked in "
-          [:a {:href "https://github.com/day8/re-com/issues/352"} "issue #352"] "."]]]
+          [:strong "Note"] ": Layout components (" [:code "h-box"] ", " [:code "v-box"]
+          ", " [:code "box"] ", " [:code "gap"] ", " [:code "line"] ", " [:code "scroller"]
+          ", " [:code "border"] ") and typography (" [:code "title"] ", " [:code "p"]
+          ", " [:code "label"] ") are unaffected by Modern — typography is preserved "
+          "deliberately so apps switching themes don't see text re-flow. Two intentional "
+          "carve-outs: " [:code "popover-tooltip"] " keeps its classic dark-on-light look, "
+          "and Bootstrap-variant button classes (" [:code "btn-primary"] ", "
+          [:code "btn-success"] ", etc.) are not restyled so colour-coded buttons still "
+          "get their colour. The remaining themable components (button, alert-box, "
+          "progress-bar, input-text, checkbox, radio-button, tabs, dropdown, "
+          "selection-list, modal-panel, popover, datepicker, daterange, slider, "
+          "input-time, splits, hyperlink, close-button) all have Modern styling."]]]
        [rc/box
         :align :center
         :child [:img {:style {:height "250px"} :src "demo/light-bulb-shapes.jpg"}]]]]
