@@ -8,7 +8,7 @@
   ```clojure
   (re-com.core/reg-theme re-com.theme.modern/theme)
   ```
-  Component coverage: button, alert-box, progress-bar, input-text, checkbox, radio-button, horizontal-tabs, pill-tabs, bar-tabs, dropdown, selection-list, modal-panel, title, p, label, hyperlink, close-button, popover (regular dialog popovers — `popover-tooltip` intentionally retains its classic dark-on-light look). Components without modern styling yet — datepicker, daterange, input-time, slider, splits — fall back to the classic look (tracked in beads issue rc-5qt).
+  Component coverage: button, alert-box, progress-bar, input-text, checkbox, radio-button, horizontal-tabs, pill-tabs, bar-tabs, dropdown, selection-list, modal-panel, hyperlink, close-button, popover, datepicker, daterange, slider, input-time, h-split, v-split. Layout components (`h-box`, `v-box`, `box`, `gap`, `line`, `scroller`, `border`) and typography components (`title`, `p`, `label`) are unaffected by Modern — they inherit the classic look (typography is preserved deliberately so apps adopting Modern incrementally don't see text re-flow). Two intentional carve-outs: `popover-tooltip` retains its classic dark-on-light look (tooltips are a distinct visual element), and Bootstrap-variant button classes (`btn-primary`, `btn-success`, `btn-info`, `btn-warning`, `btn-danger`, `btn-link`) are not restyled so users still get the colour they asked for.
 - Demo app: theme picker in the title bar to switch between Classic and Modern at runtime, using a wrapping theme function that derefs an atom inside the render path so switching is reactive without remounting (per the documented `theme/comp` reactivity pattern).
 
 #### Migration
