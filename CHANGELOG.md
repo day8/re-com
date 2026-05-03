@@ -1,3 +1,22 @@
+## 2.30.0 (Unreleased)
+
+#### Changed
+- **Bootstrap is no longer required as an external dependency.** `re-com.css` now vendors the Bootstrap 3.3.5 rules that re-com depends on, so consumers can drop the `<link rel="stylesheet" href=".../bootstrap.css">` from their `index.html`. The classic re-com look is preserved verbatim — no visual changes for consumers. Apps that load Bootstrap separately (for their own use) continue to work; load it before `re-com.css` so re-com's overrides take precedence.
+
+#### Added
+- `re-com.theme.modern` — opt-in modern visual theme. Bootstrap-5-flavoured palette, 4px linear spacing scale, larger border radii, refined shadows and focus rings. Typography (font-family, sizes, weights, line-heights) is intentionally inherited from the classic look so apps adopting modern incrementally don't see text re-flow. Activate from app code with:
+  ```clojure
+  (re-com.core/reg-theme re-com.theme.modern/theme)
+  ```
+  Component coverage: button, alert-box, progress-bar, input-text, checkbox, radio-button, horizontal-tabs, pill-tabs, bar-tabs, dropdown, selection-list, modal-panel, hyperlink, close-button, popover, datepicker, daterange, slider, input-time, h-split, v-split. Layout components (`h-box`, `v-box`, `box`, `gap`, `line`, `scroller`, `border`) and typography components (`title`, `p`, `label`) are unaffected by Modern — they inherit the classic look (typography is preserved deliberately so apps adopting Modern incrementally don't see text re-flow). Two intentional carve-outs: `popover-tooltip` retains its classic dark-on-light look (tooltips are a distinct visual element), and Bootstrap-variant button classes (`btn-primary`, `btn-success`, `btn-info`, `btn-warning`, `btn-danger`, `btn-link`) are not restyled so users still get the colour they asked for.
+- Demo app: theme picker in the title bar to switch between Classic and Modern at runtime, using a wrapping theme function that derefs an atom inside the render path so switching is reactive without remounting (per the documented `theme/comp` reactivity pattern).
+
+#### Migration
+- Consumers who only loaded Bootstrap because re-com required it can remove the Bootstrap stylesheet `<link>`.
+- Consumers who passed raw Bootstrap class names like `:class "btn-primary"` to re-com components: those classes still resolve because the relevant rules are now in `re-com.css`.
+- Consumers with custom theme functions emitting Bootstrap class names (e.g. `(tu/class props "btn")`): unchanged, the classes are still styled.
+- **CSS load-order edge case**: if your app has its own stylesheet that overrides Bootstrap selectors (e.g. you customise `.btn` or `.popover` rules), make sure your stylesheet loads *after* `re-com.css` — previously you could rely on the load order `bootstrap.css` → `your-overrides.css` → `re-com.css`, but now the Bootstrap rules live inside `re-com.css`, so any user overrides need to come after it to win the cascade. Same applies if you keep loading `bootstrap.css` separately for non-re-com use.
+
 ## 2.29.4 (Unreleased)
 
 #### Added

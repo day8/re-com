@@ -63,13 +63,17 @@
            [:li "Register a function that wraps the arguments of all hiccups everywhere "
             "(a global " [:code ":theme"] ")."]]]
          [rc/p {:style {:background-color "#eee" :padding 7}}
-          [:strong "Note"] ": Re-com has used "
+          [:strong "Note"] ": Re-com's classic look is built on "
           [:a {:href "https://bootstrapdocs.com/v3.3.5/docs/getting-started/"} "bootstrap 3.3.5"]
-          " as a design system. A complete implementation of our theme system will make bootstrap optional. "
-          "It should then be possible to plug in a different system, such as "
+          ", whose rules are now vendored into " [:code "re-com.css"]
+          " — your app no longer needs an external Bootstrap stylesheet. "
+          "An opt-in " [:a {:href "#/theme"} "modern theme"] " "
+          "(BS5-flavoured colours, spacing, shadows, focus rings) is also available. "
+          "Themes are pluggable, so other systems such as "
           [:a {:href "https://tailwindcss.com/"} "tailwind"]
           " or "
-          [:a {:href "https://github.com/thheller/shadow-css"} "shadow-css."]]]]
+          [:a {:href "https://github.com/thheller/shadow-css"} "shadow-css"]
+          " could be wrapped behind a " [:code ":theme"] " function in the same way."]]]
        [rc/box
         :align :center
         :child [:img {:src   "demo/architecture-LOD.jpg"

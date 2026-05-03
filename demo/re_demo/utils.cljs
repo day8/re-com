@@ -7,6 +7,7 @@
    [re-com.box            :as box :refer [box gap h-box v-box]]
    [re-com.text           :refer [p]]
    [re-com.util           :refer [px]]
+   [re-demo.theme-picker  :refer [theme-picker]]
    [day8.re-frame-10x.tools.highlight-hiccup :refer [str->hiccup]]
    [zprint.core :as zprint]))
 
@@ -68,7 +69,9 @@
                                 [:span "new in version: "
                                  [:code {:style {:font-size        10
                                                  :border           :none}}
-                                  new-in-version]])]}]]}]
+                                  new-in-version]])]}]
+                 [gap :size "1"]
+                 [theme-picker]]}]
     [line :src (at)]]])
 
 (defn title2

@@ -16,3 +16,13 @@ misc/
 /.clj-kondo/
 /.lsp/
 .*
+
+# Gas City
+.beads/*
+!.beads/config.yaml
+!.beads/metadata.json
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
