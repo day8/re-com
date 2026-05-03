@@ -263,10 +263,12 @@
                :accent-color (:primary v)
                :cursor       :pointer})))
 
-(defmethod styles ::rb/wrapper [props]
-  (let [v (get-in props [:re-com :variables])]
-    (tu/style props
-              {:gap (:space-2 v)})))
+;; Note: no ::rb/wrapper override. radio-button's classic theme spaces the
+;; label via `:padding-left "8px"` on ::rb/label rather than via a wrapper
+;; `:gap`. Adding a wrapper gap here would stack on top of that padding and
+;; double the visible spacing under Modern. Checkbox uses the gap mechanism
+;; instead (no padding on label), so ::cb/wrapper does need the override
+;; below.
 
 (defmethod styles ::rb/input [props]
   (let [v (get-in props [:re-com :variables])]
