@@ -26,9 +26,18 @@
           [:i "theme"] "-function globally, and re-com will apply it to every "
           "instance of a re-com component in your app."]
          [rc/p {:style {:background-color "#eee" :padding 7}}
-          [:strong "Note"] ": Only some components support themes. "
-          "Our effort to bring full support to all components is "
-          [:a {:href "https://github.com/day8/re-com/issues/352"} "ongoing"] "."]]]
+          [:strong "Built-in modern theme"] ": re-com ships with an opt-in "
+          [:code "re-com.theme.modern"] " — a Bootstrap-5-flavoured palette with refined "
+          "borders, radii, shadows and focus rings. Typography is intentionally inherited "
+          "from the classic look. Activate it from your app code with "
+          [:code "(re-com.core/reg-theme re-com.theme.modern/theme)"] ". "
+          "Try it live: the dropdown in this demo's title bar (top-right) switches between "
+          "Classic and Modern at runtime."]
+         [rc/p {:style {:background-color "#eee" :padding 7}}
+          [:strong "Note"] ": Most components support themes. A handful "
+          "(datepicker, daterange, input-time, slider, splits) don't yet have modern "
+          "styling and fall back to the classic look — tracked in "
+          [:a {:href "https://github.com/day8/re-com/issues/352"} "issue #352"] "."]]]
        [rc/box
         :align :center
         :child [:img {:style {:height "250px"} :src "demo/light-bulb-shapes.jpg"}]]]]

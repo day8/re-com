@@ -96,12 +96,12 @@
                    [:td border-style-nw (indent-text 1 "[:div]")]
                    [:td border-style-nw "rc-point-wrapper"]
                    [:td border-style (code-text ":point-wrapper")]
-                   [:td border-style "Wraps the anchor component and the popover-point (which the actual popover points to)."]]
+                   [:td border-style "Wraps the anchor component and the point (which the actual popover points to)."]]
                   [:tr
                    [:td border-style-nw (indent-text 2 (highlight-text ":anchor"))]
                    [:td border-style-nw "n/a"]
                    [:td border-style "n/a"]
-                   [:td border-style "The " (code-text ":anchor") " argument of " (code-text "[popover-anchor-wrapper]") " is placed here. Could be before or after popover-point based on " (code-text ":position") " arg."]]
+                   [:td border-style "The " (code-text ":anchor") " argument of " (code-text "[popover-anchor-wrapper]") " is placed here. Could be before or after the point based on " (code-text ":position") " arg."]]
                   [:tr
                    [:td border-style-nw (indent-text 2 "[:div]")]
                    [:td border-style-nw "rc-popover-point"]
