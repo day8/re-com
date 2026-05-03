@@ -181,11 +181,20 @@
 
 (defn- search-data-source!
   "Call the `data-source` fn with `text`, and then call `got-suggestions` with the result
-  (asynchronously, if `data-source` does not return a truthy value)."
+  (asynchronously, if `data-source` does not return a truthy value).
+
+  Each call gets a monotonically-increasing `:search-id`; the result-handler
+  only commits suggestions when its id still matches the latest, so a slow
+  callback for an older query can't overwrite a fresh one."
   [data-source state-atom text]
-  (if-let [return-value (data-source text #(swap! state-atom got-suggestions %1))]
-    (swap! state-atom got-suggestions return-value)
-    (swap! state-atom assoc :waiting? true)))
+  (let [search-id (-> (swap! state-atom update :search-id (fnil inc 0))
+                      :search-id)
+        on-result (fn [suggestions]
+                    (when (= search-id (:search-id @state-atom))
+                      (swap! state-atom got-suggestions suggestions)))]
+    (if-let [return-value (data-source text on-result)]
+      (on-result return-value)
+      (swap! state-atom assoc :waiting? true))))
 
 (defn- search-data-source-loop!
   "For every value arriving on the `c-search` channel, call `search-data-source!`."
