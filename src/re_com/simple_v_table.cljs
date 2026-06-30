@@ -65,10 +65,57 @@
    :right :end
    :center :center})
 
+(defn drag-overlay
+  "While a column is being resized, this full-viewport, fixed-position overlay
+  captures mouse-move/up so the drag keeps tracking even when the pointer leaves
+  the (narrow) resize handle. Adapted from re-com.nested-grid."
+  [{:keys [on-mouse-move on-mouse-up]}]
+  [:div {:on-mouse-move on-mouse-move
+         :on-mouse-up   on-mouse-up
+         :style         {:position "fixed"
+                         :top      0
+                         :left     0
+                         :z-index  2147483647
+                         :width    "100%"
+                         :height   "100%"
+                         :cursor   "col-resize"}}])
+
+(defn resize-handle
+  "An opt-in draggable grip on a column's right edge. Adapted from
+  re-com.nested-grid's resize affordance. Stylable/overridable via the
+  :simple-column-header-resize-handle part."
+  [_]
+  (let [hover? (reagent/atom nil)]
+    (fn [{:keys [parts on-mouse-down]}]
+      [:div
+       (merge
+        {:class         (theme/merge-class "rc-simple-v-table-column-header-resize-handle"
+                                           (get-in parts [:simple-column-header-resize-handle :class]))
+         :on-mouse-down on-mouse-down
+         :on-mouse-over #(reset! hover? true)
+         :on-mouse-out  #(reset! hover? false)
+         :style         (merge {:position     "absolute"
+                                :top          0
+                                :right        0
+                                :width        "9px"
+                                :height       "100%"
+                                :cursor       "col-resize"
+                                :user-select  "none"
+                                :z-index      1
+                                ;; A persistent faint divider marks each column's draggable
+                                ;; right edge (addresses "where do I grab?"); it highlights on
+                                ;; hover. Border width is constant (1px) so there's no layout
+                                ;; shift, only a colour change.
+                                :border-right (if @hover? "1px solid #2684ff" "1px solid rgba(0, 0, 0, 0.18)")
+                                :background   (if @hover? "rgba(38, 132, 255, 0.15)" "transparent")}
+                               (get-in parts [:simple-column-header-resize-handle :style]))}
+        (get-in parts [:simple-column-header-resize-handle :attr]))])))
+
 (defn column-header-item
   [& _]
-  (fn [{:keys [parts sort-by-column hover? column-header-height]
-        {:keys [id row-label-fn width height align header-label sort-by]} :column}]
+  (fn [{:keys [parts sort-by-column hover? column-header-height
+               resizable-columns? column-widths overlay on-resize]
+        {:keys [id row-label-fn width height align header-label sort-by resizable? min-width]} :column}]
     (let [sort-by                  (cond (true? sort-by) {} :else sort-by)
           default-sort-by          {:key-fn row-label-fn :comp compare :id id :order :asc}
           ps                       (position-for-id id @sort-by-column)
@@ -79,47 +126,68 @@
                                       (add-criteria!)
                                       (replace-criteria!))
           justify                  (get align->justify (keyword align) :start)
-          multiple-columns-sorted? (> (count @sort-by-column) 1)]
+          multiple-columns-sorted? (> (count @sort-by-column) 1)
+          resizable?               (and resizable-columns? (not (false? resizable?)))
+          start-resize             (fn [e]
+                                     (.preventDefault e)
+                                     (.stopPropagation e)
+                                     (let [start-x     (.-clientX e)
+                                           start-width (or (get @column-widths id) width 25)
+                                           min-w       (or min-width 10)]
+                                       (reset! overlay
+                                               [drag-overlay
+                                                {:on-mouse-up   (fn [_] (reset! overlay nil))
+                                                 :on-mouse-move (fn [ev]
+                                                                  (.preventDefault ev)
+                                                                  (let [dx        (- (.-clientX ev) start-x)
+                                                                        new-width (max min-w (+ start-width dx))]
+                                                                    (swap! column-widths assoc id new-width)
+                                                                    (when on-resize
+                                                                      (on-resize {:column-id id :width new-width}))))}])))]
       [v-box
+       :style    (when resizable? {:position "relative"})
        :children
-       [[h-box
-         :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
-         :width    (px width)
-         :justify  justify
-         :align    :center
-         :style    (merge
-                    {:padding       "0px 12px"
-                     :min-height    "24px"
-                     :height        (px height)
-                     :font-weight   "bold"
-                     :white-space   "nowrap"
-                     :overflow      "hidden"
-                     :text-overflow "ellipsis"}
-                    (when sort-by
-                      {:cursor "pointer"})
-                    (get-in parts [:simple-column-header-item :style]))
-         :attr     (merge
-                    (when sort-by {:on-click on-click})
-                    (get-in parts [:simple-column-header-item :attr]))
-         :children [header-label
-                    (when sort-by
-                      [h-box
-                       :min-width "35px"
-                       :justify :center
-                       :style {:opacity 0.5}
-                       :align :center
-                       :children
-                       (if-not (or @hover? current-order)
-                         []
-                         [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
-                           {:size (or height "16px")
-                            :fill "#777"}]
-                          (when ps
-                            [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]]]])))
+       (cond->
+        [[h-box
+          :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
+          :width    (px width)
+          :justify  justify
+          :align    :center
+          :style    (merge
+                     {:padding       "0px 12px"
+                      :min-height    "24px"
+                      :height        (px height)
+                      :font-weight   "bold"
+                      :white-space   "nowrap"
+                      :overflow      "hidden"
+                      :text-overflow "ellipsis"}
+                     (when sort-by
+                       {:cursor "pointer"})
+                     (get-in parts [:simple-column-header-item :style]))
+          :attr     (merge
+                     (when sort-by {:on-click on-click})
+                     (get-in parts [:simple-column-header-item :attr]))
+          :children [header-label
+                     (when sort-by
+                       [h-box
+                        :min-width "35px"
+                        :justify :center
+                        :style {:opacity 0.5}
+                        :align :center
+                        :children
+                        (if-not (or @hover? current-order)
+                          []
+                          [[(case current-order :asc  arrow-up-icon :desc arrow-down-icon sort-icon)
+                            {:size (or height "16px")
+                             :fill "#777"}]
+                           (when ps
+                             [label :style {:visibility (when-not multiple-columns-sorted? "hidden")} :label (inc ps)])])])]]]
+         resizable? (conj [resize-handle {:parts parts :on-mouse-down start-resize}]))])))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
-  [{:keys [columns parts sort-by-column column-header-height hover?]}]
+  [{:keys [columns parts sort-by-column column-header-height hover?
+           resizable-columns? column-widths overlay on-resize]}]
   [h-box
    :class    (str "rc-simple-v-table-column-header noselect " (get-in parts [:simple-column-header :class]))
    :style    (merge {:padding     "4px 0px"
@@ -132,7 +200,8 @@
                     (get-in parts [:simple-column-header :attr]))
    :children (into []
                    (for [column columns]
-                     [column-header-item {:column-header-height column-header-height :column column :parts parts :sort-by-column sort-by-column :hover? hover?}]))])
+                     [column-header-item {:column-header-height column-header-height :column column :parts parts :sort-by-column sort-by-column :hover? hover?
+                                          :resizable-columns? resizable-columns? :column-widths column-widths :overlay overlay :on-resize on-resize}]))])
 
 (defn row-item
   "Render a single row item (column) of a single row"
@@ -189,6 +258,7 @@
     [{:name :simple-wrapper             :level 0 :class "rc-simple-v-table-wrapper"             :impl "[simple-v-table]" :notes "Outer container of the simple-v-table"}
      {:name :simple-column-header       :level 5 :class "rc-simple-v-table-column-header"       :impl "[:div]"           :notes "Simple-v-table's container for column headers (placed under v-table's :column-header-content/:top-left)"}
      {:name :simple-column-header-item  :level 6 :class "rc-simple-v-table-column-header-item"  :impl "[:div]"           :notes "Individual column header item/cell components"}
+     {:name :simple-column-header-resize-handle :level 7 :class "rc-simple-v-table-column-header-resize-handle" :impl "[:div]" :notes "Opt-in draggable grip on a column's right edge. Only present when :resizable-columns? is true (and the column's :resizable? is not false)."}
      {:name :simple-row                 :level 5 :class "rc-simple-v-table-row"                 :impl "[:div]"           :notes "Simple-v-table's container for rows (placed under v-table's :row-content/:row-header-content)"}
      {:name :simple-row-item            :level 6 :class "rc-simple-v-table-row-item"            :impl "[:div]"           :notes "Individual row item/cell components"}]))
 
@@ -225,7 +295,10 @@
        [:code ":on-export-row-label-fn"] ", "
        " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be "
        [:code "true"] " or a map optionally containing " [:code ":key-fn"]
-       " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}
+       " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] ". "
+       "When " [:code ":resizable-columns?"] " is enabled, a column may opt out of resizing with "
+       [:code ":resizable? false"] ", and set a minimum drag width (px) with " [:code ":min-width"]
+       " (defaults to 10)."]}
      {:name :fixed-column-count,
       :required false,
       :default 0,
@@ -347,6 +420,24 @@
       :validate-fn #(or (fn? %) (map? %)),
       :description
       "Style each cell in a row either statically by passing a CSS map or dynamically by passing a function which receives the data for that row and the cell definition from the columns arg."}
+     {:name :resizable-columns?,
+      :required false,
+      :default false,
+      :type "boolean",
+      :description
+      [:span
+       "When true, columns can be resized by dragging a grip on their right edge; resized widths are not persisted across remounts. "
+       "A column can opt out with " [:code ":resizable? false"] " or set a minimum via " [:code ":min-width"]
+       " in its " [:code ":columns"] " entry."]}
+     {:name :on-resize,
+      :required false,
+      :type "{:keys [column-id width]} -> nil",
+      :validate-fn ifn?,
+      :description
+      [:span
+       "Optional callback, invoked on each step of a column-width drag with a map of "
+       [:code ":column-id"] " (the resized column's " [:code ":id"] ") and " [:code ":width"]
+       " (the new width in px). Use it to observe or persist widths. Resizing still works without it."]}
      {:name :class,
       :required false,
       :type "string",
@@ -406,7 +497,8 @@
                    :show-export-button?       false
                    :table-padding             19
                    :table-row-line-color      "#EAEEF1"
-                   :column-header-height      31})
+                   :column-header-height      31
+                   :resizable-columns?        false})
 
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
@@ -421,7 +513,9 @@
   (or
    (validate-args-macro simple-v-table-args-desc static-args)
    (let [sort-by-column (reagent/atom nil)
-         header-hover?  (reagent/atom nil)]
+         header-hover?  (reagent/atom nil)
+         column-widths  (reagent/atom {}) ;; opt-in resizing: column :id -> width (px); empty => declared widths
+         overlay        (reagent/atom nil)] ;; holds the drag-overlay hiccup while a column is being resized
      (fn simple-v-table-render
        [& {:as dynamic-args}]
        (or
@@ -431,8 +525,18 @@
                       max-width max-rows row-height table-padding table-row-line-color
                       on-click-row on-enter-row on-leave-row
                       show-export-button? on-export export-button-renderer
-                      striped? row-style class parts src debug-as]
+                      striped? row-style class parts src debug-as
+                      resizable-columns? on-resize]
                :as   args}           (merge default-args dynamic-args)
+              ;; When resizing is enabled, overlay any user-dragged widths onto the
+              ;; declared column widths. Threads through every downstream consumer
+              ;; (header items, row cells, width sums, horizontal scroll) which all
+              ;; read :width off the column map.
+              columns                (if resizable-columns?
+                                       (mapv (fn [{:keys [id] :as col}]
+                                               (assoc col :width (get @column-widths id (:width col 25))))
+                                             columns)
+                                       columns)
               fcc-bounded            (min fixed-column-count (count columns))
               fixed-cols             (subvec columns 0 fcc-bounded)
               content-cols           (subvec columns fcc-bounded (count columns))
@@ -463,12 +567,13 @@
                              :border-radius    "3px"}
                             (get-in parts [:simple-wrapper :style]))
            :attr     (get-in parts [:simple-wrapper :attr])
-           :child    [v-table/v-table
+           :child    [:<>
+                      [v-table/v-table
                       :src                     (at)
                       :model                   model
                       :sort-comp               (multi-comparator (->v @sort-by-column))
                         ;; ===== Column header (section 4)
-                      :column-header-renderer  #(do [column-header-renderer (into args {:columns content-cols :hover? header-hover? :sort-by-column sort-by-column})])
+                      :column-header-renderer  #(do [column-header-renderer (into args {:columns content-cols :hover? header-hover? :sort-by-column sort-by-column :column-widths column-widths :overlay overlay})])
                       :column-header-height    column-header-height
                         ;; ===== Row header (section 2)
                       :row-header-renderer     #(fn [i row] [row-renderer (into args {:columns fixed-cols :row row :row-index i})])
@@ -479,10 +584,14 @@
                       :max-row-viewport-height (when max-rows (* max-rows row-height))
                       ;:max-width               (px (or max-width (+ fixed-content-width content-width u/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
                         ;; ===== Corners (section 1, 3)
-                      :top-left-renderer       (fn [i row] [column-header-renderer {:columns        fixed-cols
-                                                                                    :hover?         header-hover?
-                                                                                    :parts          parts
-                                                                                    :sort-by-column sort-by-column}]) ;; Used when there are fixed columns
+                      :top-left-renderer       (fn [i row] [column-header-renderer {:columns            fixed-cols
+                                                                                    :hover?             header-hover?
+                                                                                    :parts              parts
+                                                                                    :sort-by-column     sort-by-column
+                                                                                    :resizable-columns? resizable-columns?
+                                                                                    :column-widths      column-widths
+                                                                                    :overlay            overlay
+                                                                                    :on-resize          on-resize}]) ;; Used when there are fixed columns
                       :top-right-renderer      (when show-export-button?
                                                  #(let [rows           (deref-or-value model)
                                                         columns        (deref-or-value columns)
@@ -498,7 +607,8 @@
                                                                           :cursor "default"}}}
                                                  (pos? fixed-column-count) (theme/merge-props {:top-left    {:style {:border-right fixed-col-border-style}}
                                                                                                :row-headers {:style {:border-right fixed-col-border-style}}})
-                                                 :do                       (theme/merge-props (apply dissoc parts simple-v-table-exclusive-parts)))]]))))))
+                                                 :do                       (theme/merge-props (apply dissoc parts simple-v-table-exclusive-parts)))]
+                      (when @overlay @overlay)]]))))))
 
 (defn nested-column
   [& _]
