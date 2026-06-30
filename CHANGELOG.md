@@ -1,4 +1,4 @@
-## 2.29.4 (Unreleased)
+## 2.29.4 (2026-06-30)
 
 #### Added
 - `simple-v-table`: `:resizable-columns?` adds opt-in column-width resizing — drag a grip on each column's right edge. Off by default (existing tables unaffected). Per-column `:resizable? false` opts out and `:min-width` sets a floor; optional `:on-resize` callback. Adds the `:simple-column-header-resize-handle` part.
