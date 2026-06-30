@@ -54,6 +54,7 @@
         fixed-column-count? (reagent/atom true)
         fixed-column-count  (reagent/atom 1)
         striped?            (reagent/atom false)
+        resizable-columns?  (reagent/atom false)
         parent-color        "#BEEDFF"
         parent-width?       (reagent/atom false)
         parent-width        (reagent/atom 600)
@@ -197,6 +198,17 @@
                                                       [label
                                                        :src      (at)
                                                        :label [:code ":striped?"]]]]
+                                          [h-box
+                                           :src      (at)
+                                           :gap      spacing7
+                                           :align    :center
+                                           :children [[checkbox
+                                                       :src      (at)
+                                                       :model     resizable-columns?
+                                                       :on-change #(reset! resizable-columns? %)]
+                                                      [label
+                                                       :src      (at)
+                                                       :label [:code ":resizable-columns?"]]]]
                                           [gap
                                            :src      (at)
                                            :size "0px"]
@@ -345,6 +357,7 @@
 
                                                        ;; ===== Styling
                                                        :striped?                  @striped?
+                                                       :resizable-columns?        @resizable-columns?
                                                        :cell-style                (fn [{:keys [sales] :as row} {:keys [id] :as column}]
                                                                                     (when (= :sales id)
                                                                                       {:background-color (cond

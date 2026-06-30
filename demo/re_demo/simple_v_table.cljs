@@ -29,6 +29,7 @@
                [:li "Unlimited (virtualised) rows with an (optional) fixed row header at the left by simply specifying the number of columns to fix"]
                [:li "Click on a column header to sort the rows in a column"]
                [:li "Shift-click on a column header to sort multiple columns hierarchically."]
+               [:li "Opt in to column-width resizing with " [:code ":resizable-columns? true"] ". A draggable grip appears on each column's right edge. Off by default; per-column opt-out via " [:code ":resizable? false"] "."]
                [:li "Most aspects of the table are stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
                [:li "Individual rows can be dynamically styled based on row data"]
                [:li "Individual cells can be dynamically styled based on row data"]
@@ -36,7 +37,6 @@
               [title3 "Not Implemented"]
               [p "The following features common to other table widgets are not implemented. After all, this is 'simple' v-table."]
               [:ul
-               [:li "Resizable columns; e.g. drag to resize columns"]
                [:li "Re-orderable columns; e.g. drag to re-order columns"]
                [:li "Hide/show columns"]
                [:li "Selection of rows, columns and cells (as supported by v-table)"]

@@ -1,12 +1,16 @@
 ## 2.29.4 (Unreleased)
 
 #### Added
-- `popover`: full `:parts` & `:theme` support for all five popover components (`popover-title`, `popover-border`, `popover-content-wrapper`, `popover-anchor-wrapper`, `popover-tooltip`). Closes the gap called out in the 2.29.0 changelog ("Full `:parts` & `:theme` support for most components (excluding `popover`, `v-table` and `simple-v-table`)"). The classic look is preserved verbatim — every legacy CSS class (`rc-popover-border`, `popover`, `rc-popover-title`, `rc-popover-arrow`, `rc-popover-content`, `rc-popover-anchor-wrapper`, `rc-point-wrapper`, `rc-popover-point`, `rc-popover-tooltip`, etc.) is still applied via `bootstrap` theme methods. Form-3 lifecycle behaviour (refs, `:component-did-mount`, `:component-did-update`, position-optimization atoms) is unchanged; `theme/comp` is composed once at mount time per component instance.
+- `simple-v-table`: `:resizable-columns?` adds opt-in column-width resizing — drag a grip on each column's right edge. Off by default (existing tables unaffected). Per-column `:resizable? false` opts out and `:min-width` sets a floor; optional `:on-resize` callback. Adds the `:simple-column-header-resize-handle` part.
+- `popover`: full `:parts` & `:theme` support for all five popover components (`popover-title`, `popover-border`, `popover-content-wrapper`, `popover-anchor-wrapper`, `popover-tooltip`).
+
+#### Changed
+- `popover-content-wrapper`: renamed the `:parts` key `:title` → `:title-bar` (disambiguates it from the `:title` text arg). **Breaking** for code styling the title via `:parts {:title ...}` — use `:parts {:title-bar ...}`.
 
 #### Fixed
-- `popover-anchor-wrapper`: `:popover` argument using positional-args calling style `[popover-fn arg1 arg2 ...]` no longer breaks `:showing-injected?`/`:position-injected` injection. Previously the non-keyword branch wrapped the call as a single map, causing the receiving fn's `[a b & {:keys [...]}]` destructure to bind `a` to the entire map and produce nil kwargs — visible as a 💥 in the "Complex Popover (dialog box)" demo. Map-style invocation `[popover-fn {props}]` continues to work. [#367](https://github.com/day8/re-com/issues/367)
-- `re-com.debug`: validation logger now reports `:validate-fn-return` problems with the validator's actual error message instead of an unhelpful "Unknown problem reported". This affected any validator built on `validate-arg-against-set` (e.g. `position?`, `justify-style?`, `alert-type?`) when a value didn't match the expected set — the error string was being computed but never shown. [#368](https://github.com/day8/re-com/issues/368)
-- `typeahead`: async `:data-source` is no longer racey. When multiple data-source callbacks were in flight, whichever resolved last won — so a slow response for an older query could overwrite a fresh one (e.g. typing `g`, `go`, `goo` slowly enough that the `g` callback returned last left the suggestions showing matches for `g` while the input still read `goo`). Each search now carries a monotonically-increasing id; stale callbacks become no-ops. [#361](https://github.com/day8/re-com/issues/361)
+- `popover`: positional-args `:popover` calling style no longer breaks the auto-injected `:showing-injected?`/`:position-injected` args. [#367](https://github.com/day8/re-com/issues/367)
+- `re-com.debug`: set-based validation errors (`position?`, `alert-type?`, etc.) now report the real message instead of "Unknown problem reported". [#368](https://github.com/day8/re-com/issues/368)
+- `typeahead`: async `:data-source` no longer races — a slow response for an older query can't overwrite a newer one. [#361](https://github.com/day8/re-com/issues/361)
 
 ## 2.29.3 (2026-04-29)
 

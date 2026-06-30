@@ -329,9 +329,7 @@
                                                    :popover-color   popover-color}}]
             (part ::pb/wrapper
               {:theme      theme
-               :post-props (-> args
-                               (select-keys [:class :style :attr])
-                               (assoc-in [:attr :id] pop-id)
+               :post-props (-> {}
                                (tu/style (if @rendered-once
                                            (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
                                            {:top "-10000px" :left "-10000px"}))
@@ -351,6 +349,10 @@
                                           :opacity   (if @ready-to-show? "1" "0")
                                           :max-width "none"
                                           :padding   "0px"})
+                               (cond-> (:class args) (tu/class (:class args))
+                                       (:style args) (tu/style (:style args))
+                                       (:attr args)  (update :attr merge (:attr args)))
+                               (assoc-in [:attr :id] pop-id)
                                (debug/instrument args)
                                (assoc-in [:attr :ref] ref!))
                :props      {:re-com   re-com
@@ -489,11 +491,13 @@
                                   :showing?       (deref-or-value showing-injected?)}}]
               (part ::pcw/wrapper
                 {:theme      theme
-                 :post-props (-> args
-                                 (select-keys [:class :style :attr])
+                 :post-props (-> {}
                                  (cond-> no-clip? (tu/style {:position "fixed"
                                                              :left     (px @left-offset)
                                                              :top      (px @top-offset)}))
+                                 (cond-> (:class args) (tu/class (:class args))
+                                         (:style args) (tu/style (:style args))
+                                         (:attr args)  (update :attr merge (:attr args)))
                                  (debug/instrument args)
                                  (assoc-in [:attr :ref] ref!))
                  :props      {:re-com re-com
@@ -735,17 +739,17 @@
                  (part ::ptip/v-box
                    {:impl       v-box
                     :theme      theme
-                    :post-props {:src   (at)
-                                 :style (if (= status :info)
-                                          {:color     "white"
-                                           :font-size "14px"
-                                           :padding   "4px"}
-                                          {:color       "white"
-                                           :font-size   "12px"
-                                           :font-weight "bold"
-                                           :text-align  "center"})}
+                    :post-props {:src (at)}
                     :props
                     {:re-com   re-com
+                     :style    (if (= status :info)
+                                 {:color     "white"
+                                  :font-size "14px"
+                                  :padding   "4px"}
+                                 {:color       "white"
+                                  :font-size   "12px"
+                                  :font-weight "bold"
+                                  :text-align  "center"})
                      :children
                      [(when close-button?
                         (part ::ptip/close-button-container
