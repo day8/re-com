@@ -21,7 +21,7 @@
 (def part-structure
   [::wrapper {:impl 're-com.core/h-box}
    [::input {:tag :input}]
-   [::label {:top-level-arg? true}]])
+   [::label {:top-level-arg? true :tag :span}]])
 
 (def checkbox-parts-desc
   (when include-args-desc?
@@ -88,11 +88,29 @@
                                            style (assoc :style style)
                                            attr  (assoc :attr attr))})
 
+                          ;; Plain content (a string/hiccup/number :label) must be
+                          ;; WRAPPED in the label part's element: handed straight to
+                          ;; part it would be returned verbatim, bypassing the element,
+                          ;; :label-class/:label-style and the on-click that makes
+                          ;; label clicks toggle (#377, sibling of #376). Map/fn part
+                          ;; values keep their override semantics.
                           (when label-provided?
-                            (part ::label
-                              {:theme      theme
-                               :props      {:re-com re-com
-                                            :attr   {:on-click (handler-fn (callback-fn))}}
-                               :post-props (cond-> {}
-                                             label-class (tu/class label-class)
-                                             label-style (tu/style label-style))}))]}}))))))
+                            (if (part/content? label-provided?)
+                              (part/part nil
+                                {:part       ::label
+                                 :theme      theme
+                                 :props      {:re-com   re-com
+                                              :tag      :span
+                                              :children [label-provided?]
+                                              :attr     {:on-click (handler-fn (callback-fn))}}
+                                 :post-props (cond-> {}
+                                               label-class (tu/class label-class)
+                                               label-style (tu/style label-style))})
+                              (part ::label
+                                {:theme      theme
+                                 :props      {:re-com re-com
+                                              :tag    :span
+                                              :attr   {:on-click (handler-fn (callback-fn))}}
+                                 :post-props (cond-> {}
+                                               label-class (tu/class label-class)
+                                               label-style (tu/style label-style))})))]}}))))))
