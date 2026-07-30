@@ -29,5 +29,7 @@
   (tu/class props "rc-radio-button"))
 
 (defmethod bootstrap ::rb/label [props]
+  ;; rc-radio-button-label itself comes from theme/re-com-meta's automatic
+  ;; part class (part/css-class) — adding it here would duplicate it.
   (let [{:keys [label-class]} (get-in props [:re-com :state])]
-    (tu/class props "rc-radio-button-label" label-class)))
+    (tu/class props label-class)))
