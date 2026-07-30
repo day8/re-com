@@ -23,7 +23,7 @@
 (def radio-button-part-structure
   [::rb/wrapper {:impl 're-com.box/h-box}
    [::rb/input {:tag :input}]
-   [::rb/label {:top-level-arg? true :impl "empty"}]])
+   [::rb/label {:top-level-arg? true :tag :span}]])
 
 (def radio-button-parts-desc
   (when include-args-desc?
@@ -80,13 +80,29 @@
                                 :props      {:re-com re-com-ctx
                                              :src    (at)
                                              :tag    :input}})
-             label?     (part/get-part radio-button-part-structure args ::rb/label)
-             label-part (when label?
-                          (part ::rb/label
-                                {:theme      theme
-                                 :post-props {:on-click (handler-fn (callback-fn))}
-                                 :props      {:re-com re-com-ctx
-                                              :src    (at)}}))]
+             label-value (part/get-part radio-button-part-structure args ::rb/label)
+             ;; Plain content (a string/hiccup/number :label — the common case)
+             ;; must be WRAPPED in the label part's element: handed straight to
+             ;; part it would be returned verbatim, bypassing the element, the
+             ;; theme (rc-radio-button-label, padding-left, :label-style/:label-class)
+             ;; and the on-click that makes label clicks toggle (#376). Map/fn
+             ;; part values keep their override semantics.
+             label-part  (when label-value
+                           (if (part/content? label-value)
+                             (part/part nil
+                                        {:part       ::rb/label
+                                         :theme      theme
+                                         :post-props {:attr {:on-click (handler-fn (callback-fn))}}
+                                         :props      {:re-com   re-com-ctx
+                                                      :src      (at)
+                                                      :tag      :span
+                                                      :children [label-value]}})
+                             (part ::rb/label
+                                   {:theme      theme
+                                    :post-props {:attr {:on-click (handler-fn (callback-fn))}}
+                                    :props      {:re-com re-com-ctx
+                                                 :src    (at)
+                                                 :tag    :span}})))]
          (part ::rb/wrapper
                {:impl       h-box
                 :theme      theme

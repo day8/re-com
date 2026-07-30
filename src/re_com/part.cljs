@@ -149,6 +149,14 @@
 
 (def hiccup? vector?)
 
+(def content?
+  "Plain renderable content — a string, number or hiccup vector — as opposed to
+   a part OVERRIDE (a props map or component fn). Components whose parts carry
+   content args (e.g. a :label) use this to wrap the content in the part's
+   element, so themes and handlers still apply: passed straight to part, such
+   values are returned verbatim, bypassing impl, theme and post-props (#376)."
+  (some-fn string? number? hiccup?))
+
 (def descend identity)
 
 (defn part
