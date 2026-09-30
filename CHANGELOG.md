@@ -1,3 +1,10 @@
+## 2.29.5 (2026-09-30)
+
+#### Fixed
+- `single-dropdown`: dragging the choices list's scrollbar no longer closes the dropdown (Chrome now makes scroll containers focusable, so the press blurred the input).
+- `radio-button`: labels render in the `:label` part again, restoring theme padding, `:label-style`, `:label-class` and the `rc-radio-button-label` class. [#376](https://github.com/day8/re-com/issues/376)
+- `checkbox`: string labels render in the `:label` part again, restoring `:label-style`, `:label-class` and click-to-toggle on the label. [#377](https://github.com/day8/re-com/issues/377)
+
 ## 2.29.4 (2026-06-30)
 
 #### Added

@@ -420,6 +420,7 @@
                      :props
                      {:tag   :ul
                       :style (when max-height {:max-height max-height})
+                      :attr  {:on-mouse-down (handler-fn (.preventDefault event))}
                       :children
                       (cond
                         (and choices-fn? (:loading? @choices-state))
