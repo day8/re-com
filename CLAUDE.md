@@ -16,7 +16,7 @@ bb clean         # Clean compiled artifacts
 1. Run `bb watch` for hot reloading
 2. Edit components in `src/re_com/`
 3. View changes at http://localhost:3449/
-4. Create/update demo page in `src/re_demo/`
+4. Create/update demo page in `demo/re_demo/`
 5. Run `bb test` before committing
 
 ## Detailed Guides
