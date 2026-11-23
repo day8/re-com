@@ -116,9 +116,15 @@
                                :post-props {:src (at)}
                                :props      {:re-com re-com
                                             :children
-                                            [(part ::ab/body
-                                               {:theme theme
-                                                :props {:re-com re-com}})
+                                            [(if (part/content? body?)
+                                               (part/part nil
+                                                 {:part  ::ab/body
+                                                  :theme theme
+                                                  :props {:re-com   re-com
+                                                          :children [body?]}})
+                                               (part ::ab/body
+                                                 {:theme theme
+                                                  :props {:re-com re-com}}))
                                              (when (and (not heading?) closeable? on-close)
                                                close-alert)]}}))]}}))))))
 
