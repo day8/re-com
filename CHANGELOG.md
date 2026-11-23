@@ -1,4 +1,4 @@
-## 2.29.6 (Unreleased)
+## 2.29.6 (2026-11-24)
 
 #### Fixed
 - `popover-content-wrapper`: the title's close button shows by default again. Since 2.29.4 it was hidden unless the caller passed `:close-button? true`. [#382](https://github.com/day8/re-com/issues/382)
