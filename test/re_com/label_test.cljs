@@ -68,5 +68,17 @@
         (is (= ["Text"] (:children props))))
       (testing "the automatic rc-label class lands"
         (is (str/includes? (pr-str (:class props)) "rc-label")))
-      (testing "the label does not shrink or wrap inside its wrapper"
+      (testing "the theme's flex-child style reaches the label part"
+        ;; This only shows the theme applies. The flex item of the ::wrapper
+        ;; box is ::label-wrapper, so a label wider than its :width still
+        ;; wraps inside the box. That is accepted: up to 2.28 it overflowed.
         (is (= "none" (get-in props [:style :flex])))))))
+
+(deftest label-content-in-parts-renders-as-a-real-label-part
+  ;; :label is a top-level arg, so it can also be given as :parts {:label ...}.
+  (let [props (find-part (render-tree :parts {:label "Text"}) ::l/label)]
+    (is (some? props)
+        "a ::l/label part must exist in the rendered tree for :parts {:label \"Text\"}")
+    (when props
+      (is (= ["Text"] (:children props)))
+      (is (str/includes? (pr-str (:class props)) "rc-label")))))

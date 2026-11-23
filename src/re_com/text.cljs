@@ -54,13 +54,19 @@
   "Returns markup for a basic label"
   [& {:keys [pre-theme theme debug-as]}]
   (let [theme (theme/comp pre-theme theme)]
-    (fn [& {:keys [label on-click width attr]
+    (fn [& {:keys [on-click width attr]
             :as   args}]
       (or
        (validate-args-macro label-args-desc args)
-       (let [part   (partial part/part label-part-structure args)
-             re-com {:state {:width    width
-                             :on-click on-click}}]
+       (let [part        (partial part/part label-part-structure args)
+             ;; The label can come from :label or from :parts {:label ...}.
+             ;; Content (a string, number or hiccup) is wrapped in the ::label
+             ;; part's element: handed straight to part it would be returned
+             ;; verbatim, bypassing the element and its theme (as in #376 and
+             ;; #377). Map and fn part values keep their override semantics.
+             label-value (part/get-part label-part-structure args ::l/label)
+             re-com      {:state {:width    width
+                                  :on-click on-click}}]
          (part ::l/wrapper
            {:impl       box
             :theme      theme
@@ -77,13 +83,13 @@
                                     :props      {:re-com   re-com
                                                  :src      (at)
                                                  :tag      :span
-                                                 :children [(if (part/content? label)
+                                                 :children [(if (part/content? label-value)
                                                               (part/part nil
                                                                 {:part  ::l/label
                                                                  :theme theme
                                                                  :props {:src      (at)
                                                                          :tag      :span
-                                                                         :children [label]}})
+                                                                         :children [label-value]}})
                                                               (part ::l/label
                                                                 {:src   (at)
                                                                  :theme theme}))]}})}}))))))
