@@ -153,11 +153,11 @@
   (let [theme (theme/comp pre-theme theme)]
     (fn popover-title-render
       [& {:keys [showing? close-button? close-callback]
-          :or   {close-button? true}
           :as   args}]
       (or
        (validate-args-macro popover-title-args-desc args)
-       (let [part   (partial part/part popover-title-part-structure args)
+       (let [close-button? (if (nil? close-button?) true close-button?)
+             part   (partial part/part popover-title-part-structure args)
              title? (part/get-part popover-title-part-structure args ::pt/title)
              re-com {:state {:close-button? close-button?}}]
          (part ::pt/wrapper

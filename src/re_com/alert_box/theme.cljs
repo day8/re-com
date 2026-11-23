@@ -32,6 +32,10 @@
   [props]
   (tu/class props "rc-alert-heading"))
 
+(defmethod base ::ab/heading-wrapper
+  [props]
+  (tu/style props {:margin-bottom "0px"}))
+
 (defmethod bootstrap ::ab/heading-wrapper
   [{{:keys [from]} :re-com :as props}]
   (cond-> props

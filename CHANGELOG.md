@@ -1,3 +1,12 @@
+## 2.29.6 (Unreleased)
+
+#### Fixed
+- `popover-content-wrapper`: the title's close button shows by default again. Since 2.29.4 it was hidden unless the caller passed `:close-button? true`. [#382](https://github.com/day8/re-com/issues/382)
+- `label`: `:on-click` is called again, and string labels and labels given in `:parts` render in the `:label` part again, restoring the `rc-label` class. [#382](https://github.com/day8/re-com/issues/382)
+- `row-button`: `:class`, `:style` and `:attr` apply to the button again. [#382](https://github.com/day8/re-com/issues/382)
+- `alert-box`: string and hiccup bodies render in the `:body` part again, so they wrap inside the alert, and headings lose the extra bottom margin. [#382](https://github.com/day8/re-com/issues/382)
+- `input-text`: with `:status` and `:status-icon? true`, the status icon shows beside the field again, instead of invisibly below it, and its `:status-tooltip` stays open while the pointer is over the icon. [#385](https://github.com/day8/re-com/issues/385)
+
 ## 2.29.5 (2026-09-30)
 
 #### Fixed

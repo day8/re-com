@@ -25,9 +25,9 @@
 (def part-structure
   [::it/wrapper {:impl 're-com.box/h-box}
    [::it/inner {:tag :div}
-    [::it/field {:impl "empty" :type :legacy :notes "The text input field where users type their input."}]
-    [::it/status-icon {:notes "Status icon shown when status-icon? is true and status is not :validating."}]
-    [::it/throbber {:impl 're-com.throbber/throbber :notes "Throbber shown when status is :validating."}]]])
+    [::it/field {:impl "empty" :type :legacy :notes "The text input field where users type their input."}]]
+   [::it/status-icon {:notes "Status icon shown beside the field when status-icon? is true and status is not :validating."}]
+   [::it/throbber {:impl 're-com.throbber/throbber :notes "Throbber shown beside the field when status is :validating."}]])
 
 (def input-text-parts-desc
   (when include-args-desc?
@@ -114,8 +114,7 @@
           (let [part       (partial part/part part-structure args)
                 re-com-ctx {:state {:status       status
                                     :status-icon? status-icon?
-                                    :input-type   input-type
-                                    :showing?*    showing?}}]
+                                    :input-type   input-type}}]
             (part ::it/wrapper
               {:impl       h-box
                :theme      theme
@@ -176,39 +175,44 @@
                                        height (tu/style {:height height})
                                        class  (tu/class class)
                                        style  (tu/style style)
-                                       attr   (update :attr merge attr))})
-                      (when (and status-icon? status)
-                        (let [throbber-part (part ::it/throbber
-                                              {:impl       throbber
-                                               :theme      theme
-                                               :post-props {:size :regular
-                                                            :src  (at)}
-                                               :props
-                                               {:re-com re-com-ctx
-                                                :attr   (when status-tooltip
-                                                          {:on-mouse-over (handler-fn (when (and status-icon? status)
-                                                                                        (reset! showing? true)))
-                                                           :on-mouse-out  (handler-fn (reset! showing? false))})}})
-                              status-icon   (part ::it/status-icon
-                                              {:theme      theme
-                                               :props      {:re-com re-com-ctx
-                                                            :tag    :i
-                                                            :attr   (when status-tooltip
-                                                                      {:on-mouse-over (handler-fn (when (and status-icon? status)
-                                                                                                    (reset! showing? true)))
-                                                                       :on-mouse-out  (handler-fn (reset! showing? false))})}
-                                               :post-props (cond-> {}
-                                                             status-tooltip (assoc :title status-tooltip))})
-                              icon-part     (if (= :validating status) throbber-part status-icon)]
-                          (if status-tooltip
-                            [popover-tooltip
-                             :src      (at)
-                             :label    status-tooltip
-                             :position :right-center
-                             :status   status
-                             :showing? showing?
-                             :anchor   icon-part]
-                            icon-part)))]}})]}}))))))))
+                                       attr   (update :attr merge attr))})]}})
+                 ;; The status icon (or throbber) sits beside ::inner in the wrapper h-box,
+                 ;; as up to 2.28, not inside ::inner under the field (#385).
+                 (when (and status-icon? status)
+                   (let [throbber-part (part ::it/throbber
+                                         {:impl       throbber
+                                          :theme      theme
+                                          :post-props {:size :regular
+                                                       :src  (at)}
+                                          :props
+                                          {:re-com re-com-ctx
+                                           :attr   (when status-tooltip
+                                                     {:on-mouse-over (handler-fn (when (and status-icon? status)
+                                                                                   (reset! showing? true)))
+                                                      :on-mouse-out  (handler-fn (reset! showing? false))})}})
+                         status-icon   (part ::it/status-icon
+                                         {:theme      theme
+                                          :props      {:re-com re-com-ctx
+                                                       :tag    :i
+                                                       :attr   (when status-tooltip
+                                                                 {:on-mouse-over (handler-fn (when (and status-icon? status)
+                                                                                               (reset! showing? true)))
+                                                                  :on-mouse-out  (handler-fn (reset! showing? false))})}
+                                          :post-props (cond-> {}
+                                                        status-tooltip (assoc :title status-tooltip))})
+                         icon-part     (if (= :validating status) throbber-part status-icon)]
+                     (if status-tooltip
+                       [popover-tooltip
+                        :src      (at)
+                        :label    status-tooltip
+                        :position :right-center
+                        :status   status
+                        :showing? showing?
+                        ;; With a tooltip, its wrapper is the flex item beside
+                        ;; ::inner, so it is the one to centre, as up to 2.28.
+                        :style    {:flex "none" :align-self "center"}
+                        :anchor   icon-part]
+                       icon-part)))]}}))))))))
 
 (defn input-text
   [& {:as args}]

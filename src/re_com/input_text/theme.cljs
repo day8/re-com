@@ -18,14 +18,17 @@
                    :margin-left "4px"
                    :align-self  :center}))
 
-(defmethod base ::it/status-icon [{{{:keys [showing?*]} :state} :re-com :as props}]
+(defmethod base ::it/status-icon [{{{:keys [status status-icon?]} :state} :re-com :as props}]
+  ;; Visibility comes from :status and :status-icon?, as up to 2.28 (#385).
+  ;; Don't read the tooltip's showing? atom here: input-text would re-render on
+  ;; hover, replacing the atom and closing the tooltip.
   (tu/style props {:flex         "none"
                    :font-size    "130%"
                    :margin-left  "4px"
                    :align-self   :center
                    :position     :static
                    :height       :auto
-                   :opacity      (if (and showing?* @showing?*) "1" "0")}))
+                   :opacity      (if (and status-icon? status) "1" "0")}))
 
 (defmethod bootstrap ::it/wrapper [props]
   (tu/class props "rc-input-text"))

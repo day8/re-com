@@ -15,6 +15,7 @@
     [re-com.box      :refer [v-box box line flex-child-style]]
     [re-com.theme    :as    theme]
     [re-com.part     :as    part]
+    [re-com.theme.util :as  tu]
     [re-com.util     :as    u :refer [deep-merge]]
     [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup? css-class?]]))
 
@@ -25,7 +26,7 @@
 (def label-part-structure
   [::wrapper {:impl 're-com.box/box}
    [::label-wrapper {:tag :span}
-    [::label {:top-level-arg? true}]]])
+    [::label {:top-level-arg? true :tag :span}]]])
 
 (def label-parts-desc
   (when include-args-desc?
@@ -53,13 +54,19 @@
   "Returns markup for a basic label"
   [& {:keys [pre-theme theme debug-as]}]
   (let [theme (theme/comp pre-theme theme)]
-    (fn [& {:keys [on-click width]
+    (fn [& {:keys [on-click width attr]
             :as   args}]
       (or
        (validate-args-macro label-args-desc args)
-       (let [part   (partial part/part label-part-structure args)
-             re-com {:state {:width    width
-                             :on-click on-click}}]
+       (let [part        (partial part/part label-part-structure args)
+             ;; The label can come from :label or from :parts {:label ...}.
+             ;; Content (a string, number or hiccup) is wrapped in the ::label
+             ;; part's element: handed straight to part it would be returned
+             ;; verbatim, bypassing the element and its theme (as in #376 and
+             ;; #377). Map and fn part values keep their override semantics.
+             label-value (part/get-part label-part-structure args ::l/label)
+             re-com      {:state {:width    width
+                                  :on-click on-click}}]
          (part ::l/wrapper
            {:impl       box
             :theme      theme
@@ -70,15 +77,22 @@
                          :src    (at)
                          :child  (part ::l/label-wrapper
                                    {:theme      theme
-                                    :post-props (-> args
-                                                    (select-keys [:class :style :attr])
-                                                    (cond-> on-click (assoc :on-click (handler-fn (on-click)))))
+                                    :post-props (cond-> (select-keys args [:class :style])
+                                                  on-click (tu/attr {:on-click (handler-fn (on-click))})
+                                                  attr     (tu/attr attr))
                                     :props      {:re-com   re-com
                                                  :src      (at)
                                                  :tag      :span
-                                                 :children [(part ::l/label
-                                                              {:src   (at)
-                                                               :theme theme})]}})}}))))))
+                                                 :children [(if (part/content? label-value)
+                                                              (part/part nil
+                                                                {:part  ::l/label
+                                                                 :theme theme
+                                                                 :props {:src      (at)
+                                                                         :tag      :span
+                                                                         :children [label-value]}})
+                                                              (part ::l/label
+                                                                {:src   (at)
+                                                                 :theme theme}))]}})}}))))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: title
