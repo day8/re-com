@@ -464,10 +464,11 @@
                                      :src    (at)
                                      :re-com re-com}})
              button-part  (part ::rb/button
-                            {:theme theme
-                             :props {:src      (at)
-                                     :re-com   re-com
-                                     :children [icon-part]}})
+                            {:theme      theme
+                             :post-props (select-keys args [:class :style :attr])
+                             :props      {:src      (at)
+                                          :re-com   re-com
+                                          :children [icon-part]}})
              tooltip-part (part ::rb/tooltip
                             {:theme theme
                              :props {:src    (at)
