@@ -46,16 +46,15 @@ When running the demo app, look to the right of each page's title, and you'll se
 that will take you to the associated source code.  That's a convenient way to navigate to either
 the components themselves or the demo code.
 
-When browsing the code, look in the `src` directory or this repo, you'll notice
-two subdirectories:
+When browsing the code, look in these directories:
 
-  - src/re-com - the library itself - the components
-  - src/re-demo - the demo app, which documents the components and shows how to use them
+  - `src/re_com` - the library itself - the components
+  - `demo/re_demo` - the demo app, which documents the components and shows how to use them
 
 There's also:
   - `run/resources/public` contains assets (CSS, fonts, JS) that you'll likely need if you are developing an app based on `re-com`
   - `test/` with cljs.test suites for many components (e.g., box_test.cljs, selection_list_test.cljs).
-  - `docs/` containing notes about development tools and release procedures (note: the demo app has detailed documentation on each component).
+  - `ai/` containing development guides (note: the demo app has detailed documentation on each component).
   - `scripts/` with utilities (e.g., `add-at-macro` for adding the `at` macro to legacy codebases)
 
 ## Useful Commands
